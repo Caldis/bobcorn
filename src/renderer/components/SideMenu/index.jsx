@@ -275,7 +275,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
     const handleEnsureExportIconfonts = () => {
         const allGroupSelected = exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
         const icons = allGroupSelected ? db.getIconList() : db.getIconListFromGroup(exportGroupSelected);
-        if (!!icons.length) {
+        if (icons.length) {
             const groups = db.getGroupList();
             groups.push({ id:"resource-uncategorized", groupName:"未分组", groupOrder:-1, groupColor:"" });
             const pageData = demoHTMLGenerator(groups, icons.map(icon => {

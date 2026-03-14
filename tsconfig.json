@@ -14,10 +14,10 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["app/*"]
+      "@/*": ["src/renderer/*"]
     },
     "types": ["node"]
   },
-  "include": ["app/**/*", "electron.vite.config.js"],
+  "include": ["src/**/*", "electron.vite.config.js"],
   "exclude": ["node_modules", "out", "dist"]
 }

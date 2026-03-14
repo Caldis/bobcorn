@@ -54,12 +54,8 @@ export const getOption = (optionKey) => {
 // 路径设置
 // 导出的模板文件路径
 // dev 情况下不使用 asar
-// export const demoHTMLFile = "./resources/app/resources/iconDocs/indexTemplate.html"
-// export const iconfontCSSFile = "./resources/app/resources/iconDocs/iconfontTemplate(class).css"
-// export const iconfontJSHeadFile = "./resources/app/resources/iconDocs/iconfontTemplate(symbol).head.txt"
-// export const iconfontJSTailFile = "./resources/app/resources/iconDocs/iconfontTemplate(symbol).tail.txt"
 
-export const demoHTMLFile = dev ? "./app/resources/iconDocs/indexTemplate.html" : "./resources/app.asar/resources/iconDocs/indexTemplate.html";
-export const iconfontCSSFile = dev ? "./app/resources/iconDocs/iconfontTemplate(class).css" : "./resources/app.asar/resources/iconDocs/iconfontTemplate(class).css";
-export const iconfontJSHeadFile = dev ? "./app/resources/iconDocs/iconfontTemplate(symbol).head.txt" : "./resources/app.asar/resources/iconDocs/iconfontTemplate(symbol).head.txt";
-export const iconfontJSTailFile = dev ? "./app/resources/iconDocs/iconfontTemplate(symbol).tail.txt" : "./resources/app.asar/resources/iconDocs/iconfontTemplate(symbol).tail.txt";
+export const demoHTMLFile = dev ? "./src/renderer/resources/iconDocs/indexTemplate.html" : "./resources/app.asar/resources/iconDocs/indexTemplate.html";
+export const iconfontCSSFile = dev ? "./src/renderer/resources/iconDocs/iconfontTemplate(class).css" : "./resources/app.asar/resources/iconDocs/iconfontTemplate(class).css";
+export const iconfontJSHeadFile = dev ? "./src/renderer/resources/iconDocs/iconfontTemplate(symbol).head.txt" : "./resources/app.asar/resources/iconDocs/iconfontTemplate(symbol).head.txt";
+export const iconfontJSTailFile = dev ? "./src/renderer/resources/iconDocs/iconfontTemplate(symbol).tail.txt" : "./resources/app.asar/resources/iconDocs/iconfontTemplate(symbol).tail.txt";

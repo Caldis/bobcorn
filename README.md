@@ -70,22 +70,25 @@ node test/e2e/acceptance.js     # E2E acceptance (20 checks)
 
 ```
 bobcorn/
-├── app/                       # Electron application source
-│   ├── main.js            # Main process entry point
-│   ├── preload.js             # Preload script (contextIsolation bridge)
-│   ├── entry.js               # Vite renderer entry
-│   ├── bootstrap.jsx          # React mount (createRoot, async DB init)
-│   ├── index.html             # Vite HTML template
-│   ├── menu.js                # Application menu
-│   ├── store/                 # Zustand state management
-│   ├── components/            # React components (functional + hooks)
-│   ├── containers/            # Root container (MainContainer)
-│   ├── database/              # sql.js WASM database layer
-│   ├── utils/                 # SVG processing, font generators, importers
-│   └── resources/             # Images, templates, static assets
+├── src/
+│   ├── main/                  # Electron main process
+│   │   ├── index.js           # Main process entry point
+│   │   └── menu.js            # Application menu
+│   ├── preload/               # Preload script
+│   │   └── index.js           # contextBridge API (contextIsolation bridge)
+│   └── renderer/              # React renderer process
+│       ├── index.html         # Vite HTML template
+│       ├── entry.js           # Vite renderer entry
+│       ├── bootstrap.jsx      # React mount (createRoot, async DB init)
+│       ├── store/             # Zustand state management
+│       ├── components/        # React components (functional + hooks)
+│       ├── containers/        # Root container (MainContainer)
+│       ├── database/          # sql.js WASM database layer
+│       ├── utils/             # SVG processing, font generators, importers
+│       └── resources/         # Images, templates, static assets
 ├── electron.vite.config.js    # Build config (main + preload + renderer)
 ├── test/
-│   ├── unit/                  # Jest unit tests
+│   ├── unit/                  # Vitest unit tests
 │   └── e2e/                   # Playwright E2E + acceptance tests
 ├── docs/                      # Project documentation and roadmaps
 └── package.json

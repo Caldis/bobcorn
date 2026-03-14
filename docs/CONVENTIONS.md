@@ -33,14 +33,14 @@ Config (in `electron.vite.config.js`):
 ### File Structure
 
 ```
-app/components/MyComponent/
+src/renderer/components/MyComponent/
   index.jsx          # Component logic
   index.module.css   # Scoped styles
 ```
 
 ## State Management (Zustand)
 
-Single store at `app/store/index.js`. Access via hook:
+Single store at `src/renderer/store/index.js`. Access via hook:
 
 ```jsx
 import useAppStore from '../../store';

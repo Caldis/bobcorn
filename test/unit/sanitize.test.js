@@ -1,10 +1,10 @@
 /**
- * Unit tests for app/utils/sanitize.js
+ * Unit tests for src/renderer/utils/sanitize.js
  *
  * @vitest-environment jsdom
  */
 import { describe, test, expect } from 'vitest';
-import { sanitizeSVG } from '../../app/utils/sanitize.js';
+import { sanitizeSVG } from '../../src/renderer/utils/sanitize.js';
 
 describe('sanitizeSVG', () => {
   // ── Preserve legitimate SVG elements ──────────────────────────

@@ -62,7 +62,7 @@ npm run package-linux # Linux deb + AppImage
 
 | Path | Purpose |
 |------|---------|
-| `app/` | All source code |
+| `src/` | All source code (main, preload, renderer) |
 | `out/` | Build output (generated, do not edit) |
 | `release/` | Packaged installers |
 | `test/` | Unit + E2E tests |

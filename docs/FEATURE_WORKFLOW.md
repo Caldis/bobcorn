@@ -23,11 +23,11 @@ npx vitest run test/unit/<module>.test.js
 
 ### 3. Implement
 
-Edit files under `app/`. Follow conventions in [`CONVENTIONS.md`](./CONVENTIONS.md).
+Edit files under `src/`. Follow conventions in [`CONVENTIONS.md`](./CONVENTIONS.md).
 
 Key decisions:
-- New component? Create `app/components/<Name>/index.jsx` + `index.module.css`
-- New state? Add to `app/store/index.js`
+- New component? Create `src/renderer/components/<Name>/index.jsx` + `index.module.css`
+- New state? Add to `src/renderer/store/index.js`
 - New IPC channel? Add handler in `main.js`, expose in `preload.js`
 - Database schema change? Edit `database/index.js` `initNewProject()`
 

@@ -48,19 +48,19 @@ Task 7 (验收 + 发布 v1.0.0)
 
 **文件列表:**
 ```
-app/components/enhance/badge/index.js    → .jsx
-app/components/enhance/input/index.js    → .jsx
-app/components/IconBlock/index.js        → .jsx
-app/components/IconGridLocal/index.js    → .jsx
-app/components/IconInfoBar/index.js      → .jsx
-app/components/IconToolbar/index.js      → .jsx
-app/components/SideEditor/index.js       → .jsx
-app/components/SideGrid/index.js         → .jsx
-app/components/SideMenu/index.js         → .jsx
-app/components/SplashScreen/index.js     → .jsx
-app/components/TitleBar/button/index.js  → .jsx
-app/components/TitleBar/index.js         → .jsx
-app/containers/MainContainer/index.js    → .jsx
+src/renderer/components/enhance/badge/index.js    → .jsx
+src/renderer/components/enhance/input/index.js    → .jsx
+src/renderer/components/IconBlock/index.js        → .jsx
+src/renderer/components/IconGridLocal/index.js    → .jsx
+src/renderer/components/IconInfoBar/index.js      → .jsx
+src/renderer/components/IconToolbar/index.js      → .jsx
+src/renderer/components/SideEditor/index.js       → .jsx
+src/renderer/components/SideGrid/index.js         → .jsx
+src/renderer/components/SideMenu/index.js         → .jsx
+src/renderer/components/SplashScreen/index.js     → .jsx
+src/renderer/components/TitleBar/button/index.js  → .jsx
+src/renderer/components/TitleBar/index.js         → .jsx
+src/renderer/containers/MainContainer/index.js    → .jsx
 ```
 
 **验证:** `npx electron-vite dev` 成功启动 + HMR 工作
@@ -82,8 +82,8 @@ npx lint-staged
 `package.json` 添加:
 ```json
 "lint-staged": {
-  "app/**/*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
-  "app/**/*.{css,json}": ["prettier --write"]
+  "src/**/*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+  "src/**/*.{css,json}": ["prettier --write"]
 }
 ```
 
@@ -140,9 +140,9 @@ git push origin main --follow-tags  # 触发 CI → 构建 → 发布
 | `docs/TROUBLESHOOTING.md` | 常见问题 | 卡住时 |
 
 同时为核心模块创建 README:
-- `app/store/README.md`
-- `app/database/README.md`
-- `app/components/README.md`
+- `src/renderer/store/README.md`
+- `src/renderer/database/README.md`
+- `src/renderer/components/README.md`
 
 ---
 
@@ -274,11 +274,11 @@ coverage: {
 
 ```bash
 # 扫描规则
-grep -rn "dangerouslySetInnerHTML" app/ --include="*.{js,jsx}" | grep -v "sanitizeSVG"  # 未消毒的 HTML 注入
-grep -rn "eval(" app/ --include="*.{js,jsx}"  # eval 使用
-grep -rn "innerHTML\s*=" app/ --include="*.{js,jsx}"  # 直接 innerHTML 赋值
-grep -rn "nodeIntegration:\s*true" app/  # 不安全的 Electron 配置
-grep -rn "password\|secret\|token\|apikey" app/ --include="*.{js,jsx}" -i  # 硬编码密钥
+grep -rn "dangerouslySetInnerHTML" src/ --include="*.{js,jsx}" | grep -v "sanitizeSVG"  # 未消毒的 HTML 注入
+grep -rn "eval(" src/ --include="*.{js,jsx}"  # eval 使用
+grep -rn "innerHTML\s*=" src/ --include="*.{js,jsx}"  # 直接 innerHTML 赋值
+grep -rn "nodeIntegration:\s*true" src/  # 不安全的 Electron 配置
+grep -rn "password\|secret\|token\|apikey" src/ --include="*.{js,jsx}" -i  # 硬编码密钥
 ```
 
 **集成方式：**

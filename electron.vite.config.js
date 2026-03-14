@@ -9,7 +9,7 @@ export default defineConfig({
     build: {
       outDir: 'out/main',
       rollupOptions: {
-        input: resolve(__dirname, 'app/main.js'),
+        input: resolve(__dirname, 'src/main/index.js'),
         output: {
           entryFileNames: 'index.js',
         },
@@ -21,7 +21,7 @@ export default defineConfig({
     build: {
       outDir: 'out/preload',
       rollupOptions: {
-        input: resolve(__dirname, 'app/preload.js'),
+        input: resolve(__dirname, 'src/preload/index.js'),
         output: {
           entryFileNames: 'preload.js',
         },
@@ -29,11 +29,11 @@ export default defineConfig({
     },
   },
   renderer: {
-    root: resolve(__dirname, 'app'),
+    root: resolve(__dirname, 'src/renderer'),
     build: {
       outDir: resolve(__dirname, 'out/renderer'),
       rollupOptions: {
-        input: resolve(__dirname, 'app/index.html'),
+        input: resolve(__dirname, 'src/renderer/index.html'),
         output: {
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
@@ -52,7 +52,7 @@ export default defineConfig({
     ],
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'app'),
+        '@': resolve(__dirname, 'src/renderer'),
         // Polyfill Node builtins for browser context
         'stream': 'stream-browserify',
         'punycode': 'punycode/',

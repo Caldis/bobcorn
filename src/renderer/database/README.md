@@ -4,12 +4,12 @@
 
 In-memory SQLite database powered by sql.js (ASM build). Manages project metadata, icon groups, and icons.
 
-**File:** `app/database/index.js`
+**File:** `src/renderer/database/index.js`
 
 ## Async Initialization
 
 ```
-app/entry.js → app/bootstrap.jsx → await dbReady → createRoot().render()
+src/renderer/entry.js → src/renderer/bootstrap.jsx → await dbReady → createRoot().render()
 ```
 
 The database must be initialized before any React component renders. `dbReady` is a Promise exported from `database/index.js`.

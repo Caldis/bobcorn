@@ -28,7 +28,7 @@ const hexToDec = (h) => parseInt(h, 16);
 /** decimal -> uppercase hex string */
 const decToHex = (d) => d.toString(16).toUpperCase();
 
-/** Simple UUID generator (same algorithm as app/utils/tools) */
+/** Simple UUID generator (same algorithm as src/renderer/utils/tools) */
 const generateUUID = () => {
   let d = Date.now();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -38,7 +38,7 @@ const generateUUID = () => {
   });
 };
 
-// Unicode range constants (mirrors app/config)
+// Unicode range constants (mirrors src/renderer/config)
 const PUBLIC_RANGE_DEC_MIN = 57344;
 const PUBLIC_RANGE_DEC_MAX = 63743;
 const PUBLIC_RANGE_HEX_MIN = 'E000';
@@ -73,7 +73,7 @@ class TestDatabase {
     this.dbInited = false;
   }
 
-  // -- low-level helpers (copied verbatim from app/database/index.js) ------
+  // -- low-level helpers (copied verbatim from src/renderer/database/index.js) ------
 
   buildDataSTMT(dataSet, options) {
     let defaultOptions = { needName: true, needData: true, equal: true };

@@ -4,7 +4,7 @@
 
 Single Zustand store managing all shared UI state. Replaces the legacy `GlobalEvent` pub/sub system.
 
-**File:** `app/store/index.js`
+**File:** `src/renderer/store/index.js`
 
 ## State Tree
 

@@ -17,37 +17,37 @@ Electron Main Process          Renderer Process (React)
 
 ## Modules
 
-### `app/main.js` — Main Process
+### `src/main/index.js` — Main Process
 
 Electron main process entry. Creates BrowserWindow, registers IPC handlers, builds native menu.
 
 - **IPC channels:** `window-minimize`, `window-maximize`, `window-close`, `window-is-maximized`, `dialog-show-open`, `dialog-show-save`, `get-app-path`, `install-update`
 - **Security:** `nodeIntegration: false`, `contextIsolation: true`, `sandbox: false`
-- **Related:** `app/menu.js` (native menu builder)
+- **Related:** `src/main/menu.js` (native menu builder)
 
-### `app/preload.js` — Preload / Context Bridge
+### `src/preload/index.js` — Preload / Context Bridge
 
 Exposes safe APIs to the renderer via `window.electronAPI`. This is the **only** bridge between Node.js and the browser context.
 
 - **Exposed APIs:** window controls, dialogs, file system (read/write/stat/exists/mkdir), path utilities, OS platform, auto-update events
 - **Pattern:** All Node.js access from renderer must go through `window.electronAPI.*`
 
-### `app/store/index.js` — State Management (Zustand)
+### `src/renderer/store/index.js` — State Management (Zustand)
 
 Single Zustand store for all UI state. Replaces the legacy GlobalEvent pub/sub system.
 
-- **Key files:** `app/store/index.js`
-- **See also:** [`app/store/README.md`](../app/store/README.md)
+- **Key files:** `src/renderer/store/index.js`
+- **See also:** [`src/renderer/store/README.md`](../src/renderer/store/README.md)
 
-### `app/database/index.js` — Data Layer (sql.js)
+### `src/renderer/database/index.js` — Data Layer (sql.js)
 
 In-memory SQLite database via sql.js (ASM build). Manages projects, icon groups, and icons.
 
-- **Key files:** `app/database/index.js`
+- **Key files:** `src/renderer/database/index.js`
 - **Init:** Async — `bootstrap.jsx` awaits `dbReady` before rendering
-- **See also:** [`app/database/README.md`](../app/database/README.md)
+- **See also:** [`src/renderer/database/README.md`](../src/renderer/database/README.md)
 
-### `app/components/` — React Components
+### `src/renderer/components/` — React Components
 
 All functional components with hooks. Each has its own directory with `index.jsx` + `index.module.css`.
 
@@ -65,7 +65,7 @@ All functional components with hooks. Each has its own directory with `index.jsx
 | `SideEditor/` | Right panel — icon detail editor |
 | `enhance/` | Reusable UI primitives (input, badge) |
 
-### `app/config/index.js` — Application Config
+### `src/renderer/config/index.js` — Application Config
 
 Global constants and localStorage-backed user preferences.
 
@@ -73,7 +73,7 @@ Global constants and localStorage-backed user preferences.
 - **User prefs:** `getOption()` / `setOption()` — icon display, block size, project history
 - **Template paths:** demo HTML, CSS, JS templates for font export
 
-### `app/utils/` — Utilities
+### `src/renderer/utils/` — Utilities
 
 | Submodule | Purpose | Key exports |
 |-----------|---------|-------------|

@@ -1,5 +1,5 @@
 /**
- * Unit tests for app/utils/tools/index.js
+ * Unit tests for src/renderer/utils/tools/index.js
  *
  * @vitest-environment jsdom
  */
@@ -11,7 +11,7 @@ import {
   decToHex,
   throttle,
   throttleMustRun,
-} from '../../app/utils/tools/index.js';
+} from '../../src/renderer/utils/tools/index.js';
 
 // ── generateUUID ────────────────────────────────────────────────
 describe('generateUUID', () => {

@@ -41,24 +41,27 @@ npx electron-vite build && node test/e2e/acceptance.js
 
 ```
 bobcorn/
-├── app/                    # Electron 应用源码
-│   ├── main.js        # 主进程入口
-│   ├── entry.js           # Vite renderer 入口
-│   ├── bootstrap.jsx      # React 挂载 (createRoot)
-│   ├── index.html         # Vite HTML 模板
-│   ├── preload.js         # Preload 脚本 (placeholder)
-│   ├── store/             # Zustand 状态管理
-│   ├── menu.js            # 应用菜单
-│   ├── components/        # React 组件 (全部 functional + hooks)
-│   ├── containers/        # 根容器 (MainContainer)
-│   ├── database/          # sql.js 1.x WASM 数据库层
-│   ├── config/            # 应用配置
-│   ├── utils/             # 工具函数 (SVG, 生成器, 导入器, 爬虫)
-│   └── resources/         # 图片, 模板等静态资源
+├── src/
+│   ├── main/              # Electron 主进程
+│   │   ├── index.js       # 主进程入口
+│   │   └── menu.js        # 应用菜单
+│   ├── preload/           # Preload 脚本
+│   │   └── index.js       # contextBridge API
+│   └── renderer/          # React 渲染进程
+│       ├── index.html     # Vite HTML 模板
+│       ├── entry.js       # Vite renderer 入口
+│       ├── bootstrap.jsx  # React 挂载 (createRoot)
+│       ├── store/         # Zustand 状态管理
+│       ├── components/    # React 组件 (全部 functional + hooks)
+│       ├── containers/    # 根容器 (MainContainer)
+│       ├── database/      # sql.js 1.x WASM 数据库层
+│       ├── config/        # 应用配置
+│       ├── utils/         # 工具函数 (SVG, 生成器, 导入器, 爬虫)
+│       └── resources/     # 图片, 模板等静态资源
 ├── electron.vite.config.js # 构建配置 (main + preload + renderer)
 ├── tsconfig.json          # TypeScript 配置
 ├── test/
-│   ├── unit/              # Jest 单元测试
+│   ├── unit/              # Vitest 单元测试
 │   └── e2e/               # Playwright E2E + 验收测试
 ├── docs/                  # 项目文档 (见下方索引)
 └── package.json
@@ -77,8 +80,8 @@ bobcorn/
 | `docs/CONVENTIONS.md` | 代码规范 (hooks only、CSS modules、sanitizeSVG、IPC 模式) |
 | `docs/TROUBLESHOOTING.md` | 常见问题速查 |
 | `docs/RELEASE.md` | 发版流程 (每阶段或每 10 commit 发一次) |
-| `app/store/README.md` | State tree + 使用模式 |
-| `app/database/README.md` | Schema + 异步初始化 + CRUD API |
+| `src/renderer/store/README.md` | State tree + 使用模式 |
+| `src/renderer/database/README.md` | Schema + 异步初始化 + CRUD API |
 
 ### 项目规划
 
@@ -99,7 +102,7 @@ bobcorn/
 
 ## 关键约定
 
-- 状态管理使用 Zustand store (`app/store/index.js`)，不要引入 GlobalEvent
+- 状态管理使用 Zustand store (`src/renderer/store/index.js`)，不要引入 GlobalEvent
 - 所有组件是 functional + hooks，不要写 class components
 - main↔renderer 通信使用 ipcMain/ipcRenderer (无 electron.remote)
 - SVG 内容必须经过 `sanitizeSVG()` (DOMPurify) 处理后才能渲染

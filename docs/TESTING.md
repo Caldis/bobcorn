@@ -21,7 +21,7 @@ npx vitest                  # Watch mode
 ### Config
 
 - `vitest.config.js` — environment: `node`, globals: `true`
-- Alias: `@` maps to `app/`
+- Alias: `@` maps to `src/renderer/`
 - Pattern: `test/**/*.test.{js,ts}`
 
 ### Template
@@ -42,10 +42,10 @@ describe('MyModule', () => {
 
 ### What to Test
 
-- `app/utils/tools/` — pure functions (hexToDec, decToHex, nameOfPath, sf, generateUUID)
-- `app/database/` — CRUD operations (use sql.js directly, no Electron needed)
-- `app/config/` — config constants and Unicode range calculations
-- `app/utils/svg/` — SVG parsing and formatting
+- `src/renderer/utils/tools/` — pure functions (hexToDec, decToHex, nameOfPath, sf, generateUUID)
+- `src/renderer/database/` — CRUD operations (use sql.js directly, no Electron needed)
+- `src/renderer/config/` — config constants and Unicode range calculations
+- `src/renderer/utils/svg/` — SVG parsing and formatting
 
 ### Gotcha
 

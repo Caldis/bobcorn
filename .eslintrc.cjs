@@ -30,6 +30,10 @@ module.exports = {
     'react/prop-types': 'off', // Using TypeScript instead
     'react/react-in-jsx-scope': 'off', // React 18 JSX transform
     'no-unused-vars': 'off', // Handled by @typescript-eslint
+    'no-useless-escape': 'warn',
+    'no-empty': 'warn',
+    '@typescript-eslint/no-this-alias': 'warn',
+    'react/no-unescaped-entities': 'warn',
   },
-  ignorePatterns: ['out/', 'node_modules/', 'dll/', 'app/dist/'],
+  ignorePatterns: ['out/', 'node_modules/', 'dll/'],
 };

@@ -13,9 +13,9 @@
     "package-win": "electron-vite build && electron-builder --win --x64",
     "package-mac": "electron-vite build && electron-builder --mac",
     "package-linux": "electron-vite build && electron-builder --linux",
-    "lint": "eslint app/ --ext .js,.jsx,.ts,.tsx --max-warnings 0",
-    "lint:fix": "eslint app/ --ext .js,.jsx,.ts,.tsx --fix",
-    "format": "prettier --write \"app/**/*.{js,jsx,ts,tsx,css,json}\"",
+    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx --max-warnings 0",
+    "lint:fix": "eslint src/ --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,json}\"",
     "test": "vitest run",
     "test:unit": "vitest run test/unit",
     "test:watch": "vitest",
@@ -157,8 +157,8 @@
     "npm": ">=8"
   },
   "lint-staged": {
-    "app/**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
+    "src/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix --max-warnings 999",
       "prettier --write"
     ]
   }

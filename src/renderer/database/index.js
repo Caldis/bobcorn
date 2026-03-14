@@ -359,7 +359,8 @@ class Database {
     checkIconCodeDuplicate = () => {
         const stmt = this.db.prepare(`SELECT iconCode,COUNT(*) FROM ${iconData} GROUP BY iconCode HAVING COUNT(*) > 1`);
         stmt.step();
-        res = stmt.getAsObject();
+        const res = stmt.getAsObject();
+        return res;
     };
     formatIconDataFromFilePath = (path, targetGroup) => {
         const { electronAPI } = window;

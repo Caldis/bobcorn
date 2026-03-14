@@ -40,12 +40,12 @@ npx electron-vite build && npx electron-vite preview
 ### SVG icons not displaying / XSS warning
 
 **Cause:** Raw SVG injected without sanitization.
-**Fix:** Always use `sanitizeSVG()` from `app/utils/sanitize.js` before `dangerouslySetInnerHTML`.
+**Fix:** Always use `sanitizeSVG()` from `src/renderer/utils/sanitize.js` before `dangerouslySetInnerHTML`.
 
 ### `window.electronAPI is undefined`
 
 **Cause:** Running outside Electron (e.g., in a browser), or preload script failed to load.
-**Fix:** Check `electron.vite.config.js` preload entry points to `app/preload.js`.
+**Fix:** Check `electron.vite.config.js` preload entry points to `src/preload/index.js`.
 
 ## Testing
 
@@ -83,13 +83,13 @@ npx electron-vite build && node test/e2e/acceptance.js
 
 ### Adding a new IPC channel
 
-1. Add handler in `app/main.js`: `ipcMain.handle('my-channel', async (event, args) => { ... })`
-2. Expose in `app/preload.js`: `myMethod: (args) => ipcRenderer.invoke('my-channel', args)`
+1. Add handler in `src/main/index.js`: `ipcMain.handle('my-channel', async (event, args) => { ... })`
+2. Expose in `src/preload/index.js`: `myMethod: (args) => ipcRenderer.invoke('my-channel', args)`
 3. Call in renderer: `const result = await window.electronAPI.myMethod(args)`
 
 ### Adding a new Zustand action
 
-Edit `app/store/index.js` — add the action inside the `create()` callback:
+Edit `src/renderer/store/index.js` — add the action inside the `create()` callback:
 ```js
 myAction: (param) => set({ myState: param }),
 ```
