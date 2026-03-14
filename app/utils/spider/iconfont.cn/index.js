@@ -1,6 +1,6 @@
-// electron
-import { ipcRenderer } from 'electron';
-const electronPath = ipcRenderer.sendSync('get-app-path', 'exe');
+// Electron API (via preload contextBridge)
+const { electronAPI } = window;
+const electronPath = electronAPI.getAppPath('exe');
 // Nightmare
 import Nightmare from 'nightmare';
 const nightmare = Nightmare({

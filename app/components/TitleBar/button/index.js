@@ -2,8 +2,8 @@
 import React, { useRef } from 'react';
 // Styles
 import styles from './index.module.css';
-// Electron
-import { ipcRenderer } from 'electron';
+// Electron API (via preload contextBridge)
+const { electronAPI } = window;
 // ButtonIcon
 import minimize from '../../../resources/imgs/titleBarButton/minimize.svg';
 import maximize from '../../../resources/imgs/titleBarButton/maximize.svg';
@@ -17,7 +17,7 @@ function TitleBarButtonGroup() {
 
     // 最小化
     const handleWindowMinimum = () => {
-        ipcRenderer.send('window-minimize');
+        electronAPI.windowMinimize();
     };
 
     // 最大化
@@ -26,13 +26,13 @@ function TitleBarButtonGroup() {
         const root = document.querySelector("#root");
         const titleBarButtonGroup = document.querySelector("#titleBarButtonGroup");
         if (maximizedRef.current) {
-            ipcRenderer.send('window-maximize');
+            electronAPI.windowMaximize();
             body.style.padding = paddingOfBodyRef.current;
             root.style.borderRadius = borderRadiusOfRootRef.current;
             titleBarButtonGroup.style.top = topOfTitleBarButtonGroupRef.current;
             maximizedRef.current = false;
         } else {
-            ipcRenderer.send('window-maximize');
+            electronAPI.windowMaximize();
             paddingOfBodyRef.current = window.getComputedStyle(body).padding;
             body.style.padding = "0";
             borderRadiusOfRootRef.current = window.getComputedStyle(root).borderRadius;
@@ -45,7 +45,7 @@ function TitleBarButtonGroup() {
 
     // 关闭
     const handleWindowClose = () => {
-        ipcRenderer.send('window-close');
+        electronAPI.windowClose();
     };
 
     return (

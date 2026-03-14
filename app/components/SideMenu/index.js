@@ -1,6 +1,5 @@
-// Libs
-import fs from 'fs';
-import { ipcRenderer } from 'electron';
+// Electron API (via preload contextBridge)
+const { electronAPI } = window;
 // React
 import React, { useState, useEffect, useRef } from 'react';
 // Antd
@@ -303,7 +302,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
                     const woffFont = woffFontGenerator({ttfFont});
                     const woff2Font = woff2FontGenerator({ttfFont});
                     const eotFont = eotFontGenerator({ttfFont});
-                    ipcRenderer.invoke('dialog-show-save', {
+                    electronAPI.showSaveDialog({
                         title: "导出图标字体",
                         defaultPath: `${db.getProjectName()}`
                     }).then((result) => {
@@ -311,31 +310,31 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
                             handleHideGeneratingOverlay();
                             return;
                         }
-                        const path = result.filePath;
-                        fs.access(path, fs.constants.R_OK, (err) => {
-                            err && fs.mkdirSync(path);
-                            try {
-                                db.exportProject(projData => {
-                                    const buffer = new Buffer(projData);
-                                    fs.writeFileSync(`${path}\/${projectName}.icp`, buffer);
-                                    fs.writeFileSync(`${path}\/${projectName}.html`, pageData);
-                                    fs.writeFileSync(`${path}\/${projectName}.css`, cssData);
-                                    fs.writeFileSync(`${path}\/${projectName}.js`, jsData);
-                                    fs.writeFileSync(`${path}\/${projectName}.svg`, svgFont);
-                                    fs.writeFileSync(`${path}\/${projectName}.ttf`, new Buffer(ttfFont.buffer));
-                                    fs.writeFileSync(`${path}\/${projectName}.woff`, new Buffer(woffFont.buffer));
-                                    fs.writeFileSync(`${path}\/${projectName}.woff2`, new Buffer(woff2Font.buffer));
-                                    fs.writeFileSync(`${path}\/${projectName}.eot`, new Buffer(eotFont.buffer));
-                                    message.success(`图标字体已导出`);
-                                    handleHideGeneratingOverlay();
-                                    handleCancelExportIconfonts();
-                                });
-                            } catch (err) {
-                                message.error(`导出错误: ${err.message}`);
+                        const dirPath = result.filePath;
+                        if (!electronAPI.accessSync(dirPath)) {
+                            electronAPI.mkdirSync(dirPath);
+                        }
+                        try {
+                            db.exportProject(projData => {
+                                const buffer = Buffer.from(projData);
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.icp`, buffer);
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.html`, pageData);
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.css`, cssData);
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.js`, jsData);
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.svg`, svgFont);
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.ttf`, Buffer.from(ttfFont.buffer));
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.woff`, Buffer.from(woffFont.buffer));
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.woff2`, Buffer.from(woff2Font.buffer));
+                                electronAPI.writeFileSync(`${dirPath}/${projectName}.eot`, Buffer.from(eotFont.buffer));
+                                message.success(`图标字体已导出`);
                                 handleHideGeneratingOverlay();
                                 handleCancelExportIconfonts();
-                            }
-                        });
+                            });
+                        } catch (err) {
+                            message.error(`导出错误: ${err.message}`);
+                            handleHideGeneratingOverlay();
+                            handleCancelExportIconfonts();
+                        }
                     });
                 } catch(err) {
                     console.error(err);
@@ -366,20 +365,16 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
 
     // 导出项目文件相关
     const handleExportProjects = async () => {
-        const result = await ipcRenderer.invoke('dialog-show-save', {
+        const result = await electronAPI.showSaveDialog({
             title: "导出项目文件",
             defaultPath: `${db.getProjectName()}`
         });
         if (!result.canceled && result.filePath) {
             db.exportProject((projData) => {
-                const buffer = new Buffer(projData);
-                fs.writeFile(`${result.filePath}.icp`, buffer, (err) => {
-                    if(err){
-                        message.error(`导出错误: ${err.message}`);
-                    } else {
-                        message.success(`项目已导出`);
-                    }
-                });
+                const buffer = Buffer.from(projData);
+                electronAPI.writeFile(`${result.filePath}.icp`, buffer)
+                    .then(() => message.success(`项目已导出`))
+                    .catch((err) => message.error(`导出错误: ${err.message}`));
             });
         }
     };

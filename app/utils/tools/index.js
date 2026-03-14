@@ -230,6 +230,5 @@ export const disableChromeAutoFocus = () => {
 
 // 获取系统
 // darwin, win32
-import os from 'os'
-const currentPlatform = os.platform()
+const currentPlatform = window.electronAPI ? window.electronAPI.platform : 'unknown'
 export const platform = () => currentPlatform

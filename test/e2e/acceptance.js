@@ -77,9 +77,10 @@ async function run() {
 
   const security = await window.evaluate(() => ({
     nodeIntegration: typeof require !== 'undefined',
-    hasProcess: typeof process !== 'undefined',
+    hasElectronAPI: typeof window.electronAPI !== 'undefined',
   }));
-  assert('nodeIntegration enabled', security.nodeIntegration);
+  assert('nodeIntegration disabled (secure)', !security.nodeIntegration);
+  assert('contextBridge API available', security.hasElectronAPI);
 
   // --- Phase 3: Splash Screen ---
   console.log('\nPhase 3: Splash Screen');

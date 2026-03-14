@@ -71,9 +71,10 @@ app.on('ready', async () => {
         // OSX下, 窗口按钮内置
         titleBarStyle: platform==="darwin" ? 'hiddenInset' : 'hidden',
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            experimentalFeatures: true,
+            nodeIntegration: false,
+            contextIsolation: true,
+            sandbox: false,
+            preload: path.join(__dirname, '../preload/preload.js'),
         }
     });
 

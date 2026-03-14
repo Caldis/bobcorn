@@ -1,5 +1,5 @@
-// electron
-import { ipcRenderer } from 'electron';
+// Electron API (via preload contextBridge)
+const { electronAPI } = window;
 import { projFileLoader } from '../../../utils/loaders';
 // Config
 import { setOption, getOption } from '../../../config';
@@ -11,7 +11,7 @@ const importProj = async (options = {path: null, onSelectCP: ()=>{}, onSelectICP
 	if (options.path) {
 		path = options.path;
 	} else {
-		const result = await ipcRenderer.invoke('dialog-show-open', {
+		const result = await electronAPI.showOpenDialog({
 			title: "选择项目文件",
 			filters: [{ name: "项目文件", extensions: ["json", "icp"] }],
 			properties: [ "openFile" ]

@@ -1,11 +1,9 @@
-const dev = process.env.NODE_ENV === 'development';
+const dev = import.meta.env?.DEV ?? false;
 
-// fs
-import fs from 'fs';
 // SVG
 import SVG from '../utils/svg';
-// SQLite
-import initSqlJs from 'sql.js';
+// SQLite (use ASM build - pure JS, no WASM file needed)
+import initSqlJs from 'sql.js/dist/sql-asm.js';
 // Config
 import config from '../config';
 // Utils
@@ -364,13 +362,15 @@ class Database {
         res = stmt.getAsObject();
     };
     formatIconDataFromFilePath = (path, targetGroup) => {
-        const svg = new SVG(fs.readFileSync(path).toString());
+        const { electronAPI } = window;
+        const fileData = electronAPI.readFileSync(path, 'utf-8');
+        const svg = new SVG(fileData);
         return {
             id: sf(generateUUID()),
             iconCode: sf(this.getNewIconCode()),
             iconName: sf(nameOfFile(nameOfPath(path))),
             iconGroup: sf(targetGroup),
-            iconSize: fs.statSync(path).size,
+            iconSize: electronAPI.statSync(path).size,
             iconType: sf(typeOfFile(nameOfPath(path))),
             iconContent: sf(svg.formatSVG().getOuterHTML())
         }
@@ -547,15 +547,16 @@ class Database {
     };
     renewIconData = (id, newIconFileData, callback) => {
 	    dev && console.log("renewIconData");
+        const { electronAPI } = window;
         // 仅更新size,type,content
         const dataSet = {
             id: sf(newIconFileData.id),
             iconCode: sf(newIconFileData.iconCode),
             iconName: sf(newIconFileData.iconName),
             iconGroup: sf(newIconFileData.iconGroup),
-            iconSize: fs.statSync(newIconFileData.path).size,
+            iconSize: electronAPI.statSync(newIconFileData.path).size,
             iconType: sf(typeOfFile(nameOfPath(newIconFileData.path))),
-            iconContent: sf(fs.readFileSync(newIconFileData.path).toString())
+            iconContent: sf(electronAPI.readFileSync(newIconFileData.path, 'utf-8'))
         };
         this.setIconData(id, dataSet, callback);
     };

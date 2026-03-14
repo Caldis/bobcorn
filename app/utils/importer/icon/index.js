@@ -1,9 +1,9 @@
-// electron
-import { ipcRenderer } from 'electron';
+// Electron API (via preload contextBridge)
+const { electronAPI } = window;
 
 // 弹出文件选择对话框, 选择并导入图标
 const importIcons = async (options = {onSelectSVG: ()=>{}}) => {
-	const result = await ipcRenderer.invoke('dialog-show-open', {
+	const result = await electronAPI.showOpenDialog({
 		title: "选择一个或多个SVG图标文件",
 		filters: [{ name: "SVG图标文件", extensions: ["svg"] }],
 		properties: [ "openFile", "multiSelections" ]

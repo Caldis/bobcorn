@@ -1,5 +1,3 @@
-// fs
-import fs from 'fs';
 // Database
 import db from '../../../database';
 // Path
@@ -10,8 +8,9 @@ import { demoHTMLFile, iconfontCSSFile, iconfontJSHeadFile, iconfontJSTailFile }
 // 模板自 /resources/iconDocs/indexTemplate.html 读取
 // 写入图标字码数据, 然后返回页面HTML文本
 export const demoHTMLGenerator = (groups, icons) => {
+	const { electronAPI } = window;
 	const parser = new DOMParser();
-	const pageTemplate = parser.parseFromString(fs.readFileSync(demoHTMLFile).toString(), "text/html");
+	const pageTemplate = parser.parseFromString(electronAPI.readFileSync(demoHTMLFile, 'utf-8'), "text/html");
 	const iconsContainer = pageTemplate.querySelector("[content=icons]");
 	iconsContainer.innerHTML = `
 		var projectName = ${JSON.stringify(db.getProjectName())}
@@ -23,8 +22,9 @@ export const demoHTMLGenerator = (groups, icons) => {
 
 // 生成模板CSS文件以供界面引用
 export const iconfontCSSGenerator = (icons) => {
+	const { electronAPI } = window;
     const projectName = db.getProjectName()
-	let iconfontTemplate = fs.readFileSync(iconfontCSSFile).toString().replace(/iconfont/g, projectName);
+	let iconfontTemplate = electronAPI.readFileSync(iconfontCSSFile, 'utf-8').replace(/iconfont/g, projectName);
     // 将 iconfont 的 prefix 替换为用户定义
     let projectNameIconfontTemplate = iconfontTemplate.replace(/iconfont/g, projectName);
 	icons.forEach(icon => {
@@ -36,8 +36,9 @@ export const iconfontCSSGenerator = (icons) => {
 
 // 生成模板Symbol的JS文件以供界面引用
 export const iconfontSymbolGenerator = (icons) => {
-	const iconfontTemplateHead = fs.readFileSync(iconfontJSHeadFile).toString();
-    const iconfontTemplateTail = fs.readFileSync(iconfontJSTailFile).toString();
+	const { electronAPI } = window;
+	const iconfontTemplateHead = electronAPI.readFileSync(iconfontJSHeadFile, 'utf-8');
+    const iconfontTemplateTail = electronAPI.readFileSync(iconfontJSTailFile, 'utf-8');
 	let iconfontTemplate = "";
 	const regex = /<svg[^>]+?>([^$]+?)<\/svg>/;
 	const projectName = db.getProjectName()

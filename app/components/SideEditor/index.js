@@ -1,7 +1,5 @@
-// fs
-import fs from 'fs';
-// electron
-import { ipcRenderer } from 'electron';
+// Electron API (via preload contextBridge)
+const { electronAPI } = window;
 // React
 import React, { useState, useEffect, useRef } from 'react';
 // Antd
@@ -138,7 +136,7 @@ function SideEditor({ selectedGroup, selectedIcon }) {
 
     // 替换图标相关
     const handleIconContentUpdate = async () => {
-        const result = await ipcRenderer.invoke('dialog-show-open', {
+        const result = await electronAPI.showOpenDialog( {
             title: "选择一个SVG图标文件",
             filters: [{ name: "SVG图标文件", extensions: ["svg"] }],
             properties: [ "openFile" ],
@@ -154,39 +152,35 @@ function SideEditor({ selectedGroup, selectedIcon }) {
 
     // 图标导出相关
     const handleIconExport = async () => {
-        const result = await ipcRenderer.invoke('dialog-show-save', {
+        const result = await electronAPI.showSaveDialog( {
             title: "导出图标",
             defaultPath: `${iconData.iconName}.${iconData.iconType}`
         });
         if (!result.canceled && result.filePath) {
-            fs.writeFile(result.filePath, iconData.iconContent, (err) => {
-                if(err){
-                    message.error(`导出错误: ${err.message}`);
-                } else {
-                    message.success(`图标已导出`);
-                }
-            });
+            electronAPI.writeFile(result.filePath, iconData.iconContent)
+                .then(() => message.success(`图标已导出`))
+                .catch((err) => message.error(`导出错误: ${err.message}`));
         }
     };
     const handleAllIconExport = async () => {
-        const result = await ipcRenderer.invoke('dialog-show-save', {
+        const result = await electronAPI.showSaveDialog( {
             title: "导出所有图标",
             defaultPath: `${db.getProjectName()}`
         });
         if (!result.canceled && result.filePath) {
-            const path = result.filePath;
-            fs.access(path, fs.constants.R_OK, (err) => {
-                err && fs.mkdirSync(path);
-                try {
-                    const icons = db.getIconList();
-                    icons.forEach(icon => {
-                        fs.writeFile(`${path}\/${icon.iconName}-${icon.iconCode}.${icon.iconType}`, icon.iconContent);
-                    });
-                    message.success(`${icons.length} 个图标已导出`);
-                } catch (err) {
-                    message.error(`导出错误: ${err.message}`);
-                }
-            });
+            const dirPath = result.filePath;
+            if (!electronAPI.accessSync(dirPath)) {
+                electronAPI.mkdirSync(dirPath);
+            }
+            try {
+                const icons = db.getIconList();
+                icons.forEach(icon => {
+                    electronAPI.writeFileSync(`${dirPath}/${icon.iconName}-${icon.iconCode}.${icon.iconType}`, icon.iconContent);
+                });
+                message.success(`${icons.length} 个图标已导出`);
+            } catch (err) {
+                message.error(`导出错误: ${err.message}`);
+            }
         }
     };
 
