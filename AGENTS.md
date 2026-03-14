@@ -66,11 +66,27 @@ bobcorn/
 
 ## 文档索引
 
+### Agent 开发文档
+
+| 文件 | 内容 |
+|------|------|
+| `docs/QUICK_START.md` | 2 分钟上手 (fnm、build、test 命令) |
+| `docs/MODULES.md` | 模块注册表 (store、database、components、utils、main、preload) |
+| `docs/FEATURE_WORKFLOW.md` | 新功能开发 7 步流程 |
+| `docs/TESTING.md` | Vitest 单元测试 + Playwright E2E 指南 |
+| `docs/CONVENTIONS.md` | 代码规范 (hooks only、CSS modules、sanitizeSVG、IPC 模式) |
+| `docs/TROUBLESHOOTING.md` | 常见问题速查 |
+| `app/store/README.md` | State tree + 使用模式 |
+| `app/database/README.md` | Schema + 异步初始化 + CRUD API |
+
+### 项目规划
+
 | 文件 | 内容 |
 |------|------|
 | `docs/2026-03-14-project-roadmap.md` | 全阶段升级路线图 (P0-P4) |
 | `docs/plans/2026-03-14-p0-security-runnability.md` | P0 实施计划 (已完成) |
 | `docs/plans/2026-03-14-p1-toolchain-modernization.md` | P1 实施计划 (已完成) |
+| `docs/plans/2026-03-14-p5-agent-ready-infrastructure.md` | P5 实施计划 |
 
 ## 验收测试协议
 
