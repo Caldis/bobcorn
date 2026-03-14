@@ -30,6 +30,8 @@ import { demoHTMLGenerator, iconfontCSSGenerator, iconfontSymbolGenerator } from
 import { iconImporter, projImporter } from '../../utils/importer';
 // Database
 import db, { Database } from '../../database';
+// Images
+import addGroupHint from '../../resources/imgs/nodata/addGroupHint.png';
 
 // ====================================================
 // GlobalEvent.dispatchEvent('SyncLeft');
@@ -595,7 +597,7 @@ class SideMenu extends React.Component {
 	                {
 		                this.state.groupData.length===0 &&
 		                <div className={style.noGroupHint}>
-			                <img src="./resources/imgs/nodata/addGroupHint.png" alt="添加分组"/>
+			                <img src={addGroupHint} alt="添加分组"/>
 							<p>还没有分组</p>
 			                <p>点击上方的 "+"可以创建分组</p>
 		                </div>

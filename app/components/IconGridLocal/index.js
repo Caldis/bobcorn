@@ -17,6 +17,9 @@ import db from '../../database';
 import config, { defOption, setOption, getOption } from '../../config';
 // Utils
 import { throttleMustRun, GlobalEvent } from '../../utils/tools';
+// Images
+import noIconHintSad from '../../resources/imgs/nodata/noIconHint-sad.png';
+import noIconHintHappy from '../../resources/imgs/nodata/noIconHint-happy.png';
 
 // ====================================================
 // GlobalEvent.dispatchEvent("SyncCenterLocal");
@@ -280,7 +283,7 @@ class IconGridLocal extends React.Component{
         if (selectedGroup === "resource-all") {
             return (
                 <div className={style.iconGridNodata}>
-                    <img src="./resources/imgs/nodata/noIconHint-sad.png"/>
+                    <img src={noIconHintSad}/>
                     <div className={style.iconGridNodataDiscContainer}>
                         <p>还没有图标</p>
 	                    <p>直接拖拽图标到此处可添加图标</p>
@@ -290,7 +293,7 @@ class IconGridLocal extends React.Component{
         } else if (selectedGroup === "resource-uncategorized") {
             return (
                 <div className={style.iconGridNodata}>
-                    <img src="./resources/imgs/nodata/noIconHint-happy.png"/>
+                    <img src={noIconHintHappy}/>
                     <div className={style.iconGridNodataDiscContainer}>
                         <p>图标都已经妥善分类了</p>
                         <p>当新加入的图标未分类时, 将出现在此处</p>
@@ -300,7 +303,7 @@ class IconGridLocal extends React.Component{
         } else if (selectedGroup === "resource-recycleBin") {
             return (
                 <div className={style.iconGridNodata}>
-                    <img src="./resources/imgs/nodata/noIconHint-happy.png"/>
+                    <img src={noIconHintHappy}/>
                     <div className={style.iconGridNodataDiscContainer}>
                         <p>回收站很干净</p>
                         <p>当图标被回收后, 将会出现在此处</p>
@@ -310,7 +313,7 @@ class IconGridLocal extends React.Component{
         } else {
             return (
                 <div className={style.iconGridNodata}>
-                    <img src="./resources/imgs/nodata/noIconHint-sad.png"/>
+                    <img src={noIconHintSad}/>
                     <div className={style.iconGridNodataDiscContainer}>
                         <p>这个分组没有图标</p>
                     </div>

@@ -19,6 +19,8 @@ import style from './index.module.css';
 import db from '../../database';
 // Utils
 import { GlobalEvent, platform } from '../../utils/tools';
+// Images
+import selectedIconHint from '../../resources/imgs/nodata/selectedIconHint.png';
 
 // ====================================================
 // GlobalEvent.dispatchEvent("SyncRight");
@@ -395,7 +397,7 @@ class SideEditor extends React.Component{
                         </div>
                     </div> :
                     <div className={style.sideEditorNoselected}>
-                        <img src="./resources/imgs/nodata/selectedIconHint.png"/>
+                        <img src={selectedIconHint}/>
                         <p>请选择一个图标</p>
 	                    <p>可在此编辑其属性</p>
                     </div>
