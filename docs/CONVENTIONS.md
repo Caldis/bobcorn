@@ -73,7 +73,7 @@ import { sanitizeSVG } from '../../utils/sanitize';
 Renderer cannot access Node.js directly. All Node access goes through the preload bridge.
 
 ```
-Main Process (main.dev.js)          Preload (preload.js)           Renderer
+Main Process (main.js)          Preload (preload.js)           Renderer
 ipcMain.on('channel', handler)  →   contextBridge.exposeInMainWorld  →  window.electronAPI.method()
 ipcMain.handle('channel', fn)   →   ipcRenderer.invoke('channel')   →  await window.electronAPI.method()
 ```

@@ -5,7 +5,7 @@
 ```
 Electron Main Process          Renderer Process (React)
 ┌─────────────────┐           ┌──────────────────────────────┐
-│  main.dev.js    │◄── IPC ──►│  entry.js → bootstrap.jsx    │
+│  main.js    │◄── IPC ──►│  entry.js → bootstrap.jsx    │
 │  menu.js        │           │    ├── store/                 │
 │                 │           │    ├── database/               │
 ├─────────────────┤           │    ├── containers/             │
@@ -17,7 +17,7 @@ Electron Main Process          Renderer Process (React)
 
 ## Modules
 
-### `app/main.dev.js` — Main Process
+### `app/main.js` — Main Process
 
 Electron main process entry. Creates BrowserWindow, registers IPC handlers, builds native menu.
 

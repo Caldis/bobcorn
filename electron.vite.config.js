@@ -9,7 +9,7 @@ export default defineConfig({
     build: {
       outDir: 'out/main',
       rollupOptions: {
-        input: resolve(__dirname, 'app/main.dev.js'),
+        input: resolve(__dirname, 'app/main.js'),
         output: {
           entryFileNames: 'index.js',
         },

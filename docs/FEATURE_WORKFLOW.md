@@ -28,7 +28,7 @@ Edit files under `app/`. Follow conventions in [`CONVENTIONS.md`](./CONVENTIONS.
 Key decisions:
 - New component? Create `app/components/<Name>/index.jsx` + `index.module.css`
 - New state? Add to `app/store/index.js`
-- New IPC channel? Add handler in `main.dev.js`, expose in `preload.js`
+- New IPC channel? Add handler in `main.js`, expose in `preload.js`
 - Database schema change? Edit `database/index.js` `initNewProject()`
 
 ### 4. Visual Verification

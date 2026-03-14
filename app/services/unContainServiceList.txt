@@ -1,9 +1,0 @@
-名称: 左侧菜单
-作用: 更新分组列表
-文件: /components/sideMenu/index.js
-方法: GlobalEvent.dispatchEvent('SyncLeft');
-
-名称: 中部图标列表
-作用: 更新中部图标列表
-文件: /components/iconGrid/index.js
-方法: GlobalEvent.dispatchEvent('SyncCenterLocal');

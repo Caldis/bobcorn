@@ -71,7 +71,7 @@ node test/e2e/acceptance.js     # E2E acceptance (20 checks)
 ```
 bobcorn/
 ├── app/                       # Electron application source
-│   ├── main.dev.js            # Main process entry point
+│   ├── main.js            # Main process entry point
 │   ├── preload.js             # Preload script (contextIsolation bridge)
 │   ├── entry.js               # Vite renderer entry
 │   ├── bootstrap.jsx          # React mount (createRoot, async DB init)

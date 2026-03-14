@@ -42,7 +42,7 @@ npx electron-vite build && node test/e2e/acceptance.js
 ```
 bobcorn/
 ├── app/                    # Electron 应用源码
-│   ├── main.dev.js        # 主进程入口
+│   ├── main.js        # 主进程入口
 │   ├── entry.js           # Vite renderer 入口
 │   ├── bootstrap.jsx      # React 挂载 (createRoot)
 │   ├── index.html         # Vite HTML 模板

@@ -83,7 +83,7 @@ npx electron-vite build && node test/e2e/acceptance.js
 
 ### Adding a new IPC channel
 
-1. Add handler in `app/main.dev.js`: `ipcMain.handle('my-channel', async (event, args) => { ... })`
+1. Add handler in `app/main.js`: `ipcMain.handle('my-channel', async (event, args) => { ... })`
 2. Expose in `app/preload.js`: `myMethod: (args) => ipcRenderer.invoke('my-channel', args)`
 3. Call in renderer: `const result = await window.electronAPI.myMethod(args)`
 
