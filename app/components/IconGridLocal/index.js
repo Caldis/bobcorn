@@ -1,6 +1,5 @@
 // React
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 // React Dropzone
 import Dropzone from 'react-dropzone';
 // antd
@@ -16,161 +15,126 @@ import db from '../../database';
 // Config
 import config, { defOption, setOption, getOption } from '../../config';
 // Utils
-import { throttleMustRun, GlobalEvent } from '../../utils/tools';
+import { throttleMustRun } from '../../utils/tools';
 // Images
 import noIconHintSad from '../../resources/imgs/nodata/noIconHint-sad.png';
 import noIconHintHappy from '../../resources/imgs/nodata/noIconHint-happy.png';
+// Store
+import useAppStore from '../../store';
 
-// ====================================================
-// GlobalEvent.dispatchEvent("SyncCenterLocal");
-// ====================================================
+function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
+    const syncLeft = useAppStore(state => state.syncLeft);
+    const selectGroup = useAppStore(state => state.selectGroup);
 
-class IconGridLocal extends React.Component{
-    constructor(props) {
-        super(props);
+    const [iconData, setIconData] = useState({});
+    const [iconBlockWrapperMaxWidth, setIconBlockWrapperMaxWidth] = useState("100%");
+    const [iconBlockWrapperOpacity, setIconBlockWrapperOpacity] = useState(0);
+    const [iconBlockWidth, setIconBlockWidth] = useState(getOption().iconBlockSize);
+    const [iconBlockNameVisible, setIconBlockNameVisible] = useState(getOption().iconBlockNameVisible);
+    const [iconBlockCodeVisible, setIconBlockCodeVisible] = useState(getOption().iconBlockCodeVisible);
+    const [searchKeyword, setSearchKeyword] = useState(null);
 
-        this.state = {
-            iconData: {},
-            iconBlockWrapperMaxWidth: "100%",
-            iconBlockWrapperOpacity: 0,
-            iconBlockWidth: getOption().iconBlockSize,
-            iconBlockNameVisible: getOption().iconBlockNameVisible,
-	        iconBlockCodeVisible: getOption().iconBlockCodeVisible,
-	        searchKeyword: null,
-        };
-    };
+    const widthTmpRef = useRef(null);
+    const prevSelectedGroupRef = useRef(selectedGroup);
 
-    // https://facebook.github.io/react/docs/state-and-lifecycle.html
-    // On React IconGridLocal Mounting
-    // After React IconGridLocal Mounted
-    componentDidMount() {
-        // 接收到 SyncIconData 的事件刷新图标列表
-        GlobalEvent.addEventHandler("SyncCenterLocal", this.sync);
-        // 进入后延迟一点, 设置一下位置和透明度
-        setTimeout(() => {
-            this.updateIconWrapperOpacity();
-        }, 500);
-    }
-    componentDidUpdate(prevProps) {
-        const { selectedGroup } = this.props;
-        // 如果选择的分组改变了, 则刷新
-        if (selectedGroup !== prevProps.selectedGroup) {
-            this.sync(selectedGroup);
-            this.deselectIcon();
-        }
-    }
-    // On React IconGridLocal Unmounting
-    componentWillUnmount() {
-        // 移除事件注册
-        // CENTER_ICONS removed — resize handler not needed
-        GlobalEvent.removeEventHandler("SyncCenterLocal", this.sync);
-    }
-
-    // 同步图标列表数据
-    sync = (selectedGroup) => {
-    	const group = selectedGroup || this.props.selectedGroup;
-	    if (group==="resource-all") {
-	        // 如果为 "全部", 则取所有组, 加 "未分类", 以及 "null"
-		    const groupIconData = {};
-		    db.getGroupList().forEach(group => groupIconData[group.id] = db.getIconListFromGroup(group.id));
+    // Sync icon data
+    const sync = useCallback((group) => {
+        const targetGroup = group || selectedGroup;
+        if (targetGroup === "resource-all") {
+            const groupIconData = {};
+            db.getGroupList().forEach(g => groupIconData[g.id] = db.getIconListFromGroup(g.id));
             groupIconData["resource-uncategorized"] = db.getIconListFromGroup("resource-uncategorized")
                 .concat(db.getIconListFromGroup("null"));
-		    this.setState({
-			    iconData: groupIconData
-		    });
-	    } else if (group==="resource-uncategorized") {
-	        // 如果为 "未分组", 则取 "未分类", 以及 "null"
+            setIconData(groupIconData);
+        } else if (targetGroup === "resource-uncategorized") {
             const groupIconData = {};
             groupIconData["resource-uncategorized"] = db.getIconListFromGroup("resource-uncategorized")
                 .concat(db.getIconListFromGroup("null"));
-            this.setState({
-                iconData: groupIconData
-            });
+            setIconData(groupIconData);
         } else {
-		    this.setState({
-			    iconData: {
-				    ...this.state.iconData,
-				    [group]: db.getIconListFromGroup(group)
-			    }
-		    });
-	    }
-    };
+            setIconData(prev => ({
+                ...prev,
+                [targetGroup]: db.getIconListFromGroup(targetGroup)
+            }));
+        }
+    }, [selectedGroup]);
+
+    useEffect(() => {
+        // Initial sync
+        sync();
+        // 进入后延迟一点, 设置一下位置和透明度
+        setTimeout(() => {
+            setIconBlockWrapperOpacity(1);
+        }, 500);
+    }, []);
+
+    // Subscribe to store changes to trigger re-sync (replaces SyncCenterLocal event)
+    // When groupData changes in the store (after syncLeft), re-sync the center panel
+    const groupData = useAppStore(state => state.groupData);
+    useEffect(() => {
+        sync();
+    }, [groupData]);
+
+    useEffect(() => {
+        if (selectedGroup !== prevSelectedGroupRef.current) {
+            prevSelectedGroupRef.current = selectedGroup;
+            sync(selectedGroup);
+            deselectIcon();
+        }
+    }, [selectedGroup]);
 
     // Toolbar相关
-	// Icon名字是否显示
-	updateNameVisible = (visible) => {
-		this.setState({
-			iconBlockNameVisible: visible
-		}, () => setOption({ iconBlockNameVisible: visible }));
-	};
-	// Icon字码是否显示
-	updateCodeVisible = (visible) => {
-		this.setState({
-			iconBlockCodeVisible: visible
-		}, () => setOption({ iconBlockCodeVisible: visible }));
-	};
+    const updateNameVisible = (visible) => {
+        setIconBlockNameVisible(visible);
+        setOption({ iconBlockNameVisible: visible });
+    };
+    const updateCodeVisible = (visible) => {
+        setIconBlockCodeVisible(visible);
+        setOption({ iconBlockCodeVisible: visible });
+    };
 
-
-	// 更新搜索字符串
-	updateSearchKeyword = (value) => {
-		this.setState({
-			searchKeyword: value
-		})
-	};
-
+    // 更新搜索字符串
+    const updateSearchKeyword = (value) => {
+        setSearchKeyword(value);
+    };
 
     // Icon容器宽度透明度相关
-    updateIconWrapperOpacity = (opacity) => {
-        this.setState({
-            iconBlockWrapperOpacity: opacity || 1
-        });
+    const updateIconWrapperWidth = (width) => {
+        if (width) widthTmpRef.current = width;
+        const iconWidth = width || widthTmpRef.current || defOption.iconBlockSize;
+        setIconBlockWrapperMaxWidth("100%");
+        setIconBlockWidth(iconWidth || "auto");
+        setIconBlockWrapperOpacity(1);
+        setOption({ iconBlockSize: width });
     };
-    updateIconWrapperWidth = (width) => {
-        if (width) this.widthTmp = width;
-        const iconWidth = width || this.widthTmp || defOption.iconBlockSize;
-        const wrapperWidth = document.querySelector("#iconGridLocalContainer").clientWidth;
-        const iconBlockOuterWidth = 26; // Margin: 10x2, border: 3x2, padding: 8x2
-        const iconBlockFullWidth = iconWidth + iconBlockOuterWidth;
-        const iconBlockSpaceLeftPerRow = wrapperWidth % iconBlockFullWidth;
-        this.setState({
-            iconBlockWrapperMaxWidth: "100%",
-            iconBlockWidth: iconWidth || "auto"
-        }, () => {
-            this.updateIconWrapperOpacity();
-            setOption({ iconBlockSize: width });
-        });
-    };
-    // 更新宽度节流, 100MS内连续调用只会执行一次, 但是每300MS必执行一次
-    updateIconWidthThrottle = throttleMustRun(this.updateIconWrapperWidth, 100, 300);
+
+    // 更新宽度节流
+    const updateIconWidthThrottle = useMemo(
+        () => throttleMustRun(updateIconWrapperWidth, 100, 300),
+        []
+    );
 
     // 拖放事件相关
-    onIconDrop = (acceptedFiles) => {
-        console.log(acceptedFiles)
-        const self = this;
-        const { selectedGroup } = this.props;
-        // 检测图标格式, 过滤掉配置中定义的可接受图标格式外的文件 (现在仅SVG)
+    const onIconDrop = (acceptedFiles) => {
+        console.log(acceptedFiles);
         const acceptableIcons = acceptedFiles.filter(file => {
             return config.acceptableIconTypes.includes(file.type);
         });
-        // 导入文件
         if (acceptedFiles.length === 1) {
-            // 如果导入的文件只有一个, 且文件为 icp 项目文件
-            const ext = acceptedFiles[0].name.split(".").pop().toLowerCase()
+            const ext = acceptedFiles[0].name.split(".").pop().toLowerCase();
             if (ext === "icp" || ext === "cp") {
                 // TODO: 接受项目文件
             }
-            // 如果导入的文件只有一个, 且不为项目文件, 且过滤后仍有
             if (acceptableIcons.length > 0) {
                 db.addIcons(acceptableIcons, selectedGroup, () => {
                     message.success(`已成功导入 ${acceptableIcons.length} 个图标`);
-	                GlobalEvent.dispatchEvent('SyncLeft');
-	                GlobalEvent.dispatchEvent('SyncCenterLocal');
-                })
+                    syncLeft();
+                    sync();
+                });
             } else {
                 message.error(`图标格式不相符, 仅支持导入 SVG 格式图标`);
             }
         } else {
-            // 如果大于一个, 则让用户选择取消还是导入剩余
             if (acceptableIcons.length !== acceptedFiles.length) {
                 confirm({
                     title: "发现了准备导入的图标中存在不相容的格式",
@@ -179,8 +143,8 @@ class IconGridLocal extends React.Component{
                     onOk() {
                         db.addIcons(acceptableIcons, selectedGroup, () => {
                             message.success(`已导入了 ${acceptedFiles.length} 个图标中的 ${acceptableIcons.length} 个`);
-	                        GlobalEvent.dispatchEvent('SyncLeft');
-	                        GlobalEvent.dispatchEvent('SyncCenterLocal');
+                            syncLeft();
+                            sync();
                         });
                     },
                     onCancel() {
@@ -190,100 +154,97 @@ class IconGridLocal extends React.Component{
             } else {
                 db.addIcons(acceptableIcons, selectedGroup, () => {
                     message.success(`已成功导入 ${acceptableIcons.length} 个图标`);
-	                GlobalEvent.dispatchEvent('SyncLeft');
-	                GlobalEvent.dispatchEvent('SyncCenterLocal');
+                    syncLeft();
+                    sync();
                 });
             }
         }
-
     };
 
     // 取消选择图标
-    deselectIcon = () => {
-        this.props.handleIconSelected(null);
+    const deselectIcon = () => {
+        handleIconSelected(null);
     };
 
     // 判断是否符合搜索结果
-	matchKeyword = (icon) => {
-		const { searchKeyword } = this.state;
-		if (searchKeyword) {
-			// 匹配图标名称和字码是否符合 searchKeyword
-			return (icon.iconName.match(new RegExp(searchKeyword, 'ig'))) || (icon.iconCode.match(new RegExp(searchKeyword, 'ig')));
-		} else {
-			return true;
-		}
-	};
+    const matchKeyword = (icon) => {
+        if (searchKeyword) {
+            return (icon.iconName.match(new RegExp(searchKeyword, 'ig'))) || (icon.iconCode.match(new RegExp(searchKeyword, 'ig')));
+        } else {
+            return true;
+        }
+    };
 
     // 生成一般图标矩阵
-    geneIconGrid = () => {
-	    const { selectedGroup } = this.props;
-        return this.state.iconData[selectedGroup].map((icon, index) =>
-            this.matchKeyword(icon) &&
+    const geneIconGrid = () => {
+        return iconData[selectedGroup].map((icon, index) =>
+            matchKeyword(icon) &&
             <IconBlock
                 key={icon.id}
-                selected={icon.id===this.props.selectedIcon}
+                selected={icon.id === selectedIcon}
                 data={icon}
                 name={icon.iconName}
                 code={icon.iconCode}
                 content={icon.iconContent}
-                width={this.state.iconBlockWidth}
-                nameVisible={this.state.iconBlockNameVisible}
-                codeVisible={this.state.iconBlockCodeVisible}
-                handleIconSelected={this.props.handleIconSelected}
+                width={iconBlockWidth}
+                nameVisible={iconBlockNameVisible}
+                codeVisible={iconBlockCodeVisible}
+                handleIconSelected={handleIconSelected}
             />
         );
     };
-	// 生成图标矩阵组 (全部分类下使用, 带分组头)
-    geneIconGridWithGroup = () => {
-        // 获取分组图标数据并生成矩阵
-	    return [this.geneIconGroupGrid({
-	        id: "resource-uncategorized",
-	        groupName: "未分组"
+
+    // 生成图标矩阵组 (全部分类下使用, 带分组头)
+    const geneIconGridWithGroup = () => {
+        return [geneIconGroupGrid({
+            id: "resource-uncategorized",
+            groupName: "未分组"
         })].concat(db.getGroupList().map(group => {
-            return this.geneIconGroupGrid(group);
+            return geneIconGroupGrid(group);
         }));
     };
-	// 生成图标矩阵 (用于全部分类, 带分组标题)
-    geneIconGroupGrid = (group) => {
-        const iconData = this.state.iconData[group.id];
-        if (iconData.length !== 0 ) {
-	        return (
-		        <div key={group.id} className={style.iconGridGroupWrapper}>
-			        <div className={style.iconUnselectLayer} onClick={this.deselectIcon}/>
-			        <div className={style.iconGridGroupDivider}
-			             onClick={() => GlobalEvent.dispatchEvent("SelectGroup", {id: group.id})}>
-				        <span>{group.groupName}</span><label>{iconData.length}</label>
-			        </div>
-			        {
-				        iconData.map((icon, index) =>
-					        this.matchKeyword(icon) &&
-					        <IconBlock
-						        key={icon.id}
-						        selected={icon.id === this.props.selectedIcon}
-						        data={icon}
-						        name={icon.iconName}
-						        code={icon.iconCode}
-						        content={icon.iconContent}
-						        width={this.state.iconBlockWidth}
-						        nameVisible={this.state.iconBlockNameVisible}
-						        codeVisible={this.state.iconBlockCodeVisible}
-						        handleIconSelected={this.props.handleIconSelected}
-					        />
-				        )
-			        }
-		        </div>
-	        );
+
+    // 生成图标矩阵 (用于全部分类, 带分组标题)
+    const geneIconGroupGrid = (group) => {
+        const groupIconData = iconData[group.id];
+        if (groupIconData && groupIconData.length !== 0) {
+            return (
+                <div key={group.id} className={style.iconGridGroupWrapper}>
+                    <div className={style.iconUnselectLayer} onClick={deselectIcon}/>
+                    <div className={style.iconGridGroupDivider}
+                         onClick={() => selectGroup(group.id)}>
+                        <span>{group.groupName}</span><label>{groupIconData.length}</label>
+                    </div>
+                    {
+                        groupIconData.map((icon, index) =>
+                            matchKeyword(icon) &&
+                            <IconBlock
+                                key={icon.id}
+                                selected={icon.id === selectedIcon}
+                                data={icon}
+                                name={icon.iconName}
+                                code={icon.iconCode}
+                                content={icon.iconContent}
+                                width={iconBlockWidth}
+                                nameVisible={iconBlockNameVisible}
+                                codeVisible={iconBlockCodeVisible}
+                                handleIconSelected={handleIconSelected}
+                            />
+                        )
+                    }
+                </div>
+            );
         }
     };
-    geneNodataBlock = () => {
-        const { selectedGroup } = this.props;
+
+    const geneNodataBlock = () => {
         if (selectedGroup === "resource-all") {
             return (
                 <div className={style.iconGridNodata}>
                     <img src={noIconHintSad}/>
                     <div className={style.iconGridNodataDiscContainer}>
                         <p>还没有图标</p>
-	                    <p>直接拖拽图标到此处可添加图标</p>
+                        <p>直接拖拽图标到此处可添加图标</p>
                     </div>
                 </div>
             );
@@ -319,58 +280,53 @@ class IconGridLocal extends React.Component{
         }
     };
 
-    render() {
-        const { selectedGroup } = this.props;
-        const { iconData } = this.state;
-        return (
-            <div className={style.iconGridLocalContainer} id="iconGridLocalContainer">
-                <Dropzone
-                    noClick
-                    onDrop={this.onIconDrop}
-                >
-                    {({getRootProps, getInputProps, isDragActive}) => (
-                        <div {...getRootProps({ className: isDragActive ? style.iconGridWrapperActive : style.iconGridWrapper })}>
-                            <input {...getInputProps()} />
-                            <div className={style.iconUnselectLayer} onClick={this.deselectIcon}/>
-                            <div
-                                className={style.iconGridScrollResizeWrapper}
-                                style={{
-                                    width: "100%",
-                                    maxWidth: this.state.iconBlockWrapperMaxWidth,
-                                    opacity: this.state.iconBlockWrapperOpacity
-                                }}
-                            >
-                                {
-
-                                    selectedGroup==="resource-all" ?
-	                                    db.getIconCount()!==0 ?
-	                                        this.geneIconGridWithGroup() : this.geneNodataBlock() :
-                                        iconData[selectedGroup] && iconData[selectedGroup].length!==0 ?
-	                                        this.geneIconGrid() : this.geneNodataBlock()
-                                }
-                            </div>
+    return (
+        <div className={style.iconGridLocalContainer} id="iconGridLocalContainer">
+            <Dropzone
+                noClick
+                onDrop={onIconDrop}
+            >
+                {({getRootProps, getInputProps, isDragActive}) => (
+                    <div {...getRootProps({ className: isDragActive ? style.iconGridWrapperActive : style.iconGridWrapper })}>
+                        <input {...getInputProps()} />
+                        <div className={style.iconUnselectLayer} onClick={deselectIcon}/>
+                        <div
+                            className={style.iconGridScrollResizeWrapper}
+                            style={{
+                                width: "100%",
+                                maxWidth: iconBlockWrapperMaxWidth,
+                                opacity: iconBlockWrapperOpacity
+                            }}
+                        >
+                            {
+                                selectedGroup==="resource-all" ?
+                                    db.getIconCount()!==0 ?
+                                        geneIconGridWithGroup() : geneNodataBlock() :
+                                    iconData[selectedGroup] && iconData[selectedGroup].length!==0 ?
+                                        geneIconGrid() : geneNodataBlock()
+                            }
                         </div>
-                    )}
-                </Dropzone>
-                <div className={style.iconGridDropOverlay}>
-                    <div className={style.iconGridHintContainer}>
-                        <div>拖拽到此处将图标添加到该分组</div>
                     </div>
-                </div>
-                <div className={style.iconToolbarOuterContainer}>
-                    <IconToolbar
-                        defaultIconWidth={getOption().iconBlockSize}
-                        updateIconWidth={this.updateIconWidthThrottle}
-                        defaultNameVisible={getOption().iconBlockNameVisible}
-                        updateNameVisible={this.updateNameVisible}
-                        defaultCodeVisible={getOption().iconBlockCodeVisible}
-                        updateCodeVisible={this.updateCodeVisible}
-                        updateSearchKeyword={this.updateSearchKeyword}
-                    />
+                )}
+            </Dropzone>
+            <div className={style.iconGridDropOverlay}>
+                <div className={style.iconGridHintContainer}>
+                    <div>拖拽到此处将图标添加到该分组</div>
                 </div>
             </div>
-        );
-    }
+            <div className={style.iconToolbarOuterContainer}>
+                <IconToolbar
+                    defaultIconWidth={getOption().iconBlockSize}
+                    updateIconWidth={updateIconWidthThrottle}
+                    defaultNameVisible={getOption().iconBlockNameVisible}
+                    updateNameVisible={updateNameVisible}
+                    defaultCodeVisible={getOption().iconBlockCodeVisible}
+                    updateCodeVisible={updateCodeVisible}
+                    updateSearchKeyword={updateSearchKeyword}
+                />
+            </div>
+        </div>
+    );
 }
 
 export default IconGridLocal;
