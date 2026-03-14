@@ -13,7 +13,7 @@
 | P0 | ✅ 完成 | 安全修复 & 基础可运行性 |
 | P1 | ✅ 完成 | 核心工具链现代化 |
 | P2 | ✅ 完成 | 架构改进 |
-| P3 | 🔄 进行中 | 工程化 |
+| P3 | ✅ 完成 | 工程化 |
 | P4 | 📋 计划 | 功能增强 |
 
 ---
@@ -111,4 +111,4 @@
 | 2026-03-14 | 创建路线图；P0 完成；确定 electron-vite 方向；调整 P1-P4 计划 |
 | 2026-03-14 | P1 完成 (electron-vite, React 18, antd 5) |
 | 2026-03-14 | P2 完成 (TypeScript, Zustand, Hooks, sql.js, 死代码清理, contextBridge) |
-| 2026-03-14 | P3 大部分完成 (ESLint, Prettier, GitHub Actions CI, README)；Vitest 待做 |
+| 2026-03-14 | P3 完成 (ESLint, Prettier, GitHub Actions CI, README, Vitest) |

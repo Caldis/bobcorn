@@ -17,7 +17,7 @@ Bobcorn 是一个 Electron + React 的图标字体管理/生成桌面工具。
 | 打包 | electron-builder | 24.13 |
 | 数据库 | sql.js (WASM) | 1.14 |
 | 类型 | TypeScript (渐进迁移中) | 5.x |
-| 测试 | Jest + Playwright | 27 / 1.58 |
+| 测试 | Vitest + Playwright | 3.x / 1.58 |
 | Node | 18 (via fnm) | 18.20.8 |
 
 ## 开发环境
