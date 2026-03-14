@@ -7,6 +7,7 @@
 import os from 'os';
 import path from 'path';
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 
 let mainWindow = null;
@@ -131,5 +132,19 @@ app.on('ready', async () => {
     });
     ipcMain.on('get-app-path', (event, name) => {
         event.returnValue = app.getPath(name);
+    });
+
+    // Auto-update
+    ipcMain.on('install-update', () => {
+        autoUpdater.quitAndInstall();
+    });
+
+    autoUpdater.checkForUpdatesAndNotify();
+
+    autoUpdater.on('update-available', () => {
+        mainWindow?.webContents.send('update-available');
+    });
+    autoUpdater.on('update-downloaded', () => {
+        mainWindow?.webContents.send('update-downloaded');
     });
 });

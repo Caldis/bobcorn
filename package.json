@@ -10,6 +10,7 @@
     "package": "electron-vite build && electron-builder --publish never",
     "package-all": "electron-vite build && electron-builder -mwl",
     "package-win": "electron-vite build && electron-builder --win --x64",
+    "package-mac": "electron-vite build && electron-builder --mac",
     "package-linux": "electron-vite build && electron-builder --linux",
     "lint": "eslint app/ --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "lint:fix": "eslint app/ --ext .js,.jsx,.ts,.tsx --fix",
@@ -50,12 +51,12 @@
     "mac": {
       "identity": null,
       "target": [
-        "dmg"
+        { "target": "dmg", "arch": ["x64", "arm64"] }
       ]
     },
     "win": {
       "target": [
-        "nsis"
+        { "target": "nsis", "arch": ["x64"] }
       ]
     },
     "linux": {
@@ -63,6 +64,11 @@
         "deb",
         "AppImage"
       ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Caldis",
+      "repo": "bobcorn"
     }
   },
   "author": {
@@ -106,6 +112,7 @@
     "antd": "^5.29.3",
     "dompurify": "^3.3.3",
     "electron-titlebar-windows": "^3.0.0",
+    "electron-updater": "^6.8.3",
     "memory-fs": "^0.4.1",
     "prop-types": "^15.6.2",
     "react": "^18.3.1",

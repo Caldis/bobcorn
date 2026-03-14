@@ -11,6 +11,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # macos-latest is arm64 (M-series); macos-13 is the last x64 runner
+        # Mac DMG build targets both x64 and arm64 via electron-builder
         os: [windows-latest, ubuntu-latest, macos-latest]
         node-version: [18]
 
