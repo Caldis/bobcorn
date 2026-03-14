@@ -1,6 +1,6 @@
 {
   "name": "bobcorn",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "productName": "Bobcorn",
   "description": "A tool for build iconfonts.",
   "main": "out/main/index.js",
