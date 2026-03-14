@@ -14,8 +14,9 @@
     "lint": "eslint app/ --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "lint:fix": "eslint app/ --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"app/**/*.{js,jsx,ts,tsx,css,json}\"",
-    "test": "jest",
-    "test:unit": "jest test/unit"
+    "test": "vitest run",
+    "test:unit": "vitest run test/unit",
+    "test:watch": "vitest"
   },
   "browserslist": [
     "chrome 120"
@@ -88,7 +89,6 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
     "events": "^3.3.0",
-    "jest": "^27.5.1",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "process": "^0.11.10",
@@ -98,7 +98,8 @@
     "stylelint-config-standard": "^16.0.0",
     "typescript": "^5.9.3",
     "vite": "^5.4.21",
-    "vite-plugin-imp": "^2.4.0"
+    "vite-plugin-imp": "^2.4.0",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
@@ -118,13 +119,6 @@
     "ttf2woff": "^2.0.1",
     "ttf2woff2": "^2.0.3",
     "zustand": "^5.0.11"
-  },
-  "jest": {
-    "transform": {},
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/app/node_modules/"
-    ]
   },
   "devEngines": {
     "node": ">=18.x",
