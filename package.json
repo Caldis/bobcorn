@@ -16,7 +16,9 @@
     "package": "npm run build && electron-builder --publish never",
     "package-all": "npm run build && electron-builder -mwl",
     "package-win": "npm run build && electron-builder --win --x64",
-    "package-linux": "npm run build && electron-builder --linux"
+    "package-linux": "npm run build && electron-builder --linux",
+    "test": "jest",
+    "test:unit": "jest test/unit"
   },
   "browserslist": [
     "electron 1.6"
@@ -76,6 +78,7 @@
     "react"
   ],
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
     "babel-loader": "^7.1.4",
@@ -109,10 +112,11 @@
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^2.28.0",
     "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.3.0",
     "less-loader": "^4.0.4",
     "mini-css-extract-plugin": "^0.4.1",
-    "node-sass": "^4.9.2",
     "optimize-css-assets-webpack-plugin": "^5.0.0",
+    "sass": "^1.98.0",
     "sass-loader": "^7.0.3",
     "source-map-support": "^0.4.10",
     "style-loader": "^0.16.1",
