@@ -36,7 +36,7 @@
       "output": "release"
     },
     "files": [
-      "out/**/*"
+      "out"
     ],
     "dmg": {
       "sign": false,
