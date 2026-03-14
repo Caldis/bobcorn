@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        node-version: [18]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Lint (optional)
+        run: npx eslint app/ --ext .js,.jsx,.ts,.tsx --max-warnings 999 || true
+        continue-on-error: true
+
+      - name: Build
+        run: npx electron-vite build
+
+      - name: Unit tests
+        run: npx jest test/unit --verbose
+
+      - name: E2E tests (Linux only - needs display)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y xvfb
+          xvfb-run --auto-servernum node test/e2e/acceptance.js
