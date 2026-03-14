@@ -10,15 +10,37 @@ const nodeBuiltins = [
   'crypto', 'events', 'buffer', 'punycode',
 ]
 
-// Plugin to fix CJS output in Electron renderer: remove type="module" from script tags
+// Plugin to fix CJS output in Electron renderer:
+// 1. Remove type="module" from script tags (CJS doesn't use ES modules)
+// 2. Inject CSS for async chunks (Vite only auto-injects in ESM mode)
 function electronCjsHtmlPlugin() {
   return {
     name: 'electron-cjs-html',
     enforce: 'post',
-    transformIndexHtml(html) {
-      return html
-        .replace(/ type="module" crossorigin/g, '')
-        .replace(/ crossorigin/g, '')
+    generateBundle(_, bundle) {
+      // Collect all CSS files not already referenced in HTML
+      this._extraCss = Object.keys(bundle).filter(f => f.endsWith('.css'))
+    },
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        // Remove module/crossorigin attrs
+        html = html
+          .replace(/ type="module" crossorigin/g, '')
+          .replace(/ crossorigin/g, '')
+
+        // Inject all chunk CSS files that aren't already in the HTML
+        if (ctx?.bundle) {
+          const cssFiles = Object.keys(ctx.bundle).filter(f => f.endsWith('.css'))
+          for (const css of cssFiles) {
+            if (!html.includes(css)) {
+              html = html.replace('</head>', `  <link rel="stylesheet" href="./${css}">\n</head>`)
+            }
+          }
+        }
+
+        return html
+      },
     },
   }
 }
