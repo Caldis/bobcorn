@@ -1,8 +1,12 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import MainContainer from './containers/MainContainer';
+import { dbReady } from './database';
 
-function mount() {
+async function mount() {
+    // Wait for sql.js WASM engine to initialize before rendering
+    await dbReady;
+
     const container = document.getElementById('root');
     if (container) {
         const root = createRoot(container);

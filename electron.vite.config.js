@@ -76,7 +76,7 @@ export default defineConfig({
         external: [
           ...nodeBuiltins,
           /^electron\/.*/,
-          'sql.js',  // sql.js uses `this` as global scope in IIFE, breaks in strict CJS bundle
+          'sql.js',  // sql.js 1.x uses WASM; keep externalized for Node.js require() in Electron renderer
         ],
         output: {
           format: 'cjs',

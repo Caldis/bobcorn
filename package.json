@@ -96,13 +96,14 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.4.1",
-    "sql.js": "^0.5.0",
+    "sql.js": "^1.14.1",
     "svg.js": "^2.6.5",
     "svg2ttf": "^4.0.2",
     "svgicons2svgfont": "^9.0.3",
     "ttf2eot": "^2.0.0",
     "ttf2woff": "^2.0.1",
-    "ttf2woff2": "^2.0.3"
+    "ttf2woff2": "^2.0.3",
+    "zustand": "^5.0.11"
   },
   "jest": {
     "transform": {},

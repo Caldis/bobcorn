@@ -5,7 +5,7 @@ import fs from 'fs';
 // SVG
 import SVG from '../utils/svg';
 // SQLite
-import SQL from 'sql.js';
+import initSqlJs from 'sql.js';
 // Config
 import config from '../config';
 // Utils
@@ -24,11 +24,19 @@ class Database {
         // 内部引用
         this.dbInited = false; // 数据库初始化标记
         this.db = null; // 自己的数据库
+        this.SQL = null; // sql.js module reference
         this.unusedIconCodeList = null; // 未使用的图标字码列表
-        // 初始化
-        this.initDatabases();
+        // NOTE: init() must be called and awaited before using the database
     }
 
+    // 异步初始化 sql.js WASM 引擎
+    init = async () => {
+        if (!this.SQL) {
+            this.SQL = await initSqlJs();
+        }
+        this.initDatabases();
+        return this;
+    };
 
     // 基本方法
     // 初始化数据库
@@ -36,7 +44,7 @@ class Database {
 	    dev && console.log("initDatabases");
         if (!this.dbInited) {
             this.dbInited = true;
-            this.db = new SQL.Database(data);
+            this.db = new this.SQL.Database(data);
         }
     };
     // 构建数据对表达式
@@ -568,8 +576,11 @@ class Database {
 
 
 const db = new Database();
-db.initNewProject();
-// DEBUG
-window.db = db;
+const dbReady = db.init().then(() => {
+    db.initNewProject();
+    // DEBUG
+    window.db = db;
+    return db;
+});
 export default db;
-export { Database };
+export { Database, dbReady };
