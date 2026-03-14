@@ -1,5 +1,6 @@
 {
   "name": "bobcorn",
+  "version": "1.0.0-rc.1",
   "productName": "Bobcorn",
   "description": "A tool for build iconfonts.",
   "main": "out/main/index.js",
@@ -17,7 +18,11 @@
     "format": "prettier --write \"app/**/*.{js,jsx,ts,tsx,css,json}\"",
     "test": "vitest run",
     "test:unit": "vitest run test/unit",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "security-audit": "bash scripts/security-audit.sh",
+    "release:patch": "npm version patch && git push origin main --follow-tags",
+    "release:minor": "npm version minor && git push origin main --follow-tags",
+    "prepare": "husky"
   },
   "browserslist": [
     "chrome 120"
@@ -51,12 +56,23 @@
     "mac": {
       "identity": null,
       "target": [
-        { "target": "dmg", "arch": ["x64", "arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ]
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "linux": {
@@ -95,6 +111,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
     "events": "^3.3.0",
+    "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
+    "lint-staged": "^15.5.2",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "process": "^0.11.10",
@@ -130,5 +149,11 @@
   "devEngines": {
     "node": ">=18.x",
     "npm": ">=8.x"
+  },
+  "lint-staged": {
+    "app/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }
