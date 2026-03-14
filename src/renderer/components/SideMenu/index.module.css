@@ -108,7 +108,7 @@
 .sideIOButtonContainer {
     /*border-top: 1px solid #eeeff0;*/
     flex-shrink: 0;
-    padding: 6px 6px 5px;
+    padding: 6px 10px 8px;
 }
 .sideImportMenu li {
     color: rgba(0, 0, 0, 0.65) !important;
