@@ -35,7 +35,7 @@ if (
 const installExtensions = async () => {
     const installer = require('electron-devtools-installer');
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+    const extensions = ['REACT_DEVELOPER_TOOLS'];
 
     return Promise.all(
         extensions.map(name => installer.default(installer[name], forceDownload))
@@ -76,10 +76,9 @@ app.on('ready', async () => {
         // OSX下, 窗口按钮内置
         titleBarStyle: platform==="darwin" ? 'hiddenInset' : 'hidden',
         webPreferences: {
-            // 启用实验性功能,
+            nodeIntegration: true,
+            contextIsolation: false,
             experimentalFeatures: true,
-            // 关闭安全设置, 允许跨域
-            webSecurity: false
         }
     });
 

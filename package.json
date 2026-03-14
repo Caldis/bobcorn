@@ -5,12 +5,12 @@
   "scripts": {
     "dev": "cross-env START_HOT=1 node -r babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
-    "build-dll": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.dev.dll.js --colors",
-    "build-main": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.main.prod.js --colors",
-    "build-renderer": "cross-env NODE_ENV=production node --max-old-space-size=4076 --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.prod.js --colors",
+    "build-dll": "cross-env NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.dev.dll.js --colors",
+    "build-main": "cross-env NODE_ENV=production NODE_OPTIONS=--openssl-legacy-provider node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.main.prod.js --colors",
+    "build-renderer": "cross-env NODE_ENV=production NODE_OPTIONS=--openssl-legacy-provider node --max-old-space-size=4076 --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.prod.js --colors",
     "start": "cross-env NODE_ENV=production electron ./app/",
     "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r babel-register ./app/main.dev.js",
-    "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
+    "start-renderer-dev": "cross-env NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
     "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
     "postinstall": "npm run build-dll && electron-builder install-app-deps && node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
     "package": "npm run build && electron-builder --publish never",
@@ -21,7 +21,7 @@
     "test:unit": "jest test/unit"
   },
   "browserslist": [
-    "electron 1.6"
+    "chrome 120"
   ],
   "build": {
     "productName": "Bobcorn",
@@ -100,11 +100,10 @@
     "cross-spawn": "^5.1.0",
     "css-loader": "^1.0.0",
     "detect-port": "^1.2.3",
-    "devtron": "^1.4.0",
-    "electron": "^2.0.5",
-    "electron-builder": "22.2.0",
-    "electron-debug": "^2.0.0",
-    "electron-devtools-installer": "^2.2.4",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
+    "electron-debug": "^3.2.0",
+    "electron-devtools-installer": "^3.2.1",
     "electron-rebuild": "^1.8.1",
     "express": "^4.15.2",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
@@ -149,11 +148,13 @@
   },
   "jest": {
     "transform": {},
-    "testPathIgnorePatterns": ["/node_modules/", "/app/node_modules/"]
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/app/node_modules/"
+    ]
   },
   "devEngines": {
-    "node": ">=7.x",
-    "npm": ">=4.x",
-    "yarn": ">=0.21.3"
+    "node": ">=18.x",
+    "npm": ">=8.x"
   }
 }
