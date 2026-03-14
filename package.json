@@ -1,0 +1,151 @@
+{
+  "name": "bobcorn",
+  "productName": "Bobcorn",
+  "description": "A tool for build iconfonts.",
+  "scripts": {
+    "dev": "cross-env START_HOT=1 node -r babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
+    "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
+    "build-dll": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.dev.dll.js --colors",
+    "build-main": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.main.prod.js --colors",
+    "build-renderer": "cross-env NODE_ENV=production node --max-old-space-size=4076 --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.prod.js --colors",
+    "start": "cross-env NODE_ENV=production electron ./app/",
+    "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r babel-register ./app/main.dev.js",
+    "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
+    "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
+    "postinstall": "npm run build-dll && electron-builder install-app-deps && node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
+    "package": "npm run build && electron-builder --publish never",
+    "package-all": "npm run build && electron-builder -mwl",
+    "package-win": "npm run build && electron-builder --win --x64",
+    "package-linux": "npm run build && electron-builder --linux"
+  },
+  "browserslist": [
+    "electron 1.6"
+  ],
+  "build": {
+    "productName": "Bobcorn",
+    "appId": "me.caldis.bobcorn",
+    "asar": true,
+    "files": [
+      "dist/",
+      "node_modules/",
+      "app.html",
+      "resources/",
+      "main.prod.js",
+      "main.prod.js.map",
+      "package.json"
+    ],
+    "dmg": {
+      "sign": false,
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "mac": {
+      "identity": null
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ]
+    },
+    "directories": {
+      "buildResources": "resources",
+      "output": "release"
+    }
+  },
+  "author": {
+    "name": "10192187|陈标"
+  },
+  "keywords": [
+    "electron",
+    "react"
+  ],
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-dev-expression": "^0.2.1",
+    "babel-plugin-flow-runtime": "^0.17.0",
+    "babel-plugin-import": "^1.8.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-react-optimize": "^1.0.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "chalk": "^2.4.1",
+    "concurrently": "^3.6.0",
+    "cross-env": "^5.2.0",
+    "cross-spawn": "^5.1.0",
+    "css-loader": "^1.0.0",
+    "detect-port": "^1.2.3",
+    "devtron": "^1.4.0",
+    "electron": "^2.0.5",
+    "electron-builder": "22.2.0",
+    "electron-debug": "^2.0.0",
+    "electron-devtools-installer": "^2.2.4",
+    "electron-rebuild": "^1.8.1",
+    "express": "^4.15.2",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "fbjs-scripts": "^0.7.1",
+    "file-loader": "^1.1.11",
+    "html-webpack-plugin": "^2.28.0",
+    "identity-obj-proxy": "^3.0.0",
+    "less-loader": "^4.0.4",
+    "mini-css-extract-plugin": "^0.4.1",
+    "node-sass": "^4.9.2",
+    "optimize-css-assets-webpack-plugin": "^5.0.0",
+    "sass-loader": "^7.0.3",
+    "source-map-support": "^0.4.10",
+    "style-loader": "^0.16.1",
+    "stylelint": "^7.10.1",
+    "stylelint-config-standard": "^16.0.0",
+    "uglifyjs-webpack-plugin": "^1.2.7",
+    "url-loader": "^1.0.1",
+    "webpack": "^4.16.1",
+    "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5",
+    "webpack-merge": "^4.1.4"
+  },
+  "dependencies": {
+    "antd": "^3.7.0",
+    "electron-titlebar-windows": "^3.0.0",
+    "memory-fs": "^0.4.1",
+    "prop-types": "^15.6.2",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-dropzone": "^4.2.13",
+    "react-hot-loader": "^4.3.3",
+    "sql.js": "^0.5.0",
+    "svg.js": "^2.6.5",
+    "svg2ttf": "^4.0.2",
+    "svgicons2svgfont": "^9.0.3",
+    "ttf2eot": "^2.0.0",
+    "ttf2woff": "^2.0.1",
+    "ttf2woff2": "^2.0.3"
+  },
+  "devEngines": {
+    "node": ">=7.x",
+    "npm": ">=4.x",
+    "yarn": ">=0.21.3"
+  }
+}

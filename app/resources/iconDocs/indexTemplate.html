@@ -1,0 +1,609 @@
+<html>
+    <head>
+        <title>图标一览</title>
+        <meta charset="utf-8">
+        <!--全局样式-->
+        <style type="text/css" media="screen">
+            /*字体*/
+            * {
+                font-family: "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+            }
+            code {
+                font-family:
+                    Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
+                    "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
+                    "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace,
+                    "Microsoft Yahei", sans-serif;
+            }
+            /*背景图片*/
+            body {
+                margin: 0;
+            }
+            /*TAB相关*/
+            .tab {
+                overflow: hidden;
+                background-color: #f1f1f1;
+            }
+            .tab button {
+                background-color: #f3f3f3;
+                float: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                padding: 14px 16px;
+                transition: 0.3s;
+            }
+            .tab button:hover {
+                background-color: #ddd;
+            }
+            .tab button.active {
+                background: #108ee9;
+                color: white;
+            }
+            .tabContent {
+                display: none;
+                padding: 15px 25px;
+                border-top: none;
+            }
+            /*占位符样式*/
+            ::-moz-placeholder { color: #999; }
+            ::-webkit-input-placeholder { color:#999; }
+            :-ms-input-placeholder { color:#999; }
+        </style>
+        <!-- 图标字体样式 - CSS -->
+        <style type="text/css" media="screen" content="fontStyle" id="unicodeFontFace">
+            /*由 renderPageIcons() 注入*/
+        </style>
+        <!--基本样式-->
+        <style type="text/css" media="screen">
+            /*提示*/
+            .hintBar {
+                box-sizing: border-box;
+                margin: 20px auto;
+                padding: 10px 15px;
+                width: 1200px;
+                color: #108ee9;
+                background: rgba(16, 142, 233, 0.1);
+                border: 1px solid #a9dbff;
+                border-radius: 5px;
+                font-size: 12px;
+            }
+            /*渲染方式选择*/
+            .iconRenderTypeContainer {
+                z-index: 100;
+                width: 1200px;
+                /*border-radius: 5px 5px 0 0;*/
+            }
+            .renderType {
+                width: 33.33%;
+            }
+            /*帮助相关*/
+            .helpContainer {
+                background: white;
+                width: 1200px;
+                margin: auto;
+                border: 1px solid rgba(30,35,42,.06);
+                /*border-radius: 10px;*/
+                box-shadow: 0 1px 3px 0 rgba(0,34,77,.05);
+            }
+            .helper {
+
+            }
+            .helper p {
+                font-weight: bold;
+            }
+            .helper pre {
+                font-size: 12px;
+                color: #108ee9;
+                padding: 20px;
+                background-color: #e7f3fd;
+                border-radius: 5px;
+                border: 1px solid #a9dbff;
+            }
+            .helper li {
+                font-size: 13px;
+            }
+            .helper blockquote {
+                margin: 10px;
+                padding: 1px 15px;
+                border-left: 3px solid black;
+                background: #eee;
+            }
+            /*搜索栏*/
+            .searchBar {
+                background: white;
+                box-sizing: border-box;
+                margin: 20px auto 0;
+                max-width: 1200px;
+                padding: 30px;
+                border: 1px solid rgba(30,35,42,.06);
+                border-bottom: 0;
+                border-radius: 5px 5px 0 0;
+                box-shadow: 0 1px 3px 0 rgba(0,34,77,.05);
+            }
+            .searchBar>span {
+
+            }
+            .searchBar>input {
+                opacity: 0.7;
+                outline: none;
+                border: none;
+                width: 100%;
+                font-size: 24px;
+                line-height: 30px;
+                transition: all .3s;
+                border-bottom: 2px solid transparent;
+            }
+            .searchBar>input:focus {
+                border-bottom: 2px solid #108ee9;
+            }
+            /*图标组内容*/
+            .iconGroupContainer {
+                background: white;
+                box-sizing: border-box;
+                margin: -40px auto 30px;
+                max-width: 1200px;
+                padding: 30px;
+                border: 1px solid rgba(30,35,42,.06);
+                border-top: none;
+                border-radius: 0 0 5px 5px;
+                box-shadow: 0 1px 3px 0 rgba(0,34,77,.05);
+            }
+            .iconGroup {
+                /*-webkit-user-select: none;*/
+                /*-moz-user-select: none;*/
+                /*user-select: none;*/
+            }
+            .iconGroupName {
+                color: #333;
+                cursor: default;
+                font-size: 24px;
+                font-weight: bold;
+                margin: 40px 0 30px;
+            }
+            .iconBlock {
+                text-align: center;
+                cursor: pointer;
+                display: inline-block;
+                width: 90px;
+                padding: 10px 15px;
+                transition: all .3s;
+                border-radius: 3px;
+                border: 3px solid rgba(0, 0, 0, 0);
+            }
+            .iconBlock:hover {
+                background-color: #eaf6fd;
+            }
+            .iconBlock:active {
+                border: 3px solid #108ee9;
+            }
+            .iconName {
+                color: #757575;
+                font-size: 11px;
+                font-weight: bold;
+                margin-top: 16px;
+                overflow: hidden;
+                text-align: center;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                z-index: 1;
+            }
+            .iconCode {
+                color: #666;
+                margin-top: 4px;
+                font-size: 12px;
+            }
+            .iconContent {
+
+            }
+            .iconContent>* {
+                font-size: 64px !important;
+                color: #bcbcbc;
+            }
+            .noIconHint {
+                font-size: 14px;
+                color: #666;
+                height: 40px;
+                text-align: center;
+                line-height: 40px;
+            }
+        </style>
+        <!--图标数据-->
+        <script content="icons">
+            var projectName = "";
+            var groups = [];
+            var icons = [];
+        </script>
+    </head>
+    <body>
+
+        <!--简介区域-->
+        <div class="hintBar">
+            从以下的几个引用方式中选择一个以开始使用图标字体，不同的引用方式有不同的适用场景, 请仔细阅读说明选用一个所需的使用方式
+        </div>
+        <div class="hintBar">
+            如果您的图标包含多色图标，请务必选用 Symbol 方式引用
+        </div>
+
+        <!-- 帮助区域 -->
+        <div class="helpContainer">
+            <div class="iconRenderTypeContainer tab">
+                <button class="renderType tabLinks active" onclick="changeTab(event, 'unicode')">Unicode 方式</button>
+                <button class="renderType tabLinks" onclick="changeTab(event, 'fontClass')">FontClass 方式</button>
+                <button class="renderType tabLinks" onclick="changeTab(event, 'symbol')">Symbol 方式</button>
+            </div>
+            <!--Unicode 帮助相关-->
+            <div class="helper tabContent" id="unicode" style="display: block">
+                <p>unicode是字体在网页端最原始的应用方式，特点是：</p>
+                <ul>
+                    <li>兼容性最好，支持ie6+，及所有现代浏览器。</li>
+                    <li>支持按字体的方式去动态调整图标大小，颜色等等。</li>
+                    <li>由于本体是字体，所以不支持多色。只能使用平台里单色的图标，就算项目里有多色图标也会自动去色。</li>
+                </ul>
+                <p>unicode使用步骤如下：</p>
+                <h3>第一步：拷贝项目下面生成的font-face</h3>
+                <pre><code id="unicode-step-1"><!--由 renderPageManual 注入--></code></pre>
+                <h3>第二步：定义使用iconfont的样式</h3>
+                <pre><code id="unicode-step-2"><!--由 renderPageManual 注入--></code></pre>
+                <h3>第三步：挑选相应图标并获取字体编码，应用于页面</h3>
+                <pre><code id="unicode-step-3"><!--由 renderPageManual 注入--></code></pre>
+            </div>
+            <!--FontClass 帮助相关-->
+            <div class="helper tabContent" id="fontClass">
+                <p>font-class是unicode使用方式的一种变种，主要是解决unicode书写不直观，语意不明确的问题。</p>
+                <p>与unicode使用方式相比，具有如下特点：</p>
+                <ul>
+                    <li>兼容性良好，支持ie8+，及所有现代浏览器。</li>
+                    <li>相比于unicode语意明确，书写更直观。可以很容易分辨这个icon是什么。</li>
+                    <li>因为使用class来定义图标，所以当要替换图标时，只需要修改class里面的unicode引用。</li>
+                    <li>不过因为本质上还是使用的字体，所以多色图标还是不支持的。</li>
+                </ul>
+                <p>使用步骤如下：</p>
+                <h3>第一步：引入项目下面生成的fontclass代码：</h3>
+                <pre><code id="fontclass-step-1"><!--由 renderPageManual 注入--></code></pre>
+                <h3>第二步：挑选相应图标并获取类名，应用于页面：</h3>
+                <pre><code id="fontclass-step-2"><!--由 renderPageManual 注入--></code></pre>
+            </div>
+            <!--Symbol 帮助相关-->
+            <div class="helper tabContent" id="symbol">
+                <p>这是一种全新的使用方式，应该说这才是未来的主流，也是平台目前推荐的用法。</p>
+                <p>与另外两种相比具有如下特点：</p>
+                <ul>
+                    <li>支持多色图标了，不再受单色限制。</li>
+                    <li>通过一些技巧，支持像字体那样，通过 font-size, color 来调整样式。</li>
+                    <li>兼容性较差，支持 ie9+,及现代浏览器。</li>
+                    <li>浏览器渲染svg的性能一般，还不如png。</li>
+                </ul>
+                <p>使用步骤如下：</p>
+                <h3>第一步：引入项目下面生成的symbol代码：</h3>
+                <pre><code id="symbol-step-1"><!--由 renderPageManual 注入--></code></pre>
+                <h3>第二步：加入通用css代码（引入一次就行）：</h3>
+                <pre><code id="symbol-step-2"><!--由 renderPageManual 注入--></code></pre>
+                <h3>第三步：挑选相应图标并获取类名，应用于页面：</h3>
+                <pre><code id="symbol-step-3"><!--由 renderPageManual 注入--></code></pre>
+            </div>
+        </div>
+
+        <!--搜索栏-->
+        <!--<div class="searchBar">-->
+            <!--<input type="text" placeholder="搜索图标名称或字码, 按下回车确认" id="searchBar" onkeypress="updateSearchKeyword()">-->
+        <!--</div>-->
+
+        <!--图标组内容-->
+        <div class="iconGroupContainer">
+
+        </div>
+
+        <!--HTML模板区域, 从这里读取并生成页面, 并不显示-->
+        <div class="template" style="display: none;">
+            <!--组模板-->
+            <!--var iconGroupTemplate = document.querySelector(".template .iconGroup").cloneNode(true);-->
+            <div class="iconGroup">
+                <p class="iconGroupName">
+                    <!--iconGroupName-->
+                </p>
+                <!--iconBlock-->
+            </div>
+            <!--图标块模板-->
+            <!--var iconBlockTemplate = document.querySelector(".template .iconBlock").cloneNode(true);-->
+            <div class="iconBlock">
+                <div class="iconContent">
+                    <!--iconContent-->
+                </div>
+                <div class="iconName">
+                    <!--iconName-->
+                </div>
+                <div class="iconCode">
+                    <!--iconCode-->
+                </div>
+            </div>
+            <!-- 分组内无图标提示 -->
+            <div class="noIconHint">
+                该分类下暂无图标
+            </div>
+        </div>
+
+    </body>
+    <script content="userScript">
+        // 标识符， 避免重复插入内容
+        var unicodeDatasAppended = false;
+        var fontClassDatasAppended = false;
+        var symbolDataAppended = false;
+
+        // 搜索关键字
+        var searchKeyword = "";
+        // 当前的Tab页
+        var currentTab = "unicode";
+
+        // 定义基本的样式引用内容
+        var unicodeImportStyle =
+            "@font-face {" +
+                "font-family: '" + projectName + "';" +
+                "src: url('" + projectName + ".eot');" +
+                "src: url('" + projectName + ".eot?#iefix') format('embedded-opentype')," +
+                "url('" + projectName + ".woff') format('woff')," +
+                "url('" + projectName + ".ttf') format('truetype')," +
+                "url('" + projectName + ".svg#" + projectName + "') format('svg');" +
+            "}" +
+            "." + projectName + "{" +
+                "font-family:'" + projectName + "' !important;" +
+                "font-size:16px;font-style:normal;" +
+                "-webkit-font-smoothing: antialiased;" +
+                "-webkit-text-stroke-width: 0.2px;" +
+                "-moz-osx-font-smoothing: grayscale;" +
+            "}";
+        var symbolImportStyle =
+            ".icon {" +
+                "width: 1em; height: 1em;" +
+                "vertical-align: -0.15em;" +
+                "fill: currentColor;" +
+                "overflow: hidden;" +
+            "}"
+        function cleanPageIcons() {
+	        if (document.querySelector("[content=fontStyle]")) {
+		        document.querySelector("[content=fontStyle]").innerHTML = "";
+	        }
+	        if (document.querySelector("[content=fontSymbolRefDOM]")) {
+		        document.querySelector("[content=fontSymbolRefDOM]").remove();
+            }
+            if (document.querySelector("[content=fontClassRefDOM]")) {
+	            document.querySelector("[content=fontClassRefDOM]").remove();
+            }
+            if (document.querySelector(".iconGroupContainer")) {
+	            document.querySelector(".iconGroupContainer").innerHTML = "";
+            }
+        }
+        function renderPageManual() {
+            // 更新三个部分的使用说明
+            // Unicode
+            document.querySelector("#unicode-step-1").innerHTML =
+                '@font-face {' + '</br>' +
+                '   font-family: "' + projectName + '";' + '</br>' +
+                '   src: url("' + projectName + '.eot");' + '</br>' +
+                '   src: url("' + projectName + '.eot?#iefix") format("embedded-opentype"),' + '</br>' +
+                '   url("' + projectName + '.woff") format("woff"),' + '</br>' +
+                '   url("' + projectName + '.ttf") format("truetype"),' + '</br>' +
+                '   url("' + projectName + '.svg#' + projectName + '") format("svg");' + '</br>' +
+                '}'
+            document.querySelector("#unicode-step-2").innerHTML =
+                '.' + projectName + '{' + '</br>' +
+                '   font-family: "' + projectName + '" !important;' + '</br>' +
+                '   font-size: 16px;' + '</br>' +
+                '   font-style: normal;' + '</br>' +
+                '   -webkit-font-smoothing: antialiased;' + '</br>' +
+                '   -webkit-text-stroke-width: 0.2px;' + '</br>' +
+                '   -moz-osx-font-smoothing: grayscale;' + '</br>' +
+                '}'
+            document.querySelector("#unicode-step-3").innerHTML =
+                '&lt;i class="' + projectName + '"&gt;&amp;#x33;&lt;/i&gt;'
+            // FontClass
+            document.querySelector("#fontclass-step-1").innerHTML =
+                '&lt;link rel="stylesheet" type="text/css" href="./' + projectName + '.css"&gt;'
+            document.querySelector("#fontclass-step-2").innerHTML =
+                '&lt;i class="' + projectName + ' ' + projectName + '-xxx"&gt;&lt;/i&gt;'
+            // Symbol
+            document.querySelector("#symbol-step-1").innerHTML =
+                '&lt;script src="./' + projectName + '.js"&gt;&lt;/script&gt;'
+            document.querySelector("#symbol-step-2").innerHTML =
+                '&lt;style type="text/css"&gt;' + '</br>' +
+                '   .icon {' + '</br>' +
+                '       width: 1em; height: 1em;' + '</br>' +
+                '       vertical-align: -0.15em;' + '</br>' +
+                '       fill: currentColor;' + '</br>' +
+                '       overflow: hidden;' + '</br>' +
+                '   }' + '</br>' +
+                '&lt;/style&gt;'
+            document.querySelector("#symbol-step-3").innerHTML =
+                '&lt;svg class="icon" aria-hidden="true"&gt;' + '</br>' +
+                '   &lt;use xlink:href="#' + projectName + '-xxx"&gt;&lt;/use&gt;' + '</br>' +
+                '&lt;/svg&gt;'
+        }
+        function renderPageIcons(type) {
+	        // 构造数据
+	        var dataHash = {};
+	        // 向 dataHash 内构造分组数据
+	        groups.forEach(function(group) {
+		        dataHash[group.id] = {
+			        groupData: group,
+			        iconData: []
+		        }
+	        });
+	        // 向 dataHash 内的分组数据填充图标
+	        icons.forEach(function(icon) {
+	            // 如果图标分组数据有问题, 则统一放到未分组内
+	            icon.iconGroup==="null" && (icon.iconGroup = "resource-uncategorized")
+		        dataHash[icon.iconGroup].iconData.push(icon);
+	        });
+            // 根据传入的Type准备数据
+            var fontStyleContainer = document.querySelector("[content=fontStyle]");
+            switch(type) {
+                case "unicode":
+                    // 修改样式引用
+                    fontStyleContainer.innerHTML = unicodeImportStyle;
+                    // 更新标识符
+                    unicodeDatasAppended = true;
+                    break;
+                case "fontClass":
+                    // 引入外链的 FontClass 内容
+                    var fontClassRefDOM = document.createElement("link");
+                    fontClassRefDOM.rel = "stylesheet";
+                    fontClassRefDOM.type = "text/css";
+                    fontClassRefDOM.content = "fontClassRefDOM";
+                    fontClassRefDOM.href = "./" + projectName + ".css";
+                    document.querySelector("head").appendChild(fontClassRefDOM);
+                    // 修改样式引用
+                    fontStyleContainer.innerHTML = "";
+                    // 更新标识符
+                    fontClassDatasAppended = true;
+                    break;
+                case "symbol":
+                    // 引入外链的 FontSymbol 内容
+                    var fontSymbolRefDOM = document.createElement("script");
+                    fontSymbolRefDOM.src = "./" + projectName + ".js";
+                    fontSymbolRefDOM.content = "fontSymbolRefDOM";
+                    document.querySelector("head").appendChild(fontSymbolRefDOM);
+                    // 修改样式引用
+                    fontStyleContainer.innerHTML = symbolImportStyle;
+                    // 更新标识符
+                    symbolDataAppended = true;
+                    break;
+                default:
+                    break;
+            }
+            // 生成图标结构
+            var iconGroupDOM = document.createElement("div");
+            iconGroupDOM.className = "iconGroupGeneratedWrapper";
+            groups.forEach(function(group) {
+                // 组
+                var iconGroupTemplate = document.querySelector(".template .iconGroup").cloneNode(true);
+                iconGroupTemplate.querySelector(".iconGroupName").innerHTML = dataHash[group.id].groupData.groupName;
+                // 图标
+                var groupHaveIcons = dataHash[group.id].iconData.length!==0;
+                if (groupHaveIcons) {
+                    // 如果组内有图标, 则直接怼 iconBlock, 并根据传入的Type不同而生成不同形式的图标
+                    dataHash[group.id].iconData.forEach(function(icon) {
+                        var iconBlockTemplate = document.querySelector(".template .iconBlock").cloneNode(true);
+                        if (matchKeyword(icon)) {
+                            switch(type) {
+                                case "unicode":
+                                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<i class=' + projectName + '>&#x' + icon.iconCode + ';</i>';
+                                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
+                                    iconBlockTemplate.querySelector(".iconCode").innerHTML = '<span>&#x</span>' + icon.iconCode.toLowerCase();
+                                    iconBlockTemplate.setAttribute("iconCode", "&#x" + icon.iconCode.toLowerCase())
+                                    break;
+                                case "fontClass":
+                                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<i class="' + projectName + ' ' + projectName + '-' + icon.iconCode + '"></i>';
+                                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
+                                    iconBlockTemplate.querySelector(".iconCode").innerHTML = projectName + '-' + icon.iconCode.toLowerCase();
+                                    iconBlockTemplate.setAttribute("iconCode", projectName + '-' + icon.iconCode.toLowerCase())
+                                    break;
+                                case "symbol":
+                                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<svg class="icon" aria-hidden="true"><use xlink:href="#' + projectName + '-' + icon.iconCode + '"></use></svg>';
+                                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
+                                    iconBlockTemplate.querySelector(".iconCode").innerHTML = '#' + projectName + '-' + icon.iconCode.toLowerCase();
+                                    iconBlockTemplate.setAttribute("iconCode", '#' + projectName + '-' + icon.iconCode.toLowerCase())
+                                    break;
+                                default:
+                                    break;
+                            }
+                            iconBlockTemplate.id = icon.id
+                            iconBlockTemplate.onclick = copyIconCode
+	                        iconGroupTemplate.appendChild(iconBlockTemplate);
+                        }
+                    });
+                    iconGroupDOM.appendChild(iconGroupTemplate);
+                } else {
+                    // 如果组内无图标, 则怼一个无数据提示 (不显示)
+                    // var noIconHintTemplate = document.querySelector(".template .noIconHint").cloneNode(true);
+                    // iconGroupTemplate.appendChild(noIconHintTemplate);
+                    // iconGroupDOM.appendChild(iconGroupTemplate);
+                }
+            });
+            // 插入图标
+            document.querySelector(".iconGroupContainer").appendChild(iconGroupDOM);
+        }
+        // TAB切换
+        function changeTab(evt, tabName) {
+	        // Declare all variables
+	        var i, tabContent, tabLinks;
+
+	        // Get all elements with class="tabContent" and hide them
+	        tabContent = document.getElementsByClassName("tabContent");
+	        for (i = 0; i < tabContent.length; i++) {
+		        tabContent[i].style.display = "none";
+	        }
+
+	        // Get all elements with class="tabLinks" and remove the class "active"
+	        tabLinks = document.getElementsByClassName("tabLinks");
+	        for (i = 0; i < tabLinks.length; i++) {
+		        tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+	        }
+
+	        // Show the current tab, and add an "active" class to the button that opened the tab
+	        document.getElementById(tabName).style.display = "block";
+	        evt.currentTarget.className += " active";
+
+	        // 重新渲染图标
+	        reRenderIconsByType(tabName);
+	        currentTab = tabName;
+        }
+        // 重新渲染图标
+        function reRenderIconsByType(tabName) {
+	        cleanPageIcons();
+            renderPageIcons(tabName || currentTab);
+        }
+        // 更新搜索关键字
+        function updateSearchKeyword() {
+	        searchKeyword = document.getElementById("searchBar").value;
+	        reRenderIconsByType();
+        }
+        // 判断是否符合搜索结果
+        function matchKeyword(icon) {
+	        if (searchKeyword) {
+		        // 匹配图标名称和字码是否符合 searchKeyword
+                var name = icon.iconName.toLowerCase();
+                var code = '&#x' + icon.iconCode.toLowerCase();
+		        return (name.match(searchKeyword.toLowerCase())) || (code.match(searchKeyword.toLowerCase()));
+	        } else {
+		        return true;
+	        }
+        }
+        // 复制所选图标字码
+        function copyIconCode() {
+            // 获取字码
+            var iconCode = document.getElementById(this.id).getAttribute("iconCode")
+            // 创建空 input 标签并复制
+            var dummyInput = document.createElement("input");
+            dummyInput.style.opacity = "0"
+            document.body.appendChild(dummyInput);
+            dummyInput.setAttribute('value', iconCode);
+            dummyInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummyInput);
+            // 提示
+            var hintText = "图标码 " + iconCode + " 已复制到剪贴板"
+            alert(hintText)
+        }
+
+        // 页面开始初始化
+        // 渲染页面说明
+        renderPageManual();
+        // 进来默认渲染 unicode 页面
+        renderPageIcons("unicode");
+    </script>
+    <script>
+        // 切换按钮Fix在页面顶部
+        window.onscroll = changePos;
+
+        function changePos() {
+            var header = document.querySelector(".iconRenderTypeContainer");
+            if (window.pageYOffset > 70) {
+                header.style.position = "absolute";
+                header.style.top = pageYOffset + "px";
+            } else {
+                header.style.position = "";
+                header.style.top = "";
+            }
+        }
+    </script>
+</html>

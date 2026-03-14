@@ -1,0 +1,46 @@
+.titleBarButtonGroup {
+    position: fixed;
+    top: 0;
+    right: 5px;
+    z-index: 10000;
+    -webkit-app-region: no-drag;
+}
+
+.titleBarButton {
+    width: 45px;
+    height: 29px;
+    background: transparent;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+.titleBarButton:hover {
+    background: #dcdcdc;
+}
+.titleBarButton:active {
+    background: #a3a3a3;
+}
+.titleBarButton>img {
+    height: 12px;
+}
+
+.titleBarMinButton {
+    composes: titleBarButton;
+    border-radius: 0 0 0 3px;
+}
+
+.titleBarMaxButton {
+    composes: titleBarButton;
+}
+
+.titleBarCloseButton {
+    composes: titleBarButton;
+    border-radius: 0 0 3px 0;
+}
+.titleBarCloseButton:hover {
+    background: #e81123;
+}
+.titleBarCloseButton:active {
+    background: #dc5c66;
+}

@@ -1,0 +1,124 @@
+.iconGridLocalContainer {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.iconGridWrapper {
+    position: relative;
+    text-align: center;
+    flex-grow: 1;
+    overflow: hidden;
+    overflow-y: auto;
+    transition: filter .3s;
+}
+.iconGridWrapperActive {
+    filter: blur(30px);
+}
+.iconGridDropOverlay {
+    opacity: 0;
+    position: absolute;
+    width: calc(100% - 40px);
+    height: calc(100% - 80px);
+    top: 0;
+    left: 0;
+    margin: 20px;
+    border: 1px dashed rgba(0, 0, 0, 0.30);
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: opacity .8s;
+    pointer-events: none;
+}
+.iconGridHintContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.iconGridHintContainer>div {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333333;
+}
+.iconGridWrapperActive + .iconGridDropOverlay {
+    opacity: 1;
+}
+
+.iconUnselectLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 0;
+}
+.iconGridGroupWrapper {
+
+}
+.iconGridGroupDivider {
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    width: calc(100%);
+    height: 30px;
+    margin: 10px auto 0;
+    transition: all .3s;
+    background-color: #f2f3f5;
+}
+.iconGridGroupDivider:hover {
+    background-color: #ddedf9;
+}
+.iconGridGroupDivider:active {
+    background-color: #bddff9;
+}
+.iconGridGroupDivider>span {
+    line-height: 30px;
+    margin-left: 18px;
+    color: #108ee9;
+}
+.iconGridGroupDivider>label {
+    margin-left: 8px;
+    background-color: #108ee9;
+    box-sizing: border-box;
+    padding: 2px 4px;
+    border-radius: 4px;
+    color: #ffffff;
+}
+.iconGridScrollResizeWrapper {
+    position: relative;
+    max-width: 100%;
+    opacity: 0;
+    display: inline-block;
+    text-align: left;
+    transition: max-width 0.3s, opacity 0.3s;
+}
+
+.iconGridNodata {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(100vh - 116px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+.iconGridNodata>img {
+    width: 150px;
+}
+.iconGridNodataDiscContainer {
+
+}
+.iconGridNodataDiscContainer>p {
+    color: #999;
+    margin-bottom: 0.5em;
+}
+
+.iconToolbarOuterContainer {
+    z-index: 10;
+}

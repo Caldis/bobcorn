@@ -1,0 +1,89 @@
+.sideEditor {
+    position: relative;
+    width: 250px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #eeeff0;
+}
+.sideEditorContent {
+
+}
+
+
+.sideEditorName {
+    height: 48px;
+    text-align: center;
+    line-height: 48px;
+    border-bottom: 1px solid #eeeff0;
+}
+
+
+.sideEditorContainContainer {
+    padding: 15px;
+}
+
+.basicDetailContainer {
+    border-bottom: 1px solid #eeeff0;
+    padding-bottom: 10px;
+}
+.basicDetailContainer>div {
+    margin-bottom: 10px;
+}
+.basicInfoContainer {
+    padding: 10px 0;
+    border-bottom: 1px solid #eeeff0;
+}
+.basicInfoContainer>span {
+    display: inline-block;
+    margin-bottom: 4px;
+}
+.basicInfoContainer>p {
+    margin-bottom: 0.2em;
+    font-size: 12px;
+}
+
+.advanceActionContainer {
+    padding: 10px 0;
+    text-align: center;
+}
+.advanceActionContainer>span {
+    width: 100%;
+    text-align: left;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+.advanceActionContainer>button {
+    margin-bottom: 4px;
+}
+
+.sideEditorNoselected {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #999999;
+    -webkit-app-region: drag;
+}
+.sideEditorNoselected>img {
+    width: 120px;
+}
+.sideEditorNoselected>p {
+    margin-bottom: 0.5em;
+}
+
+.targetGroupContainer {
+    max-height: 70vh;
+    overflow: hidden;
+    overflow-y: auto;
+}
+.targetGroupContainer>p {
+    margin-bottom: 10px;
+}
+
+/*Win32系统标题栏占位区域*/
+.win32WindowTitlePlaceHolder {
+    width: 100%;
+    height: 20px;
+}

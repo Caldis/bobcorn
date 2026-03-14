@@ -1,0 +1,75 @@
+.iconToolbarContainer {
+    position: relative;
+    width: 100%;
+    height: 45px;
+    border-top: 1px solid #eeeff0;
+}
+
+.iconActionBar {
+    backdrop-filter: blur(5px);
+    position: absolute;
+    width: 100%;
+    height: 40px;
+    margin-top: -41px;
+    background-color: rgba(236, 246, 253, 0.6);
+    opacity: 0;
+    transition: all .3s;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 1px 8px 0;
+    border-top: 1px solid rgba(233, 233, 233, 0.9);
+}
+.iconActionBar :global(.ant-radio-group) {
+    margin: 0 8px 0 0;
+}
+.iconActionBarCloseButtonContainer {
+
+}
+.iconActionBarCloseButton {
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0);
+}
+.iconActionBarCloseButton:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+.iconActionBarCloseButton:active {
+    background-color: rgba(0, 0, 0, 0);
+}
+.actionContent {
+
+}
+
+.iconControllerContainer {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.iconNameVisibleControllerContainer {
+    padding: 0 6px;
+}
+
+
+.iconWidthControllerContainer {
+    flex-grow: 1;
+}
+
+.iconActionButtonContainer {
+    display: flex;
+    flex-direction: row;
+    padding: 0 6px;
+}
+.iconOrderButtonContainer {
+    padding-right: 5px;
+}
+.iconFilterButtonContainer {
+    padding-right: 8px;
+}
+.iconSearchBarContainer {
+    margin: 0 5px 0 15px;
+}

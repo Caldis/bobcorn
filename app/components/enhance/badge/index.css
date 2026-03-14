@@ -1,0 +1,7 @@
+.enhanceBadge {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding-left: 4px;
+    transition: height .2s;
+}

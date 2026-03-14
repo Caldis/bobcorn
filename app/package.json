@@ -1,0 +1,17 @@
+{
+  "name": "Bobcorn",
+  "productName": "Bobcorn",
+  "version": "0.50.0",
+  "description": "A tool for build iconfonts.",
+  "main": "./main.prod.js",
+  "author": {
+    "name": "Caldis",
+    "email": "cbais789@gmail.com",
+    "url": "https://github.com/Caldis"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
+    "postinstall": "npm run electron-rebuild"
+  },
+  "dependencies": {}
+}

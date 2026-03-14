@@ -1,0 +1,76 @@
+.iconBlockContainer {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    margin: 2px;
+    padding: 8px;
+    z-index: 1;
+    border-radius: 3px;
+    border: 3px solid rgba(0, 0, 0, 0);
+    transition: transform .2s, border .3s;
+}
+.iconBlockContainer:hover {
+    background-color: #ecf6fd;
+}
+.iconBlockContainer:active {
+    transform: scale(0.96);
+    border: 3px solid #108ee9;
+}
+.iconBlockContainerSelected {
+    composes: iconBlockContainer;
+    border: 3px solid #108ee9;
+    background-color: #ecf6fd;
+}
+
+.iconBlockCheckBox {
+    position: absolute;
+    top: -2px;
+    right: -6px;
+}
+
+.iconContentContainer {
+    margin: 0 auto;
+    width: 120px;
+    transition: all .6s;
+}
+.iconContentWrapper {
+
+}
+.iconContentWrapper>svg {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.iconNameContainer {
+    width: 100%;
+    transition: all .3s;
+}
+.iconName {
+    font-weight: bold;
+    width: 100%;
+    display: block;
+    overflow: hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    transition: all .3s;
+    margin: 0 0 4px;
+    font-size: 12px;
+    -webkit-font-smoothing: antialiased;
+}
+.iconCode {
+    color: #999;
+    width: 100%;
+    display: block;
+    overflow: hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    transition: all .3s;
+    margin: 0 0 4px;
+    font-size: 12px;
+}
+
+/*svg正常显示相关*/
+.iconBlockContainer svg image {
+    display: none;
+}
