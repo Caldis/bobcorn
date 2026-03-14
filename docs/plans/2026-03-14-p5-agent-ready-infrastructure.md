@@ -193,34 +193,20 @@ test('three-column layout proportions', async () => {
 });
 ```
 
-### L3: Vision Model 审查 (创新)
+### L3: Claude Code 直接视觉审查
 
-```javascript
-// test/helpers/vision-evaluator.js
-async function evaluateUI(screenshotPath, criteria) {
-  const image = fs.readFileSync(screenshotPath);
-  const response = await claude.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1024,
-    messages: [{
-      role: 'user',
-      content: [
-        { type: 'image', source: { type: 'base64', media_type: 'image/png',
-          data: image.toString('base64') }},
-        { type: 'text', text: `Evaluate this Electron app UI screenshot.
-Score each criterion 1-10 and flag issues:
-- Alignment: elements properly aligned?
-- Spacing: consistent margins/padding?
-- Typography: text readable, sizes consistent?
-- Color: contrast adequate, palette consistent?
-- Layout: no overflow, no broken elements?
-- Empty states: hints/illustrations visible?
-Return JSON: { scores: {}, issues: [], overall: N }` }
-      ]
-    }]
-  });
-  return JSON.parse(response.content[0].text);
-}
+不需要额外 API 调用。Claude Code 本身是多模态的 — 用 `Read` 工具读取 PNG 截图即可直接"看"并评判 UI 质量。
+
+**Agent 开发流程中的使用方式:**
+```
+1. Playwright 截图保存到 screenshots/
+2. Agent 用 Read 工具读取截图
+3. Agent 直接评判: 对齐、间距、配色、布局、空态
+4. 对比 P0 基线截图判断是否有回归
+5. 不合格 → 修复后重新截图验证
+```
+
+零成本，零外部依赖 — 整个 P0-P1 验收就是这么做的。
 ```
 
 **Agent 开发闭环中的使用方式:**
@@ -228,7 +214,7 @@ Return JSON: { scores: {}, issues: [], overall: N }` }
 2. 构建 + 截屏
 3. L1 对比 golden files → 有 diff? 预期中的还是回归?
 4. L2 断言关键布局属性 → 结构是否完整?
-5. L3 Vision 评分 → 设计质量是否达标 (overall ≥ 7)?
+5. L3 Agent 读取截图 → 目视审查设计质量 → 对比基线判断是否回归
 6. 全部通过 → 提交; 任一失败 → 修复后重试
 
 ---
