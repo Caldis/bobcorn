@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import react from '@vitejs/plugin-react'
-import vitePluginImp from 'vite-plugin-imp'
+// vite-plugin-imp removed: antd 3 not compatible, using full CSS import instead
 
 // Node.js builtins that are used in renderer with nodeIntegration: true
 const nodeBuiltins = [
@@ -9,6 +9,19 @@ const nodeBuiltins = [
   'fs', 'path', 'os', 'child_process', 'module', 'stream', 'util',
   'crypto', 'events', 'buffer', 'punycode',
 ]
+
+// Plugin to fix CJS output in Electron renderer: remove type="module" from script tags
+function electronCjsHtmlPlugin() {
+  return {
+    name: 'electron-cjs-html',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      return html
+        .replace(/ type="module" crossorigin/g, '')
+        .replace(/ crossorigin/g, '')
+    },
+  }
+}
 
 export default defineConfig({
   main: {
@@ -44,6 +57,9 @@ export default defineConfig({
         ],
         output: {
           format: 'cjs',
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name].js',
+          assetFileNames: '[name][extname]',
         },
       },
     },
@@ -54,15 +70,8 @@ export default defineConfig({
       loader: 'jsx',
     },
     plugins: [
+      electronCjsHtmlPlugin(),
       react(),
-      vitePluginImp({
-        libList: [
-          {
-            libName: 'antd',
-            style: (name) => `antd/es/${name}/style/css.js`,
-          },
-        ],
-      }),
     ],
     resolve: {
       alias: {
