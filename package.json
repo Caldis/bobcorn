@@ -115,6 +115,7 @@
     "less-loader": "^4.0.4",
     "mini-css-extract-plugin": "^0.4.1",
     "optimize-css-assets-webpack-plugin": "^5.0.0",
+    "playwright": "^1.58.2",
     "sass": "^1.98.0",
     "sass-loader": "^7.0.3",
     "source-map-support": "^0.4.10",

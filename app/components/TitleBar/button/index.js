@@ -3,8 +3,7 @@ import React from 'react';
 // Styles
 import styles from './index.css';
 // Electron
-import { remote } from 'electron';
-const BrowserWindow = remote.BrowserWindow;
+import { ipcRenderer } from 'electron';
 // ButtonIcon
 import minimize from '../../../resources/imgs/titleBarButton/minimize.svg'
 import maximize from '../../../resources/imgs/titleBarButton/maximize.svg'
@@ -23,7 +22,7 @@ class TitleBarButtonGroup extends React.Component{
 
     // 最小化
     handleWindowMinimum = () => {
-	    BrowserWindow.getFocusedWindow().minimize();
+	    ipcRenderer.send('window-minimize');
     };
 
     // 最大化
@@ -33,7 +32,7 @@ class TitleBarButtonGroup extends React.Component{
 		const titleBarButtonGroup = document.querySelector("#titleBarButtonGroup");
 		if(this.maximized){
 			// 最小化窗口
-			BrowserWindow.getFocusedWindow().unmaximize();
+			ipcRenderer.send('window-maximize');
 			// 取消最大化后, 恢复 Body 的 Padding 和 Root 的 borderRadius和标题栏按钮位置
 			body.style.padding = this.paddingOfBody;
 			root.style.borderRadius = this.borderRadiusOfRoot;
@@ -42,7 +41,7 @@ class TitleBarButtonGroup extends React.Component{
 			this.maximized = false;
 		}else{
 			// 最大化窗口
-			BrowserWindow.getFocusedWindow().maximize();
+			ipcRenderer.send('window-maximize');
 			// 最大化后, 取消 Body 的 Padding 和 Root 的 borderRadius 和标题栏按钮位置
 			this.paddingOfBody = window.getComputedStyle(body).padding;
 			body.style.padding = "0";
@@ -57,7 +56,7 @@ class TitleBarButtonGroup extends React.Component{
 
 	// 关闭
 	handleWindowClose = () => {
-		BrowserWindow.getFocusedWindow().close();
+		ipcRenderer.send('window-close');
 	};
 
     render() {

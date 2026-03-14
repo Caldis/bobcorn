@@ -11,7 +11,7 @@
  */
 
 import os from 'os';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import MenuBuilder from './menu';
 
 let mainWindow = null;
@@ -100,4 +100,35 @@ app.on('ready', async () => {
 
     const menuBuilder = new MenuBuilder(mainWindow);
     menuBuilder.buildMenu();
+
+    // IPC handlers for window controls (replaces electron.remote)
+    ipcMain.on('window-minimize', () => {
+        if (mainWindow) mainWindow.minimize();
+    });
+    ipcMain.on('window-maximize', () => {
+        if (mainWindow) {
+            if (mainWindow.isMaximized()) {
+                mainWindow.unmaximize();
+            } else {
+                mainWindow.maximize();
+            }
+        }
+    });
+    ipcMain.on('window-close', () => {
+        if (mainWindow) mainWindow.close();
+    });
+    ipcMain.on('window-is-maximized', (event) => {
+        event.returnValue = mainWindow ? mainWindow.isMaximized() : false;
+    });
+
+    // IPC handlers for dialog operations (replaces electron.remote dialog)
+    ipcMain.handle('dialog-show-open', async (event, options) => {
+        return dialog.showOpenDialog(mainWindow, options);
+    });
+    ipcMain.handle('dialog-show-save', async (event, options) => {
+        return dialog.showSaveDialog(mainWindow, options);
+    });
+    ipcMain.on('get-app-path', (event, name) => {
+        event.returnValue = app.getPath(name);
+    });
 });

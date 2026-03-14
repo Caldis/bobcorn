@@ -1,9 +1,7 @@
 // fs
 import fs from 'fs';
 // electron
-import { remote } from 'electron';
-const dialog = remote.dialog;
-const BrowserWindow = remote.BrowserWindow;
+import { ipcRenderer } from 'electron';
 // React
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -148,16 +146,16 @@ class SideEditor extends React.Component{
     };
 
     // 替换图标相关
-    handleIconContentUpdate = () => {
+    handleIconContentUpdate = async () => {
         const { selectedIcon } = this.props;
         const { iconData } = this.state;
-        const files = dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+        const result = await ipcRenderer.invoke('dialog-show-open', {
             title: "选择一个SVG图标文件",
             filters: [{ name: "SVG图标文件", extensions: ["svg"] }],
             properties: [ "openFile" ],
         });
-        if (files) {
-            const newIconFileData = Object.assign(iconData, {path: files[0]});
+        if (!result.canceled && result.filePaths.length > 0) {
+            const newIconFileData = Object.assign(iconData, {path: result.filePaths[0]});
             db.renewIconData(selectedIcon, newIconFileData, () => {
                 message.success(`图标数据已更新`);
 	            GlobalEvent.dispatchEvent("SyncLeft");
@@ -168,28 +166,29 @@ class SideEditor extends React.Component{
     };
 
     // 图标导出相关
-    handleIconExport = () => {
+    handleIconExport = async () => {
         const { iconData } = this.state;
-        dialog.showSaveDialog(BrowserWindow.getFocusedWindow(), {
+        const result = await ipcRenderer.invoke('dialog-show-save', {
             title: "导出图标",
             defaultPath: `${iconData.iconName}.${iconData.iconType}`
-        }, (fileName) => {
-            if(fileName === undefined) return;
-            fs.writeFile(fileName, iconData.iconContent, (err) => {
+        });
+        if (!result.canceled && result.filePath) {
+            fs.writeFile(result.filePath, iconData.iconContent, (err) => {
                 if(err){
                     message.error(`导出错误: ${err.message}`);
                 } else {
                     message.success(`图标已导出`);
                 }
             });
-        });
+        }
     };
-    handleAllIconExport = () => {
-        dialog.showSaveDialog(BrowserWindow.getFocusedWindow(), {
+    handleAllIconExport = async () => {
+        const result = await ipcRenderer.invoke('dialog-show-save', {
             title: "导出所有图标",
             defaultPath: `${db.getProjectName()}`
-        }, (path) => {
-            if(path === undefined) return;
+        });
+        if (!result.canceled && result.filePath) {
+            const path = result.filePath;
             fs.access(path, fs.constants.R_OK, (err) => {
                 err && fs.mkdirSync(path);
                 try {
@@ -202,7 +201,7 @@ class SideEditor extends React.Component{
                     message.error(`导出错误: ${err.message}`);
                 }
             })
-        });
+        }
     }
 
     // 删除图标相关

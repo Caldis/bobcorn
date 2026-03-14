@@ -1,8 +1,6 @@
 // Libs
 import fs from 'fs'
-import { remote } from 'electron';
-const dialog = remote.dialog;
-const BrowserWindow = remote.BrowserWindow;
+import { ipcRenderer } from 'electron';
 // React
 import React from 'react';
 // Antd
@@ -379,14 +377,15 @@ class SideMenu extends React.Component {
                     const woffFont = woffFontGenerator({ttfFont});
                     const woff2Font = woff2FontGenerator({ttfFont});
                     const eotFont = eotFontGenerator({ttfFont});
-                    dialog.showSaveDialog(BrowserWindow.getFocusedWindow(), {
+                    ipcRenderer.invoke('dialog-show-save', {
                         title: "导出图标字体",
                         defaultPath: `${db.getProjectName()}`
-                    }, (path) => {
-                        if (!path) {
+                    }).then((result) => {
+                        if (result.canceled || !result.filePath) {
                             this.handleHideGeneratingOverlay();
                             return
                         }
+                        const path = result.filePath;
                         fs.access(path, fs.constants.R_OK, (err) => {
                             err && fs.mkdirSync(path);
                             try {
@@ -441,15 +440,15 @@ class SideMenu extends React.Component {
 		this.setState({ exportLoadingModalVisible: false });
 	};
     // 导出项目文件相关
-    handleExportProjects = () => {
-        dialog.showSaveDialog(BrowserWindow.getFocusedWindow(), {
+    handleExportProjects = async () => {
+        const result = await ipcRenderer.invoke('dialog-show-save', {
             title: "导出项目文件",
             defaultPath: `${db.getProjectName()}`
-        }, (fileName) => {
-            if(fileName === undefined) return;
+        });
+        if (!result.canceled && result.filePath) {
             db.exportProject((projData) => {
                 const buffer = new Buffer(projData);
-                fs.writeFile(`${fileName}.icp`, buffer, (err) => {
+                fs.writeFile(`${result.filePath}.icp`, buffer, (err) => {
                     if(err){
                         message.error(`导出错误: ${err.message}`);
                     } else {
@@ -457,7 +456,7 @@ class SideMenu extends React.Component {
                     }
                 });
             });
-        });
+        }
     };
     // 选择导出的分组相关
     handleShowExportGroupSelector = () => {

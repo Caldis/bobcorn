@@ -1,6 +1,6 @@
 // electron
-import { remote } from 'electron';
-const electronPath = remote.app.getPath('exe');
+import { ipcRenderer } from 'electron';
+const electronPath = ipcRenderer.sendSync('get-app-path', 'exe');
 // Nightmare
 import Nightmare from 'nightmare';
 const nightmare = Nightmare({
