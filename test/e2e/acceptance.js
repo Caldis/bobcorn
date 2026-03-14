@@ -35,7 +35,7 @@ async function run() {
   // --- Phase 1: Launch ---
   console.log('Phase 1: Launch');
   const app = await electron.launch({
-    args: [path.join(__dirname, '../../app')],
+    args: [path.join(__dirname, '../..')],
     env: { ...process.env, NODE_ENV: 'production' },
   });
   const window = await app.firstWindow();
