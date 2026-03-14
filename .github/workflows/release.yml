@@ -5,13 +5,15 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
-  release:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        node-version: [18]
 
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'npm'
 
       - name: Install dependencies
@@ -28,20 +30,86 @@ jobs:
       - name: Build
         run: npx electron-vite build
 
-      - name: Build & publish (Windows)
+      - name: Package & upload (Windows)
         if: runner.os == 'Windows'
         run: npx electron-builder --win --x64 --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & publish (macOS)
+      - name: Package & upload (macOS)
         if: runner.os == 'macOS'
         run: npx electron-builder --mac --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & publish (Linux)
+      - name: Package & upload (Linux)
         if: runner.os == 'Linux'
         run: npx electron-builder --linux --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git tag --sort=-creatordate | head -2 | tail -1)
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+
+          # Generate changelog from commits
+          echo "## What's Changed" > changelog.md
+          echo "" >> changelog.md
+
+          if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
+            # Categorize commits
+            echo "### Features" >> changelog.md
+            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^feat" >> changelog.md || true
+            echo "" >> changelog.md
+
+            echo "### Bug Fixes" >> changelog.md
+            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^fix" >> changelog.md || true
+            echo "" >> changelog.md
+
+            echo "### Other Changes" >> changelog.md
+            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^refactor\|^build\|^test\|^docs\|^ci\|^chore\|^security" >> changelog.md || true
+            echo "" >> changelog.md
+          else
+            echo "Initial release." >> changelog.md
+          fi
+
+          echo "" >> changelog.md
+          echo "---" >> changelog.md
+          echo "*Built by AI Agent teams using Claude Code.*" >> changelog.md
+
+      - name: Publish draft release with changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+
+          # Find the draft release created by electron-builder
+          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases \
+            --jq ".[] | select(.draft==true and .tag_name==\"${TAG}\") | .id")
+
+          if [ -n "$RELEASE_ID" ]; then
+            # Update draft with changelog and publish
+            gh api repos/${{ github.repository }}/releases/${RELEASE_ID} \
+              -X PATCH \
+              -f body="$(cat changelog.md)" \
+              -F draft=false \
+              -F prerelease=${{ contains(github.ref, 'rc') || contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+            echo "Published release ${TAG} with changelog (${RELEASE_ID})"
+          else
+            echo "No draft release found for ${TAG}, creating new one"
+            gh release create "${TAG}" \
+              --title "${TAG}" \
+              --notes-file changelog.md \
+              --prerelease=${{ contains(github.ref, 'rc') || contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+          fi
