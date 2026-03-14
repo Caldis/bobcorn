@@ -11,8 +11,8 @@
 | 阶段 | 状态 | 核心目标 |
 |------|------|---------|
 | P0 | ✅ 完成 | 安全修复 & 基础可运行性 |
-| P1 | 🔄 进行中 | 核心工具链现代化 |
-| P2 | 📋 计划 | 架构改进 |
+| P1 | ✅ 完成 | 核心工具链现代化 |
+| P2 | 🔄 进行中 | 架构改进 |
 | P3 | 📋 计划 | 工程化 |
 | P4 | 📋 计划 | 功能增强 |
 
@@ -60,12 +60,12 @@
 
 | # | 事项 | 变更 | 调整说明 |
 |---|------|------|---------|
-| 1 | TypeScript | JS → TS | electron-vite 原生支持，零配置迁移 (原 P3 提前) |
-| 2 | 状态管理 | GlobalEvent → Zustand | 可预测的状态流，替代自制事件总线 |
-| 3 | 组件模式 | Class → Functional + Hooks | React 18 hooks 生态 |
-| 4 | 数据库层 | sql.js 0.5 → sql.js 1.x (WASM) | 修补空方法，升级到 WASM 版本 |
-| 5 | 清理死代码 | 删除 IconGridCloud, CENTER_ICONS 等 | 减少维护负担 |
-| 6 | Preload 脚本 | nodeIntegration → contextBridge | 正确的 Electron 安全模式 |
+| 1 | ✅ TypeScript | JS → TS | tsconfig + 类型声明就位，渐进迁移 |
+| 2 | ✅ 状态管理 | GlobalEvent → Zustand | 集中式 store 替代事件总线 |
+| 3 | ✅ 组件模式 | Class → Functional + Hooks | 12 个组件全部转换 |
+| 4 | ✅ 数据库层 | sql.js 0.5 → sql.js 1.14 (WASM) | 异步初始化，消除 asm.js 警告 |
+| 5 | ✅ 清理死代码 | 删除 IconGridCloud, CENTER_ICONS | GlobalEvent/GlobalData 已删除 |
+| 6 | 🔄 Preload 脚本 | nodeIntegration → contextBridge | 正确的 Electron 安全模式 |
 
 **P2 调整说明:**
 - TypeScript 从 P3 提前到 P2，因为 electron-vite + Vite 提供开箱即用的 TS 支持
@@ -109,3 +109,5 @@
 | 日期 | 变更 |
 |------|------|
 | 2026-03-14 | 创建路线图；P0 完成；确定 electron-vite 方向；调整 P1-P4 计划 |
+| 2026-03-14 | P1 完成 (electron-vite, React 18, antd 5) |
+| 2026-03-14 | P2 大部分完成 (TypeScript, Zustand, Hooks, sql.js WASM, 死代码清理)；contextBridge 进行中 |

@@ -10,11 +10,13 @@ Bobcorn 是一个 Electron + React 的图标字体管理/生成桌面工具。
 | 层 | 技术 | 版本 |
 |---|------|------|
 | 运行时 | Electron | 28.3.3 |
-| UI | React | 16.4 (P1 升级到 18) |
-| 组件库 | antd | 3.7 (P1 升级到 5) |
-| 构建 | Webpack 4 + Babel 6 | (P1 迁移到 electron-vite + Babel 7) |
+| UI | React (functional + hooks) | 18 |
+| 组件库 | antd (CSS-in-JS) | 5 |
+| 状态管理 | Zustand | latest |
+| 构建 | electron-vite | 3.x |
 | 打包 | electron-builder | 24.13 |
-| 数据库 | sql.js (SQLite in-memory) | 0.5 |
+| 数据库 | sql.js (WASM) | 1.14 |
+| 类型 | TypeScript (渐进迁移中) | 5.x |
 | 测试 | Jest + Playwright | 27 / 1.58 |
 | Node | 18 (via fnm) | 18.20.8 |
 
@@ -25,15 +27,14 @@ Bobcorn 是一个 Electron + React 的图标字体管理/生成桌面工具。
 FNM="/c/Users/mail/AppData/Local/Microsoft/WinGet/Packages/Schniz.fnm_Microsoft.Winget.Source_8wekyb3d8bbwe/fnm.exe"
 eval "$("$FNM" env --shell bash)" && "$FNM" use 18
 
-# 构建
-cd /d/Code/bobcorn && npm run build
+# 启动前杀旧进程！
+taskkill /f /im electron.exe 2>/dev/null
 
-# 启动
-npm start
+# 构建 + 启动
+cd /d/Code/bobcorn && npx electron-vite build && npx electron-vite preview
 
-# 测试
-npx jest test/unit --verbose
-node test/e2e/acceptance.js
+# 验收测试 (20 checks)
+npx electron-vite build && node test/e2e/acceptance.js
 ```
 
 ## 项目结构
@@ -42,20 +43,24 @@ node test/e2e/acceptance.js
 bobcorn/
 ├── app/                    # Electron 应用源码
 │   ├── main.dev.js        # 主进程入口
-│   ├── index.js           # React 渲染入口
+│   ├── entry.js           # Vite renderer 入口
+│   ├── bootstrap.jsx      # React 挂载 (createRoot)
+│   ├── index.html         # Vite HTML 模板
+│   ├── preload.js         # Preload 脚本 (placeholder)
+│   ├── store/             # Zustand 状态管理
 │   ├── menu.js            # 应用菜单
-│   ├── app.html           # HTML 模板
-│   ├── components/        # React 组件 (全部 class component)
+│   ├── components/        # React 组件 (全部 functional + hooks)
 │   ├── containers/        # 根容器 (MainContainer)
-│   ├── database/          # sql.js 数据库层
+│   ├── database/          # sql.js 1.x WASM 数据库层
 │   ├── config/            # 应用配置
 │   ├── utils/             # 工具函数 (SVG, 生成器, 导入器, 爬虫)
 │   └── resources/         # 图片, 模板等静态资源
+├── electron.vite.config.js # 构建配置 (main + preload + renderer)
+├── tsconfig.json          # TypeScript 配置
 ├── test/
 │   ├── unit/              # Jest 单元测试
 │   └── e2e/               # Playwright E2E + 验收测试
 ├── docs/                  # 项目文档 (见下方索引)
-├── webpack.config.*.js    # Webpack 配置 (P1 后删除)
 └── package.json
 ```
 
@@ -63,22 +68,25 @@ bobcorn/
 
 | 文件 | 内容 |
 |------|------|
-| `docs/2026-03-14-project-roadmap.md` | 全阶段升级路线图 (P0-P4)，含调整说明 |
+| `docs/2026-03-14-project-roadmap.md` | 全阶段升级路线图 (P0-P4) |
 | `docs/plans/2026-03-14-p0-security-runnability.md` | P0 实施计划 (已完成) |
-| `docs/plans/2026-03-14-p1-toolchain-modernization.md` | P1 实施计划 (进行中) |
+| `docs/plans/2026-03-14-p1-toolchain-modernization.md` | P1 实施计划 (已完成) |
 
 ## 验收测试协议
 
 每次重大变更后必须运行完整验收：
 
-1. `npm run build` — 构建成功 (exit code 0)
-2. `npx jest test/unit --verbose` — 单元测试全过
-3. `node test/e2e/acceptance.js` — 20 项 E2E 检查全过
-4. 截图 UI 验收 — 闪屏/主界面/窗口控制/工具栏/美学检查
+1. `npx electron-vite build` — 构建成功
+2. `node test/e2e/acceptance.js` — 20 项 E2E 检查全过
+3. 截图 UI 验收 — 闪屏/主界面/窗口控制/工具栏/美学检查
 
 ## 关键约定
 
-- `electron.remote` 已废弃，所有 main↔renderer 通信使用 ipcMain/ipcRenderer
+- 状态管理使用 Zustand store (`app/store/index.js`)，不要引入 GlobalEvent
+- 所有组件是 functional + hooks，不要写 class components
+- main↔renderer 通信使用 ipcMain/ipcRenderer (无 electron.remote)
 - SVG 内容必须经过 `sanitizeSVG()` (DOMPurify) 处理后才能渲染
-- 构建脚本需要 `NODE_OPTIONS=--openssl-legacy-provider` (Webpack 4 + Node 18)
-- 不要手动编辑 `app/dist/` 下的文件 — 它们是构建产物
+- 图片资源必须用 ES import（Vite 要求）
+- sql.js 异步初始化：bootstrap.jsx 中 `await dbReady` 确保 WASM 加载
+- electron-vite CJS renderer: 自定义 `electronCjsHtmlPlugin` 处理 HTML
+- 不要手动编辑 `out/` 目录 — 它们是构建产物
