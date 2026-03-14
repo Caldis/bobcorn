@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 // Antd
 import { Badge } from 'antd';
 // Style
-import style from './index.css';
+import style from './index.module.css';
 
 class EnhanceBadge extends React.Component{
     constructor(props) {

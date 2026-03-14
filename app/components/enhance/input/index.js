@@ -6,7 +6,7 @@ import { Input, Button } from 'antd';
 // Components
 import EnhanceBadge from '../badge';
 // Style
-import style from './index.css';
+import style from './index.module.css';
 
 class EnhanceInput extends React.Component{
     constructor(props) {

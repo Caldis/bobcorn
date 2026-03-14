@@ -1,10 +1,7 @@
 node_modules
 .idea
 .DS_Store
-dll/
-app/dist/
-app/main.prod.js
-app/main.prod.js.map
+out/
 release/
 *.log
 npm-debug.log*

@@ -10,7 +10,7 @@ const confirm = Modal.confirm;
 import IconBlock from '../iconBlock';
 import IconToolbar from '../iconToolbar';
 // Style
-import style from './index.css';
+import style from './index.module.css';
 // Database
 import db from '../../database';
 // Config

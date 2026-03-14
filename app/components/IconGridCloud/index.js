@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // Style
-import style from './index.css';
+import style from './index.module.css';
 // Antd
 import { Spin, Select, Input, Button, message } from 'antd';
 const Search = Input.Search;

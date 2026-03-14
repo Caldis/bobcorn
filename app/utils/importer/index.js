@@ -1,2 +1,2 @@
-export iconImporter from './icon';
-export projImporter from './proj';
+export { default as iconImporter } from './icon';
+export { default as projImporter } from './proj';

@@ -1,2 +1,2 @@
 // iconfont.cn爬虫
-export iconfontCnSpider from './iconfont.cn';
+export { default as iconfontCnSpider } from './iconfont.cn';

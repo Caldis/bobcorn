@@ -11,7 +11,7 @@ import SideEditor from '../../components/SideEditor';
 // Config
 import config from '../../config';
 // Styles
-import style from './index.css';
+import style from './index.module.css';
 // Utils
 import {GlobalEvent, preventDrop, disableChromeAutoFocus, platform} from '../../utils/tools';
 

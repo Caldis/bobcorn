@@ -1,7 +1,7 @@
 // Lib
 import React from 'react';
 // Styles
-import styles from './index.css';
+import styles from './index.module.css';
 // electron-react-titlebar
 import { TitleBar } from 'electron-react-titlebar';
 

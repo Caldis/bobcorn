@@ -4,7 +4,7 @@ import React from 'react';
 import { Button, Modal, message } from 'antd';
 const confirm = Modal.confirm;
 // Styles
-import styles from './index.css';
+import styles from './index.module.css';
 // Utils
 import { projImporter } from '../../utils/importer';
 import { GlobalEvent, nameOfPath } from '../../utils/tools';

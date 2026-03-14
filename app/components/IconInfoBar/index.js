@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Menu, Icon } from 'antd';
 import { Button } from 'antd';
 // Style
-import style from './index.css';
+import style from './index.module.css';
 // Database
 import db from '../../database';
 

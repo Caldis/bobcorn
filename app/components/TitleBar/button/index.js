@@ -1,7 +1,7 @@
 // React
 import React from 'react';
 // Styles
-import styles from './index.css';
+import styles from './index.module.css';
 // Electron
 import { ipcRenderer } from 'electron';
 // ButtonIcon

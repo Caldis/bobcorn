@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // Style
-import style from './index.css';
+import style from './index.module.css';
 // antd
 import { Checkbox } from 'antd';
 import { sanitizeSVG } from '../../utils/sanitize';

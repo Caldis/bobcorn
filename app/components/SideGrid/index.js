@@ -6,7 +6,7 @@ import IconInfoBar from '../iconInfoBar';
 import IconGridLocal from '../iconGridLocal';
 // import IconGridCloud from '../iconGridCloud';
 // Style
-import style from './index.css';
+import style from './index.module.css';
 
 class SideGrid extends React.Component{
     constructor(props) {

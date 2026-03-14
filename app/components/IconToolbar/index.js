@@ -7,7 +7,7 @@ const InputGroup = Input.Group;
 const Search = Input.Search;
 const Option = Select.Option;
 // Style
-import style from './index.css';
+import style from './index.module.css';
 
 class IconToolbar extends React.Component{
     constructor(props) {
