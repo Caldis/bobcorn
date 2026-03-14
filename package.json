@@ -112,7 +112,7 @@
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^2.28.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^30.3.0",
+    "jest": "^27.5.1",
     "less-loader": "^4.0.4",
     "mini-css-extract-plugin": "^0.4.1",
     "optimize-css-assets-webpack-plugin": "^5.0.0",
@@ -146,6 +146,10 @@
     "ttf2eot": "^2.0.0",
     "ttf2woff": "^2.0.1",
     "ttf2woff2": "^2.0.3"
+  },
+  "jest": {
+    "transform": {},
+    "testPathIgnorePatterns": ["/node_modules/", "/app/node_modules/"]
   },
   "devEngines": {
     "node": ">=7.x",
