@@ -76,6 +76,7 @@ bobcorn/
 | `docs/TESTING.md` | Vitest 单元测试 + Playwright E2E 指南 |
 | `docs/CONVENTIONS.md` | 代码规范 (hooks only、CSS modules、sanitizeSVG、IPC 模式) |
 | `docs/TROUBLESHOOTING.md` | 常见问题速查 |
+| `docs/RELEASE.md` | 发版流程 (每阶段或每 10 commit 发一次) |
 | `app/store/README.md` | State tree + 使用模式 |
 | `app/database/README.md` | Schema + 异步初始化 + CRUD API |
 

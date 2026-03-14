@@ -36,7 +36,12 @@
       "output": "release"
     },
     "files": [
-      "out"
+      "out/**/*",
+      "package.json",
+      "!node_modules"
+    ],
+    "asarUnpack": [
+      "out/renderer/**"
     ],
     "dmg": {
       "sign": false,
