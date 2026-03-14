@@ -24,7 +24,6 @@ import noIconHintHappy from '../../resources/imgs/nodata/noIconHint-happy.png';
 // ====================================================
 // GlobalEvent.dispatchEvent("SyncCenterLocal");
 // ====================================================
-const CENTER_ICONS = false;
 
 class IconGridLocal extends React.Component{
     constructor(props) {
@@ -45,13 +44,11 @@ class IconGridLocal extends React.Component{
     // On React IconGridLocal Mounting
     // After React IconGridLocal Mounted
     componentDidMount() {
-        // 接收到 onresize 事件后更新图标大小
-        CENTER_ICONS && GlobalEvent.addEventHandler("resize", this.updateIconWidthThrottle);
         // 接收到 SyncIconData 的事件刷新图标列表
         GlobalEvent.addEventHandler("SyncCenterLocal", this.sync);
         // 进入后延迟一点, 设置一下位置和透明度
         setTimeout(() => {
-            CENTER_ICONS ? this.updateIconWrapperWidth() : this.updateIconWrapperOpacity();
+            this.updateIconWrapperOpacity();
         }, 500);
     }
     componentDidUpdate(prevProps) {
@@ -65,7 +62,7 @@ class IconGridLocal extends React.Component{
     // On React IconGridLocal Unmounting
     componentWillUnmount() {
         // 移除事件注册
-        CENTER_ICONS && GlobalEvent.removeEventHandler("resize", this.updateIconWidthThrottle);
+        // CENTER_ICONS removed — resize handler not needed
         GlobalEvent.removeEventHandler("SyncCenterLocal", this.sync);
     }
 
@@ -136,7 +133,7 @@ class IconGridLocal extends React.Component{
         const iconBlockFullWidth = iconWidth + iconBlockOuterWidth;
         const iconBlockSpaceLeftPerRow = wrapperWidth % iconBlockFullWidth;
         this.setState({
-            iconBlockWrapperMaxWidth: CENTER_ICONS ? wrapperWidth-iconBlockSpaceLeftPerRow : "100%",
+            iconBlockWrapperMaxWidth: "100%",
             iconBlockWidth: iconWidth || "auto"
         }, () => {
             this.updateIconWrapperOpacity();
@@ -338,7 +335,7 @@ class IconGridLocal extends React.Component{
                             <div
                                 className={style.iconGridScrollResizeWrapper}
                                 style={{
-                                    width: CENTER_ICONS ? null : "100%",
+                                    width: "100%",
                                     maxWidth: this.state.iconBlockWrapperMaxWidth,
                                     opacity: this.state.iconBlockWrapperOpacity
                                 }}
