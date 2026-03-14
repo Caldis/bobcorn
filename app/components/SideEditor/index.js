@@ -7,6 +7,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // Antd
 import { Radio, Modal, Button, message } from 'antd';
+import { EditOutlined, RetweetOutlined, ExportOutlined, DeleteOutlined, CopyOutlined, SelectOutlined } from '@ant-design/icons';
 const ButtonGroup = Button.Group;
 const confirm = Modal.confirm;
 const RadioGroup = Radio.Group;
@@ -47,16 +48,16 @@ class SideEditor extends React.Component{
 
 	// https://facebook.github.io/react/docs/state-and-lifecycle.html
 	// On React IconGridLocal Mounting
-	componentWillMount() {
+	componentDidMount() {
 		// 接收到 SyncRight 的事件刷新所选的图标数据
 		GlobalEvent.addEventHandler("SyncRight", this.sync);
 	}
     // On React IconGridLocal Updating
-    componentWillReceiveProps(nextProps) {
-        const { selectedIcon:nextSelectedIcon } = nextProps;
+    componentDidUpdate(prevProps) {
+        const { selectedIcon } = this.props;
         // 如果选择的图标改变了, 则刷新
-        if (nextSelectedIcon !== this.props.selectedIcon) {
-            this.sync(nextSelectedIcon);
+        if (selectedIcon !== prevProps.selectedIcon) {
+            this.sync(selectedIcon);
         }
     }
 	componentWillUnmount() {
@@ -362,19 +363,19 @@ class SideEditor extends React.Component{
                         {/*高级操作*/}
                         <div className={style.advanceActionContainer}>
                             <span><b>高级操作</b></span>
-                            <Button style={{width: "100%"}} icon="edit" disabled>
+                            <Button style={{width: "100%"}} icon={<EditOutlined />} disabled>
                                 编辑
                             </Button>
-                            <Button style={{width: "100%"}} icon="retweet" onClick={this.handleIconContentUpdate}>
+                            <Button style={{width: "100%"}} icon={<RetweetOutlined />} onClick={this.handleIconContentUpdate}>
                                 替换
                             </Button>
-                            <Button style={{width: "100%"}} icon="export" onClick={this.handleIconExport}>
+                            <Button style={{width: "100%"}} icon={<ExportOutlined />} onClick={this.handleIconExport}>
                                 导出
                             </Button>
                             {/*<Button style={{width: "100%"}} icon="export" onClick={this.handleAllIconExport}>*/}
                                 {/*导出全部*/}
                             {/*</Button>*/}
-                            <Button style={{width: "100%"}} icon="delete" onClick={
+                            <Button style={{width: "100%"}} icon={<DeleteOutlined />} onClick={
                                 selectedGroup==="resource-recycleBin" ? this.handleIconDelete : this.handleIconRecycle
                             }>
                                 { selectedGroup==="resource-recycleBin" ? "删除" : "回收" }
@@ -382,12 +383,12 @@ class SideEditor extends React.Component{
                             <ButtonGroup style={{width: "100%"}}>
                                 <Button
 	                                disabled={groupNum===0}
-                                    style={{width: "50%"}} icon="copy"
+                                    style={{width: "50%"}} icon={<CopyOutlined />}
                                     onClick={() => this.handleShowIconGroupEdit("duplicate")}
                                 >复制</Button>
                                 <Button
 	                                disabled={groupNum===0}
-	                                style={{width: "50%"}} icon="select"
+	                                style={{width: "50%"}} icon={<SelectOutlined />}
                                     onClick={() => this.handleShowIconGroupEdit("move")}
                                 >移动</Button>
                             </ButtonGroup>
@@ -404,7 +405,7 @@ class SideEditor extends React.Component{
                 <Modal
                     wrapClassName="vertical-center-modal"
                     title={this.state.iconGroupEditModelTitle}
-                    visible={this.state.iconGroupEditModelVisible}
+                    open={this.state.iconGroupEditModelVisible}
                     onOk={this.handleEnsureIconGroupEdit}
                     onCancel={this.handleCancelIconGroupEdit}
                     footer={[

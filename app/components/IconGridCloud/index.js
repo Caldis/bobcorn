@@ -33,9 +33,9 @@ class Component extends React.Component{
         };
     }
 
-	componentWillUpdate(nextProps, nextState) {
+	componentDidUpdate(prevProps, prevState) {
     	// 如果修改了源, 则重新执行搜索, 同时 clean
-		if (nextState.searchSource !== this.state.searchSource) {
+		if (this.state.searchSource !== prevState.searchSource) {
 			this.handleSearch({ page: 1, append: false });
 		}
 	}

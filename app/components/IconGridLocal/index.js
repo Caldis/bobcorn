@@ -40,24 +40,22 @@ class IconGridLocal extends React.Component{
 
     // https://facebook.github.io/react/docs/state-and-lifecycle.html
     // On React IconGridLocal Mounting
-    componentWillMount() {
+    // After React IconGridLocal Mounted
+    componentDidMount() {
         // 接收到 onresize 事件后更新图标大小
         CENTER_ICONS && GlobalEvent.addEventHandler("resize", this.updateIconWidthThrottle);
         // 接收到 SyncIconData 的事件刷新图标列表
         GlobalEvent.addEventHandler("SyncCenterLocal", this.sync);
-    }
-    // After React IconGridLocal Mounted
-    componentDidMount() {
         // 进入后延迟一点, 设置一下位置和透明度
         setTimeout(() => {
             CENTER_ICONS ? this.updateIconWrapperWidth() : this.updateIconWrapperOpacity();
         }, 500);
     }
-    componentWillReceiveProps(nextProps) {
-        const { selectedGroup:nextSelectedGroup } = nextProps;
+    componentDidUpdate(prevProps) {
+        const { selectedGroup } = this.props;
         // 如果选择的分组改变了, 则刷新
-        if (nextSelectedGroup !== this.props.selectedGroup) {
-            this.sync(nextProps.selectedGroup);
+        if (selectedGroup !== prevProps.selectedGroup) {
+            this.sync(selectedGroup);
             this.deselectIcon();
         }
     }
@@ -327,29 +325,32 @@ class IconGridLocal extends React.Component{
         return (
             <div className={style.iconGridLocalContainer} id="iconGridLocalContainer">
                 <Dropzone
-                    disableClick
+                    noClick
                     onDrop={this.onIconDrop}
-                    className={style.iconGridWrapper}
-                    activeClassName={style.iconGridWrapperActive}
                 >
-                    <div className={style.iconUnselectLayer} onClick={this.deselectIcon}/>
-                    <div
-                        className={style.iconGridScrollResizeWrapper}
-                        style={{
-                            width: CENTER_ICONS ? null : "100%",
-                            maxWidth: this.state.iconBlockWrapperMaxWidth,
-                            opacity: this.state.iconBlockWrapperOpacity
-                        }}
-                    >
-                        {
+                    {({getRootProps, getInputProps, isDragActive}) => (
+                        <div {...getRootProps({ className: isDragActive ? style.iconGridWrapperActive : style.iconGridWrapper })}>
+                            <input {...getInputProps()} />
+                            <div className={style.iconUnselectLayer} onClick={this.deselectIcon}/>
+                            <div
+                                className={style.iconGridScrollResizeWrapper}
+                                style={{
+                                    width: CENTER_ICONS ? null : "100%",
+                                    maxWidth: this.state.iconBlockWrapperMaxWidth,
+                                    opacity: this.state.iconBlockWrapperOpacity
+                                }}
+                            >
+                                {
 
-                            selectedGroup==="resource-all" ?
-	                            db.getIconCount()!==0 ?
-	                                this.geneIconGridWithGroup() : this.geneNodataBlock() :
-                                iconData[selectedGroup] && iconData[selectedGroup].length!==0 ?
-	                                this.geneIconGrid() : this.geneNodataBlock()
-                        }
-                    </div>
+                                    selectedGroup==="resource-all" ?
+	                                    db.getIconCount()!==0 ?
+	                                        this.geneIconGridWithGroup() : this.geneNodataBlock() :
+                                        iconData[selectedGroup] && iconData[selectedGroup].length!==0 ?
+	                                        this.geneIconGrid() : this.geneNodataBlock()
+                                }
+                            </div>
+                        </div>
+                    )}
                 </Dropzone>
                 <div className={style.iconGridDropOverlay}>
                     <div className={style.iconGridHintContainer}>

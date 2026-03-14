@@ -2,8 +2,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // Antd
-import { Menu, Icon } from 'antd';
-import { Button } from 'antd';
+import { Menu, Button } from 'antd';
+import { DatabaseOutlined, CloudOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 // Style
 import style from './index.module.css';
 // Database
@@ -41,11 +41,11 @@ class IconInfoBar extends React.Component{
                         mode="horizontal"
                     >
                         <Menu.Item key="local">
-                            <Icon type="database" />
+                            <DatabaseOutlined />
                             <span>本地</span>
                         </Menu.Item>
                         <Menu.Item key="cloud" disabled>
-                            <Icon type="cloud-o" />
+                            <CloudOutlined />
                             <span>发现</span>
                         </Menu.Item>
                     </Menu>
@@ -53,8 +53,8 @@ class IconInfoBar extends React.Component{
 
                 {/*边栏显示切换*/}
                 <div className={style.sidebarFoldButtonContainer}>
-                    <Button shape="circle" icon="menu-fold" />
-                    <Button shape="circle" icon="menu-unfold" />
+                    <Button shape="circle" icon={<MenuFoldOutlined />} />
+                    <Button shape="circle" icon={<MenuUnfoldOutlined />} />
                 </div>
 
             </div>

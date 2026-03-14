@@ -1,8 +1,18 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import MainContainer from './containers/MainContainer';
 
-ReactDOM.render(
-    <MainContainer />,
-    document.getElementById('root')
-);
+function mount() {
+    const container = document.getElementById('root');
+    if (container) {
+        const root = createRoot(container);
+        root.render(<MainContainer />);
+    } else {
+        // Script may load before DOM is ready (e.g., in <head>)
+        document.addEventListener('DOMContentLoaded', () => {
+            const root = createRoot(document.getElementById('root'));
+            root.render(<MainContainer />);
+        });
+    }
+}
+mount();

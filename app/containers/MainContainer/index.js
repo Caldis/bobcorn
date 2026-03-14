@@ -41,7 +41,7 @@ class MainContainer extends React.Component{
 
     // https://facebook.github.io/react/docs/state-and-lifecycle.html
     // On React IconGridLocal Mounting
-    componentWillMount() {
+    componentDidMount() {
         // 禁止拖放文件
         preventDrop();
         // 禁止自动 Focus 按钮
@@ -58,8 +58,6 @@ class MainContainer extends React.Component{
 	    GlobalEvent.addEventHandler('SetMenuVisible', this.handleSideMenuVisible);
 	    // 接收到 SetEditorVisible 的事件后 显示/隐藏 右侧编辑栏
 	    GlobalEvent.addEventHandler('SetEditorVisible', this.handleSideEditorVisible);
-    }
-    componentDidMount() {
         // 进来后同步一次中间的图标区块
         GlobalEvent.dispatchEvent("SyncCenterLocal");
         // 显示欢迎界面
@@ -136,7 +134,7 @@ class MainContainer extends React.Component{
 	            <Modal
                     closable={false}
 		            wrapClassName="vertical-center-modal no-shadow-modal"
-		            visible={this.state.splashScreenVisible}
+		            open={this.state.splashScreenVisible}
 		            footer={null} maskClosable={false}
 	                onCancel={()=>this.handleSplashScreenShow(false)}
 	            >

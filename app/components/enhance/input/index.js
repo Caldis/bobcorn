@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // Antd
 import { Input, Button } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 // Components
 import EnhanceBadge from '../badge';
 // Style
@@ -30,7 +31,7 @@ class EnhanceInput extends React.Component{
                 <p className={style.inputTitle}>{inputTitle}</p>
                 <div className={style.inputGroup}>
                     <Input ref={this.ref.input} {...inputProps}/>
-                    { inputSave && <Button className={style.inputSave} shape="circle" icon="save" onClick={inputSaveClick}/> }
+                    { inputSave && <Button className={style.inputSave} shape="circle" icon={<SaveOutlined />} onClick={inputSaveClick}/> }
                 </div>
                 <EnhanceBadge status={inputHintBadgeType} text={inputHintText}/>
             </div>

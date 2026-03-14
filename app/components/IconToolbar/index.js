@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // Antd
 import { Button, Radio, Input, Select, Slider, Switch } from 'antd';
+import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
 const InputGroup = Input.Group;
 const Search = Input.Search;
 const Option = Select.Option;
@@ -110,7 +111,7 @@ class IconToolbar extends React.Component{
 		                </div>
 	                }
                     <div className={style.iconActionBarCloseButtonContainer}>
-                        <Button className={style.iconActionBarCloseButton} shape="circle" icon="close" onClick={this.handelHideActionBar}/>
+                        <Button className={style.iconActionBarCloseButton} shape="circle" icon={<CloseOutlined />} onClick={this.handelHideActionBar}/>
                     </div>
                 </div>
 
@@ -123,7 +124,7 @@ class IconToolbar extends React.Component{
 	                    <div className={style.iconOrderButtonContainer}>
 		                    <Button
 			                    shape="circle"
-			                    icon="eye-o"
+			                    icon={<EyeOutlined />}
 			                    onClick={() => this.handleToggleActionBar("visual")}
 		                    />
 	                    </div>

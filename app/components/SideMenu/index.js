@@ -4,7 +4,8 @@ import { ipcRenderer } from 'electron';
 // React
 import React from 'react';
 // Antd
-import { Alert, Menu, Modal, Button, Dropdown, Checkbox, Badge, message, Icon } from 'antd';
+import { Alert, Menu, Modal, Button, Dropdown, Checkbox, Badge, message } from 'antd';
+import { AppstoreOutlined, BookOutlined, FileExclamationOutlined, DeleteOutlined, TagsOutlined, PlusOutlined, LoginOutlined, SaveOutlined, SettingOutlined } from '@ant-design/icons';
 const SubMenu = Menu.SubMenu;
 const ButtonGroup = Button.Group;
 const confirm = Modal.confirm;
@@ -77,17 +78,17 @@ class SideMenu extends React.Component {
 
     // https://facebook.github.io/react/docs/state-and-lifecycle.html
     // On React IconGridLocal Mounting
-    componentWillMount() {
+    componentDidMount() {
         // 同步
         this.sync();
         // 接收到 SyncLeft 的事件刷新图标列表
         GlobalEvent.addEventHandler('SyncLeft', this.sync);
     }
-    componentWillReceiveProps(nextProps) {
-        const { selectedGroup:nextSelectedGroup } = nextProps;
+    componentDidUpdate(prevProps) {
+        const { selectedGroup } = this.props;
         // 如果选择的分组改变了, 则同步
-        if (nextSelectedGroup !== this.props.selectedGroup) {
-            this.setState({ selectedGroup: nextSelectedGroup });
+        if (selectedGroup !== prevProps.selectedGroup) {
+            this.setState({ selectedGroup });
         }
     }
     componentWillUnmount() {
@@ -423,7 +424,7 @@ class SideMenu extends React.Component {
                 }
 	        });
         } else {
-        	message.warn(`当前项目没有任何图标可供导出`);
+        	message.warning(`当前项目没有任何图标可供导出`);
 	        this.handleHideGeneratingOverlay();
         }
     };
@@ -513,7 +514,7 @@ class SideMenu extends React.Component {
             return (
                 <Menu.Item key={group.id} className={style.sideMenuGroupTitleContainer}>
                     {group.groupName}
-                    <Button className={style.sideMenuGroupAction} shape="circle" icon="setting" onClick={() => this.handleShowEditGroup(group)}/>
+                    <Button className={style.sideMenuGroupAction} shape="circle" icon={<SettingOutlined />} onClick={() => this.handleShowEditGroup(group)}/>
                 </Menu.Item>
             );
         });
@@ -545,21 +546,21 @@ class SideMenu extends React.Component {
                             key="resource" disabled={true}
                             title={
                                 <span>
-                                    <Icon type="appstore"/>
+                                    <AppstoreOutlined />
                                     <span>资源</span>
                                 </span>
                             }
                         >
                             <Menu.Item key="resource-all">
 	                            <span>
-		                            <Icon type="book"/>
+		                            <BookOutlined />
 		                            <span>全部</span>
 	                            </span>
                             </Menu.Item>
                             <Menu.Item key="resource-uncategorized">
                                 <Badge count={db.getIconCountFromGroup("resource-uncategorized") + db.getIconCountFromGroup("null")}>
 		                            <span>
-			                            <Icon type="exception"/>
+			                            <FileExclamationOutlined />
 			                            <span>未分组</span>
 			                            <span>&nbsp;</span>
 			                            <span>&nbsp;</span>
@@ -570,7 +571,7 @@ class SideMenu extends React.Component {
                             <Menu.Item key="resource-recycleBin">
                                 <Badge count={db.getIconCountFromGroup("resource-recycleBin")}>
 		                            <span>
-			                            <Icon type="delete"/>
+			                            <DeleteOutlined />
                                         <span>回收站</span>
 		                            </span>
                                 </Badge>
@@ -581,9 +582,9 @@ class SideMenu extends React.Component {
                             key="groups" disabled={true}
                             title={
                                 <div className={style.sideMenuGroupMainTitleContainer}>
-                                    <Icon type="tags"/>
+                                    <TagsOutlined />
                                     <span>分组</span>
-                                    <Button className={style.sideMenuGroupMainTitleAction} shape="circle" icon="plus" onClick={this.handleShowAddGroup}/>
+                                    <Button className={style.sideMenuGroupMainTitleAction} shape="circle" icon={<PlusOutlined />} onClick={this.handleShowAddGroup}/>
                                 </div>
                             }
                         >
@@ -610,9 +611,9 @@ class SideMenu extends React.Component {
                                 <Menu.Item key="importProj">导入项目</Menu.Item>
                             </Menu>
                         }>
-                            <Button style={{ width: "50%" }} icon="login">导入</Button>
+                            <Button style={{ width: "50%" }} icon={<LoginOutlined />}>导入</Button>
                         </Dropdown>
-                        <Button style={{ width: "50%" }} onClick={this.handleExportClick} icon="save">导出</Button>
+                        <Button style={{ width: "50%" }} onClick={this.handleExportClick} icon={<SaveOutlined />}>导出</Button>
                         {/*<Dropdown overlay={*/}
                             {/*<Menu onClick={this.handleExportClick} className={style.sideImportMenu}>*/}
                                 {/*<Menu.Item key="exportIconfonts">导出图标字体</Menu.Item>*/}
@@ -623,8 +624,8 @@ class SideMenu extends React.Component {
                         {/*</Dropdown>*/}
                     </ButtonGroup>
                     <Button
-                        style={{marginLeft: 6}} type="secondary"
-                        shape="circle" icon="setting"
+                        style={{marginLeft: 6}} type="default"
+                        shape="circle" icon={<SettingOutlined />}
                         onClick={this.handleShowEditPrefix}
                     />
                 </div>
@@ -633,7 +634,7 @@ class SideMenu extends React.Component {
                 <Modal
                     wrapClassName="vertical-center-modal"
                     title="添加分组"
-                    visible={this.state.addGroupModelVisible}
+                    open={this.state.addGroupModelVisible}
                     okText={"确认"}
                     onOk={this.handleEnsureAddGroup}
                     cancelText={"取消"}
@@ -656,13 +657,13 @@ class SideMenu extends React.Component {
                 <Modal
                     wrapClassName="vertical-center-modal"
                     title="编辑分组"
-                    visible={this.state.editGroupModelVisible}
+                    open={this.state.editGroupModelVisible}
                     onCancel={this.handleCancelEditGroup}
                     footer={null}
                 >
                     <div className={style.editGroupModelContainer}>
                         <Button size="large" className={style.fullWidthButton} onClick={this.handleShowGroupNameChange}>修改分组名</Button>
-                        <Button size="large" type="danger" className={style.fullWidthButton} onClick={this.handleShowDeleteGroup}>删除这个分组</Button>
+                        <Button size="large" danger className={style.fullWidthButton} onClick={this.handleShowDeleteGroup}>删除这个分组</Button>
                     </div>
                 </Modal>
 
@@ -670,7 +671,7 @@ class SideMenu extends React.Component {
                 <Modal
                     wrapClassName="vertical-center-modal"
                     title="修改分组名称"
-                    visible={this.state.groupNameChangeModelVisible}
+                    open={this.state.groupNameChangeModelVisible}
                     okText={"确认修改"}
                     onOk={this.handleEnsureGroupNameChange}
                     cancelText={"取消"}
@@ -693,7 +694,7 @@ class SideMenu extends React.Component {
                 <Modal
                     wrapClassName="vertical-center-modal"
                     title="修改图标字体前缀"
-                    visible={this.state.editPrefixModelVisible}
+                    open={this.state.editPrefixModelVisible}
                     okText={"确认修改"}
                     onOk={this.handleEnsureEditPrefix}
                     cancelText={"取消"}
@@ -725,12 +726,12 @@ class SideMenu extends React.Component {
                 <Modal
                     wrapClassName="vertical-center-modal"
                     title="删除分组"
-                    visible={this.state.deleteGroupModelVisible}
+                    open={this.state.deleteGroupModelVisible}
                     onOk={this.handleEnsureDeleteGroup}
                     onCancel={this.handleCancelDeleteGroup}
                     footer={[
                         <Button key="cancel" size="large" onClick={this.handleCancelDeleteGroup}>取消</Button>,
-                        <Button key="delete" size="large" type="danger" onClick={this.handleEnsureDeleteGroup}>删除</Button>
+                        <Button key="delete" size="large" danger onClick={this.handleEnsureDeleteGroup}>删除</Button>
                     ]}
                 >
                     <div className={style.deleteGroupModelContainer}>
@@ -744,7 +745,7 @@ class SideMenu extends React.Component {
 	            <Modal
 		            wrapClassName="vertical-center-modal"
 		            title="导出图标字体"
-		            visible={this.state.exportIconfontsModelVisible}
+		            open={this.state.exportIconfontsModelVisible}
                     okText="导出图标字体"
 		            onOk={() => {
 			            this.setState({
@@ -775,7 +776,7 @@ class SideMenu extends React.Component {
 	            <Modal
 		            wrapClassName="vertical-center-modal"
 		            title="选择导出的分组"
-		            visible={this.state.exportGroupModelVisible}
+		            open={this.state.exportGroupModelVisible}
                     okText="确认"
 		            onOk={this.handleExportGroupSelectorEnsure}
                     cancelText={"取消"}
@@ -803,7 +804,7 @@ class SideMenu extends React.Component {
 		            title="正在生成"
 		            maskClosable={false}
 		            closable={false}
-		            visible={this.state.exportLoadingModalVisible}
+		            open={this.state.exportLoadingModalVisible}
 		            footer={[]}
 	            >
 		            <div>
@@ -816,7 +817,7 @@ class SideMenu extends React.Component {
                 <Modal
                     wrapClassName="vertical-center-modal"
                     title="发现了上古的项目文件"
-                    visible={this.state.importCPProjModelVisible}
+                    open={this.state.importCPProjModelVisible}
                     onCancel={this.handleCancelExportIconfonts}
                     footer={[
                         <Button key="back" size="large" onClick={this.handleCancel}>
