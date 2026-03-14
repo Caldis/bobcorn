@@ -13,5 +13,7 @@
     "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
     "postinstall": "npm run electron-rebuild"
   },
-  "dependencies": {}
+  "dependencies": {
+    "dompurify": "^3.3.3"
+  }
 }

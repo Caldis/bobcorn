@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import style from './index.css';
 // antd
 import { Checkbox } from 'antd';
+import { sanitizeSVG } from '../../utils/sanitize';
 
 class IconBlock extends React.Component{
     constructor(props) {
@@ -33,7 +34,7 @@ class IconBlock extends React.Component{
             <div className={selected ? style.iconBlockContainerSelected : style.iconBlockContainer} onClick={this.handleSelected}>
 	            { checked!==undefined &&<Checkbox className={style.iconBlockCheckBox} checked={checked}/> }
                 <div className={style.iconContentContainer} style={{ width: this.props.width }} ref={this.ref.iconBlock}>
-                    <div className={style.iconContentWrapper} dangerouslySetInnerHTML={{__html: this.props.content}} />
+                    <div className={style.iconContentWrapper} dangerouslySetInnerHTML={{__html: sanitizeSVG(this.props.content)}} />
                 </div>
                 <div className={style.iconNameContainer} style={{ width: this.props.width }}>
                     <p className={style.iconName} style={{ height: this.props.nameVisible?18:0 }}>{this.props.name}</p>
