@@ -255,7 +255,40 @@ coverage: {
 
 ---
 
-## Task 7: 验收 + 发布 v1.0.0
+## Task 7: Playwright MCP 实时交互测试
+
+利用已安装的 `plugin_playwright` MCP 插件，Agent 可直接操控运行中的 Electron 窗口：
+- `browser_navigate` / `browser_click` / `browser_fill_form` — 模拟用户操作
+- `browser_take_screenshot` — 实时截屏验证
+- `browser_snapshot` — 获取页面 accessibility tree
+
+**使用场景：** Agent 开发新功能后，不写测试脚本，直接交互式验证 UI 行为。比写 `.test.js` 更快的即时反馈循环。
+
+**集成方式：** 在 AGENTS.md 的验收协议中加入 Playwright MCP 作为快速验证选项。
+
+---
+
+## Task 8: 自动安全审计
+
+每次提交后 Agent 自动扫描代码安全风险：
+
+```bash
+# 扫描规则
+grep -rn "dangerouslySetInnerHTML" app/ --include="*.{js,jsx}" | grep -v "sanitizeSVG"  # 未消毒的 HTML 注入
+grep -rn "eval(" app/ --include="*.{js,jsx}"  # eval 使用
+grep -rn "innerHTML\s*=" app/ --include="*.{js,jsx}"  # 直接 innerHTML 赋值
+grep -rn "nodeIntegration:\s*true" app/  # 不安全的 Electron 配置
+grep -rn "password\|secret\|token\|apikey" app/ --include="*.{js,jsx}" -i  # 硬编码密钥
+```
+
+**集成方式：**
+- 加入 pre-commit hook（快速扫描）
+- 加入 CI pipeline（完整审计）
+- 在 AGENTS.md 的 PR checklist 中要求安全审查
+
+---
+
+## Task 9: 验收 + 发布 v1.0.0
 
 完成上述所有任务后:
 1. 运行完整测试套件 (unit + E2E + visual)
