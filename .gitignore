@@ -6,3 +6,4 @@ release/
 *.log
 npm-debug.log*
 package-lock.json
+test/fixtures/iconfont/
