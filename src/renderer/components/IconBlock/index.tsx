@@ -52,6 +52,7 @@ function IconBlock({
 
   return (
     <div
+      data-testid="icon-block"
       className={cn(
         // Layout
         'relative inline-block text-center z-[1]',

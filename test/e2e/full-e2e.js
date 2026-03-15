@@ -206,7 +206,7 @@ async function run() {
 
       await screenshot(win, 'after-import');
 
-      const iconBlockCount = await win.locator('[class*="iconBlockContainer"]').count();
+      const iconBlockCount = await win.locator('[data-testid="icon-block"]').count();
       console.log(`    Found ${iconBlockCount} icon blocks in grid`);
 
       if (iconBlockCount >= 5) {
@@ -258,7 +258,7 @@ async function run() {
     // ══════════════════════════════════════════════════════════════════════════
     console.log('\n[Step 5] Select icon and verify editor');
     try {
-      const firstIconBlock = win.locator('[class*="iconBlockContainer"]').first();
+      const firstIconBlock = win.locator('[data-testid="icon-block"]').first();
 
       if (await firstIconBlock.isVisible({ timeout: 2000 }).catch(() => false)) {
         await firstIconBlock.click();
@@ -386,7 +386,7 @@ async function run() {
         await sleep(1000);
         await screenshot(win, 'search-results');
 
-        const iconBlocksAfterSearch = await win.locator('[class*="iconBlockContainer"]').count();
+        const iconBlocksAfterSearch = await win.locator('[data-testid="icon-block"]').count();
         console.log(`    Icon blocks after search "home": ${iconBlocksAfterSearch}`);
 
         const homeVisible = await win.locator('text=home').first().isVisible({ timeout: 2000 }).catch(() => false);
@@ -786,7 +786,7 @@ async function run() {
 
       await screenshot(win, 'after-icp-import');
 
-      const icpIconCount = await win.locator('[class*="iconBlockContainer"]').count();
+      const icpIconCount = await win.locator('[data-testid="icon-block"]').count();
       console.log(`    Found ${icpIconCount} icon blocks after ICP import`);
 
       if (icpIconCount > 10) {

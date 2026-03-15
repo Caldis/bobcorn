@@ -35,4 +35,19 @@
   }
 }
 
-/* cn() utility for merging classnames */
+/* antd 组件兼容性: Tailwind Preflight 会重置 button/list 样式，需要恢复 antd 默认行为 */
+@layer base {
+  /* 恢复 antd dropdown/menu 的 list 样式 */
+  .ant-dropdown-menu,
+  .ant-menu,
+  .ant-select-dropdown {
+    list-style: none;
+  }
+  /* 确保 antd 按钮和交互元素可见 */
+  .ant-btn,
+  .ant-dropdown-menu-item,
+  .ant-menu-item,
+  .ant-select-item {
+    cursor: pointer;
+  }
+}
