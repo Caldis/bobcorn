@@ -58,6 +58,7 @@ app.on('ready', async () => {
     minWidth: 1080,
     height: 800,
     minHeight: 640,
+    icon: path.join(__dirname, '../../resources/icon.png'),
     hasShadow: true,
     // 窗口背景透明 (在非启用AERO的Win机器上会有窗口冻结的BUG
     transparent: false,

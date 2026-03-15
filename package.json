@@ -58,8 +58,10 @@
         }
       ]
     },
+    "icon": "resources/icon.png",
     "mac": {
       "identity": null,
+      "icon": "resources/icon.icns",
       "target": [
         {
           "target": "dmg",
@@ -71,6 +73,7 @@
       ]
     },
     "win": {
+      "icon": "resources/icon.ico",
       "target": [
         {
           "target": "nsis",
