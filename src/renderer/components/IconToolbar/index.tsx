@@ -2,12 +2,23 @@
 import React, { useState } from 'react';
 // Antd
 import { Button, Radio, Input, Select, Slider, Switch } from 'antd';
+import type { RadioChangeEvent } from 'antd';
 import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
 const InputGroup = Input.Group;
 const Search = Input.Search;
 const Option = Select.Option;
 // Style
 import style from './index.module.css';
+
+interface IconToolbarProps {
+    defaultIconWidth?: number;
+    updateIconWidth?: (width: number) => void;
+    defaultNameVisible?: boolean;
+    updateNameVisible?: (visible: boolean) => void;
+    defaultCodeVisible?: boolean;
+    updateCodeVisible?: (visible: boolean) => void;
+    updateSearchKeyword?: (keyword: string) => void;
+}
 
 function IconToolbar({
     defaultIconWidth = 100,
@@ -17,17 +28,17 @@ function IconToolbar({
     defaultCodeVisible = true,
     updateCodeVisible = () => {},
     updateSearchKeyword = () => {},
-}) {
-    const [orderType, setOrderType] = useState("addTime");
-    const [orderDirection, setOrderDirection] = useState("forward");
-    const [filterType, setFilterType] = useState("format");
-    const [showActionBar, setShowActionBar] = useState(false);
-    const [actionBarType, setActionBarType] = useState(null);
-    const [showName, setShowName] = useState(defaultNameVisible);
-    const [showCode, setShowCode] = useState(defaultCodeVisible);
+}: IconToolbarProps) {
+    const [orderType, setOrderType] = useState<string>("addTime");
+    const [orderDirection, setOrderDirection] = useState<string>("forward");
+    const [filterType, setFilterType] = useState<string>("format");
+    const [showActionBar, setShowActionBar] = useState<boolean>(false);
+    const [actionBarType, setActionBarType] = useState<string | null>(null);
+    const [showName, setShowName] = useState<boolean>(defaultNameVisible);
+    const [showCode, setShowCode] = useState<boolean>(defaultCodeVisible);
 
     // 控制动作条可见性
-    const handleToggleActionBar = (type) => {
+    const handleToggleActionBar = (type: string) => {
         setShowActionBar(actionBarType === type ? !showActionBar : true);
         setActionBarType(type);
     };
@@ -37,30 +48,30 @@ function IconToolbar({
     };
 
     // 控制图标名字可见性
-    const handleNameVisibilityChange = (e) => {
+    const handleNameVisibilityChange = (e: RadioChangeEvent) => {
         setShowName(e.target.value);
         updateNameVisible(e.target.value);
     };
     // 控制图标字码可见性
-    const handleCodeVisibilityChange = (e) => {
+    const handleCodeVisibilityChange = (e: RadioChangeEvent) => {
         setShowCode(e.target.value);
         updateCodeVisible(e.target.value);
     };
     // 排序动作条相关
-    const handleOrderTypeChange = (e) => {
+    const handleOrderTypeChange = (e: RadioChangeEvent) => {
         setOrderType(e.target.value);
     };
-    const handleOrderDirectionChange = (e) => {
+    const handleOrderDirectionChange = (e: RadioChangeEvent) => {
         setOrderDirection(e.target.value);
     };
 
     // 控制图标大小
-    const handleIconWidthChange = (value) => {
+    const handleIconWidthChange = (value: number) => {
         updateIconWidth(value);
     };
     // 格式化滑动条提示
-    const iconWidthControllerTipFormatter = (value) => {
-        return `${value-50}%`;
+    const iconWidthControllerTipFormatter = (value?: number) => {
+        return `${(value ?? 100)-50}%`;
     };
 
     return (
@@ -130,7 +141,7 @@ function IconToolbar({
                     <Slider
                         defaultValue={defaultIconWidth}
                         min={50} max={150}
-                        tipFormatter={iconWidthControllerTipFormatter}
+                        tooltip={{ formatter: iconWidthControllerTipFormatter }}
                         onChange={handleIconWidthChange}
                     />
                 </div>
@@ -139,7 +150,7 @@ function IconToolbar({
                 <div className={style.iconSearchBarContainer}>
                     <Search
                         placeholder="搜索图标名称或字码"
-                        onChange={e => updateSearchKeyword(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateSearchKeyword(e.target.value)}
                         onSearch={updateSearchKeyword}
                     />
                 </div>

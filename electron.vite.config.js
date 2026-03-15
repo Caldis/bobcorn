@@ -9,7 +9,7 @@ export default defineConfig({
     build: {
       outDir: 'out/main',
       rollupOptions: {
-        input: resolve(__dirname, 'src/main/index.js'),
+        input: resolve(__dirname, 'src/main/index.ts'),
         output: {
           entryFileNames: 'index.js',
         },
@@ -21,7 +21,7 @@ export default defineConfig({
     build: {
       outDir: 'out/preload',
       rollupOptions: {
-        input: resolve(__dirname, 'src/preload/index.js'),
+        input: resolve(__dirname, 'src/preload/index.ts'),
         output: {
           entryFileNames: 'preload.js',
         },

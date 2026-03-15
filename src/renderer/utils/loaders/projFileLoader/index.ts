@@ -3,8 +3,13 @@ import { message } from 'antd';
 // Utils
 import { nameOfPath, typeOfFile } from '../../../utils/tools';
 
+export interface ProjectFileData {
+    type: "cp" | "icp";
+    data: any;
+}
+
 // 读取项目文件数据
-const projFileLoader = (path) => {
+const projFileLoader = (path: string): ProjectFileData | false => {
     const { electronAPI } = window;
     const fileType = typeOfFile(nameOfPath(path)).toLowerCase();
     // 如果为 json 文件, 可能是cp文件, 需要进一步校验

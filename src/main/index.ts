@@ -6,12 +6,13 @@
 
 import os from 'os';
 import path from 'path';
+import type { OpenDialogOptions, SaveDialogOptions } from 'electron';
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 
-let mainWindow = null;
-const platform = os.platform();
+let mainWindow: BrowserWindow | null = null;
+const platform: string = os.platform();
 
 if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
   try {
@@ -21,14 +22,14 @@ if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true')
   }
 }
 
-const installExtensions = async () => {
+const installExtensions = async (): Promise<void> => {
   try {
     const installer = require('electron-devtools-installer');
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
     const extensions = ['REACT_DEVELOPER_TOOLS'];
 
     return Promise.all(
-      extensions.map((name) => installer.default(installer[name], forceDownload))
+      extensions.map((name: string) => installer.default(installer[name], forceDownload))
     ).catch(console.log);
   } catch (e) {
     // electron-devtools-installer is optional
@@ -114,18 +115,18 @@ app.on('ready', async () => {
   ipcMain.on('window-close', () => {
     if (mainWindow) mainWindow.close();
   });
-  ipcMain.on('window-is-maximized', (event) => {
+  ipcMain.on('window-is-maximized', (event: Electron.IpcMainEvent) => {
     event.returnValue = mainWindow ? mainWindow.isMaximized() : false;
   });
 
   // IPC handlers for dialog operations (replaces electron.remote dialog)
-  ipcMain.handle('dialog-show-open', async (event, options) => {
-    return dialog.showOpenDialog(mainWindow, options);
+  ipcMain.handle('dialog-show-open', async (_event: Electron.IpcMainInvokeEvent, options: OpenDialogOptions) => {
+    return dialog.showOpenDialog(mainWindow!, options);
   });
-  ipcMain.handle('dialog-show-save', async (event, options) => {
-    return dialog.showSaveDialog(mainWindow, options);
+  ipcMain.handle('dialog-show-save', async (_event: Electron.IpcMainInvokeEvent, options: SaveDialogOptions) => {
+    return dialog.showSaveDialog(mainWindow!, options);
   });
-  ipcMain.on('get-app-path', (event, name) => {
+  ipcMain.on('get-app-path', (event: Electron.IpcMainEvent, name: Parameters<typeof app.getPath>[0]) => {
     event.returnValue = app.getPath(name);
   });
 

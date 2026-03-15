@@ -10,10 +10,10 @@ import maximize from '../../../resources/imgs/titleBarButton/maximize.svg';
 import close from '../../../resources/imgs/titleBarButton/close.svg';
 
 function TitleBarButtonGroup() {
-    const maximizedRef = useRef(false);
-    const paddingOfBodyRef = useRef("");
-    const borderRadiusOfRootRef = useRef("");
-    const topOfTitleBarButtonGroupRef = useRef("");
+    const maximizedRef = useRef<boolean>(false);
+    const paddingOfBodyRef = useRef<string>("");
+    const borderRadiusOfRootRef = useRef<string>("");
+    const topOfTitleBarButtonGroupRef = useRef<string>("");
 
     // 最小化
     const handleWindowMinimum = () => {
@@ -22,9 +22,9 @@ function TitleBarButtonGroup() {
 
     // 最大化
     const handleWindowMaximum = () => {
-        const body = document.querySelector("body");
-        const root = document.querySelector("#root");
-        const titleBarButtonGroup = document.querySelector("#titleBarButtonGroup");
+        const body = document.querySelector("body")!;
+        const root = document.querySelector<HTMLElement>("#root")!;
+        const titleBarButtonGroup = document.querySelector<HTMLElement>("#titleBarButtonGroup")!;
         if (maximizedRef.current) {
             electronAPI.windowMaximize();
             body.style.padding = paddingOfBodyRef.current;

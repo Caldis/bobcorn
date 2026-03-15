@@ -6,10 +6,28 @@ import style from './index.module.css';
 import { Checkbox } from 'antd';
 import { sanitizeSVG } from '../../utils/sanitize';
 
+interface IconData {
+  id: string;
+  [key: string]: any;
+}
+
+interface IconBlockProps {
+  selected?: boolean;
+  checked?: boolean;
+  data?: IconData;
+  name?: string;
+  code?: string;
+  content?: string;
+  width?: number | string;
+  nameVisible?: boolean;
+  codeVisible?: boolean;
+  handleIconSelected?: (id: string, data: IconData) => void;
+}
+
 function IconBlock({
   selected = false,
   checked,
-  data = {},
+  data = {} as IconData,
   name = '',
   code,
   content = '',
@@ -17,8 +35,8 @@ function IconBlock({
   nameVisible = true,
   codeVisible = true,
   handleIconSelected,
-}) {
-  const iconBlockRef = useRef(null);
+}: IconBlockProps) {
+  const iconBlockRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const selfDOM = iconBlockRef.current;
@@ -28,7 +46,7 @@ function IconBlock({
   }, []);
 
   const handleSelected = () => {
-    handleIconSelected(data.id, data);
+    handleIconSelected?.(data.id, data);
   };
 
   return (

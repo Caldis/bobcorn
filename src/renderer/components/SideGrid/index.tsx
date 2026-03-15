@@ -6,7 +6,16 @@ import IconGridLocal from '../IconGridLocal';
 // Style
 import style from './index.module.css';
 
-function SideGrid({ selectedSource, ...props }) {
+interface SideGridProps {
+  selectedGroup: string;
+  selectedSource: string;
+  selectedIcon: string | null;
+  handleGroupSelected?: (group: string) => void;
+  handleIconSelected: (id: string | null, data?: any) => void;
+  handleSourceSelected: (source: string) => void;
+}
+
+function SideGrid({ selectedSource, ...props }: SideGridProps) {
   return (
     <div className={style.iconContainZone}>
       {/*顶部信息栏*/}

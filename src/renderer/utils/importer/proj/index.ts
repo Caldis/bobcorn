@@ -1,13 +1,20 @@
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 import { projFileLoader } from '../../../utils/loaders';
+import type { ProjectFileData } from '../../../utils/loaders/projFileLoader';
 // Config
 import { setOption, getOption } from '../../../config';
 
+interface ImportProjOptions {
+	path?: string | null;
+	onSelectCP?: (project: ProjectFileData) => void;
+	onSelectICP?: (project: ProjectFileData) => void;
+}
+
 // 弹出文件选择对话框, 选择并导入项目
-const importProj = async (options = {path: null, onSelectCP: ()=>{}, onSelectICP: ()=>{}}) => {
+const importProj = async (options: ImportProjOptions = {}): Promise<void> => {
 	// 导入项目
-	let path;
+	let path: string | null;
 	if (options.path) {
 		path = options.path;
 	} else {
@@ -24,11 +31,11 @@ const importProj = async (options = {path: null, onSelectCP: ()=>{}, onSelectICP
 		// 根据文件类型处理导入
 		const project = projFileLoader(path);
 		// 导入的为 cp 项目文件
-		if (project.type === "cp") {
+		if (project && project.type === "cp") {
 			options.onSelectCP && options.onSelectCP(project);
 		}
 		// 导入的为 icp 项目文件
-		if (project.type === "icp") {
+		if (project && project.type === "icp") {
 			options.onSelectICP && options.onSelectICP(project);
 		}
 	}

@@ -2,14 +2,21 @@
 import React from 'react';
 // Antd
 import { Menu, Button } from 'antd';
+import type { MenuInfo } from 'rc-menu/lib/interface';
 import { DatabaseOutlined, CloudOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 // Style
 import style from './index.module.css';
 // Database
 import db from '../../database';
 
-function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }) {
-    const handleSourceSelectorClick = (e) => {
+interface IconInfoBarProps {
+    selectedGroup: string;
+    selectedSource: string;
+    handleSourceSelected: (source: string) => void;
+}
+
+function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }: IconInfoBarProps) {
+    const handleSourceSelectorClick = (e: MenuInfo) => {
         handleSourceSelected(e.key);
     };
 

@@ -7,7 +7,7 @@ const PURIFY_CONFIG = {
   ADD_ATTR: ['xlink:href', 'xml:space'],
 };
 
-export function sanitizeSVG(html) {
+export function sanitizeSVG(html: string | null | undefined): string {
   if (!html) return '';
   return DOMPurify.sanitize(html, PURIFY_CONFIG);
 }

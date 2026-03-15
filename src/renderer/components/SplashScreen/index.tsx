@@ -13,14 +13,14 @@ import { getOption } from '../../config';
 import useAppStore from '../../store';
 
 function SplashScreen() {
-  const showSplashScreen = useAppStore((state) => state.showSplashScreen);
-  const selectGroup = useAppStore((state) => state.selectGroup);
-  const syncLeft = useAppStore((state) => state.syncLeft);
+  const showSplashScreen = useAppStore((state: any) => state.showSplashScreen);
+  const selectGroup = useAppStore((state: any) => state.selectGroup);
+  const syncLeft = useAppStore((state: any) => state.syncLeft);
 
-  const handleImportProj = (path) => {
+  const handleImportProj = (path?: string) => {
     projImporter({
       path,
-      onSelectCP: (project) => {
+      onSelectCP: (project: any) => {
         cpLoader({ data: project.data }, () => {
           showSplashScreen(false);
           message.success(`项目已导入`);
@@ -28,7 +28,7 @@ function SplashScreen() {
           selectGroup('resource-all');
         });
       },
-      onSelectICP: (project) => {
+      onSelectICP: (project: any) => {
         icpLoader(project.data, () => {
           showSplashScreen(false);
           message.success(`项目已导入`);
@@ -41,9 +41,9 @@ function SplashScreen() {
 
   // 历史项目列表
   const buildHistProj = () => {
-    const histProj = getOption('histProj');
+    const histProj: string[] = getOption('histProj');
     if (histProj.length > 0) {
-      return histProj.map((path, index) => {
+      return histProj.map((path: string, index: number) => {
         return (
           <Button className={styles.histProj} key={index} onClick={() => handleImportProj(path)}>
             {path}

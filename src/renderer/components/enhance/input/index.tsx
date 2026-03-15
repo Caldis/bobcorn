@@ -2,11 +2,21 @@
 import React, { useRef, useEffect } from 'react';
 // Antd
 import { Input, Button } from 'antd';
+import type { InputRef, InputProps } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 // Components
 import EnhanceBadge from '../badge';
 // Style
 import style from './index.module.css';
+
+interface EnhanceInputProps extends Omit<InputProps, 'autoFocus'> {
+    autoFocus?: boolean;
+    inputTitle?: string;
+    inputHintBadgeType?: 'success' | 'processing' | 'default' | 'error' | 'warning';
+    inputHintText?: string | null;
+    inputSave?: boolean;
+    inputSaveClick?: () => void;
+}
 
 function EnhanceInput({
     autoFocus = true,
@@ -16,8 +26,8 @@ function EnhanceInput({
     inputSave = false,
     inputSaveClick = () => {},
     ...inputProps
-}) {
-    const inputRef = useRef(null);
+}: EnhanceInputProps) {
+    const inputRef = useRef<InputRef>(null);
 
     useEffect(() => {
         if (autoFocus && inputRef.current) {

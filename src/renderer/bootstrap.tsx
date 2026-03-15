@@ -14,7 +14,7 @@ async function mount() {
     } else {
         // Script may load before DOM is ready (e.g., in <head>)
         document.addEventListener('DOMContentLoaded', () => {
-            const root = createRoot(document.getElementById('root'));
+            const root = createRoot(document.getElementById('root')!);
             root.render(<MainContainer />);
         });
     }
