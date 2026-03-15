@@ -125,7 +125,6 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
 
   // 拖放事件相关
   const onIconDrop = (acceptedFiles) => {
-    console.log(acceptedFiles);
     const acceptableIcons = acceptedFiles.filter((file) => {
       return config.acceptableIconTypes.includes(file.type);
     });
