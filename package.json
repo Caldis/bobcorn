@@ -128,6 +128,7 @@
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "process": "^0.11.10",
+    "rcedit": "^4.0.1",
     "sass": "^1.98.0",
     "stream-browserify": "^3.0.0",
     "stylelint": "^7.10.1",
