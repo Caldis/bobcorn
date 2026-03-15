@@ -1,111 +1,176 @@
 # UI 现代化 + 多色图标支持 — 实施方案
 
-> 2026-03-16 | 基于 v1.1.2
+> 2026-03-16 | 基于 v1.1.2 | 增量迁移策略
 
 ## 不可变约束
 
 1. **导出协议不变**: .svg/.ttf/.woff/.woff2/.eot/.css/.js 文件格式和内容结构不做任何改动
-2. **数据库 schema 不变**: .icp 项目文件保持向后兼容
+2. **数据库 schema 向后兼容**: .icp 项目文件必须可加载 (新增列用 ALTER TABLE + DEFAULT)
 3. **字体生成管线不变**: svgicons2svgfont → svg2ttf → ttf2woff/woff2/eot
 4. **IPC 通信模式不变**: contextBridge + ipcMain/ipcRenderer
 
-## Phase A: 基础设施 (前置)
+## 架构分析
 
-### A1: Tailwind CSS 集成
-- 安装 tailwindcss + postcss + autoprefixer
-- 配置 electron-vite renderer 的 PostCSS
-- 创建 tailwind.config.ts + globals.css
-- antd 和 Tailwind 共存 (过渡期)
+**antd 使用范围**: 8/12 组件使用 antd，但仅用浅层原语 (Button, Modal, Menu, Input, Slider, Checkbox, Dropdown, message)，无深度布局组件 (Form, Table, Grid, Layout)。有利于迁移。
 
-### A2: shadcn/ui 集成
-- 安装 @radix-ui 基础组件 (dialog, dropdown, slider, checkbox, tooltip)
-- 安装 class-variance-authority + clsx + tailwind-merge
-- 创建 src/renderer/components/ui/ 目录放 shadcn 组件
-- 创建 cn() 工具函数
+**CSS 架构**: 13 个 CSS Module 文件 + 1 个 global CSS (含 antd 覆盖)。Vite 用 `localsConvention: camelCase`。
 
-### A3: 测试补全
-- E2E: 导出文件内容验证 (CSS class 格式、JS symbol 格式、字体文件大小)
-- E2E: 分组操作 (创建、重命名、删除)
-- E2E: 图标操作 (选择、编辑名称/字码、回收、恢复)
-- E2E: 导出 HTML 在浏览器中的渲染验证
-- Unit: 生成器输出格式验证
+**导出管线完全隔离**: generators 只读 database + HTML 模板，零 UI 框架依赖。
 
-## Phase B: 核心 UI 重构
+**多色 SVG 差距**: `SVG.formatSVG()` 剥离内联样式。Font glyph 天然单色。但 Symbol 模式 (`iconfontSymbolGenerator`) 已保留 SVG 内部颜色属性。
 
-### B1: 设计系统
-- 定义设计 tokens (颜色、间距、圆角、阴影)
-- 暗色模式 CSS 变量
-- 创建主题 Provider
+## 策略: 增量迁移 (非大爆炸)
 
-### B2: TitleBar 重构
-- 自定义窗口控制按钮 (现代风格)
-- 应用 logo + 标题
-- macOS/Windows 自适应
+antd 5 CSS-in-JS 与 Tailwind 不冲突。shadcn/ui 是源码复制 (非包依赖)，天然共存。逐组件替换，每步可测试。
 
-### B3: Splash 重构
-- 现代欢迎界面
-- 最近项目列表卡片化
-- 新建/打开项目按钮
+## Phase 0: 基础设施 ✅ 已完成
 
-### B4: 三栏布局重构
-- SideMenu (侧栏): 分组导航 + 导入/导出
-- IconGrid (主区域): 图标网格 + 工具栏
-- SideEditor (编辑器): 图标详情编辑
+- Tailwind CSS 3 + PostCSS + autoprefixer
+- shadcn/ui 依赖 (Radix, CVA, lucide-react)
+- tailwind.config.js + globals.css + 设计 tokens (亮色/暗色)
+- cn() 工具函数
+- 构建验证通过
 
-### B5: SideMenu 拆分 (800行 → 子组件)
-- GroupNav: 分组列表
-- ActionBar: 导入/导出/设置按钮
-- ExportDialog: 导出对话框
-- GroupDialog: 分组管理对话框
+## Phase 1: 原语组件迁移 (可并行)
 
-### B6: IconBlock 升级
-- 现代卡片设计
-- 悬浮预览
-- 批量选择
+### 1a: Button + Badge
+- shadcn Button 替换所有 antd.Button (SideMenu, SideEditor, SplashScreen, IconToolbar)
+- shadcn Badge 替换 antd.Badge
 
-### B7: SideEditor 升级
-- 图标预览区
-- 属性编辑表单
-- SVG 代码查看器
+### 1b: Input + Search
+- shadcn Input 替换 antd.Input (enhance/input, IconToolbar 搜索栏)
 
-## Phase C: 多色图标支持
+### 1c: Slider
+- Radix Slider 替换 antd.Slider (IconToolbar 缩放)
 
-### C1: SVG 颜色保留
-- 导入时保留 SVG 原始颜色
-- 数据库已存储完整 SVG (iconContent)
-- 预览时使用原始 SVG 而非 iconfont glyph
+### 1d: Modal / Dialog (最复杂)
+- Radix Dialog 替换 antd.Modal (SideMenu 8 个, SideEditor 1 个, MainContainer 1 个)
+- Radix AlertDialog 替换 Modal.confirm() (SideMenu 删除分组, SideEditor 回收图标)
+- sonner 或 shadcn Toast 替换 antd.message
 
-### C2: 颜色编辑器
-- SVG path 颜色拾取
-- 调色板
-- 颜色历史
+### 1e: Checkbox + Radio
+- shadcn Checkbox 替换 antd.Checkbox (IconBlock, SideMenu 导出分组)
+- shadcn RadioGroup 替换 antd.Radio (SideEditor 分组选择)
 
-### C3: Symbol 导出增强
-- 多色图标自动使用 Symbol 方式
-- 单色图标保持 unicode/fontClass 兼容
+### 1f: Dropdown
+- shadcn DropdownMenu 替换 antd.Dropdown (SideMenu 导入下拉)
 
-## Phase D: 导出 HTML 升级
+## Phase 2: 菜单系统 + 侧边栏重设计
 
-### D1: 现代视觉设计
-- 深色/浅色主题
-- 响应式布局
-- 现代排版
+- 自定义侧边栏替换 antd.Menu/SubMenu
+- Radix Collapsible 用于分组折叠
+- Radix ScrollArea 用于滚动列表
+- lucide-react 替换 @ant-design/icons
+- **依赖**: Phase 1d (Dialog)
 
-### D2: 交互增强
-- 图标搜索 (实时过滤)
-- 代码片段一键复制 (Toast 替代 alert)
-- 图标预览放大
+## Phase 3: SideMenu 拆分 (867行 → 子组件)
 
-## 执行顺序
+| 子组件 | 职责 |
+|--------|------|
+| ResourceNav.tsx | 全部/未分组/回收站 |
+| GroupList.tsx | 可滚动分组列表 |
+| ImportExportBar.tsx | 导入/导出/设置按钮 |
+| ExportDialog.tsx | 导出相关对话框 |
+| GroupDialogs.tsx | 分组管理对话框 |
+| PrefixDialog.tsx | 前缀编辑对话框 |
+
+## Phase 4: Grid + IconBlock 重设计
+
+- 现代卡片风格 IconBlock
+- 精致的悬浮/选中过渡
+- 工具栏 (搜索栏, 缩放滑块) 现代化
+- 空状态插图升级
+- 布局过渡动画
+
+## Phase 5: Editor 面板 + Splash 重设计
+
+- SideEditor: 现代属性检视器布局, 大预览区, 内联验证
+- SplashScreen: 现代欢迎界面, 卡片式项目入口, 最近项目列表
+- Splash 从 antd.Modal 迁移到 shadcn Dialog 或全屏覆盖
+
+## Phase 6: TitleBar + 布局打磨
+
+- 自定义窗口控制按钮 (macOS/Windows 自适应)
+- 可调整大小的三栏布局 (react-resizable-panels)
+- 折叠/展开动画
+
+## Phase 7: 暗色模式
+
+- CSS 变量 + `dark:` 前缀
+- 主题切换按钮
+- localStorage 持久化
+- 全组件暗色适配
+
+## Phase 8: antd 移除
+
+- 确认零 antd/icons 导入
+- 移除 antd, @ant-design/icons 依赖
+- 清理 global CSS antd 覆盖
+- 验证 bundle 减小 (~1MB+)
+
+## Phase 9: 多色图标支持
+
+### 9a: 颜色感知显示
+- IconBlock 保留 SVG 原始颜色预览
+- 单色/彩色预览切换
+
+### 9b: 数据库元数据扩展
+- `ALTER TABLE iconData ADD COLUMN iconColorMode varchar(255) DEFAULT 'mono'`
+- 导入时自动检测颜色模式
+- 旧 .icp 加载时动态迁移 (向后兼容)
+
+### 9c: 颜色编辑器
+- SideEditor 颜色区域 (多色图标时显示)
+- SVG path 颜色提取
+- react-colorful 调色板
+- 修改后保存回 database
+
+### 9d: 导出感知
+- 导出对话框提示: 多色图标仅 Symbol 模式支持
+- CSS 演示页标记多色图标
+- Symbol JS 生成器已保留颜色属性 (无需修改)
+
+## Phase 10: 导出 HTML 演示页重设计
+
+- 现代排版和布局
+- 卡片式图标展示
+- 即时搜索过滤
+- 点击复制 Toast (替代 alert)
+- 响应式设计
+- **完全独立**, 可在任何时候执行
+
+## 依赖图和并行策略
 
 ```
-A1 → A2 → A3 (基础设施 + 测试安全网)
-  ↓
-B1 → B2 → B3 (设计系统 + 顶部组件)
-  ↓
-B4 → B5 → B6 → B7 (核心三栏布局)
-  ↓
-C1 → C2 → C3 (多色图标)
-  ↓
-D1 → D2 (导出 HTML)
+Phase 0 (✅ 完成)
+  │
+  ├─→ Phase 1a-f (并行)  ──→ Phase 2 ──→ Phase 3 ──→ Phase 6
+  │                         │
+  │                         ├─→ Phase 4
+  │                         └─→ Phase 5
+  │
+  ├─→ Phase 9a-d (独立并行)
+  │
+  └─→ Phase 10 (独立并行)
+
+Phase 1-6 全完成 → Phase 7 (暗色模式) → Phase 8 (antd 移除)
 ```
+
+## 测试策略
+
+每个 Phase 完成后必须通过:
+1. `npx electron-vite build` — 构建成功
+2. `npx vitest run` — 158 单元测试
+3. `node test/e2e/full-e2e.js` — 17 E2E (含导出内容验证)
+4. 截图比对 — 无意外回归
+5. ICP fixture (2949 icons) 性能验证
+
+## 风险评估
+
+| 风险 | 级别 | 缓解措施 |
+|------|------|----------|
+| CSS 优先级冲突 (antd vs Tailwind) | 中 | @layer 控制级联, 逐步移除 antd 覆盖 |
+| E2E 选择器失效 | 中 | 每个 Phase 后更新选择器 |
+| Modal.confirm() 命令式→声明式 | 中 | 已有 state boolean 模式可复用 |
+| SVG 颜色解析复杂性 | 高 | fill 属性 + style.fill, 不处理 gradient/pattern |
+| .icp 迁移 | 低 | ALTER TABLE ADD COLUMN + DEFAULT |
