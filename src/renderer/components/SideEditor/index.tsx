@@ -13,17 +13,16 @@ import {
   CopyOutlined,
   SelectOutlined,
 } from '@ant-design/icons';
-const ButtonGroup = Button.Group;
 const confirm = Modal.confirm;
 const RadioGroup = Radio.Group;
 // Components
 import EnhanceInput from '../enhance/input';
-// Style
-import style from './index.module.css';
+// Utils
+import { cn } from '../../lib/utils';
+import { sanitizeSVG } from '../../utils/sanitize';
+import { platform } from '../../utils/tools';
 // Database
 import db from '../../database';
-// Utils
-import { platform } from '../../utils/tools';
 // Images
 import selectedIconHint from '../../resources/imgs/nodata/selectedIconHint.png';
 // Store
@@ -304,14 +303,37 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
   const groupNum = db.getGroupList().length;
 
   return (
-    <div className={style.sideEditor}>
-      {/*Win32系统标题栏占位区域*/}
-      {platform() === 'win32' && <div className={style.win32WindowTitlePlaceHolder} />}
+    <div
+      className={cn(
+        'relative w-[250px] h-full flex flex-col',
+        'border-l border-border',
+        'bg-surface dark:bg-surface'
+      )}
+    >
+      {/* Win32 title bar spacer */}
+      {platform() === 'win32' && <div className="w-full h-5 shrink-0" />}
 
       {selectedIcon ? (
-        <div className={style.sideEditorContainContainer}>
-          <div className={style.basicDetailContainer}>
-            {/*图标名称输入框*/}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3">
+          {/* Icon preview area */}
+          <div
+            className={cn(
+              'flex items-center justify-center',
+              'w-full aspect-square max-h-[180px]',
+              'mb-4 rounded-xl',
+              'bg-surface-muted dark:bg-surface-muted',
+              'border border-border',
+              'transition-colors duration-200',
+              // SVG sizing within preview
+              '[&>svg]:w-3/5 [&>svg]:h-3/5 [&>svg]:transition-transform [&>svg]:duration-300',
+              '[&:hover>svg]:scale-110'
+            )}
+            dangerouslySetInnerHTML={{ __html: sanitizeSVG(iconData.iconContent) }}
+          />
+
+          {/* Section: form fields */}
+          <div className="mb-4 space-y-3">
+            {/* 图标名称输入框 */}
             <EnhanceInput
               autoFocus={false}
               placeholder="在界面上显示的名称"
@@ -325,7 +347,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
               inputSaveClick={handleIconNameSave}
             />
 
-            {/*图标字码输入框*/}
+            {/* 图标字码输入框 */}
             <EnhanceInput
               autoFocus={false}
               placeholder="十六进制, 从E000到F8FF"
@@ -340,49 +362,81 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
             />
           </div>
 
-          {/*图标基本信息*/}
-          <div className={style.basicInfoContainer}>
-            <span>
-              <b>基本信息</b>
-            </span>
-            <p>所属分组: {db.getGroupName(iconData.iconGroup)}</p>
-            <p>原始大小: {`${(iconData.iconSize / 512).toFixed(2)} KB`}</p>
-            <p>文件格式: {iconData.iconType && iconData.iconType.toUpperCase()}</p>
-            <p>添加日期: {iconData.createTime}</p>
-            <p>修改日期: {iconData.updateTime}</p>
+          {/* Section: 基本信息 */}
+          <div className="mb-4">
+            <h4
+              className={cn(
+                'text-xs font-semibold uppercase tracking-wider',
+                'text-foreground-muted dark:text-foreground-muted',
+                'mb-2 pb-1.5',
+                'border-b border-border'
+              )}
+            >
+              基本信息
+            </h4>
+            <div className="space-y-1">
+              {[
+                ['所属分组', db.getGroupName(iconData.iconGroup)],
+                ['原始大小', `${(iconData.iconSize / 512).toFixed(2)} KB`],
+                ['文件格式', iconData.iconType && iconData.iconType.toUpperCase()],
+                ['添加日期', iconData.createTime],
+                ['修改日期', iconData.updateTime],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className={cn('flex items-center justify-between', 'text-xs py-0.5')}
+                >
+                  <span className="text-foreground-muted dark:text-foreground-muted">{label}</span>
+                  <span className="text-foreground dark:text-foreground font-medium truncate ml-2 max-w-[120px] text-right">
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/*高级操作*/}
-          <div className={style.advanceActionContainer}>
-            <span>
-              <b>高级操作</b>
-            </span>
-            <Button style={{ width: '100%' }} icon={<EditOutlined />} disabled>
-              编辑
-            </Button>
-            <Button
-              style={{ width: '100%' }}
-              icon={<RetweetOutlined />}
-              onClick={handleIconContentUpdate}
+          {/* Section: 高级操作 */}
+          <div className="mb-2">
+            <h4
+              className={cn(
+                'text-xs font-semibold uppercase tracking-wider',
+                'text-foreground-muted dark:text-foreground-muted',
+                'mb-2 pb-1.5',
+                'border-b border-border'
+              )}
             >
-              替换
-            </Button>
-            <Button style={{ width: '100%' }} icon={<ExportOutlined />} onClick={handleIconExport}>
-              导出
-            </Button>
-            <Button
-              style={{ width: '100%' }}
-              icon={<DeleteOutlined />}
-              onClick={
-                selectedGroup === 'resource-recycleBin' ? handleIconDelete : handleIconRecycle
-              }
-            >
-              {selectedGroup === 'resource-recycleBin' ? '删除' : '回收'}
-            </Button>
-            <ButtonGroup style={{ width: '100%' }}>
+              高级操作
+            </h4>
+            <div className="grid grid-cols-2 gap-1.5">
+              <Button className="!w-full" icon={<EditOutlined />} disabled>
+                编辑
+              </Button>
+              <Button
+                className="!w-full"
+                icon={<RetweetOutlined />}
+                onClick={handleIconContentUpdate}
+              >
+                替换
+              </Button>
+              <Button className="!w-full" icon={<ExportOutlined />} onClick={handleIconExport}>
+                导出
+              </Button>
+              <Button
+                className="!w-full"
+                icon={<DeleteOutlined />}
+                onClick={
+                  selectedGroup === 'resource-recycleBin' ? handleIconDelete : handleIconRecycle
+                }
+              >
+                {selectedGroup === 'resource-recycleBin' ? '删除' : '回收'}
+              </Button>
+            </div>
+
+            {/* Copy / Move row */}
+            <div className="grid grid-cols-2 gap-1.5 mt-1.5">
               <Button
                 disabled={groupNum === 0}
-                style={{ width: '50%' }}
+                className="!w-full"
                 icon={<CopyOutlined />}
                 onClick={() => handleShowIconGroupEdit('duplicate')}
               >
@@ -390,24 +444,30 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
               </Button>
               <Button
                 disabled={groupNum === 0}
-                style={{ width: '50%' }}
+                className="!w-full"
                 icon={<SelectOutlined />}
                 onClick={() => handleShowIconGroupEdit('move')}
               >
                 移动
               </Button>
-            </ButtonGroup>
+            </div>
           </div>
         </div>
       ) : (
-        <div className={style.sideEditorNoselected}>
-          <img src={selectedIconHint} />
-          <p>请选择一个图标</p>
-          <p>可在此编辑其属性</p>
+        <div
+          className={cn(
+            'flex-1 flex flex-col items-center justify-center',
+            'text-foreground-muted dark:text-foreground-muted',
+            '[-webkit-app-region:drag]'
+          )}
+        >
+          <img className="w-[120px] mb-3 opacity-60" src={selectedIconHint} alt="" />
+          <p className="text-sm mb-1">请选择一个图标</p>
+          <p className="text-xs">可在此编辑其属性</p>
         </div>
       )}
 
-      {/*组选择模态框*/}
+      {/* 组选择模态框 */}
       <Modal
         wrapClassName="vertical-center-modal"
         title={iconGroupEditModelTitle}
@@ -432,8 +492,12 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
           </Button>,
         ]}
       >
-        <div className={style.targetGroupContainer}>
-          {iconGroupEditModelType === 'duplicate' && <p>新生成的图标将会拥有一个不同的图标字码</p>}
+        <div className="max-h-[70vh] overflow-hidden overflow-y-auto">
+          {iconGroupEditModelType === 'duplicate' && (
+            <p className="mb-2.5 text-sm text-foreground-muted dark:text-foreground-muted">
+              新生成的图标将会拥有一个不同的图标字码
+            </p>
+          )}
           <RadioGroup onChange={onTargetGroupChange} value={iconGroupEditModelTarget}>
             {buildSelectableGroupList()}
           </RadioGroup>
