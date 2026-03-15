@@ -22,38 +22,60 @@ import noIconHintHappy from '../../resources/imgs/nodata/noIconHint-happy.png';
 // Store
 import useAppStore from '../../store';
 
-function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
-  const syncLeft = useAppStore((state) => state.syncLeft);
-  const selectGroup = useAppStore((state) => state.selectGroup);
+interface IconGridLocalProps {
+  selectedGroup: string;
+  handleIconSelected: (id: string | null, data?: any) => void;
+  selectedIcon: string | null;
+}
 
-  const [iconData, setIconData] = useState({});
-  const [iconBlockWrapperMaxWidth, setIconBlockWrapperMaxWidth] = useState('100%');
-  const [iconBlockWrapperOpacity, setIconBlockWrapperOpacity] = useState(0);
-  const [iconBlockWidth, setIconBlockWidth] = useState(getOption().iconBlockSize);
-  const [iconBlockNameVisible, setIconBlockNameVisible] = useState(
+interface IconItem {
+  id: string;
+  iconName: string;
+  iconCode: string;
+  iconContent: string;
+  [key: string]: any;
+}
+
+interface GroupItem {
+  id: string;
+  groupName: string;
+  [key: string]: any;
+}
+
+function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: IconGridLocalProps) {
+  const syncLeft = useAppStore((state: any) => state.syncLeft);
+  const selectGroup = useAppStore((state: any) => state.selectGroup);
+
+  const [iconData, setIconData] = useState<Record<string, IconItem[]>>({});
+  const [iconBlockWrapperMaxWidth, setIconBlockWrapperMaxWidth] = useState<string>('100%');
+  const [iconBlockWrapperOpacity, setIconBlockWrapperOpacity] = useState<number>(0);
+  const [iconBlockWidth, setIconBlockWidth] = useState<number | string>(getOption().iconBlockSize);
+  const [iconBlockNameVisible, setIconBlockNameVisible] = useState<boolean>(
     getOption().iconBlockNameVisible
   );
-  const [iconBlockCodeVisible, setIconBlockCodeVisible] = useState(
+  const [iconBlockCodeVisible, setIconBlockCodeVisible] = useState<boolean>(
     getOption().iconBlockCodeVisible
   );
-  const [searchKeyword, setSearchKeyword] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
 
-  const widthTmpRef = useRef(null);
-  const prevSelectedGroupRef = useRef(selectedGroup);
+  const widthTmpRef = useRef<number | null>(null);
+  const prevSelectedGroupRef = useRef<string>(selectedGroup);
 
   // Sync icon data
   const sync = useCallback(
-    (group) => {
+    (group?: string) => {
       const targetGroup = group || selectedGroup;
       if (targetGroup === 'resource-all') {
-        const groupIconData = {};
-        db.getGroupList().forEach((g) => (groupIconData[g.id] = db.getIconListFromGroup(g.id)));
+        const groupIconData: Record<string, IconItem[]> = {};
+        db.getGroupList().forEach(
+          (g: GroupItem) => (groupIconData[g.id] = db.getIconListFromGroup(g.id))
+        );
         groupIconData['resource-uncategorized'] = db
           .getIconListFromGroup('resource-uncategorized')
           .concat(db.getIconListFromGroup('null'));
         setIconData(groupIconData);
       } else if (targetGroup === 'resource-uncategorized') {
-        const groupIconData = {};
+        const groupIconData: Record<string, IconItem[]> = {};
         groupIconData['resource-uncategorized'] = db
           .getIconListFromGroup('resource-uncategorized')
           .concat(db.getIconListFromGroup('null'));
@@ -79,7 +101,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
 
   // Subscribe to store changes to trigger re-sync (replaces SyncCenterLocal event)
   // When groupData changes in the store (after syncLeft), re-sync the center panel
-  const groupData = useAppStore((state) => state.groupData);
+  const groupData = useAppStore((state: any) => state.groupData);
   useEffect(() => {
     sync();
   }, [groupData]);
@@ -93,22 +115,22 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
   }, [selectedGroup]);
 
   // Toolbar相关
-  const updateNameVisible = (visible) => {
+  const updateNameVisible = (visible: boolean) => {
     setIconBlockNameVisible(visible);
     setOption({ iconBlockNameVisible: visible });
   };
-  const updateCodeVisible = (visible) => {
+  const updateCodeVisible = (visible: boolean) => {
     setIconBlockCodeVisible(visible);
     setOption({ iconBlockCodeVisible: visible });
   };
 
   // 更新搜索字符串
-  const updateSearchKeyword = (value) => {
+  const updateSearchKeyword = (value: string) => {
     setSearchKeyword(value);
   };
 
   // Icon容器宽度透明度相关
-  const updateIconWrapperWidth = (width) => {
+  const updateIconWrapperWidth = (width: number) => {
     if (width) widthTmpRef.current = width;
     const iconWidth = width || widthTmpRef.current || defOption.iconBlockSize;
     setIconBlockWrapperMaxWidth('100%');
@@ -124,12 +146,12 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
   );
 
   // 拖放事件相关
-  const onIconDrop = (acceptedFiles) => {
+  const onIconDrop = (acceptedFiles: File[]) => {
     const acceptableIcons = acceptedFiles.filter((file) => {
       return config.acceptableIconTypes.includes(file.type);
     });
     if (acceptedFiles.length === 1) {
-      const ext = acceptedFiles[0].name.split('.').pop().toLowerCase();
+      const ext = acceptedFiles[0].name.split('.').pop()?.toLowerCase();
       if (ext === 'icp' || ext === 'cp') {
         // TODO: 接受项目文件
       }
@@ -178,7 +200,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
   };
 
   // 判断是否符合搜索结果
-  const matchKeyword = (icon) => {
+  const matchKeyword = (icon: IconItem) => {
     if (searchKeyword) {
       return (
         icon.iconName.match(new RegExp(searchKeyword, 'ig')) ||
@@ -192,7 +214,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
   // 生成一般图标矩阵
   const geneIconGrid = () => {
     return iconData[selectedGroup].map(
-      (icon, index) =>
+      (icon: IconItem) =>
         matchKeyword(icon) && (
           <IconBlock
             key={icon.id}
@@ -218,14 +240,14 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
         groupName: '未分组',
       }),
     ].concat(
-      db.getGroupList().map((group) => {
+      db.getGroupList().map((group: GroupItem) => {
         return geneIconGroupGrid(group);
       })
     );
   };
 
   // 生成图标矩阵 (用于全部分类, 带分组标题)
-  const geneIconGroupGrid = (group) => {
+  const geneIconGroupGrid = (group: GroupItem) => {
     const groupIconData = iconData[group.id];
     if (groupIconData && groupIconData.length !== 0) {
       return (
@@ -236,7 +258,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }) {
             <label>{groupIconData.length}</label>
           </div>
           {groupIconData.map(
-            (icon, index) =>
+            (icon: IconItem) =>
               matchKeyword(icon) && (
                 <IconBlock
                   key={icon.id}

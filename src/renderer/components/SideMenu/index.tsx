@@ -4,6 +4,7 @@ const { electronAPI } = window;
 import React, { useState, useEffect, useRef } from 'react';
 // Antd
 import { Alert, Menu, Modal, Button, Dropdown, Checkbox, Badge, message } from 'antd';
+import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import {
   AppstoreOutlined,
   BookOutlined,
@@ -48,39 +49,57 @@ import addGroupHint from '../../resources/imgs/nodata/addGroupHint.png';
 // Store
 import useAppStore from '../../store';
 
-function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
-  const groupData = useAppStore((state) => state.groupData);
-  const syncLeft = useAppStore((state) => state.syncLeft);
-  const selectGroup = useAppStore((state) => state.selectGroup);
+interface GroupData {
+  id: string;
+  groupName: string;
+  groupOrder?: number;
+  groupColor?: string;
+  [key: string]: any;
+}
 
-  const [selectedGroup, setSelectedGroup] = useState(config.defaultSelectedGroup);
+interface ExportGroupOption {
+  label: string;
+  value: string;
+}
+
+interface SideMenuProps {
+  handleGroupSelected: (groupId: string) => void;
+  selectedGroup: string;
+}
+
+function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: SideMenuProps) {
+  const groupData: GroupData[] = useAppStore((state: any) => state.groupData);
+  const syncLeft = useAppStore((state: any) => state.syncLeft);
+  const selectGroup = useAppStore((state: any) => state.selectGroup);
+
+  const [selectedGroup, setSelectedGroup] = useState<string>(config.defaultSelectedGroup);
   // 创建新分组相关
-  const [addGroupModelVisible, setAddGroupModelVisible] = useState(false);
-  const [newGroupNameText, setNewGroupNameText] = useState(null);
-  const [newGroupNameErrText, setNewGroupNameErrText] = useState(null);
+  const [addGroupModelVisible, setAddGroupModelVisible] = useState<boolean>(false);
+  const [newGroupNameText, setNewGroupNameText] = useState<string | null>(null);
+  const [newGroupNameErrText, setNewGroupNameErrText] = useState<string | null>(null);
   // 组编辑对话框相关
-  const [editingGroupData, setEditingGroupData] = useState(null);
-  const [editGroupModelVisible, setEditGroupModelVisible] = useState(false);
-  const [groupNameChangeModelVisible, setGroupNameChangeModelVisible] = useState(false);
-  const [editingGroupNameText, setEditingGroupNameText] = useState(null);
-  const [editingGroupNameErrText, setEditingGroupNameErrText] = useState(null);
-  const [deleteGroupModelVisible, setDeleteGroupModelVisible] = useState(false);
+  const [editingGroupData, setEditingGroupData] = useState<GroupData | null>(null);
+  const [editGroupModelVisible, setEditGroupModelVisible] = useState<boolean>(false);
+  const [groupNameChangeModelVisible, setGroupNameChangeModelVisible] = useState<boolean>(false);
+  const [editingGroupNameText, setEditingGroupNameText] = useState<string | null>(null);
+  const [editingGroupNameErrText, setEditingGroupNameErrText] = useState<string | null>(null);
+  const [deleteGroupModelVisible, setDeleteGroupModelVisible] = useState<boolean>(false);
   // 前缀编辑相关
-  const [editPrefixModelVisible, setEditPrefixModelVisible] = useState(false);
-  const [editingPrefixText, setEditingPrefixText] = useState(null);
-  const [editingPrefixErrText, setEditingPrefixErrText] = useState(null);
+  const [editPrefixModelVisible, setEditPrefixModelVisible] = useState<boolean>(false);
+  const [editingPrefixText, setEditingPrefixText] = useState<string | null>(null);
+  const [editingPrefixErrText, setEditingPrefixErrText] = useState<string | null>(null);
   // 导出对话框相关
-  const [exportIconfontsModelVisible, setExportIconfontsModelVisible] = useState(false);
-  const [exportGroupFullList, setExportGroupFullList] = useState([]);
-  const [exportGroupSelected, setExportGroupSelected] = useState([]);
-  const [exportGroupIndeterminate, setExportGroupIndeterminate] = useState(true);
-  const [exportGroupCheckAll, setExportGroupCheckAll] = useState(true);
-  const [exportGroupModelVisible, setExportGroupModelVisible] = useState(false);
-  const [exportLoadingModalVisible, setExportLoadingModalVisible] = useState(false);
+  const [exportIconfontsModelVisible, setExportIconfontsModelVisible] = useState<boolean>(false);
+  const [exportGroupFullList, setExportGroupFullList] = useState<ExportGroupOption[]>([]);
+  const [exportGroupSelected, setExportGroupSelected] = useState<string[]>([]);
+  const [exportGroupIndeterminate, setExportGroupIndeterminate] = useState<boolean>(true);
+  const [exportGroupCheckAll, setExportGroupCheckAll] = useState<boolean>(true);
+  const [exportGroupModelVisible, setExportGroupModelVisible] = useState<boolean>(false);
+  const [exportLoadingModalVisible, setExportLoadingModalVisible] = useState<boolean>(false);
   // 导入对话框相关
-  const [importCPProjModelVisible, setImportCPProjModelVisible] = useState(false);
+  const [importCPProjModelVisible, setImportCPProjModelVisible] = useState<boolean>(false);
 
-  const sideMenuWrapperRef = useRef(null);
+  const sideMenuWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // 初始化同步
@@ -94,7 +113,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   }, [selectedGroupProp]);
 
   // 菜单相关
-  const handleMenuItemSelected = (e) => {
+  const handleMenuItemSelected = (e: { key: string }) => {
     setSelectedGroup(e.key);
     handleGroupSelected(e.key);
   };
@@ -107,7 +126,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   };
   const handleEnsureAddGroup = () => {
     if (newGroupNameText) {
-      db.addGroup(newGroupNameText, (group) => {
+      db.addGroup(newGroupNameText, (group: GroupData) => {
         message.success('添加分组成功');
         syncLeft();
         setSelectedGroup(group.id);
@@ -124,12 +143,12 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   const handleCancelAddGroup = () => {
     setAddGroupModelVisible(false);
   };
-  const onNewGroupNameChange = (e) => {
+  const onNewGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewGroupNameText(e.target.value);
   };
 
   // 编辑分组
-  const handleShowEditGroup = (group) => {
+  const handleShowEditGroup = (group: GroupData) => {
     setEditingGroupData(group);
     setEditGroupModelVisible(true);
   };
@@ -140,18 +159,18 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   // 修改组名
   const handleShowGroupNameChange = () => {
     setGroupNameChangeModelVisible(true);
-    setEditingGroupNameText(editingGroupData.groupName);
+    setEditingGroupNameText(editingGroupData!.groupName);
     setEditingGroupNameErrText(null);
   };
   const handleEnsureGroupNameChange = () => {
     if (editingGroupNameText) {
-      db.setGroupName(editingGroupData.id, editingGroupNameText, () => {
+      db.setGroupName(editingGroupData!.id, editingGroupNameText, () => {
         message.success('组名已修改');
         syncLeft();
-        setSelectedGroup(editingGroupData.id);
+        setSelectedGroup(editingGroupData!.id);
         setGroupNameChangeModelVisible(false);
         setEditGroupModelVisible(false);
-        handleGroupSelected(editingGroupData.id);
+        handleGroupSelected(editingGroupData!.id);
       });
     } else {
       setEditingGroupNameErrText('分组名称不能为空');
@@ -160,7 +179,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   const handleCancelGroupNameChange = () => {
     setGroupNameChangeModelVisible(false);
   };
-  const onEditingGroupNameChange = (e) => {
+  const onEditingGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditingGroupNameText(e.target.value);
   };
 
@@ -184,7 +203,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   const handleCancelEditPrefix = () => {
     setEditPrefixModelVisible(false);
   };
-  const onEditingPrefixChange = (e) => {
+  const onEditingPrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditingPrefixText(e.target.value);
   };
 
@@ -193,7 +212,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
     setDeleteGroupModelVisible(true);
   };
   const handleEnsureDeleteGroup = () => {
-    db.delGroup(editingGroupData.id, () => {
+    db.delGroup(editingGroupData!.id, () => {
       message.success('分组已删除');
       syncLeft();
       setSelectedGroup('resource-all');
@@ -207,10 +226,10 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   };
 
   // 导入相关
-  const handleImportClick = (e) => {
+  const handleImportClick = (e: { key: string }) => {
     if (e.key === 'importIcon') {
       iconImporter({
-        onSelectSVG: (files) => {
+        onSelectSVG: (files: any[]) => {
           db.addIcons(files, selectedGroup, () => {
             message.success(`已成功导入 ${files.length} 个图标`);
             syncLeft();
@@ -220,7 +239,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
     }
     if (e.key === 'importProj') {
       projImporter({
-        onSelectCP: (project) => {
+        onSelectCP: (project: any) => {
           setTimeout(() => {
             confirm({
               title: '导入项目',
@@ -239,7 +258,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
             });
           }, 250);
         },
-        onSelectICP: (project) => {
+        onSelectICP: (project: any) => {
           setTimeout(() => {
             confirm({
               title: '导入项目',
@@ -263,9 +282,9 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   };
 
   // 导出相关
-  const handleExportClick = (e) => {
+  const handleExportClick = (e?: { key?: string } | React.MouseEvent) => {
     // When called directly (not from dropdown), treat as exportIconfonts
-    const key = e && e.key ? e.key : 'exportIconfonts';
+    const key = e && 'key' in e && e.key ? e.key : 'exportIconfonts';
     switch (key) {
       case 'exportIconfonts':
         handleShowExportIconfonts();
@@ -301,7 +320,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
       });
       const pageData = demoHTMLGenerator(
         groups,
-        icons.map((icon) => {
+        icons.map((icon: any) => {
           return Object.assign({}, icon, { iconContent: '' });
         })
       );
@@ -322,7 +341,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
             log: () => {},
           },
         },
-        (svgFont) => {
+        (svgFont: string) => {
           try {
             const ttfFont = ttfFontGenerator({ svgFont });
             const woffFont = woffFontGenerator({ ttfFont });
@@ -343,7 +362,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
                   electronAPI.mkdirSync(dirPath);
                 }
                 try {
-                  db.exportProject((projData) => {
+                  db.exportProject((projData: any) => {
                     const buffer = Buffer.from(projData);
                     electronAPI.writeFileSync(`${dirPath}/${projectName}.icp`, buffer);
                     electronAPI.writeFileSync(`${dirPath}/${projectName}.html`, pageData);
@@ -370,13 +389,13 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
                     handleHideGeneratingOverlay();
                     handleCancelExportIconfonts();
                   });
-                } catch (err) {
+                } catch (err: any) {
                   message.error(`导出错误: ${err.message}`);
                   handleHideGeneratingOverlay();
                   handleCancelExportIconfonts();
                 }
               });
-          } catch (err) {
+          } catch (err: any) {
             console.error(err);
             let errMsg = err;
             if (err === 'Checksum error in glyf') {
@@ -408,12 +427,12 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
       defaultPath: `${db.getProjectName()}`,
     });
     if (!result.canceled && result.filePath) {
-      db.exportProject((projData) => {
+      db.exportProject((projData: any) => {
         const buffer = Buffer.from(projData);
         electronAPI
           .writeFile(`${result.filePath}.icp`, buffer)
           .then(() => message.success(`项目已导出`))
-          .catch((err) => message.error(`导出错误: ${err.message}`));
+          .catch((err: Error) => message.error(`导出错误: ${err.message}`));
       });
     }
   };
@@ -422,8 +441,8 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   const handleShowExportGroupSelector = () => {
     setExportGroupModelVisible(true);
   };
-  const handleUpdateSelectableGroupList = (callback) => {
-    const groupList = db.getGroupList().map((group) => {
+  const handleUpdateSelectableGroupList = (callback?: () => void) => {
+    const groupList: ExportGroupOption[] = db.getGroupList().map((group: any) => {
       return {
         label: group.groupName,
         value: group.id,
@@ -445,22 +464,23 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }) {
   const handleCancelExportGroupSelector = () => {
     setExportGroupModelVisible(false);
   };
-  const onTargetGroupCheckAllChange = (e) => {
+  const onTargetGroupCheckAllChange = (e: CheckboxChangeEvent) => {
     setExportGroupSelected(e.target.checked ? exportGroupFullList.map((group) => group.value) : []);
     setExportGroupIndeterminate(false);
     setExportGroupCheckAll(e.target.checked);
   };
-  const onTargetGroupChange = (checkedList) => {
-    setExportGroupSelected(checkedList);
+  const onTargetGroupChange = (checkedList: (string | number | boolean)[]) => {
+    const checkedValues = checkedList as string[];
+    setExportGroupSelected(checkedValues);
     setExportGroupIndeterminate(
-      !!checkedList.length && checkedList.length < exportGroupFullList.length
+      !!checkedValues.length && checkedValues.length < exportGroupFullList.length
     );
-    setExportGroupCheckAll(checkedList.length === exportGroupFullList.length);
+    setExportGroupCheckAll(checkedValues.length === exportGroupFullList.length);
   };
 
   // 界面构建相关
   const buildGroupItems = () => {
-    return groupData.map((group) => {
+    return groupData.map((group: GroupData) => {
       return (
         <Menu.Item key={group.id} className={style.sideMenuGroupTitleContainer}>
           {group.groupName}

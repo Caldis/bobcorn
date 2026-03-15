@@ -45,7 +45,6 @@ export default defineConfig({
       jsx: 'automatic',
       include: /\.(m?ts|[jt]sx|js)$/,
       exclude: [],
-      loader: 'jsx',
     },
     plugins: [
       react(),

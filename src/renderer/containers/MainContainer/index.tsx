@@ -16,18 +16,18 @@ import { preventDrop, disableChromeAutoFocus, platform } from '../../utils/tools
 import useAppStore from '../../store';
 
 function MainContainer() {
-  const splashScreenVisible = useAppStore((state) => state.splashScreenVisible);
-  const contentVisible = useAppStore((state) => state.contentVisible);
-  const selectedGroup = useAppStore((state) => state.selectedGroup);
-  const selectedIcon = useAppStore((state) => state.selectedIcon);
-  const selectedSource = useAppStore((state) => state.selectedSource);
-  const sideMenuVisible = useAppStore((state) => state.sideMenuVisible);
-  const sideEditorVisible = useAppStore((state) => state.sideEditorVisible);
+  const splashScreenVisible = useAppStore((state: any) => state.splashScreenVisible);
+  const contentVisible = useAppStore((state: any) => state.contentVisible);
+  const selectedGroup = useAppStore((state: any) => state.selectedGroup);
+  const selectedIcon = useAppStore((state: any) => state.selectedIcon);
+  const selectedSource = useAppStore((state: any) => state.selectedSource);
+  const sideMenuVisible = useAppStore((state: any) => state.sideMenuVisible);
+  const sideEditorVisible = useAppStore((state: any) => state.sideEditorVisible);
 
-  const showSplashScreen = useAppStore((state) => state.showSplashScreen);
-  const selectGroup = useAppStore((state) => state.selectGroup);
-  const selectIcon = useAppStore((state) => state.selectIcon);
-  const selectSource = useAppStore((state) => state.selectSource);
+  const showSplashScreen = useAppStore((state: any) => state.showSplashScreen);
+  const selectGroup = useAppStore((state: any) => state.selectGroup);
+  const selectIcon = useAppStore((state: any) => state.selectIcon);
+  const selectSource = useAppStore((state: any) => state.selectSource);
 
   useEffect(() => {
     // 禁止拖放文件
@@ -38,7 +38,7 @@ function MainContainer() {
     setTimeout(() => showSplashScreen(true), 100);
   }, []);
 
-  const contentVisibleStyle = contentVisible
+  const contentVisibleStyle: React.CSSProperties = contentVisible
     ? {
         opacity: 1,
       }
