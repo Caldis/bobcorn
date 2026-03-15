@@ -4,7 +4,7 @@
  * @vitest-environment jsdom
  */
 import { describe, test, expect } from 'vitest';
-import { sanitizeSVG } from '../../src/renderer/utils/sanitize.js';
+import { sanitizeSVG } from '../../src/renderer/utils/sanitize';
 
 describe('sanitizeSVG', () => {
   // ── Preserve legitimate SVG elements ──────────────────────────

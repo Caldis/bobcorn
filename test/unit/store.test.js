@@ -15,7 +15,7 @@ vi.mock('../../src/renderer/config', () => ({
 }));
 
 // Import store after mocks are set up
-const { default: useAppStore } = await import('../../src/renderer/store/index.js');
+const { default: useAppStore } = await import('../../src/renderer/store/index');
 
 /** Helper: reset the store to its initial state before each test */
 function resetStore() {

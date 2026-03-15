@@ -49,7 +49,7 @@ const {
   getOption,
   setOption,
   resetOption,
-} = await import('../../src/renderer/config/index.js');
+} = await import('../../src/renderer/config/index');
 
 describe('config default export', () => {
   it('has defaultSelectedGroup', () => {

@@ -11,7 +11,7 @@ import {
   decToHex,
   throttle,
   throttleMustRun,
-} from '../../src/renderer/utils/tools/index.js';
+} from '../../src/renderer/utils/tools/index';
 
 // ── generateUUID ────────────────────────────────────────────────
 describe('generateUUID', () => {
