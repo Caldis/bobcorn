@@ -80,6 +80,9 @@ bobcorn/
 | `docs/CONVENTIONS.md` | 代码规范 (hooks only、CSS modules、sanitizeSVG、IPC 模式) |
 | `docs/TROUBLESHOOTING.md` | 常见问题速查 |
 | `docs/RELEASE.md` | 发版流程 (每阶段或每 10 commit 发一次) |
+| `docs/HANDOFF.md` | Session 交接文档 (架构决策、已知问题、待做事项) |
+| `docs/PARALLEL_DEVELOPMENT.md` | 并行开发协作协议 |
+| `docs/DEPENDENCY_MAP.md` | 模块依赖与变更影响分析 |
 | `src/renderer/store/README.md` | State tree + 使用模式 |
 | `src/renderer/database/README.md` | Schema + 异步初始化 + CRUD API |
 
