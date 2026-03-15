@@ -917,6 +917,182 @@ async function run() {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // STEP 13c: Validate Exported File Content Formats
+    // ══════════════════════════════════════════════════════════════════════════
+    console.log('\n[Step 13c] Validate exported file content formats');
+    try {
+      await dismissModals(win);
+
+      const tmpValidateDir = path.join(os.tmpdir(), `bobcorn-e2e-validate-${Date.now()}`);
+
+      // Mock showSaveDialog
+      await app.evaluate(({ dialog }, dir) => {
+        const origSave = dialog.showSaveDialog;
+        dialog.showSaveDialog = async (win, opts) => {
+          dialog.showSaveDialog = origSave;
+          return { canceled: false, filePath: dir };
+        };
+      }, tmpValidateDir.replace(/\\/g, '/'));
+
+      // Trigger export
+      await win.evaluate(() => {
+        const btns = document.querySelectorAll('button');
+        for (const btn of btns) {
+          if (btn.textContent.includes('导出') && !btn.textContent.includes('导入')) {
+            btn.click(); return true;
+          }
+        }
+        return false;
+      });
+      await sleep(1500);
+
+      await win.evaluate(() => {
+        const wraps = document.querySelectorAll('.ant-modal-wrap');
+        for (const wrap of wraps) {
+          if (wrap.style.display === 'none') continue;
+          const title = wrap.querySelector('.ant-modal-title');
+          if (title && title.textContent.includes('导出图标字体')) {
+            const okBtn = wrap.querySelector('.ant-btn-primary');
+            if (okBtn) { okBtn.click(); return true; }
+          }
+        }
+        return false;
+      });
+
+      // Wait for export (up to 120s for ICP)
+      await sleep(2000);
+      const valStart = Date.now();
+      while (Date.now() - valStart < 120000) {
+        const loading = await win.locator('text=正在生成图标字体').isVisible({ timeout: 500 }).catch(() => false);
+        if (!loading) break;
+        await sleep(2000);
+      }
+      await sleep(500);
+
+      const validationResults = [];
+
+      if (fs.existsSync(tmpValidateDir)) {
+        const files = fs.readdirSync(tmpValidateDir);
+        const getFile = (ext) => {
+          const f = files.find(fn => fn.endsWith(ext));
+          return f ? fs.readFileSync(path.join(tmpValidateDir, f), ext === '.css' || ext === '.html' || ext === '.js' || ext === '.svg' ? 'utf-8' : null) : null;
+        };
+
+        // 1. Validate CSS format: must contain .projectName-xxxx:before { content: "\\xxxx"; }
+        const css = getFile('.css');
+        if (css) {
+          const hasAtFontFace = css.includes('@font-face');
+          const hasCssClasses = /\.\w+-[a-f0-9]+:before\s*\{\s*content:\s*"\\[a-f0-9]+";\s*\}/.test(css);
+          if (hasAtFontFace && hasCssClasses) {
+            validationResults.push({ name: 'CSS @font-face + class format', ok: true });
+          } else {
+            validationResults.push({ name: 'CSS format', ok: false, detail: `@font-face=${hasAtFontFace}, classes=${hasCssClasses}` });
+          }
+        }
+
+        // 2. Validate JS Symbol format: must contain <symbol id="projectName-xxxx" viewBox="...">
+        const js = getFile('.js');
+        if (js) {
+          const hasSymbols = /<symbol\s+id="[^"]+"\s+viewBox="[^"]+"/.test(js);
+          const hasWrapper = js.includes('window') || js.includes('document') || js.includes('svg');
+          if (hasSymbols) {
+            validationResults.push({ name: 'JS symbol tags present', ok: true });
+          } else {
+            validationResults.push({ name: 'JS symbol format', ok: false, detail: 'No <symbol> tags found' });
+          }
+        }
+
+        // 3. Validate SVG font: must be valid XML with <font> and <glyph> elements
+        const svg = getFile('.svg');
+        if (svg) {
+          const hasFont = svg.includes('<font ') || svg.includes('<font>');
+          const hasGlyphs = svg.includes('<glyph ');
+          const glyphCount = (svg.match(/<glyph /g) || []).length;
+          if (hasFont && hasGlyphs && glyphCount > 100) {
+            validationResults.push({ name: `SVG font (${glyphCount} glyphs)`, ok: true });
+          } else {
+            validationResults.push({ name: 'SVG font', ok: false, detail: `font=${hasFont}, glyphs=${glyphCount}` });
+          }
+        }
+
+        // 4. Validate TTF: check magic number (00 01 00 00 for TrueType)
+        const ttf = getFile('.ttf');
+        if (ttf) {
+          const magic = ttf.slice(0, 4);
+          const isTTF = magic[0] === 0 && magic[1] === 1 && magic[2] === 0 && magic[3] === 0;
+          validationResults.push({ name: 'TTF magic number', ok: isTTF, detail: isTTF ? '' : `Got ${magic.toString('hex')}` });
+        }
+
+        // 5. Validate WOFF: check magic number (774F4646 = "wOFF")
+        const woff = getFile('.woff');
+        if (woff) {
+          const magic = woff.slice(0, 4).toString('ascii');
+          const isWOFF = magic === 'wOFF';
+          validationResults.push({ name: 'WOFF magic number', ok: isWOFF, detail: isWOFF ? '' : `Got "${magic}"` });
+        }
+
+        // 6. Validate WOFF2: check magic number (774F4632 = "wOF2")
+        const woff2 = getFile('.woff2');
+        if (woff2) {
+          const magic = woff2.slice(0, 4).toString('ascii');
+          const isWOFF2 = magic === 'wOF2';
+          validationResults.push({ name: 'WOFF2 magic number', ok: isWOFF2, detail: isWOFF2 ? '' : `Got "${magic}"` });
+        }
+
+        // 7. Validate HTML demo page: must contain icon data and rendering scripts
+        const html = getFile('.html');
+        if (html) {
+          const hasIcons = html.includes('var icons =') || html.includes('var icons=');
+          const hasGroups = html.includes('var groups =') || html.includes('var groups=');
+          const hasRender = html.includes('renderPageIcons');
+          const hasContentVis = html.includes('content-visibility');
+          validationResults.push({
+            name: 'HTML demo structure',
+            ok: hasIcons && hasGroups && hasRender,
+            detail: `icons=${hasIcons}, groups=${hasGroups}, render=${hasRender}, virtualScroll=${hasContentVis}`
+          });
+        }
+
+        // 8. Validate ICP project file: must be a valid SQLite database
+        const icp = getFile('.icp');
+        if (icp) {
+          const sqliteHeader = icp.slice(0, 6).toString('ascii');
+          const isSQLite = sqliteHeader === 'SQLite';
+          validationResults.push({ name: 'ICP SQLite format', ok: isSQLite, detail: isSQLite ? '' : `Got "${sqliteHeader}"` });
+        }
+
+        // Report results
+        const allPassed = validationResults.every(r => r.ok);
+        console.log(`    Content validations: ${validationResults.length}`);
+        validationResults.forEach(r => {
+          const icon = r.ok ? 'OK' : 'XX';
+          console.log(`      [${icon}] ${r.name}${r.detail ? ' -- ' + r.detail : ''}`);
+        });
+
+        if (allPassed) {
+          pass(`Export content validation: all ${validationResults.length} format checks passed`);
+        } else {
+          const failures = validationResults.filter(r => !r.ok).map(r => r.name);
+          fail('Export content validation', `Failed: ${failures.join(', ')}`);
+        }
+      } else {
+        fail('Export content validation', 'Export directory does not exist');
+      }
+
+      // Cleanup
+      try {
+        fs.rmSync(tmpValidateDir, { recursive: true, force: true });
+      } catch (e) {
+        console.log(`    Cleanup warning: ${e.message}`);
+      }
+
+      await dismissModals(win);
+    } catch (e) {
+      fail('Export content validation', e.message);
+      await dismissModals(win);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // STEP 14: Check for Console Errors
     // ══════════════════════════════════════════════════════════════════════════
     console.log('\n[Step 14] Error check');

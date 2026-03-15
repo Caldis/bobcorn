@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 亮色主题 */
+    --surface: 0 0% 100%;
+    --surface-muted: 210 20% 98%;
+    --surface-accent: 214 32% 96%;
+    --foreground: 222 47% 11%;
+    --foreground-muted: 215 16% 47%;
+    --border: 214 32% 91%;
+    --ring: 221 83% 53%;
+    --radius: 8px;
+  }
+
+  .dark {
+    --surface: 222 47% 11%;
+    --surface-muted: 217 33% 17%;
+    --surface-accent: 215 28% 22%;
+    --foreground: 210 40% 98%;
+    --foreground-muted: 215 20% 65%;
+    --border: 217 33% 25%;
+    --ring: 213 94% 68%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-surface text-foreground;
+  }
+}
+
+/* cn() utility for merging classnames */
