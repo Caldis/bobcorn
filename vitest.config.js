@@ -9,6 +9,12 @@ export default defineConfig({
     include: ['test/**/*.test.{js,ts}'],
     environment: 'node',
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      include: ['src/renderer/**/*.{js,jsx}'],
+      exclude: ['**/*.module.css', '**/*.test.*'],
+    },
   },
   resolve: {
     alias: {
