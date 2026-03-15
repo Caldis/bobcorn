@@ -62,7 +62,7 @@ npm run package-all    # All platforms
 ### Test
 
 ```bash
-npx jest test/unit --verbose    # Unit tests
+npx vitest run                  # Unit tests
 node test/e2e/acceptance.js     # E2E acceptance (20 checks)
 ```
 

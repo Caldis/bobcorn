@@ -6,3 +6,4 @@ release/
 *.log
 npm-debug.log*
 test/fixtures/iconfont/
+docs/locks/*.lock
