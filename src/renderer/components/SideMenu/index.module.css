@@ -1,235 +1,123 @@
-.sideMenuContainer {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+/* ============================================
+   SideMenu — Minimal CSS module (post-Tailwind)
+   Only keeps styles that require CSS features
+   not available in Tailwind (pseudo-selectors on
+   antd internals, -webkit-app-region, composes).
+   ============================================ */
+
+/* --- Platform drag regions --- */
+.osxDrag {
+  height: 33px;
+  -webkit-app-region: drag;
 }
 
-/*OSX系统标题栏占位区域*/
-.osxWindowTitlePlaceHolder {
-    height: 33px;
-    -webkit-app-region: drag
-}
-/*Win32系统可拖动区域*/
-.win32DragablePlaceHolder {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 42px;
-    z-index: 10;
-    -webkit-app-region: drag;
+.win32Drag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 42px;
+  z-index: 10;
+  -webkit-app-region: drag;
 }
 
-/*侧边菜单*/
-.sideMenuWrapper {
-    height: 100%;
-    overflow: hidden;
-    overflow-y: auto;
-    flex-shrink: 1;
-    flex-grow: 1;
-}
-/*移除箭头*/
-.sideMenuWrapper :global(.ant-menu-submenu-arrow) {
-    opacity: 0;
-}
-/*覆盖禁用后的置灰效果*/
-.sideMenuWrapper :global(.ant-menu-submenu-title) {
-    color: black !important;
-    cursor: default !important;
-}
-.sideMenuWrapper li>div:active {
-    background: initial;
-}
-.sideMenuWrapper li>div:after {
-    content: none !important;
-}
-.sideMenuSubMenuContainer {
-
-}
-.sideMenuGroupMainTitleContainer{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-.sideMenuGroupMainTitleAction {
-    position: absolute !important;
-    top: 4px;
-    right: 10px;
-    z-index: 10;
-    border: none !important;
-    background-color: rgba(0, 0, 0, 0) !important;
-}
-.sideMenuGroupMainTitleAction:hover {
-    background-color: rgba(0, 0, 0, 0) !important;
-}
-.sideMenuGroupMainTitleAction:active {
-    background-color: rgba(0, 0, 0, 0) !important;
-}
-.sideMenuGroupMainTitleAction i {
-    margin-right: auto !important;
+/* --- Antd Menu overrides (applied to wrapper) --- */
+.sideMenuOverrides :global(.ant-menu-submenu-arrow) {
+  opacity: 0;
 }
 
+.sideMenuOverrides :global(.ant-menu-submenu-title) {
+  color: hsl(var(--foreground)) !important;
+  cursor: default !important;
+}
+
+.sideMenuOverrides li > div:active {
+  background: initial;
+}
+
+.sideMenuOverrides li > div:after {
+  content: none !important;
+}
+
+/* --- Group section header "+" button --- */
+.groupAddBtn {
+  position: absolute !important;
+  top: 4px;
+  right: 10px;
+  z-index: 10;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+.groupAddBtn:hover,
+.groupAddBtn:active {
+  background-color: transparent !important;
+  color: hsl(var(--ring)) !important;
+}
+
+.groupAddBtn i {
+  margin-right: auto !important;
+}
+
+/* --- Group item row + settings gear --- */
 .sideMenuGroupTitleContainer {
-    composes: sideMenuGroupMainTitleContainer;
-    margin-right: 1px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 1px;
 }
+
 .sideMenuGroupTitleContainer:hover .sideMenuGroupAction {
-    opacity: 1;
+  opacity: 1;
 }
+
 .sideMenuGroupAction {
-    composes: sideMenuGroupMainTitleAction;
-    transition: opacity .1s;
-    opacity: 0;
+  position: absolute !important;
+  top: 4px;
+  right: 10px;
+  z-index: 10;
+  border: none !important;
+  background-color: transparent !important;
+  transition: opacity 0.15s ease;
+  opacity: 0;
 }
 
-/*添加分组提示*/
-.noGroupHint {
-    width: 100%;
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    z-index: 10;
-    top: calc(44vh);
-    color: #999999;
-}
-.noGroupHint img {
-    width: 120px;
-    margin: auto;
-}
-.noGroupHint p {
-    margin-bottom: 0.5em;
+.sideMenuGroupAction:hover,
+.sideMenuGroupAction:active {
+  background-color: transparent !important;
+  color: hsl(var(--ring)) !important;
 }
 
-/*导出导入按钮*/
-.sideIOButtonContainer {
-    border-top: 1px solid #eeeff0;
-    flex-shrink: 0;
-    padding: 8px 12px 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+.sideMenuGroupAction i {
+  margin-right: auto !important;
 }
+
+/* --- Import dropdown menu --- */
 .sideImportMenu li {
-    color: rgba(0, 0, 0, 0.65) !important;
-    background-color: inherit !important;
+  color: hsl(var(--foreground)) !important;
+  background-color: inherit !important;
 }
+
 .sideImportMenu li:hover {
-    color: #108ee9 !important;
-    background-color: #ecf6fd !important;
+  color: hsl(var(--ring)) !important;
+  background-color: hsl(var(--surface-accent)) !important;
 }
 
-
-/*添加分组对话框*/
-.addGroupModelContainer {
-
-}
-
-
-/*编辑分组对话框*/
-.editGroupModelContainer {
-
-}
-.fullWidthButton {
-    display: block;
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-
-/*修改组名对话框*/
-.groupNameChangeModelContainer {
-
-}
-
-/*修改图标字体前缀对话框*/
-.editPrefixModelContainer {
-
-}
-
-
-/*删除分组对话框*/
-.deleteGroupModelContainer {
-
-}
-.deleteGroupModelContainer b {
-    font-size: 20px;
-}
-.deleteGroupModelContainer label {
-    display: block;
-    width: 100%;
-    margin: 10px 0 4px;
-}
-.deleteGroupModelContainer>span {
-    padding: 0;
-}
-
-
-/*导出为图标字体对话框*/
-.exportIconfontsModelContainer {
-
-}
-.exportIconfontsModelContainer span {
-    white-space: normal;
-}
-.advanceOptionContainer {
-    margin-top: 16px;
-}
-.advanceOptionContainer p span {
-    display: inline-block;
-    box-sizing: border-box;
-    padding: 0 6px 0 3px;
-    background: white;
-    z-index: 100;
-    position: relative;
-}
+/* --- Export dialog: advance options --- */
 .advanceOptionContainer :global(.ant-btn-group) {
-    width: 100%;
+  width: 100%;
 }
-.advanceOptionContainer :global(.ant-btn-group) button{
-    width: 50%;
+
+.advanceOptionContainer :global(.ant-btn-group) button {
+  width: 50%;
 }
-.iconCountText {
-    margin-top: 10px;
-    display: inline-block;
-    color: #999;
-}
-.targetGroupContainer {
-    /*max-height: 70vh;*/
-    overflow: hidden;
-    overflow-y: auto;
-}
-.targetGroupContainer>p {
-    margin-bottom: 10px;
-}
+
+/* --- Export group selector checkbox layout --- */
 .targetGroupContainer :global(.ant-checkbox-group) {
-    display: flex;
-    flex-direction: column;
-}
-.targetGroupContainer :global(.ant-checkbox-group)>label {
-    margin-top: 6px;
+  display: flex;
+  flex-direction: column;
 }
 
-/*导入 Cyberpen 项目对话框*/
-.importCPProjModelContainer {
-
-}
-.importCPProjModelContainer span {
-    white-space: normal;
-}
-
-/*合并 Cyberpen 图标流程对话框*/
-.combineCPProjProcedureModelContainer {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-.existIcon {
-
-}
-.conflictIcon {
-
+.targetGroupContainer :global(.ant-checkbox-group) > label {
+  margin-top: 6px;
 }

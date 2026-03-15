@@ -3,8 +3,8 @@ import React from 'react';
 // Components
 import IconInfoBar from '../IconInfoBar';
 import IconGridLocal from '../IconGridLocal';
-// Style
-import style from './index.module.css';
+// Utils
+import { cn } from '../../lib/utils';
 
 interface SideGridProps {
   selectedGroup: string;
@@ -17,18 +17,21 @@ interface SideGridProps {
 
 function SideGrid({ selectedSource, ...props }: SideGridProps) {
   return (
-    <div className={style.iconContainZone}>
+    <div className={cn('w-full h-full flex flex-col', 'border-l border-border')}>
       {/*顶部信息栏*/}
-      <div className={style.iconInfoOuterContainer}>
+      <div>
         <IconInfoBar selectedSource={selectedSource} {...props} />
       </div>
 
       {/*主体内容*/}
       <div
-        className={style.iconGridOuterContainer}
+        className={cn(
+          'flex-grow flex flex-row overflow-hidden',
+          'transition-transform duration-300'
+        )}
         style={{ transform: `translateX(${selectedSource === 'local' ? '0%' : '-100%'})` }}
       >
-        <div className={style.iconGridOuterWrapper}>
+        <div className="w-full flex flex-grow shrink-0">
           <IconGridLocal {...props} />
         </div>
       </div>

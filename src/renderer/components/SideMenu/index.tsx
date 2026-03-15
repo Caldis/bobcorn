@@ -27,6 +27,7 @@ import config from '../../config';
 // Style
 import style from './index.module.css';
 // Utils
+import { cn } from '../../lib/utils';
 import { isnContainSpace, platform } from '../../utils/tools';
 import { cpLoader, icpLoader } from '../../utils/loaders';
 import {
@@ -509,66 +510,73 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
   };
 
   return (
-    <div className={style.sideMenuContainer}>
+    <div className="relative flex h-full w-full flex-col bg-surface dark:bg-surface">
       {/*OSX系统标题栏占位区域*/}
-      {platform() === 'darwin' && <div className={style.osxWindowTitlePlaceHolder} />}
+      {platform() === 'darwin' && <div className={style.osxDrag} />}
 
       {/*Win32系统标题栏可拖动区域*/}
-      {platform() === 'win32' && <div className={style.win32DragablePlaceHolder} />}
+      {platform() === 'win32' && <div className={style.win32Drag} />}
 
       {/*资源部分 — 固定在顶部不滚动*/}
-      <Menu
-        style={{ width: 250, border: 'none', flexShrink: 0 }}
-        selectedKeys={[selectedGroup]}
-        onSelect={handleMenuItemSelected}
-        defaultOpenKeys={['resource']}
-        mode="inline"
-      >
-        <SubMenu
-          key="resource"
-          disabled={true}
-          title={
-            <span>
-              <AppstoreOutlined />
-              <span>资源</span>
-            </span>
-          }
+      <div className={cn('shrink-0', style.sideMenuOverrides)}>
+        <Menu
+          style={{ width: 250, border: 'none' }}
+          selectedKeys={[selectedGroup]}
+          onSelect={handleMenuItemSelected}
+          defaultOpenKeys={['resource']}
+          mode="inline"
         >
-          <Menu.Item key="resource-all">
-            <span>
-              <BookOutlined />
-              <span>全部</span>
-            </span>
-          </Menu.Item>
-          <Menu.Item key="resource-uncategorized">
-            <Badge
-              count={
-                db.getIconCountFromGroup('resource-uncategorized') +
-                db.getIconCountFromGroup('null')
-              }
-            >
-              <span>
-                <FileExclamationOutlined />
-                <span>未分组</span>
-                <span>&nbsp;</span>
-                <span>&nbsp;</span>
-                <span>&nbsp;</span>
+          <SubMenu
+            key="resource"
+            disabled={true}
+            title={
+              <span className="flex items-center gap-1.5">
+                <AppstoreOutlined />
+                <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+                  资源
+                </span>
               </span>
-            </Badge>
-          </Menu.Item>
-          <Menu.Item key="resource-recycleBin">
-            <Badge count={db.getIconCountFromGroup('resource-recycleBin')}>
-              <span>
-                <DeleteOutlined />
-                <span>回收站</span>
+            }
+          >
+            <Menu.Item key="resource-all">
+              <span className="flex items-center gap-2">
+                <BookOutlined />
+                <span>全部</span>
               </span>
-            </Badge>
-          </Menu.Item>
-        </SubMenu>
-      </Menu>
+            </Menu.Item>
+            <Menu.Item key="resource-uncategorized">
+              <Badge
+                count={
+                  db.getIconCountFromGroup('resource-uncategorized') +
+                  db.getIconCountFromGroup('null')
+                }
+              >
+                <span className="flex items-center gap-2">
+                  <FileExclamationOutlined />
+                  <span>未分组</span>
+                  <span>&nbsp;</span>
+                  <span>&nbsp;</span>
+                  <span>&nbsp;</span>
+                </span>
+              </Badge>
+            </Menu.Item>
+            <Menu.Item key="resource-recycleBin">
+              <Badge count={db.getIconCountFromGroup('resource-recycleBin')}>
+                <span className="flex items-center gap-2">
+                  <DeleteOutlined />
+                  <span>回收站</span>
+                </span>
+              </Badge>
+            </Menu.Item>
+          </SubMenu>
+        </Menu>
+      </div>
 
       {/*分组部分 — 可滚动*/}
-      <div className={style.sideMenuWrapper} ref={sideMenuWrapperRef}>
+      <div
+        className={cn('flex-1 overflow-y-auto overflow-x-hidden', style.sideMenuOverrides)}
+        ref={sideMenuWrapperRef}
+      >
         <Menu
           style={{ width: 250, border: 'none' }}
           selectedKeys={[selectedGroup]}
@@ -580,11 +588,13 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
             key="groups"
             disabled={true}
             title={
-              <div className={style.sideMenuGroupMainTitleContainer}>
+              <div className="flex items-center gap-1.5">
                 <TagsOutlined />
-                <span>分组</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+                  分组
+                </span>
                 <Button
-                  className={style.sideMenuGroupMainTitleAction}
+                  className={style.groupAddBtn}
                   shape="circle"
                   icon={<PlusOutlined />}
                   onClick={handleShowAddGroup}
@@ -597,16 +607,19 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         </Menu>
 
         {groupData.length === 0 && (
-          <div className={style.noGroupHint}>
-            <img src={addGroupHint} alt="添加分组" />
-            <p>还没有分组</p>
-            <p>点击上方的 "+"可以创建分组</p>
+          <div
+            className="absolute left-0 z-10 flex w-full flex-col items-center justify-center text-center text-foreground-muted"
+            style={{ top: 'calc(44vh)' }}
+          >
+            <img className="mx-auto w-[120px] opacity-60" src={addGroupHint} alt="添加分组" />
+            <p className="mb-1 mt-3 text-sm">还没有分组</p>
+            <p className="text-xs text-foreground-muted">点击上方的 "+"可以创建分组</p>
           </div>
         )}
       </div>
 
       {/*导出导入按钮*/}
-      <div className={style.sideIOButtonContainer}>
+      <div className="flex shrink-0 items-center gap-1.5 border-t border-border px-3 py-2">
         <ButtonGroup style={{ flex: 1 }}>
           <Dropdown
             overlay={
@@ -616,11 +629,16 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
               </Menu>
             }
           >
-            <Button style={{ width: '50%' }} icon={<LoginOutlined />}>
+            <Button className="!rounded-l-md" style={{ width: '50%' }} icon={<LoginOutlined />}>
               导入
             </Button>
           </Dropdown>
-          <Button style={{ width: '50%' }} onClick={handleExportClick} icon={<SaveOutlined />}>
+          <Button
+            className="!rounded-r-md"
+            style={{ width: '50%' }}
+            onClick={handleExportClick}
+            icon={<SaveOutlined />}
+          >
             导出
           </Button>
         </ButtonGroup>
@@ -629,6 +647,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
           shape="circle"
           icon={<SettingOutlined />}
           onClick={handleShowEditPrefix}
+          className="shrink-0 !border-border hover:!border-brand-400 hover:!text-brand-500"
         />
       </div>
 
@@ -642,7 +661,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         cancelText={'取消'}
         onCancel={handleCancelAddGroup}
       >
-        <div className={style.addGroupModelContainer}>
+        <div className="py-2">
           <EnhanceInput
             placeholder="分组名称"
             value={newGroupNameText}
@@ -663,20 +682,11 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         onCancel={handleCancelEditGroup}
         footer={null}
       >
-        <div className={style.editGroupModelContainer}>
-          <Button
-            size="large"
-            className={style.fullWidthButton}
-            onClick={handleShowGroupNameChange}
-          >
+        <div className="flex flex-col gap-2.5 py-2">
+          <Button size="large" className="!w-full" onClick={handleShowGroupNameChange}>
             修改分组名
           </Button>
-          <Button
-            size="large"
-            danger
-            className={style.fullWidthButton}
-            onClick={handleShowDeleteGroup}
-          >
+          <Button size="large" danger className="!w-full" onClick={handleShowDeleteGroup}>
             删除这个分组
           </Button>
         </div>
@@ -692,7 +702,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         cancelText={'取消'}
         onCancel={handleCancelGroupNameChange}
       >
-        <div className={style.groupNameChangeModelContainer}>
+        <div className="py-2">
           <EnhanceInput
             placeholder="分组名称"
             value={editingGroupNameText}
@@ -715,7 +725,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         cancelText={'取消'}
         onCancel={handleCancelEditPrefix}
       >
-        <div className={style.editPrefixModelContainer}>
+        <div className="py-2">
           <Alert
             message="请务必当心"
             description={[
@@ -724,16 +734,17 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
             ]}
             type="warning"
           />
-          <br />
-          <EnhanceInput
-            placeholder="前缀名称"
-            value={editingPrefixText}
-            onChange={onEditingPrefixChange}
-            onPressEnter={handleEnsureEditPrefix}
-            inputTitle="请输入新的前缀"
-            inputHintText={editingPrefixErrText}
-            inputHintBadgeType="error"
-          />
+          <div className="mt-4">
+            <EnhanceInput
+              placeholder="前缀名称"
+              value={editingPrefixText}
+              onChange={onEditingPrefixChange}
+              onPressEnter={handleEnsureEditPrefix}
+              inputTitle="请输入新的前缀"
+              inputHintText={editingPrefixErrText}
+              inputHintBadgeType="error"
+            />
+          </div>
         </div>
       </Modal>
 
@@ -753,12 +764,14 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
           </Button>,
         ]}
       >
-        <div className={style.deleteGroupModelContainer}>
-          <p>以下的分组将会被删除</p>
-          <p>
-            <b>{editingGroupData && editingGroupData.groupName}</b>
+        <div className="py-2 text-center">
+          <p className="text-foreground-muted">以下的分组将会被删除</p>
+          <p className="my-2">
+            <b className="text-xl text-foreground">
+              {editingGroupData && editingGroupData.groupName}
+            </b>
           </p>
-          <p>该分组内的所有图标也会被一并移除</p>
+          <p className="text-foreground-muted">该分组内的所有图标也会被一并移除</p>
         </div>
       </Modal>
 
@@ -775,20 +788,22 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         cancelText={'取消'}
         onCancel={handleCancelExportIconfonts}
       >
-        <div className={style.exportIconfontsModelContainer}>
-          <span>
+        <div className="py-2">
+          <span className="whitespace-normal text-sm leading-relaxed text-foreground-muted">
             导出图标字体能让您在网页中以图标字码,
             或关联类名的方式直接引用图标。如果您想进一步了解更详细的使用信息, 请参阅导出后所附带的
             HTML 文件。
           </span>
-          <div className={style.advanceOptionContainer}>
+          <div className={cn('mt-4', style.advanceOptionContainer)}>
             <ButtonGroup>
               <Button onClick={handleShowExportGroupSelector}>选择需要导出的分组</Button>
               <Button disabled>选择需要导出的格式</Button>
             </ButtonGroup>
           </div>
         </div>
-        <span className={style.iconCountText}>当前项目共有 {db.getIconCount()} 个图标</span>
+        <span className="mt-2 inline-block text-xs text-foreground-muted">
+          当前项目共有 {db.getIconCount()} 个图标
+        </span>
       </Modal>
 
       {/*导出分组选择对话框*/}
@@ -801,8 +816,8 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         cancelText={'取消'}
         onCancel={handleCancelExportGroupSelector}
       >
-        <div className={style.targetGroupContainer}>
-          <div style={{ borderBottom: '1px solid #E9E9E9', paddingBottom: 6 }}>
+        <div className={cn('overflow-y-auto', style.targetGroupContainer)}>
+          <div className="border-b border-border pb-1.5">
             <Checkbox
               indeterminate={exportGroupIndeterminate}
               onChange={onTargetGroupCheckAllChange}
@@ -829,9 +844,9 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         onCancel={handleHideGeneratingOverlay}
         footer={null}
       >
-        <div>
+        <div className="py-2 text-sm text-foreground-muted">
           <p>正在生成图标字体, 请稍后</p>
-          <p>如果下次需要继续编辑图标, 请打开导出目录下文件后缀为 "icp" 的文件</p>
+          <p className="mt-2">如果下次需要继续编辑图标, 请打开导出目录下文件后缀为 "icp" 的文件</p>
         </div>
       </Modal>
 
@@ -853,8 +868,8 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
           </Button>,
         ]}
       >
-        <div className={style.importCPProjModelContainer}>
-          <span>
+        <div className="py-2">
+          <span className="whitespace-normal text-sm leading-relaxed text-foreground-muted">
             所选择的项目文件是 CyberPen 所导出的项目文件。 从此工具中导出的项目文件在 CyberPen
             中无法再次编辑。 不过您完全可以使用本工具来替代 CyberPen。
           </span>

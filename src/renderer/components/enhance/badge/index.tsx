@@ -2,20 +2,27 @@
 import React from 'react';
 // Antd
 import { Badge } from 'antd';
-// Style
-import style from './index.module.css';
+// Utils
+import { cn } from '../../../lib/utils';
 
 interface EnhanceBadgeProps {
   status?: 'success' | 'processing' | 'default' | 'error' | 'warning';
   text?: string | null;
 }
 
-function EnhanceBadge({ status = "success", text = "" }: EnhanceBadgeProps) {
-    return (
-        <div className={style.enhanceBadge} style={{ height: text ? 28 : 0}}>
-            <Badge status={status} text={text || undefined}/>
-        </div>
-    );
+function EnhanceBadge({ status = 'success', text = '' }: EnhanceBadgeProps) {
+  return (
+    <div
+      className={cn(
+        'overflow-hidden flex items-center',
+        'pl-1',
+        'transition-[height] duration-200'
+      )}
+      style={{ height: text ? 28 : 0 }}
+    >
+      <Badge status={status} text={text || undefined} />
+    </div>
+  );
 }
 
 export default EnhanceBadge;

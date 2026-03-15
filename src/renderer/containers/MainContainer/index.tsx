@@ -8,9 +8,8 @@ import SplashScreen from '../../components/SplashScreen';
 import SideMenu from '../../components/SideMenu';
 import SideGrid from '../../components/SideGrid';
 import SideEditor from '../../components/SideEditor';
-// Styles
-import style from './index.module.css';
 // Utils
+import { cn } from '../../lib/utils';
 import { preventDrop, disableChromeAutoFocus, platform } from '../../utils/tools';
 // Store
 import useAppStore from '../../store';
@@ -38,16 +37,8 @@ function MainContainer() {
     setTimeout(() => showSplashScreen(true), 100);
   }, []);
 
-  const contentVisibleStyle: React.CSSProperties = contentVisible
-    ? {
-        opacity: 1,
-      }
-    : {
-        opacity: 0,
-      };
-
   return (
-    <div className={style.mainContainer}>
+    <div className="flex h-full w-full flex-row flex-nowrap">
       {/*欢迎界面*/}
       <Modal
         closable={false}
@@ -60,14 +51,22 @@ function MainContainer() {
         <SplashScreen />
       </Modal>
 
-      {/*主体内容*/}
+      {/*主体内容 — 左侧边栏*/}
       <div
-        className={sideMenuVisible ? style.sideMenuFlexWrapper : style.sideMenuFlexWrapperHide}
-        style={contentVisibleStyle}
+        className={cn(
+          'shrink-0 overflow-hidden transition-[opacity,width] duration-300',
+          sideMenuVisible ? 'w-[250px]' : 'w-0 !opacity-0'
+        )}
+        style={{ opacity: contentVisible ? 1 : 0 }}
       >
         <SideMenu handleGroupSelected={selectGroup} selectedGroup={selectedGroup} />
       </div>
-      <div className={style.sideIconContainZoneFlexWrapper} style={contentVisibleStyle}>
+
+      {/*主体内容 — 中央图标网格*/}
+      <div
+        className="min-w-0 flex-1 overflow-hidden transition-opacity duration-300"
+        style={{ opacity: contentVisible ? 1 : 0 }}
+      >
         <SideGrid
           selectedGroup={selectedGroup}
           handleIconSelected={selectIcon}
@@ -76,11 +75,14 @@ function MainContainer() {
           selectedSource={selectedSource}
         />
       </div>
+
+      {/*主体内容 — 右侧编辑器*/}
       <div
-        className={
-          sideEditorVisible ? style.sideEditorFlexWrapper : style.sideEditorFlexWrapperHide
-        }
-        style={contentVisibleStyle}
+        className={cn(
+          'shrink-0 overflow-hidden bg-surface-muted transition-[opacity,width] duration-300',
+          sideEditorVisible ? 'w-[250px]' : 'w-0 !opacity-0'
+        )}
+        style={{ opacity: contentVisible ? 1 : 0 }}
       >
         <SideEditor selectedGroup={selectedGroup} selectedIcon={selectedIcon} />
       </div>

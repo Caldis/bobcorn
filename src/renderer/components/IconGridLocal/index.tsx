@@ -8,8 +8,8 @@ const confirm = Modal.confirm;
 // Components
 import IconBlock from '../IconBlock';
 import IconToolbar from '../IconToolbar';
-// Style
-import style from './index.module.css';
+// Utils
+import { cn } from '../../lib/utils';
 // Database
 import db from '../../database';
 // Config
@@ -251,11 +251,31 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
     const groupIconData = iconData[group.id];
     if (groupIconData && groupIconData.length !== 0) {
       return (
-        <div key={group.id} className={style.iconGridGroupWrapper}>
-          <div className={style.iconUnselectLayer} onClick={deselectIcon} />
-          <div className={style.iconGridGroupDivider} onClick={() => selectGroup(group.id)}>
-            <span>{group.groupName}</span>
-            <label>{groupIconData.length}</label>
+        <div key={group.id}>
+          <div className="absolute inset-0 opacity-0 z-0" onClick={deselectIcon} />
+          <div
+            className={cn(
+              'relative z-[1] cursor-pointer',
+              'w-full h-[30px] mt-2.5 mx-auto',
+              'transition-all duration-300',
+              'bg-surface-muted dark:bg-surface-muted',
+              'hover:bg-brand-50 dark:hover:bg-brand-950/40',
+              'active:bg-brand-100 dark:active:bg-brand-900/40'
+            )}
+            onClick={() => selectGroup(group.id)}
+          >
+            <span className="leading-[30px] ml-[18px] text-brand-500 dark:text-brand-400">
+              {group.groupName}
+            </span>
+            <label
+              className={cn(
+                'ml-2 px-1 py-0.5',
+                'bg-brand-500 dark:bg-brand-600',
+                'rounded text-white text-xs'
+              )}
+            >
+              {groupIconData.length}
+            </label>
           </div>
           {groupIconData.map(
             (icon: IconItem) =>
@@ -282,40 +302,70 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
   const geneNodataBlock = () => {
     if (selectedGroup === 'resource-all') {
       return (
-        <div className={style.iconGridNodata}>
-          <img src={noIconHintSad} />
-          <div className={style.iconGridNodataDiscContainer}>
-            <p>还没有图标</p>
-            <p>直接拖拽图标到此处可添加图标</p>
+        <div
+          className={cn(
+            'absolute inset-0 w-full h-[calc(100vh-116px)]',
+            'flex flex-col justify-center items-center text-center'
+          )}
+        >
+          <img className="w-[150px]" src={noIconHintSad} />
+          <div>
+            <p className="text-foreground-muted dark:text-foreground-muted mb-2">还没有图标</p>
+            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
+              直接拖拽图标到此处可添加图标
+            </p>
           </div>
         </div>
       );
     } else if (selectedGroup === 'resource-uncategorized') {
       return (
-        <div className={style.iconGridNodata}>
-          <img src={noIconHintHappy} />
-          <div className={style.iconGridNodataDiscContainer}>
-            <p>图标都已经妥善分类了</p>
-            <p>当新加入的图标未分类时, 将出现在此处</p>
+        <div
+          className={cn(
+            'absolute inset-0 w-full h-[calc(100vh-116px)]',
+            'flex flex-col justify-center items-center text-center'
+          )}
+        >
+          <img className="w-[150px]" src={noIconHintHappy} />
+          <div>
+            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
+              图标都已经妥善分类了
+            </p>
+            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
+              当新加入的图标未分类时, 将出现在此处
+            </p>
           </div>
         </div>
       );
     } else if (selectedGroup === 'resource-recycleBin') {
       return (
-        <div className={style.iconGridNodata}>
-          <img src={noIconHintHappy} />
-          <div className={style.iconGridNodataDiscContainer}>
-            <p>回收站很干净</p>
-            <p>当图标被回收后, 将会出现在此处</p>
+        <div
+          className={cn(
+            'absolute inset-0 w-full h-[calc(100vh-116px)]',
+            'flex flex-col justify-center items-center text-center'
+          )}
+        >
+          <img className="w-[150px]" src={noIconHintHappy} />
+          <div>
+            <p className="text-foreground-muted dark:text-foreground-muted mb-2">回收站很干净</p>
+            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
+              当图标被回收后, 将会出现在此处
+            </p>
           </div>
         </div>
       );
     } else {
       return (
-        <div className={style.iconGridNodata}>
-          <img src={noIconHintSad} />
-          <div className={style.iconGridNodataDiscContainer}>
-            <p>这个分组没有图标</p>
+        <div
+          className={cn(
+            'absolute inset-0 w-full h-[calc(100vh-116px)]',
+            'flex flex-col justify-center items-center text-center'
+          )}
+        >
+          <img className="w-[150px]" src={noIconHintSad} />
+          <div>
+            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
+              这个分组没有图标
+            </p>
           </div>
         </div>
       );
@@ -323,18 +373,26 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
   };
 
   return (
-    <div className={style.iconGridLocalContainer} id="iconGridLocalContainer">
+    <div className="relative w-full h-full flex flex-col" id="iconGridLocalContainer">
       <Dropzone noClick onDrop={onIconDrop}>
         {({ getRootProps, getInputProps, isDragActive }) => (
           <div
             {...getRootProps({
-              className: isDragActive ? style.iconGridWrapperActive : style.iconGridWrapper,
+              className: cn(
+                'relative text-center flex-grow',
+                'overflow-hidden overflow-y-auto',
+                'transition-[filter] duration-300',
+                isDragActive && 'blur-[30px]'
+              ),
             })}
           >
             <input {...getInputProps()} />
-            <div className={style.iconUnselectLayer} onClick={deselectIcon} />
+            <div className="absolute inset-0 opacity-0 z-0" onClick={deselectIcon} />
             <div
-              className={style.iconGridScrollResizeWrapper}
+              className={cn(
+                'relative max-w-full inline-block text-left',
+                'transition-all duration-300'
+              )}
               style={{
                 width: '100%',
                 maxWidth: iconBlockWrapperMaxWidth,
@@ -352,12 +410,28 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
           </div>
         )}
       </Dropzone>
-      <div className={style.iconGridDropOverlay}>
-        <div className={style.iconGridHintContainer}>
-          <div>拖拽到此处将图标添加到该分组</div>
+      <div
+        className={cn(
+          'opacity-0 absolute inset-x-0 top-0',
+          'w-[calc(100%-40px)] h-[calc(100%-80px)]',
+          'm-5',
+          'border border-dashed border-foreground/30 dark:border-foreground/30',
+          'bg-foreground/10 dark:bg-foreground/10',
+          'rounded-lg',
+          'transition-opacity duration-700',
+          'pointer-events-none',
+          // Sibling combinator not available in Tailwind inline — use CSS peer pattern
+          // The overlay visibility is controlled by the peer blur state
+          '[.blur-\\[30px\\]~&]:opacity-100'
+        )}
+      >
+        <div className="w-full h-full flex justify-center items-center">
+          <div className="font-bold text-base text-foreground dark:text-foreground">
+            拖拽到此处将图标添加到该分组
+          </div>
         </div>
       </div>
-      <div className={style.iconToolbarOuterContainer}>
+      <div className="z-10">
         <IconToolbar
           defaultIconWidth={getOption().iconBlockSize}
           updateIconWidth={updateIconWidthThrottle}
