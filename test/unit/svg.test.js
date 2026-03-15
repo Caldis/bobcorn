@@ -14,8 +14,8 @@ const FIXTURES_DIR = path.join(__dirname, '..', 'fixtures', 'icons');
 // The SVG class uses String.prototype.replaceAll from tools, but we need the
 // custom implementation that accepts regex patterns.  Import tools first so the
 // prototype extension is applied before SVG is loaded.
-import '../../src/renderer/utils/tools/index.js';
-import SVG from '../../src/renderer/utils/svg/index.js';
+import '../../src/renderer/utils/tools/index.ts';
+import SVG from '../../src/renderer/utils/svg/index.ts';
 
 // ── Load real fixture SVGs ──────────────────────────────────────
 const fixtures = {};

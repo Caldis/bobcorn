@@ -16,7 +16,7 @@
     "paths": {
       "@/*": ["src/renderer/*"]
     },
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
   "include": ["src/**/*", "electron.vite.config.js"],
   "exclude": ["node_modules", "out", "dist"]
