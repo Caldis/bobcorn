@@ -311,102 +311,115 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
       ? db.getIconList()
       : db.getIconListFromGroup(exportGroupSelected);
     if (icons.length) {
-      const groups = db.getGroupList();
-      groups.push({
-        id: 'resource-uncategorized',
-        groupName: '未分组',
-        groupOrder: -1,
-        groupColor: '',
-      });
-      const pageData = demoHTMLGenerator(
-        groups,
-        icons.map((icon: any) => {
-          return Object.assign({}, icon, { iconContent: '' });
-        })
-      );
-      const cssData = iconfontCSSGenerator(icons);
-      const jsData = iconfontSymbolGenerator(icons);
-      const projectName = db.getProjectName();
-      svgFontGenerator(
-        {
-          icons,
-          options: {
-            fontName: projectName,
-            normalize: true,
-            fixedWidth: true,
-            fontHeight: 1024,
-            fontWeight: 400,
-            centerHorizontally: true,
-            round: 1000,
-            log: () => {},
+      try {
+        const groups = db.getGroupList();
+        groups.push({
+          id: 'resource-uncategorized',
+          groupName: '未分组',
+          groupOrder: -1,
+          groupColor: '',
+        });
+        const pageData = demoHTMLGenerator(
+          groups,
+          icons.map((icon: any) => {
+            return Object.assign({}, icon, { iconContent: '' });
+          })
+        );
+        const cssData = iconfontCSSGenerator(icons);
+        const jsData = iconfontSymbolGenerator(icons);
+        const projectName = db.getProjectName();
+        svgFontGenerator(
+          {
+            icons,
+            options: {
+              fontName: projectName,
+              normalize: true,
+              fixedWidth: true,
+              fontHeight: 1024,
+              fontWeight: 400,
+              centerHorizontally: true,
+              round: 1000,
+              log: () => {},
+            },
           },
-        },
-        (svgFont: string) => {
-          try {
-            const ttfFont = ttfFontGenerator({ svgFont });
-            const woffFont = woffFontGenerator({ ttfFont });
-            const woff2Font = woff2FontGenerator({ ttfFont });
-            const eotFont = eotFontGenerator({ ttfFont });
-            electronAPI
-              .showSaveDialog({
-                title: '导出图标字体',
-                defaultPath: `${db.getProjectName()}`,
-              })
-              .then((result) => {
-                if (result.canceled || !result.filePath) {
-                  handleHideGeneratingOverlay();
-                  return;
-                }
-                const dirPath = result.filePath;
-                if (!electronAPI.accessSync(dirPath)) {
-                  electronAPI.mkdirSync(dirPath);
-                }
-                try {
-                  db.exportProject((projData: any) => {
-                    const buffer = Buffer.from(projData);
-                    electronAPI.writeFileSync(`${dirPath}/${projectName}.icp`, buffer);
-                    electronAPI.writeFileSync(`${dirPath}/${projectName}.html`, pageData);
-                    electronAPI.writeFileSync(`${dirPath}/${projectName}.css`, cssData);
-                    electronAPI.writeFileSync(`${dirPath}/${projectName}.js`, jsData);
-                    electronAPI.writeFileSync(`${dirPath}/${projectName}.svg`, svgFont);
-                    electronAPI.writeFileSync(
-                      `${dirPath}/${projectName}.ttf`,
-                      Buffer.from(ttfFont.buffer)
-                    );
-                    electronAPI.writeFileSync(
-                      `${dirPath}/${projectName}.woff`,
-                      Buffer.from(woffFont.buffer)
-                    );
-                    electronAPI.writeFileSync(
-                      `${dirPath}/${projectName}.woff2`,
-                      Buffer.from(woff2Font.buffer)
-                    );
-                    electronAPI.writeFileSync(
-                      `${dirPath}/${projectName}.eot`,
-                      Buffer.from(eotFont.buffer)
-                    );
-                    message.success(`图标字体已导出`);
+          (svgFont: string) => {
+            if (!svgFont) {
+              message.error('字体生成失败，请检查图标数据是否正确');
+              handleHideGeneratingOverlay();
+              handleCancelExportIconfonts();
+              return;
+            }
+            try {
+              const ttfFont = ttfFontGenerator({ svgFont });
+              const woffFont = woffFontGenerator({ ttfFont });
+              const woff2Font = woff2FontGenerator({ ttfFont });
+              const eotFont = eotFontGenerator({ ttfFont });
+              electronAPI
+                .showSaveDialog({
+                  title: '导出图标字体',
+                  defaultPath: `${db.getProjectName()}`,
+                })
+                .then((result) => {
+                  if (result.canceled || !result.filePath) {
+                    handleHideGeneratingOverlay();
+                    return;
+                  }
+                  const dirPath = result.filePath;
+                  if (!electronAPI.accessSync(dirPath)) {
+                    electronAPI.mkdirSync(dirPath);
+                  }
+                  try {
+                    db.exportProject((projData: any) => {
+                      const buffer = Buffer.from(projData);
+                      electronAPI.writeFileSync(`${dirPath}/${projectName}.icp`, buffer);
+                      electronAPI.writeFileSync(`${dirPath}/${projectName}.html`, pageData);
+                      electronAPI.writeFileSync(`${dirPath}/${projectName}.css`, cssData);
+                      electronAPI.writeFileSync(`${dirPath}/${projectName}.js`, jsData);
+                      electronAPI.writeFileSync(`${dirPath}/${projectName}.svg`, svgFont);
+                      electronAPI.writeFileSync(
+                        `${dirPath}/${projectName}.ttf`,
+                        Buffer.from(ttfFont.buffer)
+                      );
+                      electronAPI.writeFileSync(
+                        `${dirPath}/${projectName}.woff`,
+                        Buffer.from(woffFont.buffer)
+                      );
+                      electronAPI.writeFileSync(
+                        `${dirPath}/${projectName}.woff2`,
+                        Buffer.from(woff2Font.buffer)
+                      );
+                      electronAPI.writeFileSync(
+                        `${dirPath}/${projectName}.eot`,
+                        Buffer.from(eotFont.buffer)
+                      );
+                      message.success(`图标字体已导出`);
+                      handleHideGeneratingOverlay();
+                      handleCancelExportIconfonts();
+                    });
+                  } catch (err: any) {
+                    message.error(`导出错误: ${err.message}`);
                     handleHideGeneratingOverlay();
                     handleCancelExportIconfonts();
-                  });
-                } catch (err: any) {
-                  message.error(`导出错误: ${err.message}`);
-                  handleHideGeneratingOverlay();
-                  handleCancelExportIconfonts();
-                }
-              });
-          } catch (err: any) {
-            console.error(err);
-            let errMsg = err;
-            if (err === 'Checksum error in glyf') {
-              errMsg = '请确保路径已全部转换为轮廓';
+                  }
+                });
+            } catch (err: any) {
+              console.error(err);
+              let errMsg = err;
+              if (err === 'Checksum error in glyf') {
+                errMsg = '请确保路径已全部转换为轮廓';
+              }
+              message.error(`导出错误: ${errMsg}`);
+              handleHideGeneratingOverlay();
+              handleCancelExportIconfonts();
             }
-            message.error(`导出错误: ${errMsg}`);
-            handleHideGeneratingOverlay();
-            handleCancelExportIconfonts();
           }
-        }
-      );
+        );
+      } catch (err: any) {
+        import.meta.env?.DEV && console.error('Export preparation error:', err);
+        message.error(`导出准备失败: ${err.message || err}`);
+        handleHideGeneratingOverlay();
+        handleCancelExportIconfonts();
+      }
     } else {
       message.warning(`当前项目没有任何图标可供导出`);
       handleHideGeneratingOverlay();
@@ -811,9 +824,10 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         wrapClassName="vertical-center-modal"
         title="正在生成"
         maskClosable={false}
-        closable={false}
+        closable={true}
         open={exportLoadingModalVisible}
-        footer={[]}
+        onCancel={handleHideGeneratingOverlay}
+        footer={null}
       >
         <div>
           <p>正在生成图标字体, 请稍后</p>

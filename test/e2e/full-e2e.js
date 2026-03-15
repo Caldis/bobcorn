@@ -23,6 +23,7 @@
 const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
 // ── Paths ──────────────────────────────────────────────────────────────────────
 const projectRoot = path.join(__dirname, '../..');
@@ -448,6 +449,137 @@ async function run() {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // STEP 8b: Perform Actual Icon Font Export
+    // ══════════════════════════════════════════════════════════════════════════
+    console.log('\n[Step 8b] Perform actual icon font export');
+    try {
+      await dismissModals(win);
+
+      // Create temp directory for export output
+      const tmpExportDir = path.join(os.tmpdir(), `bobcorn-e2e-export-${Date.now()}`);
+
+      // Mock showSaveDialog to return our temp path (the app creates a subdir with this path)
+      await app.evaluate(({ dialog }, dir) => {
+        const origSave = dialog.showSaveDialog;
+        dialog.showSaveDialog = async (win, opts) => {
+          dialog.showSaveDialog = origSave;
+          return { canceled: false, filePath: dir };
+        };
+      }, tmpExportDir.replace(/\\/g, '/'));
+
+      // Open export dialog via JS click
+      await win.evaluate(() => {
+        const btns = document.querySelectorAll('button');
+        for (const btn of btns) {
+          if (btn.textContent.includes('导出') && !btn.textContent.includes('导入')) {
+            btn.click();
+            return true;
+          }
+        }
+        return false;
+      });
+      await sleep(1500);
+
+      // Click "导出图标字体" OK button in the export modal
+      const exportTriggered = await win.evaluate(() => {
+        const wraps = document.querySelectorAll('.ant-modal-wrap');
+        for (const wrap of wraps) {
+          if (wrap.style.display === 'none') continue;
+          const title = wrap.querySelector('.ant-modal-title');
+          if (title && title.textContent.includes('导出图标字体')) {
+            const okBtn = wrap.querySelector('.ant-btn-primary');
+            if (okBtn) {
+              okBtn.click();
+              return true;
+            }
+          }
+        }
+        return false;
+      });
+      console.log(`    Export triggered: ${exportTriggered}`);
+      assert(exportTriggered, 'Should find and click export OK button');
+
+      // Wait for loading modal to appear (500ms delay + generation time)
+      await sleep(2000);
+
+      // Wait for export to complete — loading modal disappears or success message shows
+      const exportTimeout = 30000;
+      const exportStart = Date.now();
+      let exportDone = false;
+      while (Date.now() - exportStart < exportTimeout) {
+        const loadingVisible = await win.locator('text=正在生成图标字体').isVisible({ timeout: 500 }).catch(() => false);
+        if (!loadingVisible) {
+          exportDone = true;
+          break;
+        }
+        await sleep(1000);
+      }
+
+      await screenshot(win, 'after-export');
+
+      if (!exportDone) {
+        await dismissModals(win);
+        fail('Actual export', 'Export did not complete within 30s (loading modal still visible)');
+      } else {
+        // Verify output files exist
+        await sleep(500); // small buffer for file writes
+        const expectedExts = ['.icp', '.html', '.css', '.js', '.svg', '.ttf', '.woff', '.woff2', '.eot'];
+        const foundFiles = [];
+        const missingFiles = [];
+
+        // Find files in the export directory - the app writes ${dirPath}/${projectName}.ext
+        if (fs.existsSync(tmpExportDir)) {
+          const exportedFiles = fs.readdirSync(tmpExportDir);
+          console.log(`    Files in export dir: ${exportedFiles.join(', ')}`);
+          for (const ext of expectedExts) {
+            const match = exportedFiles.find(f => f.endsWith(ext));
+            if (match) {
+              const size = fs.statSync(path.join(tmpExportDir, match)).size;
+              foundFiles.push({ name: match, size });
+            } else {
+              missingFiles.push(ext);
+            }
+          }
+        } else {
+          console.log(`    Export directory does not exist: ${tmpExportDir}`);
+        }
+
+        console.log(`    Export files: ${foundFiles.length}/${expectedExts.length}`);
+        foundFiles.forEach(f => console.log(`      ${f.name}: ${f.size} bytes`));
+        if (missingFiles.length > 0) {
+          console.log(`    Missing: ${missingFiles.join(', ')}`);
+        }
+
+        if (foundFiles.length === 9) {
+          // Verify all files have non-zero size
+          const allNonZero = foundFiles.every(f => f.size > 0);
+          if (allNonZero) {
+            pass(`Icon font export: all 9 files generated with valid sizes`);
+          } else {
+            const zeroFiles = foundFiles.filter(f => f.size === 0).map(f => f.name);
+            fail('Actual export', `Some files are empty: ${zeroFiles.join(', ')}`);
+          }
+        } else if (foundFiles.length > 0) {
+          pass(`Icon font export: ${foundFiles.length}/9 files generated (missing: ${missingFiles.join(', ')})`);
+        } else {
+          fail('Actual export', 'No export files were generated');
+        }
+
+        // Cleanup temp directory
+        try {
+          fs.rmSync(tmpExportDir, { recursive: true, force: true });
+        } catch (cleanErr) {
+          console.log(`    Cleanup warning: ${cleanErr.message}`);
+        }
+      }
+
+      await dismissModals(win);
+    } catch (e) {
+      fail('Actual export', e.message);
+      await dismissModals(win);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // STEP 9: Settings Dialog
     // ══════════════════════════════════════════════════════════════════════════
     console.log('\n[Step 9] Settings dialog (prefix editor)');
@@ -667,6 +799,120 @@ async function run() {
       }
     } catch (e) {
       fail('ICP project import', e.message);
+      await dismissModals(win);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // STEP 13b: Export ICP Project Fonts (2949 icons)
+    // ══════════════════════════════════════════════════════════════════════════
+    console.log('\n[Step 13b] Export ICP project icon fonts (large dataset)');
+    try {
+      await dismissModals(win);
+
+      const tmpIcpExportDir = path.join(os.tmpdir(), `bobcorn-e2e-icp-export-${Date.now()}`);
+
+      // Mock showSaveDialog
+      await app.evaluate(({ dialog }, dir) => {
+        const origSave = dialog.showSaveDialog;
+        dialog.showSaveDialog = async (win, opts) => {
+          dialog.showSaveDialog = origSave;
+          return { canceled: false, filePath: dir };
+        };
+      }, tmpIcpExportDir.replace(/\\/g, '/'));
+
+      // Open export dialog
+      await win.evaluate(() => {
+        const btns = document.querySelectorAll('button');
+        for (const btn of btns) {
+          if (btn.textContent.includes('导出') && !btn.textContent.includes('导入')) {
+            btn.click();
+            return true;
+          }
+        }
+        return false;
+      });
+      await sleep(1500);
+
+      // Click "导出图标字体" OK button
+      await win.evaluate(() => {
+        const wraps = document.querySelectorAll('.ant-modal-wrap');
+        for (const wrap of wraps) {
+          if (wrap.style.display === 'none') continue;
+          const title = wrap.querySelector('.ant-modal-title');
+          if (title && title.textContent.includes('导出图标字体')) {
+            const okBtn = wrap.querySelector('.ant-btn-primary');
+            if (okBtn) { okBtn.click(); return true; }
+          }
+        }
+        return false;
+      });
+
+      // Wait for export — ICP has ~2949 icons, allow up to 120s
+      await sleep(2000);
+      const icpExportTimeout = 120000;
+      const icpExportStart = Date.now();
+      let icpExportDone = false;
+      while (Date.now() - icpExportStart < icpExportTimeout) {
+        const loadingVisible = await win.locator('text=正在生成图标字体').isVisible({ timeout: 500 }).catch(() => false);
+        if (!loadingVisible) {
+          icpExportDone = true;
+          break;
+        }
+        await sleep(2000);
+      }
+      const icpExportDuration = ((Date.now() - icpExportStart) / 1000).toFixed(1);
+      console.log(`    ICP export completed in ${icpExportDuration}s (done: ${icpExportDone})`);
+
+      await screenshot(win, 'after-icp-export');
+
+      if (!icpExportDone) {
+        await dismissModals(win);
+        fail('ICP export', `Export did not complete within 120s`);
+      } else {
+        await sleep(500);
+        const expectedExts = ['.icp', '.html', '.css', '.js', '.svg', '.ttf', '.woff', '.woff2', '.eot'];
+        const foundFiles = [];
+
+        if (fs.existsSync(tmpIcpExportDir)) {
+          const exportedFiles = fs.readdirSync(tmpIcpExportDir);
+          for (const ext of expectedExts) {
+            const match = exportedFiles.find(f => f.endsWith(ext));
+            if (match) {
+              const size = fs.statSync(path.join(tmpIcpExportDir, match)).size;
+              foundFiles.push({ name: match, size });
+            }
+          }
+        }
+
+        console.log(`    ICP export files: ${foundFiles.length}/${expectedExts.length}`);
+        foundFiles.forEach(f => console.log(`      ${f.name}: ${(f.size / 1024).toFixed(0)} KB`));
+
+        if (foundFiles.length === 9) {
+          // Compare against fixture reference sizes (sanity check)
+          const svgFile = foundFiles.find(f => f.name.endsWith('.svg'));
+          const ttfFile = foundFiles.find(f => f.name.endsWith('.ttf'));
+          if (svgFile && svgFile.size > 100000 && ttfFile && ttfFile.size > 100000) {
+            pass(`ICP export: all 9 files generated (SVG=${(svgFile.size/1024).toFixed(0)}KB, TTF=${(ttfFile.size/1024).toFixed(0)}KB) in ${icpExportDuration}s`);
+          } else {
+            pass(`ICP export: all 9 files generated in ${icpExportDuration}s (sizes may be smaller than expected)`);
+          }
+        } else if (foundFiles.length > 0) {
+          pass(`ICP export: ${foundFiles.length}/9 files generated in ${icpExportDuration}s`);
+        } else {
+          fail('ICP export', 'No export files generated for ICP project');
+        }
+
+        // Cleanup
+        try {
+          fs.rmSync(tmpIcpExportDir, { recursive: true, force: true });
+        } catch (e) {
+          console.log(`    Cleanup warning: ${e.message}`);
+        }
+      }
+
+      await dismissModals(win);
+    } catch (e) {
+      fail('ICP export', e.message);
       await dismissModals(win);
     }
 

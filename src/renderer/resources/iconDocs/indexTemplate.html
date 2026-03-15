@@ -161,6 +161,11 @@
                 font-weight: bold;
                 margin: 40px 0 30px;
             }
+            /*图标行容器 - 以行为单位延迟渲染, 大幅提升大量图标的页面性能*/
+            .iconRow {
+                content-visibility: auto;
+                contain-intrinsic-size: auto none auto 140px;
+            }
             .iconBlock {
                 text-align: center;
                 cursor: pointer;
@@ -206,6 +211,13 @@
                 height: 40px;
                 text-align: center;
                 line-height: 40px;
+            }
+            /*加载提示*/
+            .loadingHint {
+                text-align: center;
+                padding: 40px;
+                color: #999;
+                font-size: 14px;
             }
         </style>
         <!--图标数据-->
@@ -334,6 +346,10 @@
         var searchKeyword = "";
         // 当前的Tab页
         var currentTab = "unicode";
+        // 每行图标数 (容器宽度 1140px / 每个图标 120px)
+        var ICONS_PER_ROW = 9;
+        // 分批渲染每批数量
+        var BATCH_SIZE = 200;
 
         // 定义基本的样式引用内容
         var unicodeImportStyle =
@@ -418,6 +434,51 @@
                 '   &lt;use xlink:href="#' + projectName + '-xxx"&gt;&lt;/use&gt;' + '</br>' +
                 '&lt;/svg&gt;'
         }
+        // 创建单个图标块 DOM
+        function createIconBlock(icon, type) {
+            var iconBlockTemplate = document.querySelector(".template .iconBlock").cloneNode(true);
+            switch(type) {
+                case "unicode":
+                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<i class=' + projectName + '>&#x' + icon.iconCode + ';</i>';
+                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
+                    iconBlockTemplate.querySelector(".iconCode").innerHTML = '<span>&#x</span>' + icon.iconCode.toLowerCase();
+                    iconBlockTemplate.setAttribute("iconCode", "&#x" + icon.iconCode.toLowerCase())
+                    break;
+                case "fontClass":
+                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<i class="' + projectName + ' ' + projectName + '-' + icon.iconCode + '"></i>';
+                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
+                    iconBlockTemplate.querySelector(".iconCode").innerHTML = projectName + '-' + icon.iconCode.toLowerCase();
+                    iconBlockTemplate.setAttribute("iconCode", projectName + '-' + icon.iconCode.toLowerCase())
+                    break;
+                case "symbol":
+                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<svg class="icon" aria-hidden="true"><use xlink:href="#' + projectName + '-' + icon.iconCode + '"></use></svg>';
+                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
+                    iconBlockTemplate.querySelector(".iconCode").innerHTML = '#' + projectName + '-' + icon.iconCode.toLowerCase();
+                    iconBlockTemplate.setAttribute("iconCode", '#' + projectName + '-' + icon.iconCode.toLowerCase())
+                    break;
+                default:
+                    break;
+            }
+            iconBlockTemplate.id = icon.id;
+            iconBlockTemplate.onclick = copyIconCode;
+            return iconBlockTemplate;
+        }
+        // 将图标数组按行分组, 每行包裹在 .iconRow 内以启用 content-visibility
+        function appendIconsInRows(container, iconsData, type) {
+            var currentRow = null;
+            var countInRow = 0;
+            iconsData.forEach(function(icon) {
+                if (!matchKeyword(icon)) return;
+                if (!currentRow || countInRow >= ICONS_PER_ROW) {
+                    currentRow = document.createElement("div");
+                    currentRow.className = "iconRow";
+                    container.appendChild(currentRow);
+                    countInRow = 0;
+                }
+                currentRow.appendChild(createIconBlock(icon, type));
+                countInRow++;
+            });
+        }
         function renderPageIcons(type) {
 	        // 构造数据
 	        var dataHash = {};
@@ -470,57 +531,49 @@
                 default:
                     break;
             }
-            // 生成图标结构
-            var iconGroupDOM = document.createElement("div");
-            iconGroupDOM.className = "iconGroupGeneratedWrapper";
+
+            // 收集所有要渲染的分组及其图标
+            var groupsToRender = [];
             groups.forEach(function(group) {
-                // 组
-                var iconGroupTemplate = document.querySelector(".template .iconGroup").cloneNode(true);
-                iconGroupTemplate.querySelector(".iconGroupName").innerHTML = dataHash[group.id].groupData.groupName;
-                // 图标
-                var groupHaveIcons = dataHash[group.id].iconData.length!==0;
-                if (groupHaveIcons) {
-                    // 如果组内有图标, 则直接怼 iconBlock, 并根据传入的Type不同而生成不同形式的图标
-                    dataHash[group.id].iconData.forEach(function(icon) {
-                        var iconBlockTemplate = document.querySelector(".template .iconBlock").cloneNode(true);
-                        if (matchKeyword(icon)) {
-                            switch(type) {
-                                case "unicode":
-                                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<i class=' + projectName + '>&#x' + icon.iconCode + ';</i>';
-                                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
-                                    iconBlockTemplate.querySelector(".iconCode").innerHTML = '<span>&#x</span>' + icon.iconCode.toLowerCase();
-                                    iconBlockTemplate.setAttribute("iconCode", "&#x" + icon.iconCode.toLowerCase())
-                                    break;
-                                case "fontClass":
-                                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<i class="' + projectName + ' ' + projectName + '-' + icon.iconCode + '"></i>';
-                                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
-                                    iconBlockTemplate.querySelector(".iconCode").innerHTML = projectName + '-' + icon.iconCode.toLowerCase();
-                                    iconBlockTemplate.setAttribute("iconCode", projectName + '-' + icon.iconCode.toLowerCase())
-                                    break;
-                                case "symbol":
-                                    iconBlockTemplate.querySelector(".iconContent").innerHTML = '<svg class="icon" aria-hidden="true"><use xlink:href="#' + projectName + '-' + icon.iconCode + '"></use></svg>';
-                                    iconBlockTemplate.querySelector(".iconName").innerHTML = icon.iconName;
-                                    iconBlockTemplate.querySelector(".iconCode").innerHTML = '#' + projectName + '-' + icon.iconCode.toLowerCase();
-                                    iconBlockTemplate.setAttribute("iconCode", '#' + projectName + '-' + icon.iconCode.toLowerCase())
-                                    break;
-                                default:
-                                    break;
-                            }
-                            iconBlockTemplate.id = icon.id
-                            iconBlockTemplate.onclick = copyIconCode
-	                        iconGroupTemplate.appendChild(iconBlockTemplate);
-                        }
+                var groupIcons = dataHash[group.id].iconData;
+                if (groupIcons.length > 0) {
+                    groupsToRender.push({
+                        groupData: dataHash[group.id].groupData,
+                        iconData: groupIcons
                     });
-                    iconGroupDOM.appendChild(iconGroupTemplate);
-                } else {
-                    // 如果组内无图标, 则怼一个无数据提示 (不显示)
-                    // var noIconHintTemplate = document.querySelector(".template .noIconHint").cloneNode(true);
-                    // iconGroupTemplate.appendChild(noIconHintTemplate);
-                    // iconGroupDOM.appendChild(iconGroupTemplate);
                 }
             });
-            // 插入图标
-            document.querySelector(".iconGroupContainer").appendChild(iconGroupDOM);
+
+            // 分批渲染: 避免一次性创建数千 DOM 节点阻塞主线程
+            var container = document.querySelector(".iconGroupContainer");
+            var allBatches = [];
+            groupsToRender.forEach(function(g) {
+                // 每个分组先入一个 header batch
+                allBatches.push({ type: 'header', groupName: g.groupData.groupName });
+                // 将图标分批
+                for (var i = 0; i < g.iconData.length; i += BATCH_SIZE) {
+                    allBatches.push({ type: 'icons', icons: g.iconData.slice(i, i + BATCH_SIZE) });
+                }
+            });
+
+            var currentGroupEl = null;
+            var batchIndex = 0;
+
+            function processBatch() {
+                if (batchIndex >= allBatches.length) return;
+                var batch = allBatches[batchIndex++];
+                if (batch.type === 'header') {
+                    currentGroupEl = document.querySelector(".template .iconGroup").cloneNode(true);
+                    currentGroupEl.querySelector(".iconGroupName").innerHTML = batch.groupName;
+                    container.appendChild(currentGroupEl);
+                } else {
+                    appendIconsInRows(currentGroupEl, batch.icons, type);
+                }
+                if (batchIndex < allBatches.length) {
+                    requestAnimationFrame(processBatch);
+                }
+            }
+            processBatch();
         }
         // TAB切换
         function changeTab(evt, tabName) {

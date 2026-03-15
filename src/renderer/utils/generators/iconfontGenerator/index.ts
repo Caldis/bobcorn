@@ -1,6 +1,5 @@
-// fs
-import MemoryFileSystem from 'memory-fs';
-const mfs = new MemoryFileSystem();
+// stream
+import { EventEmitter } from 'events';
 // converters
 import SVGIcons2SVGFontStream from 'svgicons2svgfont';
 import svg2ttf from 'svg2ttf';
@@ -70,50 +69,79 @@ interface BinaryFontGeneratorData {
 // }]
 // 参考 webfonts-generator
 // https://github.com/sunflowerdeath/webfonts-generator/blob/master/src/generateFonts.js
+
+/**
+ * 创建一个极简的 stream-like 对象供 svgicons2svgfont 消费
+ * svgicons2svgfont 内部调用 glyph.pipe(saxStream), sax 的 write 方法接受 string
+ * 直接实现 pipe 方法写 string, 绕过 stream-browserify 的 TextDecoder 兼容性问题
+ */
+const createGlyphStream = (content: string, meta: { name: string; unicode: string[] }): any => {
+  const stream: any = new EventEmitter();
+  stream.metadata = meta;
+  // svgicons2svgfont 的 _transform 是异步的, pipe 也必须异步完成
+  // 否则 Transform 内部状态机在 fontStream.end() 同步回调时会崩溃
+  stream.pipe = (dest: any) => {
+    setTimeout(() => {
+      dest.write(content);
+      dest.end();
+    }, 0);
+    return dest;
+  };
+  return stream;
+};
+
 export const svgFontGenerator = (
   data: SvgFontGeneratorData,
   callback?: (font: string) => void
 ): void => {
-  let font = new Buffer(0);
+  const chunks: Buffer[] = [];
   // 提取出 svgicons2svgfont 的配置参数
   const { icons, options } = data;
-  // 创建虚拟目录
-  // 由于 SVGIcons2SVGFontStream 仅能从 readStream 读取 svg 数据
-  // 因此这里使用 memory-fs 创建虚拟文件流以便直接从对象读取数据
-  // 建立虚拟目录
-  mfs.mkdirSync('/svgFontGenerator');
+
+  // Ensure callback fires exactly once
+  let callbackFired = false;
+  const safeCallback = (result: string) => {
+    if (callbackFired) return;
+    callbackFired = true;
+    clearTimeout(timeoutId);
+    callback && callback(result);
+  };
+
+  // Timeout protection (120s for large icon sets)
+  const timeoutId = setTimeout(() => {
+    import.meta.env?.DEV && console.error('svgFontGenerator: timed out after 120s');
+    safeCallback('');
+  }, 120000);
+
   // 创建 svgicons2svgfont 的处理流
   const fontStream = new SVGIcons2SVGFontStream(options)
     .on('data', (chunk: Buffer) => {
-      font = Buffer.concat([font, chunk]);
+      chunks.push(chunk);
     })
     .on('end', () => {
-      // 清掉虚拟目录
-      mfs.rmdirSync('/svgFontGenerator');
-      callback && callback(font.toString());
+      safeCallback(Buffer.concat(chunks).toString());
     })
     .on('error', (err: Error) => {
-      console.error(err);
+      import.meta.env?.DEV && console.error('svgFontGenerator error:', err);
+      safeCallback('');
     });
   icons.forEach((icon: FontIcon) => {
-    const path = `/svgFontGenerator/${icon.iconCode}.svg`;
     const iconContent = icon.iconContent.toString().replaceAll('a0,0,0,0,1,0,0', '');
-    mfs.writeFileSync(path, iconContent);
-    const glyph: any = mfs.createReadStream(path);
-    glyph.metadata = {
+    const glyph = createGlyphStream(iconContent, {
       // 名称不能相同, 因此此处拼接 iconCode 区分
       name: `${icon.iconName}_${icon.iconCode}`,
       // unicode转换相关
       // http://www.ruanyifeng.com/blog/2014/12/unicode.html
       // https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint
       unicode: [String.fromCodePoint(parseInt(`0x${icon.iconCode}`, 16))],
-    };
+    });
     fontStream.write(glyph);
   });
   try {
     fontStream.end();
   } catch (e) {
-    console.error(e);
+    import.meta.env?.DEV && console.error('svgFontGenerator end error:', e);
+    safeCallback('');
   }
 };
 
@@ -123,7 +151,7 @@ export const svgFontGenerator = (
 export const ttfFontGenerator = (data: TtfFontGeneratorData): Buffer => {
   const { svgFont, ...options } = data;
   const ttfResult = svg2ttf(svgFont, options);
-  const font = new Buffer(ttfResult.buffer);
+  const font = Buffer.from(ttfResult.buffer);
   return font;
 };
 
@@ -133,7 +161,7 @@ export const ttfFontGenerator = (data: TtfFontGeneratorData): Buffer => {
 export const woffFontGenerator = (data: BinaryFontGeneratorData): Buffer => {
   const { ttfFont, ...options } = data;
   const woffResult = ttf2woff(new Uint8Array(ttfFont), options);
-  const font = new Buffer(woffResult.buffer);
+  const font = Buffer.from(woffResult.buffer);
   return font;
 };
 
@@ -143,7 +171,7 @@ export const woffFontGenerator = (data: BinaryFontGeneratorData): Buffer => {
 export const woff2FontGenerator = (data: BinaryFontGeneratorData): Buffer => {
   const { ttfFont, ...options } = data;
   const woff2Result = ttf2woff2(new Uint8Array(ttfFont), options);
-  const font = new Buffer(woff2Result.buffer);
+  const font = Buffer.from(woff2Result.buffer);
   return font;
 };
 
@@ -153,6 +181,6 @@ export const woff2FontGenerator = (data: BinaryFontGeneratorData): Buffer => {
 export const eotFontGenerator = (data: BinaryFontGeneratorData): Buffer => {
   const { ttfFont, ...options } = data;
   const eotResult = ttf2eot(new Uint8Array(ttfFont), options);
-  const font = new Buffer(eotResult.buffer);
+  const font = Buffer.from(eotResult.buffer);
   return font;
 };

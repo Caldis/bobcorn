@@ -50,13 +50,14 @@ export default defineConfig({
       react(),
     ],
     resolve: {
-      alias: {
-        '@': resolve(__dirname, 'src/renderer'),
+      alias: [
+        { find: '@', replacement: resolve(__dirname, 'src/renderer') },
         // Polyfill Node builtins for browser context
-        'stream': 'stream-browserify',
-        'punycode': 'punycode/',
-        'events': 'events',
-      },
+        { find: 'stream', replacement: 'stream-browserify' },
+        // 精确匹配 'punycode' (不匹配 'punycode/xxx'), 修复 ucs2 对象丢失
+        { find: /^punycode$/, replacement: resolve(__dirname, 'src/renderer/utils/punycode-shim.ts') },
+        { find: 'events', replacement: 'events' },
+      ],
     },
     define: {
       // Provide Buffer global via the buffer package
