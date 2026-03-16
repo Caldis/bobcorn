@@ -61,3 +61,12 @@ body {
 .ant-modal-mask {
      background-color: transparent !important;
 }
+/* 修复 antd Modal 关闭动画结束后闪回原位 */
+.ant-zoom-leave,
+.ant-zoom-leave-active {
+    animation-fill-mode: forwards !important;
+}
+.ant-fade-leave,
+.ant-fade-leave-active {
+    animation-fill-mode: forwards !important;
+}

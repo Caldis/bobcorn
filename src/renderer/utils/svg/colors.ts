@@ -6,6 +6,19 @@
 // 需要忽略的非颜色值
 const IGNORE_VALUES = new Set(['none', 'currentColor', 'inherit', 'transparent', 'currentcolor']);
 
+// SVG 形状元素 — 这些元素没有显式 fill 时默认渲染为黑色
+const SHAPE_ELEMENTS = new Set([
+  'path',
+  'circle',
+  'ellipse',
+  'rect',
+  'polygon',
+  'polyline',
+  'line',
+  'text',
+  'tspan',
+]);
+
 // CSS 命名颜色 → hex 映射 (常见颜色)
 const NAMED_COLORS: Record<string, string> = {
   black: '#000000',
@@ -27,6 +40,43 @@ const NAMED_COLORS: Record<string, string> = {
   lime: '#00ff00',
   olive: '#808000',
 };
+
+/**
+ * 解析任意 CSS 颜色格式为 hex
+ * 支持 hex, rgb, rgba, hsl, hsla, hwb, named colors 等所有浏览器支持的格式
+ * 利用 Canvas 2D Context 进行原生解析
+ */
+export function parseCssColor(input: string): string | null {
+  const v = input.trim();
+  if (!v) return null;
+
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return null;
+
+  // 用一个已知色做哨兵，检测无效输入
+  ctx.fillStyle = '#010203';
+  ctx.fillStyle = v;
+  const result = ctx.fillStyle;
+
+  // 如果 fillStyle 没变，说明输入无效（除非输入本身就是哨兵色）
+  if (result === '#010203' && normalizeColor(v) !== '#010203') {
+    return null;
+  }
+
+  // Canvas 返回 #rrggbb 或 rgba(r, g, b, a)
+  if (result.startsWith('#')) {
+    return result.toLowerCase();
+  }
+
+  // rgba → 取 rgb 部分转 hex (忽略 alpha)
+  const rgbaMatch = result.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (rgbaMatch) {
+    const [, r, g, b] = rgbaMatch;
+    return `#${Number(r).toString(16).padStart(2, '0')}${Number(g).toString(16).padStart(2, '0')}${Number(b).toString(16).padStart(2, '0')}`;
+  }
+
+  return null;
+}
 
 /** 标准化颜色值为小写 hex 格式 */
 function normalizeColor(raw: string): string | null {
@@ -76,22 +126,34 @@ export function extractSvgColors(svgContent: string): SvgColorInfo[] {
 
   const elements = doc.querySelectorAll('*');
   elements.forEach((el) => {
-    // 检查 fill 属性
+    const tagName = el.tagName.toLowerCase();
     const fill = el.getAttribute('fill');
-    if (fill) addColor(fill, colorMap);
-
-    // 检查 stroke 属性
     const stroke = el.getAttribute('stroke');
-    if (stroke) addColor(stroke, colorMap);
-
-    // 检查 style 属性中的 fill/stroke
     const style = el.getAttribute('style');
+
+    // 提取 style 中的 fill/stroke
+    let styleFill: string | null = null;
+    let styleStroke: string | null = null;
     if (style) {
       const fillMatch = style.match(/fill\s*:\s*([^;]+)/i);
-      if (fillMatch) addColor(fillMatch[1], colorMap);
+      if (fillMatch) styleFill = fillMatch[1];
       const strokeMatch = style.match(/stroke\s*:\s*([^;]+)/i);
-      if (strokeMatch) addColor(strokeMatch[1], colorMap);
+      if (strokeMatch) styleStroke = strokeMatch[1];
     }
+
+    // 检查 fill: 显式属性 > style > 形状元素默认黑色
+    if (fill) {
+      addColor(fill, colorMap);
+    } else if (styleFill) {
+      addColor(styleFill, colorMap);
+    } else if (SHAPE_ELEMENTS.has(tagName) && !fill) {
+      // 没有显式 fill 的形状元素默认渲染为黑色
+      addColor('#000000', colorMap);
+    }
+
+    // 检查 stroke
+    if (stroke) addColor(stroke, colorMap);
+    else if (styleStroke) addColor(styleStroke, colorMap);
   });
 
   return Array.from(colorMap.entries())
@@ -124,14 +186,19 @@ export function replaceSvgColor(svgContent: string, oldColor: string, newColor: 
 
   const elements = doc.querySelectorAll('*');
   elements.forEach((el) => {
-    // 替换 fill 属性
+    const tagName = el.tagName.toLowerCase();
     const fill = el.getAttribute('fill');
+    const stroke = el.getAttribute('stroke');
+
+    // 替换 fill 属性
     if (fill && normalizeColor(fill) === oldNorm) {
+      el.setAttribute('fill', newColor);
+    } else if (!fill && SHAPE_ELEMENTS.has(tagName) && oldNorm === '#000000') {
+      // 隐式黑色的形状元素 — 添加显式 fill
       el.setAttribute('fill', newColor);
     }
 
     // 替换 stroke 属性
-    const stroke = el.getAttribute('stroke');
     if (stroke && normalizeColor(stroke) === oldNorm) {
       el.setAttribute('stroke', newColor);
     }

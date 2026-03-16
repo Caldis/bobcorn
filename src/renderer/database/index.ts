@@ -703,6 +703,22 @@ class Database {
     const targetDataSet: DataSet = { iconGroup: sf(targetGroup) };
     return this.getDataCountsOfTable(iconData, targetDataSet);
   };
+  // 取最近更新的图标 (按 updateTime 降序，默认50个)
+  getRecentlyUpdatedIcons = (limit: number = 50): Record<string, any>[] => {
+    dev && console.log('getRecentlyUpdatedIcons');
+    const rawData = this.db!.exec(
+      `SELECT * FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' ORDER BY updateTime DESC LIMIT ${limit}`
+    );
+    if (rawData.length === 0) return [];
+    const colNameList = rawData[0].columns;
+    return rawData[0].values.map((row) => {
+      const rowData: Record<string, any> = {};
+      row.forEach((colData: any, index: number) => {
+        rowData[colNameList[index]] = colData;
+      });
+      return rowData;
+    });
+  };
   // 取所有图标
   getIconList = (): Record<string, any>[] => {
     dev && console.log('getIconList');

@@ -27,16 +27,41 @@ interface DemoIconData {
   [key: string]: any;
 }
 
+// ---------------------------------------------------------------------------
+// Template cache — read once, reuse across exports
+// ---------------------------------------------------------------------------
+let _htmlTemplate: string | null = null;
+let _cssTemplate: string | null = null;
+let _jsHead: string | null = null;
+let _jsTail: string | null = null;
+
+function getHtmlTemplate(): string {
+  if (!_htmlTemplate)
+    _htmlTemplate = (window as any).electronAPI.readFileSync(demoHTMLFile, 'utf-8');
+  return _htmlTemplate;
+}
+function getCssTemplate(): string {
+  if (!_cssTemplate)
+    _cssTemplate = (window as any).electronAPI.readFileSync(iconfontCSSFile, 'utf-8');
+  return _cssTemplate;
+}
+function getJsHead(): string {
+  if (!_jsHead) _jsHead = (window as any).electronAPI.readFileSync(iconfontJSHeadFile, 'utf-8');
+  return _jsHead;
+}
+function getJsTail(): string {
+  if (!_jsTail) _jsTail = (window as any).electronAPI.readFileSync(iconfontJSTailFile, 'utf-8');
+  return _jsTail;
+}
+
+// ---------------------------------------------------------------------------
+// Generators
+// ---------------------------------------------------------------------------
+
 // 生成demo页面文本
-// 模板自 /resources/iconDocs/indexTemplate.html 读取
-// 写入图标字码数据, 然后返回页面HTML文本
 export const demoHTMLGenerator = (groups: DemoGroupData[], icons: DemoIconData[]): string => {
-  const { electronAPI } = window;
   const parser = new DOMParser();
-  const pageTemplate = parser.parseFromString(
-    electronAPI.readFileSync(demoHTMLFile, 'utf-8'),
-    'text/html'
-  );
+  const pageTemplate = parser.parseFromString(getHtmlTemplate(), 'text/html');
   const iconsContainer = pageTemplate.querySelector('[content=icons]')!;
   iconsContainer.innerHTML = `
 		var projectName = ${JSON.stringify(db.getProjectName())}
@@ -47,40 +72,51 @@ export const demoHTMLGenerator = (groups: DemoGroupData[], icons: DemoIconData[]
 };
 
 // 生成模板CSS文件以供界面引用
+// 优化: 单次 replace + array.join 代替 += 循环
 export const iconfontCSSGenerator = (icons: DemoIconData[]): string => {
-  const { electronAPI } = window;
   const projectName = db.getProjectName();
-  const iconfontTemplate = electronAPI
-    .readFileSync(iconfontCSSFile, 'utf-8')
-    .replace(/iconfont/g, projectName);
-  // 将 iconfont 的 prefix 替换为用户定义
-  let projectNameIconfontTemplate = iconfontTemplate.replace(/iconfont/g, projectName);
-  icons.forEach((icon: DemoIconData) => {
-    const iconCode = icon.iconCode.toLowerCase();
-    return (projectNameIconfontTemplate += `.${db.getProjectName()}-${iconCode}:before { content: "\\${iconCode}"; }`);
-  });
-  return projectNameIconfontTemplate;
+  const baseCSS = getCssTemplate().replace(/iconfont/g, projectName);
+
+  // 预分配数组, 一次 join
+  const parts: string[] = [baseCSS];
+  for (let i = 0; i < icons.length; i++) {
+    const code = icons[i].iconCode.toLowerCase();
+    parts.push(`.${projectName}-${code}:before { content: "\\${code}"; }`);
+  }
+  return parts.join('');
 };
 
+// viewBox 正则提取 — 避免每个图标都 new DOMParser()
+const VIEWBOX_RE = /viewBox\s*=\s*["']([^"']+)["']/i;
+// SVG 内部内容提取
+const SVG_INNER_RE = /<svg[^>]*?>([\s\S]*?)<\/svg>/i;
+// 引号标准化
+const QUOTE_RE = /[\u2018\u2019\u201C\u201D']/g;
+
 // 生成模板Symbol的JS文件以供界面引用
+// 优化: regex 提取 viewBox (不用 DOMParser) + array.join
 export const iconfontSymbolGenerator = (icons: DemoIconData[]): string => {
-  const { electronAPI } = window;
-  const iconfontTemplateHead = electronAPI.readFileSync(iconfontJSHeadFile, 'utf-8');
-  const iconfontTemplateTail = electronAPI.readFileSync(iconfontJSTailFile, 'utf-8');
-  let iconfontTemplate = '';
-  const regex = /<svg[^>]+?>([^$]+?)<\/svg>/;
   const projectName = db.getProjectName();
-  icons.forEach((icon: DemoIconData) => {
-    // 解析svg, 提取子项
-    const iconContent = icon.iconContent;
-    const iconParsed = new DOMParser().parseFromString(iconContent, 'image/svg+xml');
-    const iconViewBox = (iconParsed.documentElement as unknown as SVGSVGElement).viewBox.baseVal;
-    const iconContentWithoutParent = regex.exec(iconContent)![1];
-    // 创建symbol头尾
-    const symbolHead = `<symbol id="${projectName}-${icon.iconCode}" viewBox="0 0 ${iconViewBox.width} ${iconViewBox.height}">`;
-    const symbolTail = `</symbol>`;
-    iconfontTemplate +=
-      symbolHead + iconContentWithoutParent.replace(/\'|\'|\'|\"|\"/g, '\"') + symbolTail;
-  });
-  return iconfontTemplateHead + iconfontTemplate + iconfontTemplateTail;
+  const parts: string[] = new Array(icons.length);
+
+  for (let i = 0; i < icons.length; i++) {
+    const icon = icons[i];
+    const content = icon.iconContent;
+
+    // 用 regex 提取 viewBox，避免 DOMParser 开销
+    const vbMatch = VIEWBOX_RE.exec(content);
+    const viewBox = vbMatch ? vbMatch[1] : '0 0 1024 1024';
+
+    // 提取 <svg> 内部内容
+    const innerMatch = SVG_INNER_RE.exec(content);
+    const inner = innerMatch ? innerMatch[1] : content;
+
+    // 标准化引号
+    const normalized = inner.replace(QUOTE_RE, '"');
+
+    parts[i] =
+      `<symbol id="${projectName}-${icon.iconCode}" viewBox="${viewBox}">${normalized}</symbol>`;
+  }
+
+  return getJsHead() + parts.join('') + getJsTail();
 };

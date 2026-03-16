@@ -1,7 +1,7 @@
 // React
 import React, { useState } from 'react';
 // Antd
-import { Button, Radio, Slider } from 'antd';
+import { Button, Radio, Slider, Switch } from 'antd';
 import type { RadioChangeEvent } from 'antd';
 import { CloseOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 // Utils
@@ -71,35 +71,48 @@ function IconToolbar({
   };
 
   return (
-    <div className="relative w-full h-[45px] border-t border-border">
+    <div className="relative w-full h-[49px] pb-1 border-t border-border">
       {/* 过滤控制器浮层 */}
       <div
         className={cn(
-          'absolute w-full h-10 -mt-[41px]',
+          'absolute w-full h-10 -mt-[40px]',
           'flex flex-row items-center',
           'px-2 pt-px',
-          'border-t border-border/90',
+          'border-y border-border',
           'transition-all duration-300',
-          'bg-brand-50/60 dark:bg-brand-950/60',
-          'backdrop-blur-sm',
+          'bg-surface/80 dark:bg-surface/80',
           '[&_.ant-radio-group]:mr-2'
         )}
         style={{
-          opacity: showActionBar ? 0.6 : 0,
+          opacity: showActionBar ? 1 : 0,
           pointerEvents: showActionBar ? 'initial' : 'none',
-          backdropFilter: showActionBar ? 'blur(5px)' : 'blur(0)',
+          backdropFilter: showActionBar ? 'blur(12px)' : 'blur(0)',
         }}
       >
         {actionBarType === 'visual' && (
-          <div className="flex items-center gap-2">
-            <Radio.Group value={showName} onChange={handleNameVisibilityChange}>
-              <Radio.Button value={true}>显示图标名称</Radio.Button>
-              <Radio.Button value={false}>隐藏图标名称</Radio.Button>
-            </Radio.Group>
-            <Radio.Group value={showCode} onChange={handleCodeVisibilityChange}>
-              <Radio.Button value={true}>显示图标字码</Radio.Button>
-              <Radio.Button value={false}>隐藏图标字码</Radio.Button>
-            </Radio.Group>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-1.5 text-sm text-foreground">
+              <span>图标名称</span>
+              <Switch
+                size="small"
+                checked={showName}
+                onChange={(checked) => {
+                  setShowName(checked);
+                  updateNameVisible(checked);
+                }}
+              />
+            </label>
+            <label className="flex items-center gap-1.5 text-sm text-foreground">
+              <span>图标字码</span>
+              <Switch
+                size="small"
+                checked={showCode}
+                onChange={(checked) => {
+                  setShowCode(checked);
+                  updateCodeVisible(checked);
+                }}
+              />
+            </label>
           </div>
         )}
         {actionBarType === 'order' && (

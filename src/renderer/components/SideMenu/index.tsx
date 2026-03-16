@@ -3,7 +3,7 @@ const { electronAPI } = window;
 // React
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 // Antd
-import { Alert, Menu, Modal, Button, Dropdown, Checkbox, Badge, message } from 'antd';
+import { Alert, Menu, Modal, Button, Dropdown, Checkbox, Badge, Progress, message } from 'antd';
 // DnD Kit (分组拖拽排序)
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -18,6 +18,7 @@ import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import {
   AppstoreOutlined,
   BookOutlined,
+  ClockCircleOutlined,
   FileExclamationOutlined,
   DeleteOutlined,
   TagsOutlined,
@@ -107,6 +108,17 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
   const [exportGroupCheckAll, setExportGroupCheckAll] = useState<boolean>(true);
   const [exportGroupModelVisible, setExportGroupModelVisible] = useState<boolean>(false);
   const [exportLoadingModalVisible, setExportLoadingModalVisible] = useState<boolean>(false);
+  // 导出进度
+  const [exportPhase, setExportPhase] = useState<'config' | 'exporting' | 'done' | 'error'>(
+    'config'
+  );
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [exportLogs, setExportLogs] = useState<string[]>([]);
+  const exportLogsEndRef = useRef<HTMLDivElement>(null);
+  // 导出统计缓存 (避免渲染中反复查 DB)
+  const [exportTotalIcons, setExportTotalIcons] = useState<number>(0);
+  const [exportTotalGroups, setExportTotalGroups] = useState<number>(0);
+  const [exportSelectedIconCount, setExportSelectedIconCount] = useState<number>(0);
   // 导入对话框相关
   const [importCPProjModelVisible, setImportCPProjModelVisible] = useState<boolean>(false);
 
@@ -202,10 +214,19 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
   };
   const handleEnsureEditPrefix = () => {
     if (isnContainSpace(editingPrefixText)) {
-      db.setProjectName(editingPrefixText, () => {
-        message.success('图标字体前缀已修改');
-        syncLeft();
-        setEditPrefixModelVisible(false);
+      confirm({
+        title: '确认修改图标字体前缀？',
+        content: '此操作将影响所有已引用的图标前缀，修改后需要同步更新代码中的相关引用。',
+        okText: '确认修改',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk() {
+          db.setProjectName(editingPrefixText, () => {
+            message.success('图标字体前缀已修改');
+            syncLeft();
+            setEditPrefixModelVisible(false);
+          });
+        },
       });
     } else {
       setEditingPrefixErrText('图标字体前缀不能为空或包含空格');
@@ -312,33 +333,78 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
   // 导出图标字体相关
   const handleShowExportIconfonts = () => {
     handleUpdateSelectableGroupList(() => {
+      setExportTotalIcons(db.getIconCount());
+      setExportTotalGroups(db.getGroupList().length);
+      setExportSelectedIconCount(db.getIconCount());
       setExportIconfontsModelVisible(true);
     });
   };
-  const handleEnsureExportIconfonts = () => {
+  const addExportLog = (msg: string) => {
+    setExportLogs((prev) => [...prev, msg]);
+    setTimeout(() => exportLogsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+  };
+
+  const handleEnsureExportIconfonts = async () => {
     const allGroupSelected =
       exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
     const icons = allGroupSelected
       ? db.getIconList()
       : db.getIconListFromGroup(exportGroupSelected);
-    if (icons.length) {
-      try {
-        const groups = db.getGroupList();
-        groups.push({
-          id: 'resource-uncategorized',
-          groupName: '未分组',
-          groupOrder: -1,
-          groupColor: '',
-        });
-        const pageData = demoHTMLGenerator(
-          groups,
-          icons.map((icon: any) => {
-            return Object.assign({}, icon, { iconContent: '' });
-          })
-        );
-        const cssData = iconfontCSSGenerator(icons);
-        const jsData = iconfontSymbolGenerator(icons);
-        const projectName = db.getProjectName();
+    if (!icons.length) {
+      message.warning('当前项目没有任何图标可供导出');
+      return;
+    }
+
+    // 先选目录
+    const result = await electronAPI.showSaveDialog({
+      title: '导出图标字体',
+      defaultPath: `${db.getProjectName()}`,
+    });
+    if (result.canceled || !result.filePath) return;
+
+    const dirPath = result.filePath;
+    const projectName = db.getProjectName();
+
+    // 切换到导出进度视图
+    setExportPhase('exporting');
+    setExportProgress(0);
+    setExportLogs([]);
+
+    // 使用 setTimeout 让每步有机会更新 UI
+    const step = (progress: number, log: string) =>
+      new Promise<void>((resolve) =>
+        setTimeout(() => {
+          setExportProgress(progress);
+          addExportLog(log);
+          resolve();
+        }, 30)
+      );
+
+    try {
+      await step(5, `准备导出 ${icons.length} 个图标...`);
+
+      const groups = db.getGroupList();
+      groups.push({
+        id: 'resource-uncategorized',
+        groupName: '未分组',
+        groupOrder: -1,
+        groupColor: '',
+      });
+
+      await step(10, '生成 HTML 演示页面...');
+      const pageData = demoHTMLGenerator(
+        groups,
+        icons.map((icon: any) => Object.assign({}, icon, { iconContent: '' }))
+      );
+
+      await step(15, '生成 CSS 样式表...');
+      const cssData = iconfontCSSGenerator(icons);
+
+      await step(20, '生成 JS Symbol 引用...');
+      const jsData = iconfontSymbolGenerator(icons);
+
+      await step(25, `生成 SVG 字体 (${icons.length} glyphs)...`);
+      const svgFont = await new Promise<string>((resolve, reject) => {
         svgFontGenerator(
           {
             icons,
@@ -353,95 +419,76 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
               log: () => {},
             },
           },
-          (svgFont: string) => {
-            if (!svgFont) {
-              message.error('字体生成失败，请检查图标数据是否正确');
-              handleHideGeneratingOverlay();
-              handleCancelExportIconfonts();
-              return;
-            }
-            try {
-              const ttfFont = ttfFontGenerator({ svgFont });
-              const woffFont = woffFontGenerator({ ttfFont });
-              const woff2Font = woff2FontGenerator({ ttfFont });
-              const eotFont = eotFontGenerator({ ttfFont });
-              electronAPI
-                .showSaveDialog({
-                  title: '导出图标字体',
-                  defaultPath: `${db.getProjectName()}`,
-                })
-                .then((result) => {
-                  if (result.canceled || !result.filePath) {
-                    handleHideGeneratingOverlay();
-                    return;
-                  }
-                  const dirPath = result.filePath;
-                  if (!electronAPI.accessSync(dirPath)) {
-                    electronAPI.mkdirSync(dirPath);
-                  }
-                  try {
-                    db.exportProject((projData: any) => {
-                      const buffer = Buffer.from(projData);
-                      electronAPI.writeFileSync(`${dirPath}/${projectName}.icp`, buffer);
-                      electronAPI.writeFileSync(`${dirPath}/${projectName}.html`, pageData);
-                      electronAPI.writeFileSync(`${dirPath}/${projectName}.css`, cssData);
-                      electronAPI.writeFileSync(`${dirPath}/${projectName}.js`, jsData);
-                      electronAPI.writeFileSync(`${dirPath}/${projectName}.svg`, svgFont);
-                      electronAPI.writeFileSync(
-                        `${dirPath}/${projectName}.ttf`,
-                        Buffer.from(ttfFont.buffer)
-                      );
-                      electronAPI.writeFileSync(
-                        `${dirPath}/${projectName}.woff`,
-                        Buffer.from(woffFont.buffer)
-                      );
-                      electronAPI.writeFileSync(
-                        `${dirPath}/${projectName}.woff2`,
-                        Buffer.from(woff2Font.buffer)
-                      );
-                      electronAPI.writeFileSync(
-                        `${dirPath}/${projectName}.eot`,
-                        Buffer.from(eotFont.buffer)
-                      );
-                      message.success(`图标字体已导出`);
-                      handleHideGeneratingOverlay();
-                      handleCancelExportIconfonts();
-                    });
-                  } catch (err: any) {
-                    message.error(`导出错误: ${err.message}`);
-                    handleHideGeneratingOverlay();
-                    handleCancelExportIconfonts();
-                  }
-                });
-            } catch (err: any) {
-              console.error(err);
-              let errMsg = err;
-              if (err === 'Checksum error in glyf') {
-                errMsg = '请确保路径已全部转换为轮廓';
-              }
-              message.error(`导出错误: ${errMsg}`);
-              handleHideGeneratingOverlay();
-              handleCancelExportIconfonts();
+          (result: string) => (result ? resolve(result) : reject(new Error('SVG 字体生成失败'))),
+          // 进度回调 — SVG 字体生成占 25%→45% 区间
+          (processed: number, total: number) => {
+            const pct = 25 + Math.round((processed / total) * 20);
+            setExportProgress(pct);
+            // 只在关键节点记日志，不刷屏
+            if (processed === total) {
+              addExportLog(`  SVG 字体生成完成 (${total} glyphs)`);
             }
           }
         );
-      } catch (err: any) {
-        import.meta.env?.DEV && console.error('Export preparation error:', err);
-        message.error(`导出准备失败: ${err.message || err}`);
-        handleHideGeneratingOverlay();
-        handleCancelExportIconfonts();
+      });
+
+      await step(45, '转换 TTF 字体...');
+      const ttfFont = ttfFontGenerator({ svgFont });
+
+      await step(55, '转换 WOFF 字体...');
+      const woffFont = woffFontGenerator({ ttfFont });
+
+      await step(65, '转换 WOFF2 字体...');
+      const woff2Font = woff2FontGenerator({ ttfFont });
+
+      await step(75, '转换 EOT 字体...');
+      const eotFont = eotFontGenerator({ ttfFont });
+
+      await step(80, '导出项目文件...');
+      if (!electronAPI.accessSync(dirPath)) {
+        electronAPI.mkdirSync(dirPath);
       }
-    } else {
-      message.warning(`当前项目没有任何图标可供导出`);
-      handleHideGeneratingOverlay();
+
+      const projData = await new Promise<any>((resolve) => db.exportProject(resolve));
+      const buffer = Buffer.from(projData);
+
+      const files = [
+        { name: `${projectName}.icp`, data: buffer },
+        { name: `${projectName}.html`, data: pageData },
+        { name: `${projectName}.css`, data: cssData },
+        { name: `${projectName}.js`, data: jsData },
+        { name: `${projectName}.svg`, data: svgFont },
+        { name: `${projectName}.ttf`, data: Buffer.from(ttfFont.buffer) },
+        { name: `${projectName}.woff`, data: Buffer.from(woffFont.buffer) },
+        { name: `${projectName}.woff2`, data: Buffer.from(woff2Font.buffer) },
+        { name: `${projectName}.eot`, data: Buffer.from(eotFont.buffer) },
+      ];
+
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        await step(80 + Math.round(((i + 1) / files.length) * 18), `写入 ${f.name}`);
+        electronAPI.writeFileSync(`${dirPath}/${f.name}`, f.data);
+      }
+
+      await step(100, `✓ 导出完成！共 ${files.length} 个文件`);
+      setExportPhase('done');
+    } catch (err: any) {
+      console.error(err);
+      const errMsg =
+        err === 'Checksum error in glyf' ? '请确保路径已全部转换为轮廓' : err.message || err;
+      addExportLog(`✗ 导出失败: ${errMsg}`);
+      setExportPhase('error');
     }
   };
+
   const handleCancelExportIconfonts = () => {
     setExportIconfontsModelVisible(false);
-  };
-
-  const handleHideGeneratingOverlay = () => {
-    setExportLoadingModalVisible(false);
+    // 关闭后重置状态
+    setTimeout(() => {
+      setExportPhase('config');
+      setExportProgress(0);
+      setExportLogs([]);
+    }, 300);
   };
 
   // 导出项目文件相关
@@ -474,7 +521,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
     });
     setExportGroupFullList(groupList);
     setExportGroupSelected(groupList.map((group) => group.value));
-    setExportGroupIndeterminate(true);
+    setExportGroupIndeterminate(false);
     setExportGroupCheckAll(true);
     callback && callback();
   };
@@ -489,17 +536,22 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
     setExportGroupModelVisible(false);
   };
   const onTargetGroupCheckAllChange = (e: CheckboxChangeEvent) => {
-    setExportGroupSelected(e.target.checked ? exportGroupFullList.map((group) => group.value) : []);
+    const all = e.target.checked;
+    const selected = all ? exportGroupFullList.map((group) => group.value) : [];
+    setExportGroupSelected(selected);
     setExportGroupIndeterminate(false);
-    setExportGroupCheckAll(e.target.checked);
+    setExportGroupCheckAll(all);
+    setExportSelectedIconCount(all ? exportTotalIcons : 0);
   };
   const onTargetGroupChange = (checkedList: (string | number | boolean)[]) => {
     const checkedValues = checkedList as string[];
     setExportGroupSelected(checkedValues);
-    setExportGroupIndeterminate(
-      !!checkedValues.length && checkedValues.length < exportGroupFullList.length
+    const isAll = checkedValues.length === exportGroupFullList.length;
+    setExportGroupIndeterminate(!!checkedValues.length && !isAll);
+    setExportGroupCheckAll(isAll);
+    setExportSelectedIconCount(
+      isAll ? exportTotalIcons : db.getIconListFromGroup(checkedValues).length
     );
-    setExportGroupCheckAll(checkedValues.length === exportGroupFullList.length);
   };
 
   // 分组拖拽排序
@@ -551,31 +603,33 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
               <span className="flex items-center gap-2">
                 <BookOutlined />
                 <span>全部</span>
+                <span className="ml-auto text-xs text-foreground-muted">{db.getIconCount()}</span>
+              </span>
+            </Menu.Item>
+            <Menu.Item key="resource-recent">
+              <span className="flex items-center gap-2">
+                <ClockCircleOutlined />
+                <span>最近更新</span>
               </span>
             </Menu.Item>
             <Menu.Item key="resource-uncategorized">
-              <Badge
-                count={
-                  db.getIconCountFromGroup('resource-uncategorized') +
-                  db.getIconCountFromGroup('null')
-                }
-              >
-                <span className="flex items-center gap-2">
-                  <FileExclamationOutlined />
-                  <span>未分组</span>
-                  <span>&nbsp;</span>
-                  <span>&nbsp;</span>
-                  <span>&nbsp;</span>
+              <span className="flex items-center gap-2">
+                <FileExclamationOutlined />
+                <span>未分组</span>
+                <span className="ml-auto text-xs text-foreground-muted">
+                  {db.getIconCountFromGroup('resource-uncategorized') +
+                    db.getIconCountFromGroup('null')}
                 </span>
-              </Badge>
+              </span>
             </Menu.Item>
             <Menu.Item key="resource-recycleBin">
-              <Badge count={db.getIconCountFromGroup('resource-recycleBin')}>
-                <span className="flex items-center gap-2">
-                  <DeleteOutlined />
-                  <span>回收站</span>
+              <span className="flex items-center gap-2">
+                <DeleteOutlined />
+                <span>回收站</span>
+                <span className="ml-auto text-xs text-foreground-muted">
+                  {db.getIconCountFromGroup('resource-recycleBin')}
                 </span>
-              </Badge>
+              </span>
             </Menu.Item>
           </SubMenu>
         </Menu>
@@ -636,7 +690,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
       </div>
 
       {/*导出导入按钮*/}
-      <div className="flex shrink-0 items-center gap-1.5 border-t border-border px-3 py-2">
+      <div className="flex shrink-0 items-center gap-1.5 border-t border-border px-3 h-[49px] pb-1">
         <ButtonGroup style={{ flex: 1 }}>
           <Dropdown
             overlay={
@@ -796,76 +850,127 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
       {/*导出图标字体对话框*/}
       <Modal
         wrapClassName="vertical-center-modal"
-        title="导出图标字体"
+        title={
+          exportPhase === 'config'
+            ? '导出图标字体'
+            : exportPhase === 'done'
+              ? '导出完成'
+              : exportPhase === 'error'
+                ? '导出失败'
+                : '正在导出...'
+        }
         open={exportIconfontsModelVisible}
-        okText="导出图标字体"
-        onOk={() => {
-          setExportLoadingModalVisible(true);
-          setTimeout(() => handleEnsureExportIconfonts(), 500);
-        }}
-        cancelText={'取消'}
+        maskClosable={exportPhase === 'config' || exportPhase === 'done' || exportPhase === 'error'}
+        closable={exportPhase !== 'exporting'}
         onCancel={handleCancelExportIconfonts}
+        footer={
+          exportPhase === 'config'
+            ? [
+                <Button key="cancel" onClick={handleCancelExportIconfonts}>
+                  取消
+                </Button>,
+                <Button key="export" type="primary" onClick={handleEnsureExportIconfonts}>
+                  导出图标字体
+                </Button>,
+              ]
+            : exportPhase === 'done' || exportPhase === 'error'
+              ? [
+                  <Button key="close" type="primary" onClick={handleCancelExportIconfonts}>
+                    关闭
+                  </Button>,
+                ]
+              : null
+        }
       >
-        <div className="py-2">
-          <span className="whitespace-normal text-sm leading-relaxed text-foreground-muted">
-            导出图标字体能让您在网页中以图标字码,
-            或关联类名的方式直接引用图标。如果您想进一步了解更详细的使用信息, 请参阅导出后所附带的
-            HTML 文件。
-          </span>
-          <div className={cn('mt-4', style.advanceOptionContainer)}>
-            <ButtonGroup>
-              <Button onClick={handleShowExportGroupSelector}>选择需要导出的分组</Button>
-              <Button disabled>选择需要导出的格式</Button>
-            </ButtonGroup>
-          </div>
-        </div>
-        <span className="mt-2 inline-block text-xs text-foreground-muted">
-          当前项目共有 {db.getIconCount()} 个图标
-        </span>
-      </Modal>
+        {/* 配置阶段 */}
+        {exportPhase === 'config' && (
+          <div className="py-2">
+            <p className="text-sm text-foreground-muted leading-relaxed mb-4">
+              导出图标字体能让您在网页中以图标字码或关联类名的方式直接引用图标。
+            </p>
 
-      {/*导出分组选择对话框*/}
-      <Modal
-        wrapClassName="vertical-center-modal"
-        title="选择导出的分组"
-        open={exportGroupModelVisible}
-        okText="确认"
-        onOk={handleExportGroupSelectorEnsure}
-        cancelText={'取消'}
-        onCancel={handleCancelExportGroupSelector}
-      >
-        <div className={cn('overflow-y-auto', style.targetGroupContainer)}>
-          <div className="border-b border-border pb-1.5">
-            <Checkbox
-              indeterminate={exportGroupIndeterminate}
-              onChange={onTargetGroupCheckAllChange}
-              checked={exportGroupCheckAll}
-            >
-              全选
-            </Checkbox>
-          </div>
-          <CheckboxGroup
-            options={exportGroupFullList}
-            value={exportGroupSelected}
-            onChange={onTargetGroupChange}
-          />
-        </div>
-      </Modal>
+            {/* 分组选择 — 内联折叠 */}
+            <div className="rounded-lg border border-border overflow-hidden">
+              <div
+                className="flex items-center justify-between px-3 py-2 bg-surface-muted cursor-pointer hover:bg-surface-accent transition-colors"
+                onClick={() => setExportGroupModelVisible(!exportGroupModelVisible)}
+              >
+                <span className="text-sm font-medium text-foreground">导出分组</span>
+                <span className="text-xs text-foreground-muted">
+                  {exportGroupCheckAll
+                    ? `全部 (${exportTotalGroups} 个分组，${exportTotalIcons} 个图标)`
+                    : `${exportGroupSelected.length} 个分组，${exportSelectedIconCount} 个图标`}
+                </span>
+              </div>
+              {exportGroupModelVisible && (
+                <div className="px-3 py-2 max-h-[200px] overflow-y-auto border-t border-border">
+                  <div className="border-b border-border pb-1.5 mb-1.5">
+                    <Checkbox
+                      indeterminate={exportGroupIndeterminate}
+                      onChange={onTargetGroupCheckAllChange}
+                      checked={exportGroupCheckAll}
+                    >
+                      全选
+                    </Checkbox>
+                  </div>
+                  <CheckboxGroup
+                    options={exportGroupFullList}
+                    value={exportGroupSelected}
+                    onChange={onTargetGroupChange}
+                  />
+                </div>
+              )}
+            </div>
 
-      {/*正在导出提示框*/}
-      <Modal
-        wrapClassName="vertical-center-modal"
-        title="正在生成"
-        maskClosable={false}
-        closable={true}
-        open={exportLoadingModalVisible}
-        onCancel={handleHideGeneratingOverlay}
-        footer={null}
-      >
-        <div className="py-2 text-sm text-foreground-muted">
-          <p>正在生成图标字体, 请稍后</p>
-          <p className="mt-2">如果下次需要继续编辑图标, 请打开导出目录下文件后缀为 "icp" 的文件</p>
-        </div>
+            {/* 导出格式预览 */}
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {['SVG', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'CSS', 'JS', 'HTML', 'ICP'].map((fmt) => (
+                <span
+                  key={fmt}
+                  className="px-2 py-0.5 rounded bg-surface-muted text-xs text-foreground-muted font-mono"
+                >
+                  .{fmt.toLowerCase()}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 导出进度阶段 */}
+        {(exportPhase === 'exporting' || exportPhase === 'done' || exportPhase === 'error') && (
+          <div className="py-2">
+            <Progress
+              percent={exportProgress}
+              status={
+                exportPhase === 'error'
+                  ? 'exception'
+                  : exportPhase === 'done'
+                    ? 'success'
+                    : 'active'
+              }
+              strokeColor={exportPhase === 'error' ? undefined : { from: '#4096ff', to: '#52c41a' }}
+            />
+            <div className="mt-3 rounded-lg border border-border bg-surface-muted p-3 font-mono text-xs leading-relaxed text-foreground-muted max-h-[180px] overflow-y-auto">
+              {exportLogs.map((log, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    log.startsWith('✓') && 'text-green-500 font-semibold',
+                    log.startsWith('✗') && 'text-red-500 font-semibold'
+                  )}
+                >
+                  {log}
+                </div>
+              ))}
+              <div ref={exportLogsEndRef} />
+            </div>
+            {exportPhase === 'done' && (
+              <p className="mt-3 text-xs text-foreground-muted">
+                下次需要继续编辑图标，请打开导出目录下的 .icp 文件
+              </p>
+            )}
+          </div>
+        )}
       </Modal>
 
       {/*导入 Cyberpen 项目对话框 (弃用）*/}
@@ -934,15 +1039,20 @@ function SortableGroupItem({
       )}
     >
       <span className="flex-1 truncate">{group.groupName}</span>
-      <button
-        className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10"
-        onClick={(e) => {
-          e.stopPropagation();
-          onEdit();
-        }}
-      >
-        <SettingOutlined style={{ fontSize: 11 }} />
-      </button>
+      <span className="relative shrink-0 w-5 h-5 flex items-center justify-center">
+        <span className="text-xs text-foreground-muted group-hover:opacity-0 transition-opacity">
+          {db.getIconCountFromGroup(group.id)}
+        </span>
+        <button
+          className="absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+        >
+          <SettingOutlined style={{ fontSize: 11 }} />
+        </button>
+      </span>
     </div>
   );
 }
