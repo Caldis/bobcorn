@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Alert, Modal, message } from 'antd';
+import { Dialog, Alert, Button } from '../ui';
+import { message } from '../ui/toast';
+import { confirm } from '../ui/dialog';
 import EnhanceInput from '../enhance/input';
 import { isnContainSpace } from '../../utils/tools';
 import db from '../../database';
 import useAppStore from '../../store';
-
-const confirm = Modal.confirm;
 
 interface PrefixDialogProps {
   visible: boolean;
@@ -56,22 +56,28 @@ function PrefixDialog({ visible, onClose }: PrefixDialogProps) {
   };
 
   return (
-    <Modal
-      wrapClassName="vertical-center-modal"
-      title="修改图标字体前缀"
+    <Dialog
       open={visible}
-      okText={'确认修改'}
-      onOk={handleEnsureEditPrefix}
-      cancelText={'取消'}
-      onCancel={handleCancelEditPrefix}
+      onClose={handleCancelEditPrefix}
+      title="修改图标字体前缀"
+      footer={
+        <>
+          <Button onClick={handleCancelEditPrefix}>取消</Button>
+          <Button type="primary" onClick={handleEnsureEditPrefix}>
+            确认修改
+          </Button>
+        </>
+      }
     >
       <div className="py-2">
         <Alert
           message="请务必当心"
-          description={[
-            <div key="a">一旦你修改了图标字体前缀，被引用的所有图标的相应前缀都会被变更</div>,
-            <div key="b">与此同时，您必须同步修改代码中所有引用到该图标的相关代码</div>,
-          ]}
+          description={
+            <>
+              <div>一旦你修改了图标字体前缀，被引用的所有图标的相应前缀都会被变更</div>
+              <div>与此同时，您必须同步修改代码中所有引用到该图标的相关代码</div>
+            </>
+          }
           type="warning"
         />
         <div className="mt-4">
@@ -86,7 +92,7 @@ function PrefixDialog({ visible, onClose }: PrefixDialogProps) {
           />
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }
 

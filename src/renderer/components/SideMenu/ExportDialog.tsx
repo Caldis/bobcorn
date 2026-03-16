@@ -2,8 +2,8 @@
 const { electronAPI } = window;
 
 import React, { useState, useRef } from 'react';
-import { Modal, Button, Checkbox, Progress, message } from 'antd';
-import type { CheckboxChangeEvent } from 'antd/es/checkbox';
+import { Dialog, Button, Checkbox, CheckboxGroup, Progress } from '../ui';
+import { message } from '../ui/toast';
 import {
   svgFontGenerator,
   ttfFontGenerator,
@@ -19,8 +19,6 @@ import {
 import { cn } from '../../lib/utils';
 import db from '../../database';
 import type { ExportGroupOption } from './types';
-
-const CheckboxGroup = Checkbox.Group;
 
 interface ExportDialogProps {
   visible: boolean;
@@ -222,17 +220,15 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     }, 300);
   };
 
-  const onTargetGroupCheckAllChange = (e: CheckboxChangeEvent) => {
-    const all = e.target.checked;
-    const selected = all ? exportGroupFullList.map((group) => group.value) : [];
+  const onTargetGroupCheckAllChange = (checked: boolean) => {
+    const selected = checked ? exportGroupFullList.map((group) => group.value) : [];
     setExportGroupSelected(selected);
     setExportGroupIndeterminate(false);
-    setExportGroupCheckAll(all);
-    setExportSelectedIconCount(all ? exportTotalIcons : 0);
+    setExportGroupCheckAll(checked);
+    setExportSelectedIconCount(checked ? exportTotalIcons : 0);
   };
 
-  const onTargetGroupChange = (checkedList: (string | number | boolean)[]) => {
-    const checkedValues = checkedList as string[];
+  const onTargetGroupChange = (checkedValues: string[]) => {
     setExportGroupSelected(checkedValues);
     const isAll = checkedValues.length === exportGroupFullList.length;
     setExportGroupIndeterminate(!!checkedValues.length && !isAll);
@@ -242,40 +238,39 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     );
   };
 
+  const dialogTitle =
+    exportPhase === 'config'
+      ? '导出图标字体'
+      : exportPhase === 'done'
+        ? '导出完成'
+        : exportPhase === 'error'
+          ? '导出失败'
+          : '正在导出...';
+
+  const dialogFooter =
+    exportPhase === 'config' ? (
+      <>
+        <Button key="cancel" onClick={handleCancel}>
+          取消
+        </Button>
+        <Button key="export" type="primary" onClick={handleEnsureExportIconfonts}>
+          导出图标字体
+        </Button>
+      </>
+    ) : exportPhase === 'done' || exportPhase === 'error' ? (
+      <Button key="close" type="primary" onClick={handleCancel}>
+        关闭
+      </Button>
+    ) : null;
+
   return (
-    <Modal
-      wrapClassName="vertical-center-modal"
-      title={
-        exportPhase === 'config'
-          ? '导出图标字体'
-          : exportPhase === 'done'
-            ? '导出完成'
-            : exportPhase === 'error'
-              ? '导出失败'
-              : '正在导出...'
-      }
+    <Dialog
       open={visible}
+      onClose={handleCancel}
+      title={dialogTitle}
       maskClosable={exportPhase === 'config' || exportPhase === 'done' || exportPhase === 'error'}
       closable={exportPhase !== 'exporting'}
-      onCancel={handleCancel}
-      footer={
-        exportPhase === 'config'
-          ? [
-              <Button key="cancel" onClick={handleCancel}>
-                取消
-              </Button>,
-              <Button key="export" type="primary" onClick={handleEnsureExportIconfonts}>
-                导出图标字体
-              </Button>,
-            ]
-          : exportPhase === 'done' || exportPhase === 'error'
-            ? [
-                <Button key="close" type="primary" onClick={handleCancel}>
-                  关闭
-                </Button>,
-              ]
-            : null
-      }
+      footer={dialogFooter}
     >
       {/* 配置阶段 */}
       {exportPhase === 'config' && (
@@ -339,7 +334,6 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             status={
               exportPhase === 'error' ? 'exception' : exportPhase === 'done' ? 'success' : 'active'
             }
-            strokeColor={exportPhase === 'error' ? undefined : { from: '#4096ff', to: '#52c41a' }}
           />
           <div className="mt-3 rounded-lg border border-border bg-surface-muted p-3 font-mono text-xs leading-relaxed text-foreground-muted max-h-[180px] overflow-y-auto">
             {exportLogs.map((log, i) => (
@@ -362,7 +356,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
           )}
         </div>
       )}
-    </Modal>
+    </Dialog>
   );
 }
 

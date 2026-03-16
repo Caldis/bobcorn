@@ -1,14 +1,7 @@
 // React
 import React from 'react';
-// Antd
-import { Menu, Button } from 'antd';
-import type { MenuInfo } from 'rc-menu/lib/interface';
-import {
-  DatabaseOutlined,
-  CloudOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from '@ant-design/icons';
+// Icons
+import { Database, Cloud } from 'lucide-react';
 // Utils
 import { cn } from '../../lib/utils';
 // Database
@@ -21,8 +14,8 @@ interface IconInfoBarProps {
 }
 
 function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }: IconInfoBarProps) {
-  const handleSourceSelectorClick = (e: MenuInfo) => {
-    handleSourceSelected(e.key);
+  const handleSourceSelectorClick = (key: string) => {
+    handleSourceSelected(key);
   };
 
   return (
@@ -51,32 +44,38 @@ function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }: Ic
       <div
         className={cn(
           '[-webkit-app-region:no-drag]',
-          'relative flex flex-row',
+          'relative flex flex-row gap-1',
           '-translate-x-[40%]',
           'z-[100]'
         )}
       >
-        <Menu
-          style={{ border: 'none' }}
-          onClick={handleSourceSelectorClick}
-          selectedKeys={[selectedSource]}
-          mode="horizontal"
+        <button
+          onClick={() => handleSourceSelectorClick('local')}
+          className={cn(
+            'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors',
+            selectedSource === 'local'
+              ? 'text-brand-500 font-medium bg-brand-50 dark:bg-brand-950/40'
+              : 'text-foreground-muted hover:text-foreground hover:bg-surface-muted'
+          )}
         >
-          <Menu.Item key="local">
-            <DatabaseOutlined />
-            <span>本地</span>
-          </Menu.Item>
-          <Menu.Item key="cloud" disabled>
-            <CloudOutlined />
-            <span>发现</span>
-          </Menu.Item>
-        </Menu>
+          <Database size={14} />
+          <span>本地</span>
+        </button>
+        <button
+          disabled
+          className={cn(
+            'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors',
+            'text-foreground-muted/50 cursor-not-allowed'
+          )}
+        >
+          <Cloud size={14} />
+          <span>发现</span>
+        </button>
       </div>
 
       {/*边栏显示切换*/}
-      <div className={cn('opacity-0 pointer-events-none', 'pr-[15px] z-[1]', '[&>button]:mx-1')}>
-        <Button shape="circle" icon={<MenuFoldOutlined />} />
-        <Button shape="circle" icon={<MenuUnfoldOutlined />} />
+      <div className={cn('opacity-0 pointer-events-none', 'pr-[15px] z-[1]')}>
+        {/* Placeholder for future sidebar toggle buttons */}
       </div>
     </div>
   );

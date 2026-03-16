@@ -8,7 +8,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { TagsOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { Tags, Plus, Settings } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import db from '../../database';
 import useAppStore from '../../store';
@@ -63,7 +63,7 @@ function SortableGroupItem({
             onEdit();
           }}
         >
-          <SettingOutlined style={{ fontSize: 11 }} />
+          <Settings size={11} />
         </button>
       </span>
     </div>
@@ -108,7 +108,7 @@ function GroupList({
     <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={sideMenuWrapperRef}>
       {/* 分组标题栏 */}
       <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
-        <TagsOutlined className="text-foreground-muted" />
+        <Tags size={14} className="text-foreground-muted" />
         <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           分组
         </span>
@@ -116,7 +116,7 @@ function GroupList({
           className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-brand-50 hover:text-brand-500 dark:hover:bg-brand-950/40"
           onClick={onShowAddGroup}
         >
-          <PlusOutlined style={{ fontSize: 11 }} />
+          <Plus size={11} />
         </button>
       </div>
 

@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import react from '@vitejs/plugin-react'
-// vite-plugin-imp removed: antd 3 not compatible, using full CSS import instead
+// vite-plugin-imp removed: no longer needed (antd fully replaced by custom UI components)
 
 export default defineConfig({
   main: {

@@ -1,9 +1,9 @@
 // React
 import React, { useState } from 'react';
-// Antd
-import { Button, Radio, Slider, Switch } from 'antd';
-import type { RadioChangeEvent } from 'antd';
-import { CloseOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
+// UI
+import { Button, RadioGroup, RadioButton, Slider } from '../ui';
+// Icons
+import { X, Eye, Search } from 'lucide-react';
 // Utils
 import { cn } from '../../lib/utils';
 
@@ -44,20 +44,20 @@ function IconToolbar({
   };
 
   // 控制图标名字可见性
-  const handleNameVisibilityChange = (e: RadioChangeEvent) => {
+  const handleNameVisibilityChange = (e: { target: { value: any } }) => {
     setShowName(e.target.value);
     updateNameVisible(e.target.value);
   };
   // 控制图标字码可见性
-  const handleCodeVisibilityChange = (e: RadioChangeEvent) => {
+  const handleCodeVisibilityChange = (e: { target: { value: any } }) => {
     setShowCode(e.target.value);
     updateCodeVisible(e.target.value);
   };
   // 排序动作条相关
-  const handleOrderTypeChange = (e: RadioChangeEvent) => {
+  const handleOrderTypeChange = (e: { target: { value: any } }) => {
     setOrderType(e.target.value);
   };
-  const handleOrderDirectionChange = (e: RadioChangeEvent) => {
+  const handleOrderDirectionChange = (e: { target: { value: any } }) => {
     setOrderDirection(e.target.value);
   };
 
@@ -71,70 +71,56 @@ function IconToolbar({
   };
 
   return (
-    <div className="relative w-full h-[49px] pb-1 border-t border-border">
+    <div className="relative w-full h-[45px] border-t border-border">
       {/* 过滤控制器浮层 */}
       <div
         className={cn(
-          'absolute w-full h-10 -mt-[40px]',
+          'absolute w-full h-10 -mt-[41px]',
           'flex flex-row items-center',
           'px-2 pt-px',
-          'border-y border-border',
+          'border-t border-border/90',
           'transition-all duration-300',
-          'bg-surface/80 dark:bg-surface/80',
-          '[&_.ant-radio-group]:mr-2'
+          'bg-brand-50/60 dark:bg-brand-950/60',
+          'backdrop-blur-sm'
         )}
         style={{
-          opacity: showActionBar ? 1 : 0,
+          opacity: showActionBar ? 0.6 : 0,
           pointerEvents: showActionBar ? 'initial' : 'none',
-          backdropFilter: showActionBar ? 'blur(12px)' : 'blur(0)',
+          backdropFilter: showActionBar ? 'blur(5px)' : 'blur(0)',
         }}
       >
         {actionBarType === 'visual' && (
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-1.5 text-sm text-foreground">
-              <span>图标名称</span>
-              <Switch
-                size="small"
-                checked={showName}
-                onChange={(checked) => {
-                  setShowName(checked);
-                  updateNameVisible(checked);
-                }}
-              />
-            </label>
-            <label className="flex items-center gap-1.5 text-sm text-foreground">
-              <span>图标字码</span>
-              <Switch
-                size="small"
-                checked={showCode}
-                onChange={(checked) => {
-                  setShowCode(checked);
-                  updateCodeVisible(checked);
-                }}
-              />
-            </label>
+          <div className="flex items-center gap-2">
+            <RadioGroup value={showName} onChange={handleNameVisibilityChange}>
+              <RadioButton value={true}>显示图标名称</RadioButton>
+              <RadioButton value={false}>隐藏图标名称</RadioButton>
+            </RadioGroup>
+            <RadioGroup value={showCode} onChange={handleCodeVisibilityChange}>
+              <RadioButton value={true}>显示图标字码</RadioButton>
+              <RadioButton value={false}>隐藏图标字码</RadioButton>
+            </RadioGroup>
           </div>
         )}
         {actionBarType === 'order' && (
           <div className="flex items-center gap-2">
-            <Radio.Group value={orderType} onChange={handleOrderTypeChange}>
-              <Radio.Button value="addTime">按添加时间</Radio.Button>
-              <Radio.Button value="editTime">按修改时间</Radio.Button>
-              <Radio.Button value="name">按名称</Radio.Button>
-              <Radio.Button value="code">按字码</Radio.Button>
-              <Radio.Button value="size">按大小</Radio.Button>
-            </Radio.Group>
-            <Radio.Group value={orderDirection} onChange={handleOrderDirectionChange}>
-              <Radio.Button value="forward">升序</Radio.Button>
-              <Radio.Button value="reverse">降序</Radio.Button>
-            </Radio.Group>
+            <RadioGroup value={orderType} onChange={handleOrderTypeChange}>
+              <RadioButton value="addTime">按添加时间</RadioButton>
+              <RadioButton value="editTime">按修改时间</RadioButton>
+              <RadioButton value="name">按名称</RadioButton>
+              <RadioButton value="code">按字码</RadioButton>
+              <RadioButton value="size">按大小</RadioButton>
+            </RadioGroup>
+            <RadioGroup value={orderDirection} onChange={handleOrderDirectionChange}>
+              <RadioButton value="forward">升序</RadioButton>
+              <RadioButton value="reverse">降序</RadioButton>
+            </RadioGroup>
           </div>
         )}
         <div className="ml-auto">
           <Button
             className="absolute right-1.5 top-1.5 !border-none !bg-transparent hover:!bg-transparent active:!bg-transparent"
             shape="circle"
-            icon={<CloseOutlined />}
+            icon={<X size={14} />}
             onClick={handelHideActionBar}
           />
         </div>
@@ -147,7 +133,7 @@ function IconToolbar({
           <div className="pr-1.5">
             <Button
               shape="circle"
-              icon={<EyeOutlined />}
+              icon={<Eye size={14} />}
               onClick={() => handleToggleActionBar('visual')}
             />
           </div>
@@ -167,11 +153,12 @@ function IconToolbar({
         {/* 搜索栏 */}
         <div className="ml-4 mr-1.5">
           <div className="relative">
-            <SearchOutlined
+            <Search
+              size={12}
               className={cn(
                 'absolute left-2.5 top-1/2 -translate-y-1/2 z-10',
                 'text-foreground-muted/60',
-                'pointer-events-none text-xs'
+                'pointer-events-none'
               )}
             />
             <input

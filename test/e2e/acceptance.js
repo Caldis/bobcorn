@@ -127,8 +127,8 @@ async function run() {
   });
   assert('Stylesheets loaded', cssLoaded >= 2, `${cssLoaded} sheets`);
 
-  const antdLoaded = await window.locator('.ant-menu').count();
-  assert('antd components rendered', antdLoaded > 0);
+  const uiComponentsLoaded = await window.locator('button').count();
+  assert('UI components rendered', uiComponentsLoaded > 0);
 
   const emptyHints = await window.locator('text=还没有图标').count();
   assert('Empty state hint visible', emptyHints > 0);

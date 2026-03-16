@@ -1,7 +1,7 @@
 // React
 import React from 'react';
-// Antd
-import { message } from 'antd';
+// UI
+import { message } from '../ui';
 // Utils
 import { cn } from '../../lib/utils';
 import { projImporter } from '../../utils/importer';

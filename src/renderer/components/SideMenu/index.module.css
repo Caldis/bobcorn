@@ -1,8 +1,7 @@
 /* ============================================
    SideMenu — Minimal CSS module (post-Tailwind)
    Only keeps styles that require CSS features
-   not available in Tailwind (pseudo-selectors on
-   antd internals, -webkit-app-region, composes).
+   not available in Tailwind (-webkit-app-region).
    ============================================ */
 
 /* --- Platform drag regions --- */
@@ -19,105 +18,4 @@
   height: 42px;
   z-index: 10;
   -webkit-app-region: drag;
-}
-
-/* --- Antd Menu overrides (applied to wrapper) --- */
-.sideMenuOverrides :global(.ant-menu-submenu-arrow) {
-  opacity: 0;
-}
-
-.sideMenuOverrides :global(.ant-menu-submenu-title) {
-  color: hsl(var(--foreground)) !important;
-  cursor: default !important;
-}
-
-.sideMenuOverrides li > div:active {
-  background: initial;
-}
-
-.sideMenuOverrides li > div:after {
-  content: none !important;
-}
-
-/* --- Group section header "+" button --- */
-.groupAddBtn {
-  position: absolute !important;
-  top: 4px;
-  right: 10px;
-  z-index: 10;
-  border: none !important;
-  background-color: transparent !important;
-}
-
-.groupAddBtn:hover,
-.groupAddBtn:active {
-  background-color: transparent !important;
-  color: hsl(var(--ring)) !important;
-}
-
-.groupAddBtn i {
-  margin-right: auto !important;
-}
-
-/* --- Group item row + settings gear --- */
-.sideMenuGroupTitleContainer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-right: 1px;
-}
-
-.sideMenuGroupTitleContainer:hover .sideMenuGroupAction {
-  opacity: 1;
-}
-
-.sideMenuGroupAction {
-  position: absolute !important;
-  top: 4px;
-  right: 10px;
-  z-index: 10;
-  border: none !important;
-  background-color: transparent !important;
-  transition: opacity 0.15s ease;
-  opacity: 0;
-}
-
-.sideMenuGroupAction:hover,
-.sideMenuGroupAction:active {
-  background-color: transparent !important;
-  color: hsl(var(--ring)) !important;
-}
-
-.sideMenuGroupAction i {
-  margin-right: auto !important;
-}
-
-/* --- Import dropdown menu --- */
-.sideImportMenu li {
-  color: hsl(var(--foreground)) !important;
-  background-color: inherit !important;
-}
-
-.sideImportMenu li:hover {
-  color: hsl(var(--ring)) !important;
-  background-color: hsl(var(--surface-accent)) !important;
-}
-
-/* --- Export dialog: advance options --- */
-.advanceOptionContainer :global(.ant-btn-group) {
-  width: 100%;
-}
-
-.advanceOptionContainer :global(.ant-btn-group) button {
-  width: 50%;
-}
-
-/* --- Export group selector checkbox layout --- */
-.targetGroupContainer :global(.ant-checkbox-group) {
-  display: flex;
-  flex-direction: column;
-}
-
-.targetGroupContainer :global(.ant-checkbox-group) > label {
-  margin-top: 6px;
 }

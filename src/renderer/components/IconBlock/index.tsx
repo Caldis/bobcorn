@@ -1,9 +1,9 @@
 // React
-import React, { useMemo, useCallback } from 'react';
+import React, { useRef, useEffect } from 'react';
 // Style — minimal residual CSS module for SVG sizing rules only
 import style from './index.module.css';
-// antd
-import { Checkbox } from 'antd';
+// UI
+import { Checkbox } from '../ui';
 import { sanitizeSVG } from '../../utils/sanitize';
 import { cn } from '../../lib/utils';
 
@@ -25,7 +25,7 @@ interface IconBlockProps {
   handleIconSelected?: (id: string, data: IconData) => void;
 }
 
-const IconBlock = React.memo(function IconBlock({
+function IconBlock({
   selected = false,
   checked,
   data = {} as IconData,
@@ -37,21 +37,27 @@ const IconBlock = React.memo(function IconBlock({
   codeVisible = true,
   handleIconSelected,
 }: IconBlockProps) {
-  // Memoize sanitized SVG — only re-sanitize when content changes
-  const sanitizedHtml = useMemo(() => sanitizeSVG(content), [content]);
+  const iconBlockRef = useRef<HTMLDivElement>(null);
 
-  const handleSelected = useCallback(() => {
+  useEffect(() => {
+    const selfDOM = iconBlockRef.current;
+    if (selfDOM) {
+      selfDOM.style.width = selfDOM.clientWidth + 'px';
+    }
+  }, []);
+
+  const handleSelected = () => {
     handleIconSelected?.(data.id, data);
-  }, [data.id]);
+  };
 
   return (
     <div
       data-testid="icon-block"
       className={cn(
         // Layout
-        'relative text-center z-[1]',
+        'relative inline-block text-center z-[1]',
         // Spacing
-        'p-2',
+        'm-0.5 p-2',
         // Card shape
         'rounded-lg',
         // Border — transparent by default, accent when selected
@@ -75,48 +81,55 @@ const IconBlock = React.memo(function IconBlock({
     >
       {/* Checkbox overlay */}
       {checked !== undefined && (
-        <Checkbox className="absolute -top-0.5 -right-1.5 z-10" checked={checked} />
+        <div className="absolute -top-0.5 -right-1.5 z-10">
+          <Checkbox checked={checked} />
+        </div>
       )}
 
       {/* Icon preview area */}
-      <div className={cn(style.iconContentContainer, 'mx-auto w-[120px]')} style={{ width }}>
+      <div
+        className={cn(style.iconContentContainer, 'mx-auto w-[120px] transition-all duration-500')}
+        style={{ width: width }}
+        ref={iconBlockRef}
+      >
         <div
           className={cn(
             style.iconContentWrapper,
             'flex items-center justify-center',
+            // Ensure SVG fills the container nicely
             '[&>svg]:w-full [&>svg]:h-full'
           )}
-          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          dangerouslySetInnerHTML={{ __html: sanitizeSVG(content) }}
         />
       </div>
 
       {/* Name and code labels */}
-      <div className="w-full" style={{ width }}>
+      <div className="w-full transition-all duration-300" style={{ width: width }}>
         <p
           className={cn(
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
             'text-xs font-semibold antialiased',
-            'mb-1',
+            'mb-1 transition-all duration-300',
             'text-foreground dark:text-foreground'
           )}
-          style={{ height: nameVisible ? 18 : 0, overflow: 'hidden' }}
+          style={{ height: nameVisible ? 18 : 0 }}
         >
           {name}
         </p>
         <p
           className={cn(
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
-            'text-[10px] font-semibold tracking-widest',
-            'mb-1',
-            'text-foreground-muted/60 dark:text-foreground-muted/60'
+            'text-xs font-mono',
+            'mb-1 transition-all duration-300',
+            'text-foreground-muted dark:text-foreground-muted'
           )}
-          style={{ height: codeVisible ? 18 : 0, overflow: 'hidden' }}
+          style={{ height: codeVisible ? 18 : 0 }}
         >
           {code}
         </p>
       </div>
     </div>
   );
-});
+}
 
 export default IconBlock;

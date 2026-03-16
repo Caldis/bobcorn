@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Button, message } from 'antd';
+import { Dialog, Button } from '../ui';
+import { message } from '../ui/toast';
 import EnhanceInput from '../enhance/input';
 import db from '../../database';
 import useAppStore from '../../store';
@@ -128,14 +129,18 @@ function GroupDialogs({
   return (
     <>
       {/*添加分组对话框*/}
-      <Modal
-        wrapClassName="vertical-center-modal"
-        title="添加分组"
+      <Dialog
         open={addGroupVisible}
-        okText={'确认'}
-        onOk={handleEnsureAddGroup}
-        cancelText={'取消'}
-        onCancel={handleCancelAddGroup}
+        onClose={handleCancelAddGroup}
+        title="添加分组"
+        footer={
+          <>
+            <Button onClick={handleCancelAddGroup}>取消</Button>
+            <Button type="primary" onClick={handleEnsureAddGroup}>
+              确认
+            </Button>
+          </>
+        }
       >
         <div className="py-2">
           <EnhanceInput
@@ -148,16 +153,10 @@ function GroupDialogs({
             inputHintBadgeType="error"
           />
         </div>
-      </Modal>
+      </Dialog>
 
       {/*编辑分组对话框*/}
-      <Modal
-        wrapClassName="vertical-center-modal"
-        title="编辑分组"
-        open={editGroupVisible}
-        onCancel={onEditGroupClose}
-        footer={null}
-      >
+      <Dialog open={editGroupVisible} onClose={onEditGroupClose} title="编辑分组" footer={null}>
         <div className="flex flex-col gap-2.5 py-2">
           <Button size="large" className="!w-full" onClick={handleShowGroupNameChange}>
             修改分组名
@@ -166,17 +165,21 @@ function GroupDialogs({
             删除这个分组
           </Button>
         </div>
-      </Modal>
+      </Dialog>
 
       {/*修改组名对话框*/}
-      <Modal
-        wrapClassName="vertical-center-modal"
-        title="修改分组名称"
+      <Dialog
         open={groupNameChangeModelVisible}
-        okText={'确认修改'}
-        onOk={handleEnsureGroupNameChange}
-        cancelText={'取消'}
-        onCancel={handleCancelGroupNameChange}
+        onClose={handleCancelGroupNameChange}
+        title="修改分组名称"
+        footer={
+          <>
+            <Button onClick={handleCancelGroupNameChange}>取消</Button>
+            <Button type="primary" onClick={handleEnsureGroupNameChange}>
+              确认修改
+            </Button>
+          </>
+        }
       >
         <div className="py-2">
           <EnhanceInput
@@ -189,23 +192,23 @@ function GroupDialogs({
             inputHintBadgeType="error"
           />
         </div>
-      </Modal>
+      </Dialog>
 
       {/*删除分组对话框*/}
-      <Modal
-        wrapClassName="vertical-center-modal"
-        title="删除分组"
+      <Dialog
         open={deleteGroupModelVisible}
-        onOk={handleEnsureDeleteGroup}
-        onCancel={handleCancelDeleteGroup}
-        footer={[
-          <Button key="cancel" size="large" onClick={handleCancelDeleteGroup}>
-            取消
-          </Button>,
-          <Button key="delete" size="large" danger onClick={handleEnsureDeleteGroup}>
-            删除
-          </Button>,
-        ]}
+        onClose={handleCancelDeleteGroup}
+        title="删除分组"
+        footer={
+          <>
+            <Button size="large" onClick={handleCancelDeleteGroup}>
+              取消
+            </Button>
+            <Button size="large" danger onClick={handleEnsureDeleteGroup}>
+              删除
+            </Button>
+          </>
+        }
       >
         <div className="py-2 text-center">
           <p className="text-foreground-muted">以下的分组将会被删除</p>
@@ -216,7 +219,7 @@ function GroupDialogs({
           </p>
           <p className="text-foreground-muted">该分组内的所有图标也会被一并移除</p>
         </div>
-      </Modal>
+      </Dialog>
     </>
   );
 }

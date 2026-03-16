@@ -1,7 +1,7 @@
 // React
 import React from 'react';
-// Antd
-import { Badge } from 'antd';
+// UI
+import { Badge } from '../../ui';
 // Utils
 import { cn } from '../../../lib/utils';
 
