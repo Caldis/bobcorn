@@ -81,6 +81,9 @@ describe('defOption', () => {
       iconBlockCodeVisible: true,
       iconBlockSize: 100,
       histProj: [],
+      sideMenuWidth: 250,
+      sideEditorWidth: 250,
+      darkMode: false,
     });
   });
 });

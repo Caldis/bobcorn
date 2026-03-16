@@ -22,6 +22,9 @@ export interface OptionData {
   iconBlockCodeVisible: boolean;
   iconBlockSize: number;
   histProj: string[];
+  sideMenuWidth: number;
+  sideEditorWidth: number;
+  darkMode: boolean;
 }
 
 // 全局参数相关
@@ -54,6 +57,10 @@ export const defOption: OptionData = {
   iconBlockSize: 100,
   // 访问的历史项目文件路径记录
   histProj: [],
+  // 面板宽度
+  sideMenuWidth: 250,
+  sideEditorWidth: 250,
+  darkMode: false,
 };
 // 重置设置
 export const resetOption = (): void => {

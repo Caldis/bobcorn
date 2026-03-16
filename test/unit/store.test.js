@@ -12,6 +12,8 @@ vi.mock('../../src/renderer/config', () => ({
   default: {
     defaultSelectedGroup: 'resource-all',
   },
+  getOption: vi.fn(() => ({})),
+  setOption: vi.fn(),
 }));
 
 // Import store after mocks are set up
@@ -27,6 +29,7 @@ function resetStore() {
     selectedSource: 'local',
     sideMenuVisible: true,
     sideEditorVisible: true,
+    darkMode: false,
     groupData: [],
   });
 }

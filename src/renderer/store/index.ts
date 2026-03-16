@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import db from '../database';
-import config from '../config';
+import config, { getOption, setOption } from '../config';
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -13,6 +13,7 @@ export interface State {
   selectedSource: 'local' | 'cloud';
   sideMenuVisible: boolean;
   sideEditorVisible: boolean;
+  darkMode: boolean;
 
   // Data (previously in component local state, synced via events)
   groupData: any[];
@@ -25,6 +26,7 @@ export interface Actions {
   selectSource: (source: 'local' | 'cloud') => void;
   setSideMenuVisible: (visible: boolean) => void;
   setSideEditorVisible: (visible: boolean) => void;
+  toggleDarkMode: () => void;
   syncLeft: () => void;
   syncAll: () => void;
 }
@@ -38,15 +40,17 @@ const useAppStore = create<State & Actions>((set, get) => ({
   selectedSource: 'local',
   sideMenuVisible: true,
   sideEditorVisible: true,
+  darkMode: false,
 
   // Data (previously in component local state, synced via events)
   groupData: [],
 
   // Actions
-  showSplashScreen: (show: boolean) => set({
-    splashScreenVisible: show,
-    contentVisible: show ? 0 : 1,
-  }),
+  showSplashScreen: (show: boolean) =>
+    set({
+      splashScreenVisible: show,
+      contentVisible: show ? 0 : 1,
+    }),
 
   selectGroup: (groupId: string) => {
     set({ selectedGroup: groupId, selectedIcon: null, selectedSource: 'local' });
@@ -66,6 +70,13 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   setSideMenuVisible: (visible: boolean) => set({ sideMenuVisible: visible }),
   setSideEditorVisible: (visible: boolean) => set({ sideEditorVisible: visible }),
+
+  toggleDarkMode: () => {
+    const next = !get().darkMode;
+    set({ darkMode: next });
+    setOption({ darkMode: next });
+    document.documentElement.classList.toggle('dark', next);
+  },
 
   // Sync actions (replace SyncLeft/SyncCenter/SyncRight events)
   syncLeft: () => {
