@@ -1,7 +1,7 @@
 // React
 import React from 'react';
 // Icons
-import { Database, Cloud } from 'lucide-react';
+import { Database, Globe } from 'lucide-react';
 // Utils
 import { cn } from '../../lib/utils';
 // Database
@@ -14,10 +14,6 @@ interface IconInfoBarProps {
 }
 
 function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }: IconInfoBarProps) {
-  const handleSourceSelectorClick = (key: string) => {
-    handleSourceSelected(key);
-  };
-
   return (
     <div
       className={cn(
@@ -50,12 +46,13 @@ function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }: Ic
         )}
       >
         <button
-          onClick={() => handleSourceSelectorClick('local')}
+          onClick={() => handleSourceSelected('local')}
           className={cn(
-            'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors',
+            'inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium',
+            'border-b-2 transition-colors duration-150',
             selectedSource === 'local'
-              ? 'text-brand-500 font-medium bg-brand-50 dark:bg-brand-950/40'
-              : 'text-foreground-muted hover:text-foreground hover:bg-surface-muted'
+              ? 'border-brand-500 text-brand-600 dark:text-brand-400'
+              : 'border-transparent text-foreground-muted hover:text-foreground'
           )}
         >
           <Database size={14} />
@@ -64,19 +61,18 @@ function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }: Ic
         <button
           disabled
           className={cn(
-            'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors',
-            'text-foreground-muted/50 cursor-not-allowed'
+            'inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium',
+            'border-b-2 border-transparent',
+            'text-foreground-muted/40 cursor-not-allowed'
           )}
         >
-          <Cloud size={14} />
+          <Globe size={14} />
           <span>发现</span>
         </button>
       </div>
 
       {/*边栏显示切换*/}
-      <div className={cn('opacity-0 pointer-events-none', 'pr-[15px] z-[1]')}>
-        {/* Placeholder for future sidebar toggle buttons */}
-      </div>
+      <div className={cn('opacity-0 pointer-events-none', 'pr-[15px] z-[1]')}></div>
     </div>
   );
 }

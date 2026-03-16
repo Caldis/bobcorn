@@ -1,7 +1,7 @@
 // React
 import React from 'react';
 // UI
-import { message } from '../ui';
+import { message } from '../ui/toast';
 // Utils
 import { cn } from '../../lib/utils';
 import { projImporter } from '../../utils/importer';

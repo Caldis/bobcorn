@@ -2,8 +2,7 @@
 import React, { useRef, useEffect } from 'react';
 // UI
 import { Input, Button } from '../../ui';
-import type { InputRef } from '../../ui';
-// Icons
+import type { InputRef } from '../../ui/input';
 import { Save } from 'lucide-react';
 // Components
 import EnhanceBadge from '../badge';
@@ -12,17 +11,18 @@ import { cn } from '../../../lib/utils';
 
 interface EnhanceInputProps {
   autoFocus?: boolean;
+  value?: string | null;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPressEnter?: () => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+  style?: React.CSSProperties;
   inputTitle?: string;
   inputHintBadgeType?: 'success' | 'processing' | 'default' | 'error' | 'warning';
   inputHintText?: string | null;
   inputSave?: boolean;
   inputSaveClick?: () => void;
-  value?: string | null;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPressEnter?: () => void;
-  placeholder?: string;
-  disabled?: boolean;
-  className?: string;
 }
 
 function EnhanceInput({
@@ -53,7 +53,8 @@ function EnhanceInput({
               '!absolute !top-0 !right-0 !z-10',
               '!border-none',
               '!bg-transparent hover:!bg-transparent active:!bg-transparent',
-              '!text-brand-500 dark:!text-brand-400'
+              '!text-brand-500 dark:!text-brand-400',
+              '[&_i]:!mr-auto'
             )}
             shape="circle"
             icon={<Save size={14} />}

@@ -1,8 +1,8 @@
 // React
 import React, { useState } from 'react';
 // UI
-import { Button, RadioGroup, RadioButton, Slider } from '../ui';
-// Icons
+import { Button, Slider, Switch } from '../ui';
+import { RadioGroup, RadioButton } from '../ui/radio';
 import { X, Eye, Search } from 'lucide-react';
 // Utils
 import { cn } from '../../lib/utils';
@@ -71,34 +71,47 @@ function IconToolbar({
   };
 
   return (
-    <div className="relative w-full h-[45px] border-t border-border">
+    <div className="relative w-full h-[49px] pb-1 border-t border-border">
       {/* 过滤控制器浮层 */}
       <div
         className={cn(
-          'absolute w-full h-10 -mt-[41px]',
+          'absolute w-full h-10 -mt-[40px]',
           'flex flex-row items-center',
           'px-2 pt-px',
-          'border-t border-border/90',
+          'border-y border-border',
           'transition-all duration-300',
-          'bg-brand-50/60 dark:bg-brand-950/60',
-          'backdrop-blur-sm'
+          'bg-surface/80 dark:bg-surface/80'
         )}
         style={{
-          opacity: showActionBar ? 0.6 : 0,
+          opacity: showActionBar ? 1 : 0,
           pointerEvents: showActionBar ? 'initial' : 'none',
-          backdropFilter: showActionBar ? 'blur(5px)' : 'blur(0)',
+          backdropFilter: showActionBar ? 'blur(12px)' : 'blur(0)',
         }}
       >
         {actionBarType === 'visual' && (
-          <div className="flex items-center gap-2">
-            <RadioGroup value={showName} onChange={handleNameVisibilityChange}>
-              <RadioButton value={true}>显示图标名称</RadioButton>
-              <RadioButton value={false}>隐藏图标名称</RadioButton>
-            </RadioGroup>
-            <RadioGroup value={showCode} onChange={handleCodeVisibilityChange}>
-              <RadioButton value={true}>显示图标字码</RadioButton>
-              <RadioButton value={false}>隐藏图标字码</RadioButton>
-            </RadioGroup>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-1.5 text-sm text-foreground">
+              <span>图标名称</span>
+              <Switch
+                size="small"
+                checked={showName}
+                onChange={(checked) => {
+                  setShowName(checked);
+                  updateNameVisible(checked);
+                }}
+              />
+            </label>
+            <label className="flex items-center gap-1.5 text-sm text-foreground">
+              <span>图标字码</span>
+              <Switch
+                size="small"
+                checked={showCode}
+                onChange={(checked) => {
+                  setShowCode(checked);
+                  updateCodeVisible(checked);
+                }}
+              />
+            </label>
           </div>
         )}
         {actionBarType === 'order' && (
@@ -133,7 +146,7 @@ function IconToolbar({
           <div className="pr-1.5">
             <Button
               shape="circle"
-              icon={<Eye size={14} />}
+              icon={<Eye size={16} />}
               onClick={() => handleToggleActionBar('visual')}
             />
           </div>

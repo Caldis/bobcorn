@@ -3,17 +3,17 @@ const { electronAPI } = window;
 // React
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 // UI
-import { Dialog, confirm, Button, RadioGroup, Radio, message } from '../ui';
+import { Dialog, Button, message, confirm } from '../ui';
+import { Radio, RadioGroup } from '../ui/radio';
 // Color picker
 import { HexColorPicker } from 'react-colorful';
-// Icons
-import { Pencil, RefreshCw, Download, Trash2, Copy, ArrowRightLeft } from 'lucide-react';
+import { RefreshCw, Download, Trash2, Copy, ArrowRightLeft } from 'lucide-react';
 // Components
 import EnhanceInput from '../enhance/input';
 // Utils
 import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
-import { extractSvgColors, replaceSvgColor } from '../../utils/svg/colors';
+import { extractSvgColors, replaceSvgColor, parseCssColor } from '../../utils/svg/colors';
 import { platform } from '../../utils/tools';
 // Database
 import db from '../../database';
@@ -97,6 +97,10 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
       prevSelectedIconRef.current = selectedIcon;
       if (selectedIcon) {
         sync(selectedIcon);
+        // 保存选中时的原始内容，用于颜色重置
+        const data = db.getIconData(selectedIcon);
+        setOriginalIconContent(data.iconContent);
+        setEditingColorIdx(null);
       }
     }
   }, [selectedIcon]);
@@ -283,31 +287,59 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
     setIconGroupEditModelTarget(e.target.value);
   };
 
-  // 缓存分组列表 — 复用上方已订阅的 groupData
+  // Cache group list — re-derive only when groupData subscription changes
   const groupList = useMemo(() => db.getGroupList(), [groupData]);
-  const groupNum = groupList.length;
 
+  // 构建模态框内的分组列表
   const buildSelectableGroupList = () => {
-    return groupList.map((group: any) => (
-      <Radio key={group.id} style={radioStyle} value={group.id}>
-        {group.groupName}
-      </Radio>
-    ));
+    return groupList.map((group: any) => {
+      return (
+        <Radio key={group.id} style={radioStyle} value={group.id}>
+          {group.groupName}
+        </Radio>
+      );
+    });
   };
 
+  const groupNum = groupList.length;
+
   // 颜色编辑
+  const colorSectionRef = useRef<HTMLDivElement>(null);
   const [editingColorIdx, setEditingColorIdx] = useState<number | null>(null);
+  const [colorInputValue, setColorInputValue] = useState<string>('');
+  const [colorInputError, setColorInputError] = useState<boolean>(false);
+  const [originalIconContent, setOriginalIconContent] = useState<string | null>(null);
+
   const svgColors = useMemo(() => {
     if (!iconData.iconContent) return [];
     return extractSvgColors(iconData.iconContent);
   }, [iconData.iconContent]);
 
-  const handleColorChange = useCallback(
+  // 点击颜色区域外部时关闭编辑面板
+  useEffect(() => {
+    if (editingColorIdx === null) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (colorSectionRef.current && !colorSectionRef.current.contains(e.target as Node)) {
+        setEditingColorIdx(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [editingColorIdx]);
+
+  // 当切换编辑的颜色时，同步输入框
+  useEffect(() => {
+    if (editingColorIdx !== null && svgColors[editingColorIdx]) {
+      setColorInputValue(svgColors[editingColorIdx].color);
+      setColorInputError(false);
+    }
+  }, [editingColorIdx]);
+
+  const applyColor = useCallback(
     (newColor: string) => {
       if (editingColorIdx === null || !svgColors[editingColorIdx]) return;
       const oldColor = svgColors[editingColorIdx].color;
       const updatedSvg = replaceSvgColor(iconData.iconContent, oldColor, newColor);
-      // sf() wraps in single quotes; escape internal quotes for SQL safety
       const escaped = updatedSvg.replace(/'/g, "''");
       db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
       sync(selectedIcon);
@@ -315,6 +347,52 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
     },
     [editingColorIdx, svgColors, iconData.iconContent, selectedIcon]
   );
+
+  const handleColorChange = useCallback(
+    (newColor: string) => {
+      applyColor(newColor);
+      setColorInputValue(newColor);
+      setColorInputError(false);
+    },
+    [applyColor]
+  );
+
+  const handleColorInputConfirm = useCallback(() => {
+    const hex = parseCssColor(colorInputValue);
+    if (hex) {
+      applyColor(hex);
+      setColorInputError(false);
+    } else {
+      setColorInputError(true);
+    }
+  }, [colorInputValue, applyColor]);
+
+  const handleEyeDropper = useCallback(async () => {
+    try {
+      // EyeDropper API (Chromium/Electron)
+      const dropper = new (window as any).EyeDropper();
+      const result = await dropper.open();
+      const hex = result.sRGBHex?.toLowerCase();
+      if (hex) {
+        applyColor(hex);
+        setColorInputValue(hex);
+        setColorInputError(false);
+      }
+    } catch {
+      // 用户按 Esc 取消，忽略
+    }
+  }, [applyColor]);
+
+  const colorChanged = originalIconContent !== null && iconData.iconContent !== originalIconContent;
+
+  const handleResetColors = useCallback(() => {
+    if (!originalIconContent || !selectedIcon) return;
+    const escaped = originalIconContent.replace(/'/g, "''");
+    db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
+    sync(selectedIcon);
+    syncLeft();
+    setEditingColorIdx(null);
+  }, [originalIconContent, selectedIcon]);
 
   return (
     <div
@@ -411,7 +489,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
 
           {/* Section: 颜色编辑 */}
           {svgColors.length > 0 && (
-            <div className="mb-4">
+            <div className="mb-4" ref={colorSectionRef}>
               <h4
                 className={cn(
                   'text-xs font-semibold uppercase tracking-wider',
@@ -420,13 +498,13 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
                   'border-b border-border'
                 )}
               >
-                颜色 ({svgColors.length})
+                颜色
               </h4>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {svgColors.map((c, i) => (
                   <button
                     key={c.color}
-                    title={`${c.color} (${c.count})`}
+                    title={c.color}
                     onClick={() => setEditingColorIdx(editingColorIdx === i ? null : i)}
                     className={cn(
                       'w-7 h-7 rounded-md border-2 transition-all duration-150',
@@ -440,21 +518,95 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
                 ))}
               </div>
               {editingColorIdx !== null && svgColors[editingColorIdx] && (
-                <div className="rounded-lg border border-border bg-surface-muted p-3">
-                  <div className="mb-2 flex items-center justify-between text-xs">
-                    <span className="text-foreground-muted">
-                      {svgColors[editingColorIdx].color}
-                    </span>
-                    <span className="text-foreground-muted">
-                      {svgColors[editingColorIdx].count} 处使用
-                    </span>
-                  </div>
+                <div
+                  className={cn(
+                    'absolute left-0 right-0 z-50 mx-3',
+                    'rounded-lg border border-border',
+                    'bg-surface dark:bg-surface',
+                    'shadow-lg dark:shadow-black/40',
+                    'p-3'
+                  )}
+                >
                   <HexColorPicker
                     color={svgColors[editingColorIdx].color}
                     onChange={handleColorChange}
                     style={{ width: '100%', height: 140 }}
                   />
+                  {/* 颜色值输入框 — 支持 hex/rgb/hsl/hwb 等任意 CSS 颜色格式 */}
+                  <div className="mt-2 flex gap-1.5 items-center">
+                    <input
+                      type="text"
+                      value={colorInputValue}
+                      onChange={(e) => {
+                        setColorInputValue(e.target.value);
+                        setColorInputError(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleColorInputConfirm();
+                      }}
+                      onBlur={handleColorInputConfirm}
+                      placeholder="hex / rgb / hsl / hwb"
+                      className={cn(
+                        'flex-1 min-w-0 px-2 py-1 rounded text-xs font-mono',
+                        'bg-surface dark:bg-surface',
+                        'border transition-colors duration-150',
+                        'outline-none focus:ring-1',
+                        colorInputError
+                          ? 'border-red-400 focus:ring-red-300'
+                          : 'border-border focus:ring-brand-300 dark:focus:ring-brand-700',
+                        'text-foreground dark:text-foreground',
+                        'placeholder:text-foreground-muted/50'
+                      )}
+                    />
+                    {/* 取色器按钮 */}
+                    <button
+                      title="从屏幕取色"
+                      onClick={handleEyeDropper}
+                      className={cn(
+                        'w-7 h-7 rounded border border-border shrink-0',
+                        'flex items-center justify-center',
+                        'bg-surface hover:bg-surface-accent',
+                        'transition-colors duration-150',
+                        'text-foreground-muted hover:text-foreground',
+                        'cursor-pointer'
+                      )}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m2 22 1-1h3l9-9" />
+                        <path d="M3 21v-3l9-9" />
+                        <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3L15 6" />
+                      </svg>
+                    </button>
+                    {/* 颜色预览色块 */}
+                    <div
+                      className="w-7 h-7 rounded border border-border shrink-0"
+                      style={{ backgroundColor: colorInputValue }}
+                    />
+                  </div>
                 </div>
+              )}
+              {colorChanged && (
+                <button
+                  onClick={handleResetColors}
+                  className={cn(
+                    'mt-2 w-full py-1 rounded text-xs',
+                    'border border-border',
+                    'text-foreground-muted hover:text-foreground',
+                    'bg-surface hover:bg-surface-accent',
+                    'transition-colors duration-150 cursor-pointer'
+                  )}
+                >
+                  恢复初始颜色
+                </button>
               )}
             </div>
           )}
@@ -471,19 +623,16 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
             >
               高级操作
             </h4>
-            <div className="grid grid-cols-2 gap-1.5">
-              <Button className="!w-full" icon={<Pencil size={14} />} disabled>
-                编辑
-              </Button>
+            <Button className="!w-full" icon={<Download size={14} />} onClick={handleIconExport}>
+              导出
+            </Button>
+            <div className="grid grid-cols-2 gap-1.5 mt-1.5">
               <Button
                 className="!w-full"
                 icon={<RefreshCw size={14} />}
                 onClick={handleIconContentUpdate}
               >
                 替换
-              </Button>
-              <Button className="!w-full" icon={<Download size={14} />} onClick={handleIconExport}>
-                导出
               </Button>
               <Button
                 className="!w-full"
@@ -495,8 +644,6 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
                 {selectedGroup === 'resource-recycleBin' ? '删除' : '回收'}
               </Button>
             </div>
-
-            {/* Copy / Move row */}
             <div className="grid grid-cols-2 gap-1.5 mt-1.5">
               <Button
                 disabled={groupNum === 0}
@@ -533,9 +680,9 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
 
       {/* 组选择模态框 */}
       <Dialog
-        title={iconGroupEditModelTitle}
         open={iconGroupEditModelVisible}
         onClose={handleCancelIconGroupEdit}
+        title={iconGroupEditModelTitle}
         footer={[
           <Button key="cancel" size="large" onClick={handleCancelIconGroupEdit}>
             取消

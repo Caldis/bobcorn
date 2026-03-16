@@ -1,5 +1,5 @@
 // React
-import React, { useRef, useEffect } from 'react';
+import React, { useMemo, useCallback } from 'react';
 // Style — minimal residual CSS module for SVG sizing rules only
 import style from './index.module.css';
 // UI
@@ -25,7 +25,7 @@ interface IconBlockProps {
   handleIconSelected?: (id: string, data: IconData) => void;
 }
 
-function IconBlock({
+const IconBlock = React.memo(function IconBlock({
   selected = false,
   checked,
   data = {} as IconData,
@@ -37,27 +37,21 @@ function IconBlock({
   codeVisible = true,
   handleIconSelected,
 }: IconBlockProps) {
-  const iconBlockRef = useRef<HTMLDivElement>(null);
+  // Memoize sanitized SVG — only re-sanitize when content changes
+  const sanitizedHtml = useMemo(() => sanitizeSVG(content), [content]);
 
-  useEffect(() => {
-    const selfDOM = iconBlockRef.current;
-    if (selfDOM) {
-      selfDOM.style.width = selfDOM.clientWidth + 'px';
-    }
-  }, []);
-
-  const handleSelected = () => {
+  const handleSelected = useCallback(() => {
     handleIconSelected?.(data.id, data);
-  };
+  }, [data.id]);
 
   return (
     <div
       data-testid="icon-block"
       className={cn(
         // Layout
-        'relative inline-block text-center z-[1]',
+        'relative text-center z-[1]',
         // Spacing
-        'm-0.5 p-2',
+        'p-2',
         // Card shape
         'rounded-lg',
         // Border — transparent by default, accent when selected
@@ -81,55 +75,48 @@ function IconBlock({
     >
       {/* Checkbox overlay */}
       {checked !== undefined && (
-        <div className="absolute -top-0.5 -right-1.5 z-10">
-          <Checkbox checked={checked} />
-        </div>
+        <Checkbox className="absolute -top-0.5 -right-1.5 z-10" checked={checked} />
       )}
 
       {/* Icon preview area */}
-      <div
-        className={cn(style.iconContentContainer, 'mx-auto w-[120px] transition-all duration-500')}
-        style={{ width: width }}
-        ref={iconBlockRef}
-      >
+      <div className={cn(style.iconContentContainer, 'mx-auto w-[120px]')} style={{ width }}>
         <div
           className={cn(
             style.iconContentWrapper,
             'flex items-center justify-center',
-            // Ensure SVG fills the container nicely
             '[&>svg]:w-full [&>svg]:h-full'
           )}
-          dangerouslySetInnerHTML={{ __html: sanitizeSVG(content) }}
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
         />
       </div>
 
       {/* Name and code labels */}
-      <div className="w-full transition-all duration-300" style={{ width: width }}>
+      <div className="w-full" style={{ width }}>
         <p
           className={cn(
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
             'text-xs font-semibold antialiased',
-            'mb-1 transition-all duration-300',
+            'mb-1',
             'text-foreground dark:text-foreground'
           )}
-          style={{ height: nameVisible ? 18 : 0 }}
+          style={{ height: nameVisible ? 18 : 0, overflow: 'hidden' }}
         >
           {name}
         </p>
         <p
           className={cn(
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
-            'text-xs font-mono',
-            'mb-1 transition-all duration-300',
-            'text-foreground-muted dark:text-foreground-muted'
+            'text-[10px] font-semibold tracking-widest',
+            'mb-1',
+            'text-foreground-muted/60 dark:text-foreground-muted/60'
           )}
-          style={{ height: codeVisible ? 18 : 0 }}
+          style={{ height: codeVisible ? 18 : 0, overflow: 'hidden' }}
         >
           {code}
         </p>
       </div>
     </div>
   );
-}
+});
 
 export default IconBlock;
