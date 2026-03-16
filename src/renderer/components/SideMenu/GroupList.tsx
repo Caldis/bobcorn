@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
@@ -15,15 +15,17 @@ import useAppStore from '../../store';
 import addGroupHint from '../../resources/imgs/nodata/addGroupHint.png';
 import type { GroupData } from './types';
 
-// 可排序分组项组件
-function SortableGroupItem({
+// 可排序分组项组件 — memo 防止父级重渲染导致每个分组项都重新查 DB
+const SortableGroupItem = React.memo(function SortableGroupItem({
   group,
   isSelected,
+  iconCount,
   onSelect,
   onEdit,
 }: {
   group: GroupData;
   isSelected: boolean;
+  iconCount: number;
   onSelect: () => void;
   onEdit: () => void;
 }) {
@@ -54,7 +56,7 @@ function SortableGroupItem({
       <span className="flex-1 truncate">{group.groupName}</span>
       <span className="relative shrink-0 w-5 h-5 flex items-center justify-center">
         <span className="text-xs text-foreground-muted group-hover:opacity-0 transition-opacity">
-          {db.getIconCountFromGroup(group.id)}
+          {iconCount}
         </span>
         <button
           className="absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10"
@@ -68,9 +70,10 @@ function SortableGroupItem({
       </span>
     </div>
   );
-}
+});
 
 interface GroupListProps {
+  groupData: GroupData[];
   selectedGroup: string;
   sideMenuWrapperRef: React.RefObject<HTMLDivElement>;
   onMenuItemSelected: (key: string) => void;
@@ -78,17 +81,25 @@ interface GroupListProps {
   onShowEditGroup: (group: GroupData) => void;
 }
 
-function GroupList({
+const GroupList = React.memo(function GroupList({
+  groupData,
   selectedGroup,
   sideMenuWrapperRef,
   onMenuItemSelected,
   onShowAddGroup,
   onShowEditGroup,
 }: GroupListProps) {
-  const groupData: GroupData[] = useAppStore((state: any) => state.groupData);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
 
-  // 分组拖拽排序
+  // 批量缓存所有分组的图标计数 — 只在 groupData 变化时重算
+  const groupIconCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    groupData.forEach((g) => {
+      counts[g.id] = db.getIconCountFromGroup(g.id);
+    });
+    return counts;
+  }, [groupData]);
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -106,7 +117,6 @@ function GroupList({
 
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={sideMenuWrapperRef}>
-      {/* 分组标题栏 */}
       <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
         <Tags size={14} className="text-foreground-muted" />
         <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
@@ -120,7 +130,6 @@ function GroupList({
         </button>
       </div>
 
-      {/* 可排序分组列表 */}
       {groupData.length > 0 && (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
@@ -133,6 +142,7 @@ function GroupList({
                   key={group.id}
                   group={group}
                   isSelected={selectedGroup === group.id}
+                  iconCount={groupIconCounts[group.id] || 0}
                   onSelect={() => onMenuItemSelected(group.id)}
                   onEdit={() => onShowEditGroup(group)}
                 />
@@ -149,11 +159,11 @@ function GroupList({
         >
           <img className="mx-auto w-[120px] opacity-60" src={addGroupHint} alt="添加分组" />
           <p className="mb-1 mt-3 text-sm">还没有分组</p>
-          <p className="text-xs text-foreground-muted">点击上方的 "+"可以创建分组</p>
+          <p className="text-xs text-foreground-muted">点击上方的 &quot;+&quot;可以创建分组</p>
         </div>
       )}
     </div>
   );
-}
+});
 
 export default GroupList;

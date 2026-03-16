@@ -38,7 +38,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['"Inter"', '"SF Pro Display"', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+        mono: ['"Cascadia Code"', '"Consolas"', '"SF Mono"', '"Menlo"', 'monospace'],
       },
     },
   },

@@ -1,7 +1,7 @@
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 // React
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 // UI
 import { confirm, message } from '../ui';
 // Config
@@ -57,10 +57,13 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
   }, [selectedGroupProp]);
 
   // 菜单选择
-  const handleMenuItemSelected = (e: { key: string }) => {
-    setSelectedGroup(e.key);
-    handleGroupSelected(e.key);
-  };
+  const handleMenuItemSelected = useCallback(
+    (e: { key: string }) => {
+      setSelectedGroup(e.key);
+      handleGroupSelected(e.key);
+    },
+    [handleGroupSelected]
+  );
 
   // 导入
   const handleImportClick = (e: { key: string }) => {

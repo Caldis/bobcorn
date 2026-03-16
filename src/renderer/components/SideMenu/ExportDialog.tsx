@@ -48,7 +48,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
   // 当对话框打开时初始化分组列表
   const initGroupList = () => {
-    const groupList: ExportGroupOption[] = db.getGroupList().map((group: any) => ({
+    const groups = db.getGroupList();
+    const totalIcons = db.getIconCount();
+    const groupList: ExportGroupOption[] = groups.map((group: any) => ({
       label: group.groupName,
       value: group.id,
     }));
@@ -56,9 +58,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     setExportGroupSelected(groupList.map((group) => group.value));
     setExportGroupIndeterminate(false);
     setExportGroupCheckAll(true);
-    setExportTotalIcons(db.getIconCount());
-    setExportTotalGroups(db.getGroupList().length);
-    setExportSelectedIconCount(db.getIconCount());
+    setExportTotalIcons(totalIcons);
+    setExportTotalGroups(groups.length);
+    setExportSelectedIconCount(totalIcons);
   };
 
   // 当 visible 变为 true 时初始化

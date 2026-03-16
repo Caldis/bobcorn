@@ -51,9 +51,7 @@ export function Dropdown({ overlay, menu, children, className }: DropdownProps) 
 
   return (
     <DropdownMenuPrimitive.Root>
-      <DropdownMenuPrimitive.Trigger asChild className={className}>
-        {children}
-      </DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Trigger asChild>{children}</DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
           sideOffset={4}

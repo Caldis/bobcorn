@@ -9,7 +9,11 @@ interface ImportExportBarProps {
   onShowEditPrefix: () => void;
 }
 
-function ImportExportBar({ onImportClick, onExportClick, onShowEditPrefix }: ImportExportBarProps) {
+const ImportExportBar = React.memo(function ImportExportBar({
+  onImportClick,
+  onExportClick,
+  onShowEditPrefix,
+}: ImportExportBarProps) {
   const darkMode = useAppStore((state: any) => state.darkMode);
   const toggleDarkMode = useAppStore((state: any) => state.toggleDarkMode);
 
@@ -55,6 +59,6 @@ function ImportExportBar({ onImportClick, onExportClick, onShowEditPrefix }: Imp
       />
     </div>
   );
-}
+});
 
 export default ImportExportBar;

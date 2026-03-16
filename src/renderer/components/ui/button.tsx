@@ -57,7 +57,7 @@ export function Button({
           : 'rounded-md',
         // Type
         effectiveType === 'default' &&
-          'border-border bg-surface text-foreground hover:bg-surface-muted hover:border-brand-400 dark:hover:border-brand-500',
+          'border-border bg-surface text-foreground hover:bg-surface-muted hover:border-brand-400 dark:hover:border-brand-500 data-[state=open]:bg-surface-muted data-[state=open]:border-brand-400',
         effectiveType === 'primary' &&
           'border-brand-500 bg-brand-500 text-white hover:bg-brand-600 hover:border-brand-600',
         effectiveType === 'danger' &&
