@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, Button } from '../ui';
 import { message } from '../ui/toast';
+import { confirm } from '../ui/dialog';
 import EnhanceInput from '../enhance/input';
 import db from '../../database';
 import useAppStore from '../../store';
@@ -9,80 +10,68 @@ import type { GroupData } from './types';
 interface GroupDialogsProps {
   // 添加分组
   addGroupVisible: boolean;
-  onAddGroupClose: () => void;
+  onCloseAddGroup: () => void;
   onGroupAdded: (groupId: string) => void;
-  scrollToBottom: () => void;
-  // 编辑分组
-  editGroupVisible: boolean;
-  onEditGroupClose: () => void;
+  sideMenuWrapperRef: React.RefObject<HTMLDivElement>;
+  // 编辑分组（改名/删除）
   editingGroupData: GroupData | null;
-  onGroupEdited: (groupId: string) => void;
-  // 删除分组
+  editGroupVisible: boolean;
+  onCloseEditGroup: () => void;
   onGroupDeleted: () => void;
+  onGroupRenamed: (groupId: string) => void;
 }
 
 function GroupDialogs({
   addGroupVisible,
-  onAddGroupClose,
+  onCloseAddGroup,
   onGroupAdded,
-  scrollToBottom,
-  editGroupVisible,
-  onEditGroupClose,
+  sideMenuWrapperRef,
   editingGroupData,
-  onGroupEdited,
+  editGroupVisible,
+  onCloseEditGroup,
   onGroupDeleted,
+  onGroupRenamed,
 }: GroupDialogsProps) {
   const syncLeft = useAppStore((state: any) => state.syncLeft);
 
-  // 添加分组 state
+  // 添加分组
   const [newGroupNameText, setNewGroupNameText] = useState<string | null>(null);
   const [newGroupNameErrText, setNewGroupNameErrText] = useState<string | null>(null);
 
-  // 修改组名 state
-  const [groupNameChangeModelVisible, setGroupNameChangeModelVisible] = useState<boolean>(false);
+  // 修改组名（编辑分组弹窗改为直接显示改名输入框）
   const [editingGroupNameText, setEditingGroupNameText] = useState<string | null>(null);
   const [editingGroupNameErrText, setEditingGroupNameErrText] = useState<string | null>(null);
-
-  // 删除分组 state
-  const [deleteGroupModelVisible, setDeleteGroupModelVisible] = useState<boolean>(false);
-
-  // --- 添加分组 ---
-  const handleEnsureAddGroup = () => {
-    if (newGroupNameText) {
-      db.addGroup(newGroupNameText, (group: GroupData) => {
-        message.success('添加分组成功');
-        syncLeft();
-        onAddGroupClose();
-        onGroupAdded(group.id);
-        scrollToBottom();
-      });
-    } else {
-      setNewGroupNameErrText('请输入一个分组名称');
-    }
-  };
-
-  const handleCancelAddGroup = () => {
-    onAddGroupClose();
-  };
-
-  const onNewGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewGroupNameText(e.target.value);
-  };
 
   // Reset add group state when dialog opens
   const prevAddVisibleRef = React.useRef(false);
   if (addGroupVisible && !prevAddVisibleRef.current) {
-    // Dialog just opened — reset fields
     setNewGroupNameText(null);
     setNewGroupNameErrText(null);
   }
   prevAddVisibleRef.current = addGroupVisible;
 
-  // --- 修改组名 ---
-  const handleShowGroupNameChange = () => {
-    setGroupNameChangeModelVisible(true);
-    setEditingGroupNameText(editingGroupData!.groupName);
+  // Reset edit state when dialog opens
+  const prevEditVisibleRef = React.useRef(false);
+  if (editGroupVisible && !prevEditVisibleRef.current && editingGroupData) {
+    setEditingGroupNameText(editingGroupData.groupName);
     setEditingGroupNameErrText(null);
+  }
+  prevEditVisibleRef.current = editGroupVisible;
+
+  const handleEnsureAddGroup = () => {
+    if (newGroupNameText) {
+      db.addGroup(newGroupNameText, (group: GroupData) => {
+        message.success('添加分组成功');
+        syncLeft();
+        onCloseAddGroup();
+        onGroupAdded(group.id);
+        if (sideMenuWrapperRef.current) {
+          sideMenuWrapperRef.current.scrollTop = 100000;
+        }
+      });
+    } else {
+      setNewGroupNameErrText('请输入一个分组名称');
+    }
   };
 
   const handleEnsureGroupNameChange = () => {
@@ -90,40 +79,29 @@ function GroupDialogs({
       db.setGroupName(editingGroupData!.id, editingGroupNameText, () => {
         message.success('组名已修改');
         syncLeft();
-        setGroupNameChangeModelVisible(false);
-        onEditGroupClose();
-        onGroupEdited(editingGroupData!.id);
+        onCloseEditGroup();
+        onGroupRenamed(editingGroupData!.id);
       });
     } else {
       setEditingGroupNameErrText('分组名称不能为空');
     }
   };
 
-  const handleCancelGroupNameChange = () => {
-    setGroupNameChangeModelVisible(false);
-  };
-
-  const onEditingGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditingGroupNameText(e.target.value);
-  };
-
-  // --- 删除分组 ---
-  const handleShowDeleteGroup = () => {
-    setDeleteGroupModelVisible(true);
-  };
-
-  const handleEnsureDeleteGroup = () => {
-    db.delGroup(editingGroupData!.id, () => {
-      message.success('分组已删除');
-      syncLeft();
-      setDeleteGroupModelVisible(false);
-      onEditGroupClose();
-      onGroupDeleted();
+  const handleDeleteGroup = () => {
+    confirm({
+      title: '删除分组',
+      content: `确定要删除分组「${editingGroupData?.groupName}」吗？该分组内的所有图标也会被一并移除。`,
+      okText: '删除',
+      okType: 'danger',
+      onOk() {
+        db.delGroup(editingGroupData!.id, () => {
+          message.success('分组已删除');
+          syncLeft();
+          onCloseEditGroup();
+          onGroupDeleted();
+        });
+      },
     });
-  };
-
-  const handleCancelDeleteGroup = () => {
-    setDeleteGroupModelVisible(false);
   };
 
   return (
@@ -131,11 +109,11 @@ function GroupDialogs({
       {/*添加分组对话框*/}
       <Dialog
         open={addGroupVisible}
-        onClose={handleCancelAddGroup}
+        onClose={onCloseAddGroup}
         title="添加分组"
         footer={
           <>
-            <Button onClick={handleCancelAddGroup}>取消</Button>
+            <Button onClick={onCloseAddGroup}>取消</Button>
             <Button type="primary" onClick={handleEnsureAddGroup}>
               确认
             </Button>
@@ -146,7 +124,9 @@ function GroupDialogs({
           <EnhanceInput
             placeholder="分组名称"
             value={newGroupNameText}
-            onChange={onNewGroupNameChange}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setNewGroupNameText(e.target.value)
+            }
             onPressEnter={handleEnsureAddGroup}
             inputTitle="请输入要创建的分组名"
             inputHintText={newGroupNameErrText}
@@ -155,28 +135,18 @@ function GroupDialogs({
         </div>
       </Dialog>
 
-      {/*编辑分组对话框*/}
-      <Dialog open={editGroupVisible} onClose={onEditGroupClose} title="编辑分组" footer={null}>
-        <div className="flex flex-col gap-2.5 py-2">
-          <Button size="large" className="!w-full" onClick={handleShowGroupNameChange}>
-            修改分组名
-          </Button>
-          <Button size="large" danger className="!w-full" onClick={handleShowDeleteGroup}>
-            删除这个分组
-          </Button>
-        </div>
-      </Dialog>
-
-      {/*修改组名对话框*/}
+      {/*编辑分组对话框 — 改名 + 删除*/}
       <Dialog
-        open={groupNameChangeModelVisible}
-        onClose={handleCancelGroupNameChange}
-        title="修改分组名称"
+        open={editGroupVisible}
+        onClose={onCloseEditGroup}
+        title="编辑分组"
         footer={
           <>
-            <Button onClick={handleCancelGroupNameChange}>取消</Button>
+            <Button danger onClick={handleDeleteGroup}>
+              删除分组
+            </Button>
             <Button type="primary" onClick={handleEnsureGroupNameChange}>
-              确认修改
+              保存
             </Button>
           </>
         }
@@ -185,39 +155,14 @@ function GroupDialogs({
           <EnhanceInput
             placeholder="分组名称"
             value={editingGroupNameText}
-            onChange={onEditingGroupNameChange}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEditingGroupNameText(e.target.value)
+            }
             onPressEnter={handleEnsureGroupNameChange}
-            inputTitle="请输入新的分组名"
+            inputTitle="分组名称"
             inputHintText={editingGroupNameErrText}
             inputHintBadgeType="error"
           />
-        </div>
-      </Dialog>
-
-      {/*删除分组对话框*/}
-      <Dialog
-        open={deleteGroupModelVisible}
-        onClose={handleCancelDeleteGroup}
-        title="删除分组"
-        footer={
-          <>
-            <Button size="large" onClick={handleCancelDeleteGroup}>
-              取消
-            </Button>
-            <Button size="large" danger onClick={handleEnsureDeleteGroup}>
-              删除
-            </Button>
-          </>
-        }
-      >
-        <div className="py-2 text-center">
-          <p className="text-foreground-muted">以下的分组将会被删除</p>
-          <p className="my-2">
-            <b className="text-xl text-foreground">
-              {editingGroupData && editingGroupData.groupName}
-            </b>
-          </p>
-          <p className="text-foreground-muted">该分组内的所有图标也会被一并移除</p>
         </div>
       </Dialog>
     </>

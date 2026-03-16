@@ -1,6 +1,6 @@
 import React from 'react';
 import { LogIn, Save, Settings, Sun, Moon } from 'lucide-react';
-import { Button, ButtonGroup, Dropdown } from '../ui';
+import { Button, Dropdown } from '../ui';
 import useAppStore from '../../store';
 
 interface ImportExportBarProps {
@@ -19,7 +19,7 @@ const ImportExportBar = React.memo(function ImportExportBar({
 
   return (
     <div className="flex shrink-0 items-center gap-1.5 border-t border-border px-3 h-[49px] pb-1">
-      <ButtonGroup style={{ flex: 1 }}>
+      <div className="flex flex-1">
         <Dropdown
           menu={{
             items: [
@@ -29,33 +29,28 @@ const ImportExportBar = React.memo(function ImportExportBar({
             onClick: onImportClick,
           }}
         >
-          <Button className="!rounded-l-md" style={{ width: '50%' }} icon={<LogIn size={14} />}>
+          <Button className="!rounded-r-none !-mr-px flex-1" icon={<LogIn size={14} />}>
             导入
           </Button>
         </Dropdown>
         <Button
-          className="!rounded-r-md"
-          style={{ width: '50%' }}
+          className="!rounded-l-none flex-1"
           onClick={onExportClick}
           icon={<Save size={14} />}
         >
           导出
         </Button>
-      </ButtonGroup>
+      </div>
       <Button
         data-testid="settings-btn"
-        type="default"
         shape="circle"
         icon={<Settings size={14} />}
         onClick={onShowEditPrefix}
-        className="shrink-0 !border-border hover:!border-brand-400 hover:!text-brand-500"
       />
       <Button
-        type="default"
         shape="circle"
         icon={darkMode ? <Sun size={14} /> : <Moon size={14} />}
         onClick={toggleDarkMode}
-        className="shrink-0 !border-border hover:!border-brand-400 hover:!text-brand-500"
       />
     </div>
   );

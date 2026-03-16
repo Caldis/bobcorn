@@ -1,87 +1,97 @@
-import React from 'react';
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '../../lib/utils';
 
 interface MenuItem {
   key: string;
   label?: React.ReactNode;
   disabled?: boolean;
-  children?: React.ReactNode;
 }
 
 interface MenuConfig {
   items?: MenuItem[];
   onClick?: (info: { key: string }) => void;
-  className?: string;
 }
 
 interface DropdownProps {
-  /** Legacy antd-style overlay: a React element with onClick and children Menu.Items */
-  overlay?: React.ReactElement<any>;
-  /** New items-based config */
   menu?: MenuConfig;
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactElement;
 }
 
-export function Dropdown({ overlay, menu, children, className }: DropdownProps) {
-  // Extract menu items from overlay (legacy antd Menu element) or menu config
-  let items: MenuItem[] = [];
-  let onClick: ((info: { key: string }) => void) | undefined;
+export function Dropdown({ menu, children }: DropdownProps) {
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const items = menu?.items || [];
+  const onClick = menu?.onClick;
 
-  if (menu) {
-    items = menu.items || [];
-    onClick = menu.onClick;
-  } else if (overlay && React.isValidElement(overlay)) {
-    // Extract from antd-like Menu element: props.onClick, props.children (Menu.Items)
-    const overlayProps = overlay.props as any;
-    onClick = overlayProps.onClick;
-    // Extract children as items
-    React.Children.forEach(overlayProps.children, (child: any) => {
-      if (React.isValidElement(child)) {
-        const childProps = child.props as any;
-        items.push({
-          key: childProps.eventKey || childProps.key || String(items.length),
-          label: childProps.children,
-          disabled: childProps.disabled,
-        });
-      }
-    });
-  }
+  useEffect(() => {
+    if (!open) return;
+    // 计算菜单位置
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPos({ top: rect.top - 4, left: rect.left });
+    }
+    const handleClose = (e: MouseEvent) => {
+      if (menuRef.current?.contains(e.target as Node)) return;
+      if (triggerRef.current?.contains(e.target as Node)) return;
+      setOpen(false);
+    };
+    setTimeout(() => document.addEventListener('mousedown', handleClose), 0);
+    return () => document.removeEventListener('mousedown', handleClose);
+  }, [open]);
+
+  // 克隆子元素，注入 ref 和 onClick
+  const trigger = React.cloneElement(children, {
+    ref: triggerRef,
+    onClick: (e: React.MouseEvent) => {
+      children.props.onClick?.(e);
+      setOpen(!open);
+    },
+  });
 
   return (
-    <DropdownMenuPrimitive.Root>
-      <DropdownMenuPrimitive.Trigger asChild>{children}</DropdownMenuPrimitive.Trigger>
-      <DropdownMenuPrimitive.Portal>
-        <DropdownMenuPrimitive.Content
-          sideOffset={4}
-          className={cn(
-            'z-50 min-w-[120px] overflow-hidden rounded-md',
-            'border border-border bg-surface shadow-lg',
-            'p-1',
-            'animate-in fade-in-0 zoom-in-95'
-          )}
-        >
-          {items.map((item) => (
-            <DropdownMenuPrimitive.Item
-              key={item.key}
-              disabled={item.disabled}
-              onSelect={() => onClick?.({ key: item.key })}
-              className={cn(
-                'relative flex cursor-pointer select-none items-center',
-                'rounded-sm px-3 py-1.5 text-sm text-foreground',
-                'outline-none',
-                'transition-colors duration-100',
-                'hover:bg-surface-accent hover:text-brand-500',
-                'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none'
-              )}
-            >
-              {item.label || item.children}
-            </DropdownMenuPrimitive.Item>
-          ))}
-        </DropdownMenuPrimitive.Content>
-      </DropdownMenuPrimitive.Portal>
-    </DropdownMenuPrimitive.Root>
+    <>
+      {trigger}
+      {open &&
+        createPortal(
+          <div
+            ref={menuRef}
+            style={{
+              position: 'fixed',
+              top: pos.top,
+              left: pos.left,
+              transform: 'translateY(-100%)',
+            }}
+            className={cn(
+              'z-[9999] min-w-[120px] overflow-hidden rounded-md',
+              'border border-border bg-surface shadow-lg',
+              'p-1'
+            )}
+          >
+            {items.map((item) => (
+              <button
+                key={item.key}
+                disabled={item.disabled}
+                onClick={() => {
+                  onClick?.({ key: item.key });
+                  setOpen(false);
+                }}
+                className={cn(
+                  'w-full text-left rounded-sm px-3 py-1.5 text-sm text-foreground',
+                  'transition-colors duration-100',
+                  'hover:bg-surface-accent hover:text-brand-500',
+                  'disabled:opacity-50 disabled:pointer-events-none'
+                )}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
 

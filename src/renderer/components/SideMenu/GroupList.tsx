@@ -76,7 +76,7 @@ interface GroupListProps {
   groupData: GroupData[];
   selectedGroup: string;
   sideMenuWrapperRef: React.RefObject<HTMLDivElement>;
-  onMenuItemSelected: (key: string) => void;
+  onMenuItemSelected: (e: { key: string }) => void;
   onShowAddGroup: () => void;
   onShowEditGroup: (group: GroupData) => void;
 }
@@ -143,7 +143,7 @@ const GroupList = React.memo(function GroupList({
                   group={group}
                   isSelected={selectedGroup === group.id}
                   iconCount={groupIconCounts[group.id] || 0}
-                  onSelect={() => onMenuItemSelected(group.id)}
+                  onSelect={() => onMenuItemSelected({ key: group.id })}
                   onEdit={() => onShowEditGroup(group)}
                 />
               ))}

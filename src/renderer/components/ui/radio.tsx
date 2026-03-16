@@ -16,7 +16,7 @@ export function RadioGroup({ value, onChange, children, className }: RadioGroupP
   };
 
   return (
-    <div className={cn('inline-flex flex-wrap gap-0', className)}>
+    <div className={cn('flex flex-col gap-0', className)}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement<any>(child)) {
           return React.cloneElement(child, {
