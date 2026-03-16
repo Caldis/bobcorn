@@ -60,7 +60,7 @@ function TitleBarButtonGroup() {
 
   return (
     <div
-      className={cn('fixed top-0 right-[5px]', 'z-[10000]', '[-webkit-app-region:no-drag]')}
+      className={cn('fixed top-0 right-0', 'z-[10000]', '[-webkit-app-region:no-drag]')}
       id="titleBarButtonGroup"
     >
       <button className={cn(buttonBase, 'rounded-bl-[3px]')} onClick={handleWindowMinimum}>

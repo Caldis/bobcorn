@@ -37,10 +37,12 @@ const IconBlock = React.memo(function IconBlock({
   codeVisible = true,
   handleIconSelected,
 }: IconBlockProps) {
-  // 直接从 store 读 selectedIcon — 选中变化只触发相关 2 个 IconBlock 重渲染
   const selected = useAppStore((state: any) => state.selectedIcon === data.id);
+  // 热更新：优先使用 store 中 patch 的内容
+  const patchedContent = useAppStore((state: any) => state.patchedIcons?.[data.id]);
+  const effectiveContent = patchedContent || content;
 
-  const sanitizedHtml = useMemo(() => sanitizeSVG(content), [content]);
+  const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 
   const handleSelected = useCallback(() => {
     handleIconSelected?.(data.id, data);

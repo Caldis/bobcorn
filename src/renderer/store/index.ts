@@ -17,8 +17,10 @@ export interface State {
 
   // Data
   groupData: any[];
-  // 图标内容版本号 — 递增触发 SideEditor/IconBlock 刷新，不触发分组重建
+  // 图标内容版本号 — 递增触发 SideEditor 刷新
   iconContentVersion: number;
+  // 热更新的图标内容 — IconBlock 优先读这里的内容
+  patchedIcons: Record<string, string>;
 }
 
 export interface Actions {
@@ -31,7 +33,8 @@ export interface Actions {
   toggleDarkMode: () => void;
   // 分级同步
   syncLeft: () => void; // 重：刷新分组列表 + 图标网格（增删/移动图标/增删分组时用）
-  syncIconContent: () => void; // 轻：只递增版本号，触发 SideEditor 刷新（改名/改码/改色时用）
+  syncIconContent: () => void; // 轻：递增版本号，触发 SideEditor 刷新
+  patchIconContent: (iconId: string, content: string) => void; // 最轻：热更新单个图标内容
   syncAll: () => void;
 }
 
@@ -49,6 +52,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // Data
   groupData: [],
   iconContentVersion: 0,
+  patchedIcons: {},
 
   // Actions
   showSplashScreen: (show: boolean) =>
@@ -91,6 +95,11 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // 轻同步：只通知图标内容变了（不触发分组列表/计数/网格重载）
   syncIconContent: () => {
     set({ iconContentVersion: get().iconContentVersion + 1 });
+  },
+
+  // 最轻同步：热更新单个图标内容（直接更新 IconBlock，不查 DB 不重载网格）
+  patchIconContent: (iconId: string, content: string) => {
+    set({ patchedIcons: { ...get().patchedIcons, [iconId]: content } });
   },
 
   syncAll: () => {

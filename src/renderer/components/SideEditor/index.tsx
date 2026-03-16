@@ -49,6 +49,7 @@ interface SideEditorProps {
 function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
   const syncLeft = useAppStore((state: any) => state.syncLeft);
   const syncIconContent = useAppStore((state: any) => state.syncIconContent);
+  const patchIconContent = useAppStore((state: any) => state.patchIconContent);
   const selectIcon = useAppStore((state: any) => state.selectIcon);
 
   const [iconData, setIconData] = useState<IconDataRecord>({} as IconDataRecord);
@@ -346,6 +347,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
       db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
       sync(selectedIcon);
       syncIconContent();
+      patchIconContent(selectedIcon, updatedSvg);
     },
     [editingColorIdx, svgColors, iconData.iconContent, selectedIcon]
   );
@@ -393,6 +395,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
     db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
     sync(selectedIcon);
     syncIconContent();
+    patchIconContent(selectedIcon, originalIconContent);
     setEditingColorIdx(null);
   }, [originalIconContent, selectedIcon]);
 
