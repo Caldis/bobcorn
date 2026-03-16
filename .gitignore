@@ -7,3 +7,4 @@ release/
 npm-debug.log*
 test/fixtures/iconfont/
 docs/locks/*.lock
+.claude/

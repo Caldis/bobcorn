@@ -23,3 +23,34 @@ body {
     width: 100%;
     height: 100%;
 }
+
+/* ── Dialog animations (antd-style zoom from click position) ── */
+@keyframes dialog-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes dialog-overlay-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes dialog-zoom-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes dialog-zoom-out {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to   { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+}
+
+.dialog-overlay[data-state="open"] {
+  animation: dialog-overlay-in 200ms ease-out;
+}
+.dialog-overlay[data-state="closed"] {
+  animation: dialog-overlay-out 150ms ease-in forwards;
+}
+.dialog-content[data-state="open"] {
+  animation: dialog-zoom-in 250ms cubic-bezier(0.08, 0.82, 0.17, 1);
+}
+.dialog-content[data-state="closed"] {
+  animation: dialog-zoom-out 200ms cubic-bezier(0.6, 0.04, 0.98, 0.34) forwards;
+}

@@ -1,7 +1,21 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { createRoot } from 'react-dom/client';
 import { cn } from '../../lib/utils';
+
+// ── 全局鼠标位置追踪 — 记录最后一次点击坐标 ──────────────────────
+let lastClickX = 0;
+let lastClickY = 0;
+if (typeof document !== 'undefined') {
+  document.addEventListener(
+    'mousedown',
+    (e) => {
+      lastClickX = e.clientX;
+      lastClickY = e.clientY;
+    },
+    true
+  );
+}
 
 interface DialogProps {
   open: boolean;
@@ -24,6 +38,18 @@ export function Dialog({
   children,
   className,
 }: DialogProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const prevOpenRef = useRef(false);
+  const originRef = useRef('center center');
+
+  // 同步计算 transformOrigin — open 从 false→true 时立即捕获点击位置
+  if (open && !prevOpenRef.current) {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    originRef.current = `calc(50% + ${lastClickX - cx}px) calc(50% + ${lastClickY - cy}px)`;
+  }
+  prevOpenRef.current = open;
+
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
       if (!isOpen) {
@@ -59,27 +85,23 @@ export function Dialog({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           onClick={handleOverlayClick}
-          className={cn(
-            'fixed inset-0 z-50',
-            'bg-black/40 backdrop-blur-[2px]',
-            'data-[state=open]:animate-in data-[state=open]:fade-in-0',
-            'data-[state=closed]:animate-out data-[state=closed]:fade-out-0'
-          )}
+          className="dialog-overlay fixed inset-0 z-50 bg-black/40"
         />
         <DialogPrimitive.Content
+          ref={contentRef}
           onPointerDownOutside={(e) => {
             if (!maskClosable) e.preventDefault();
           }}
           onEscapeKeyDown={(e) => {
             if (!closable) e.preventDefault();
           }}
+          style={{ transformOrigin: originRef.current }}
           className={cn(
+            'dialog-content',
             'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
             'w-full max-w-md',
             'rounded-lg border border-border bg-surface shadow-xl',
             'p-6',
-            'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
-            'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
             className
           )}
         >

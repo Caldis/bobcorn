@@ -1,48 +1,54 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BookOpen, Clock, FileWarning, Trash2, LayoutGrid } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import db from '../../database';
+import useAppStore from '../../store';
 
 interface ResourceNavProps {
   selectedGroup: string;
   onMenuItemSelected: (e: { key: string }) => void;
 }
 
-const NAV_ITEMS = [
-  { key: 'resource-all', icon: BookOpen, label: '全部', count: () => db.getIconCount() },
-  { key: 'resource-recent', icon: Clock, label: '最近更新' },
-  {
-    key: 'resource-uncategorized',
-    icon: FileWarning,
-    label: '未分组',
-    count: () =>
-      db.getIconCountFromGroup('resource-uncategorized') + db.getIconCountFromGroup('null'),
-  },
-  {
-    key: 'resource-recycleBin',
-    icon: Trash2,
-    label: '回收站',
-    count: () => db.getIconCountFromGroup('resource-recycleBin'),
-  },
-];
+const ResourceNav = React.memo(function ResourceNav({
+  selectedGroup,
+  onMenuItemSelected,
+}: ResourceNavProps) {
+  // 只在 groupData 变化时重新计算计数（syncLeft 触发）
+  const groupData = useAppStore((state: any) => state.groupData);
+  const counts = useMemo(
+    () => ({
+      all: db.getIconCount(),
+      uncategorized:
+        db.getIconCountFromGroup('resource-uncategorized') + db.getIconCountFromGroup('null'),
+      recycleBin: db.getIconCountFromGroup('resource-recycleBin'),
+    }),
+    [groupData]
+  );
 
-function ResourceNav({ selectedGroup, onMenuItemSelected }: ResourceNavProps) {
+  const items = [
+    { key: 'resource-all', icon: BookOpen, label: '全部', count: counts.all },
+    { key: 'resource-recent', icon: Clock, label: '最近更新' },
+    {
+      key: 'resource-uncategorized',
+      icon: FileWarning,
+      label: '未分组',
+      count: counts.uncategorized,
+    },
+    { key: 'resource-recycleBin', icon: Trash2, label: '回收站', count: counts.recycleBin },
+  ];
+
   return (
     <div className="shrink-0">
-      {/* Section header */}
       <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
         <LayoutGrid size={14} className="text-foreground-muted" />
         <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           资源
         </span>
       </div>
-
-      {/* Nav items */}
       <nav className="px-1 py-1">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon;
           const isSelected = selectedGroup === item.key;
-          const count = item.count?.();
           return (
             <button
               key={item.key}
@@ -56,8 +62,8 @@ function ResourceNav({ selectedGroup, onMenuItemSelected }: ResourceNavProps) {
             >
               <Icon size={15} />
               <span>{item.label}</span>
-              {count !== undefined && (
-                <span className="ml-auto text-xs text-foreground-muted">{count}</span>
+              {item.count !== undefined && (
+                <span className="ml-auto text-xs text-foreground-muted">{item.count}</span>
               )}
             </button>
           );
@@ -65,6 +71,6 @@ function ResourceNav({ selectedGroup, onMenuItemSelected }: ResourceNavProps) {
       </nav>
     </div>
   );
-}
+});
 
 export default ResourceNav;

@@ -64,7 +64,7 @@ function MainContainer() {
       {/*主体内容 — 中央图标网格*/}
       <div
         className="min-w-0 flex-1 overflow-hidden transition-opacity duration-300"
-        style={{ opacity: contentVisible ? 1 : 0 }}
+        style={{ opacity: contentVisible ? 1 : 0, contain: 'strict' }}
       >
         <SideGrid
           selectedGroup={selectedGroup}

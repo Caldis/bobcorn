@@ -320,7 +320,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
   return (
     <div
       className={cn(
-        'relative w-[250px] h-full flex flex-col',
+        'relative w-full h-full flex flex-col',
         'border-l border-border',
         'bg-surface dark:bg-surface'
       )}
