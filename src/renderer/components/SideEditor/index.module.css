@@ -1,5 +1,0 @@
-/* SideEditor styles — migrated to Tailwind utility classes.
- * This file is intentionally empty. All layout, spacing, and
- * visual styling is now handled inline via Tailwind + cn().
- * Keep this file so that any existing imports do not break
- * during the gradual migration. */
