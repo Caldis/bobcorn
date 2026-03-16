@@ -8,7 +8,7 @@ const PURIFY_CONFIG = {
 };
 
 // LRU cache for sanitized SVG — avoids re-running DOMPurify on unchanged content
-const CACHE_MAX = 4096;
+const CACHE_MAX = 16384;
 const sanitizeCache = new Map<string, string>();
 
 export function sanitizeSVG(html: string | null | undefined): string {

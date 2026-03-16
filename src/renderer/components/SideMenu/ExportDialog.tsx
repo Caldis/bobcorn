@@ -45,6 +45,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const [exportTotalIcons, setExportTotalIcons] = useState<number>(0);
   const [exportTotalGroups, setExportTotalGroups] = useState<number>(0);
   const [exportSelectedIconCount, setExportSelectedIconCount] = useState<number>(0);
+  const groupIconCountsRef = useRef<Record<string, number>>({});
 
   // 当对话框打开时初始化分组列表
   const initGroupList = () => {
@@ -58,6 +59,12 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     setExportGroupSelected(groupList.map((group) => group.value));
     setExportGroupIndeterminate(false);
     setExportGroupCheckAll(true);
+    // 预缓存每个分组的图标计数，避免 checkbox 变化时查 DB
+    const counts: Record<string, number> = {};
+    groups.forEach((g: any) => {
+      counts[g.id] = db.getIconCountFromGroup(g.id);
+    });
+    groupIconCountsRef.current = counts;
     setExportTotalIcons(totalIcons);
     setExportTotalGroups(groups.length);
     setExportSelectedIconCount(totalIcons);
@@ -235,8 +242,10 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     const isAll = checkedValues.length === exportGroupFullList.length;
     setExportGroupIndeterminate(!!checkedValues.length && !isAll);
     setExportGroupCheckAll(isAll);
+    // 用预缓存的 per-group 计数，不再查 DB
+    const counts = groupIconCountsRef.current;
     setExportSelectedIconCount(
-      isAll ? exportTotalIcons : db.getIconListFromGroup(checkedValues).length
+      isAll ? exportTotalIcons : checkedValues.reduce((sum, id) => sum + (counts[id] || 0), 0)
     );
   };
 

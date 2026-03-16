@@ -283,18 +283,17 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
     setIconGroupEditModelTarget(e.target.value);
   };
 
-  // 构建模态框内的分组列表
-  const buildSelectableGroupList = () => {
-    return db.getGroupList().map((group: any) => {
-      return (
-        <Radio key={group.id} style={radioStyle} value={group.id}>
-          {group.groupName}
-        </Radio>
-      );
-    });
-  };
+  // 缓存分组列表 — 复用上方已订阅的 groupData
+  const groupList = useMemo(() => db.getGroupList(), [groupData]);
+  const groupNum = groupList.length;
 
-  const groupNum = db.getGroupList().length;
+  const buildSelectableGroupList = () => {
+    return groupList.map((group: any) => (
+      <Radio key={group.id} style={radioStyle} value={group.id}>
+        {group.groupName}
+      </Radio>
+    ));
+  };
 
   // 颜色编辑
   const [editingColorIdx, setEditingColorIdx] = useState<number | null>(null);

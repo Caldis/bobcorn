@@ -495,11 +495,8 @@ class Database {
   };
   delGroup = (id: string, callback?: () => void): void => {
     dev && console.log('delGroup');
-    // 先删除分组下的图标
-    const iconsOnGroup = this.getIconListFromGroup(id);
-    iconsOnGroup.forEach((icon: Record<string, any>) => {
-      this.delIcon(icon.id);
-    });
+    // 批量删除分组下所有图标（单条 SQL 代替逐个 DELETE）
+    this.db!.exec(`DELETE FROM ${iconData} WHERE iconGroup = ${sf(id)}`);
     // 然后删除分组
     const targetDataSet: DataSet = { id: sf(id) };
     this.delDataOfTable(groupData, targetDataSet, { all: false }, callback);
@@ -605,23 +602,20 @@ class Database {
   // 获取一个可用的图标字码
   getNewIconCode = (type?: string, test?: boolean): string | number => {
     dev && console.log('getNewIconCode');
-    // 先获取现有的图标字码列表
     const rawData = this.db!.exec(`SELECT iconCode from ${iconData}`);
-    // 根据是已经有图标判断
     if (rawData.length) {
-      // 如果有, 则遍历已有的, 然后从完整列表中剔除掉已有的, 剩下的就是未使用的列表, 再取其第一个
-      const usedIconCodeList = rawData[0].values.map((code: any[]) => code[0]);
-      const unusedIconCodeList = config.publicRangeUnicodeDecList.concat();
-      usedIconCodeList.forEach((code: string) =>
-        unusedIconCodeList.splice(unusedIconCodeList.indexOf(hexToDec(code)), 1)
+      // Set 查找 O(1)，总复杂度 O(n) 而非 O(n×m)
+      const usedCodeSet = new Set(
+        rawData[0].values.map((code: any[]) => hexToDec(code[0] as string))
       );
-      // 返回第一个可用的图标字码 (第一个为可用中最小的)
-      const newIconCode = type === 'dec' ? unusedIconCodeList[0] : decToHex(unusedIconCodeList[0]);
-      // 如果只是获取图标字码用于测试, 则不从可用表中移除该图标字码
-      !test && unusedIconCodeList.splice(0, 1);
-      return newIconCode;
+      for (const code of config.publicRangeUnicodeDecList) {
+        if (!usedCodeSet.has(code)) {
+          return type === 'dec' ? code : decToHex(code);
+        }
+      }
+      // 所有字码用完
+      return type === 'dec' ? config.publicRangeUnicodeDecMin : config.publicRangeUnicodeHexMin;
     } else {
-      // 如果没有已存在的图标, 直接返回最小的
       return type === 'dec' ? config.publicRangeUnicodeDecMin : config.publicRangeUnicodeHexMin;
     }
   };
@@ -741,17 +735,19 @@ class Database {
           any
         >[];
       }
-    } else if (Array.isArray(targetGroup)) {
-      // 多个组
-      let iconList: Record<string, any>[] = [];
-      targetGroup.forEach((id) => {
-        const targetDataSet: DataSet = { iconGroup: sf(id) };
-        const iconListOnGroup = (this.getDataOfTable(iconData, targetDataSet, { where: true }) ||
-          []) as Record<string, any>[];
-        iconList = iconList.concat(iconListOnGroup);
+    } else if (Array.isArray(targetGroup) && targetGroup.length > 0) {
+      // 多个组 — 用 SQL IN 单次查询代替多次 concat
+      const inClause = targetGroup.map((id) => sf(id)).join(',');
+      const rawData = this.db!.exec(`SELECT * FROM ${iconData} WHERE iconGroup IN (${inClause})`);
+      if (rawData.length === 0) return [];
+      const colNameList = rawData[0].columns;
+      return rawData[0].values.map((row) => {
+        const rowData: Record<string, any> = {};
+        row.forEach((colData: any, index: number) => {
+          rowData[colNameList[index]] = colData;
+        });
+        return rowData;
       });
-      dev && console.log(iconList);
-      return iconList;
     }
     return [];
   };
