@@ -1,9 +1,11 @@
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 // React
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 // Antd
 import { Radio, Modal, Button, message } from 'antd';
+// Color picker
+import { HexColorPicker } from 'react-colorful';
 import type { RadioChangeEvent } from 'antd';
 import {
   EditOutlined,
@@ -20,6 +22,7 @@ import EnhanceInput from '../enhance/input';
 // Utils
 import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
+import { extractSvgColors, replaceSvgColor } from '../../utils/svg/colors';
 import { platform } from '../../utils/tools';
 // Database
 import db from '../../database';
@@ -302,6 +305,27 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
 
   const groupNum = db.getGroupList().length;
 
+  // 颜色编辑
+  const [editingColorIdx, setEditingColorIdx] = useState<number | null>(null);
+  const svgColors = useMemo(() => {
+    if (!iconData.iconContent) return [];
+    return extractSvgColors(iconData.iconContent);
+  }, [iconData.iconContent]);
+
+  const handleColorChange = useCallback(
+    (newColor: string) => {
+      if (editingColorIdx === null || !svgColors[editingColorIdx]) return;
+      const oldColor = svgColors[editingColorIdx].color;
+      const updatedSvg = replaceSvgColor(iconData.iconContent, oldColor, newColor);
+      // sf() wraps in single quotes; escape internal quotes for SQL safety
+      const escaped = updatedSvg.replace(/'/g, "''");
+      db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
+      sync(selectedIcon);
+      syncLeft();
+    },
+    [editingColorIdx, svgColors, iconData.iconContent, selectedIcon]
+  );
+
   return (
     <div
       className={cn(
@@ -394,6 +418,56 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
               ))}
             </div>
           </div>
+
+          {/* Section: 颜色编辑 */}
+          {svgColors.length > 0 && (
+            <div className="mb-4">
+              <h4
+                className={cn(
+                  'text-xs font-semibold uppercase tracking-wider',
+                  'text-foreground-muted',
+                  'mb-2 pb-1.5',
+                  'border-b border-border'
+                )}
+              >
+                颜色 ({svgColors.length})
+              </h4>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {svgColors.map((c, i) => (
+                  <button
+                    key={c.color}
+                    title={`${c.color} (${c.count})`}
+                    onClick={() => setEditingColorIdx(editingColorIdx === i ? null : i)}
+                    className={cn(
+                      'w-7 h-7 rounded-md border-2 transition-all duration-150',
+                      'hover:scale-110 hover:shadow-md',
+                      editingColorIdx === i
+                        ? 'border-brand-500 ring-2 ring-brand-300 dark:ring-brand-700 scale-110'
+                        : 'border-border'
+                    )}
+                    style={{ backgroundColor: c.color }}
+                  />
+                ))}
+              </div>
+              {editingColorIdx !== null && svgColors[editingColorIdx] && (
+                <div className="rounded-lg border border-border bg-surface-muted p-3">
+                  <div className="mb-2 flex items-center justify-between text-xs">
+                    <span className="text-foreground-muted">
+                      {svgColors[editingColorIdx].color}
+                    </span>
+                    <span className="text-foreground-muted">
+                      {svgColors[editingColorIdx].count} 处使用
+                    </span>
+                  </div>
+                  <HexColorPicker
+                    color={svgColors[editingColorIdx].color}
+                    onChange={handleColorChange}
+                    style={{ width: '100%', height: 140 }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Section: 高级操作 */}
           <div className="mb-2">
