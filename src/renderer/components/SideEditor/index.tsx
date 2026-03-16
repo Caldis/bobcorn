@@ -48,6 +48,7 @@ interface SideEditorProps {
 
 function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
   const syncLeft = useAppStore((state: any) => state.syncLeft);
+  const syncIconContent = useAppStore((state: any) => state.syncIconContent);
   const selectIcon = useAppStore((state: any) => state.selectIcon);
 
   const [iconData, setIconData] = useState<IconDataRecord>({} as IconDataRecord);
@@ -84,13 +85,14 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
     }
   }, []);
 
-  // Subscribe to store groupData changes to trigger re-sync (replaces SyncRight event)
+  // Subscribe to store changes to trigger re-sync
   const groupData = useAppStore((state: any) => state.groupData);
+  const iconContentVersion = useAppStore((state: any) => state.iconContentVersion);
   useEffect(() => {
     if (selectedIcon) {
       sync(selectedIcon);
     }
-  }, [groupData]);
+  }, [groupData, iconContentVersion]);
 
   useEffect(() => {
     if (selectedIcon !== prevSelectedIconRef.current) {
@@ -118,7 +120,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
       if (iconNameCanSave()) {
         db.setIconName(selectedIcon, iconName, () => {
           message.success('图标名称已修改');
-          syncLeft();
+          syncIconContent();
           sync(selectedIcon);
         });
       }
@@ -152,7 +154,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
       if (iconCodeCanSave()) {
         db.setIconCode(selectedIcon, iconCode, () => {
           message.success('图标字码已修改');
-          syncLeft();
+          syncIconContent();
           sync(selectedIcon);
         });
       }
@@ -172,7 +174,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
       const newIconFileData = Object.assign({}, iconData, { path: result.filePaths[0] });
       db.renewIconData(selectedIcon, newIconFileData, () => {
         message.success(`图标数据已更新`);
-        syncLeft();
+        syncIconContent();
       });
     }
   };
@@ -343,7 +345,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
       const escaped = updatedSvg.replace(/'/g, "''");
       db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
       sync(selectedIcon);
-      syncLeft();
+      syncIconContent();
     },
     [editingColorIdx, svgColors, iconData.iconContent, selectedIcon]
   );
@@ -390,7 +392,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
     const escaped = originalIconContent.replace(/'/g, "''");
     db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
     sync(selectedIcon);
-    syncLeft();
+    syncIconContent();
     setEditingColorIdx(null);
   }, [originalIconContent, selectedIcon]);
 

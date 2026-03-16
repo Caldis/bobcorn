@@ -5,19 +5,19 @@ type ToastType = 'success' | 'error' | 'warning';
 
 const COLORS: Record<ToastType, { bg: string; text: string; border: string }> = {
   success: {
-    bg: 'rgba(16, 185, 129, 0.95)',
-    text: '#fff',
-    border: 'rgba(16, 185, 129, 1)',
+    bg: 'rgba(255, 255, 255, 0.97)',
+    text: '#374151',
+    border: 'rgba(229, 231, 235, 1)',
   },
   error: {
-    bg: 'rgba(239, 68, 68, 0.95)',
-    text: '#fff',
-    border: 'rgba(239, 68, 68, 1)',
+    bg: 'rgba(254, 242, 242, 0.97)',
+    text: '#991b1b',
+    border: 'rgba(252, 165, 165, 1)',
   },
   warning: {
-    bg: 'rgba(245, 158, 11, 0.95)',
-    text: '#fff',
-    border: 'rgba(245, 158, 11, 1)',
+    bg: 'rgba(255, 251, 235, 0.97)',
+    text: '#92400e',
+    border: 'rgba(252, 211, 77, 1)',
   },
 };
 

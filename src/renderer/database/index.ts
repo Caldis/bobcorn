@@ -495,8 +495,10 @@ class Database {
   };
   delGroup = (id: string, callback?: () => void): void => {
     dev && console.log('delGroup');
-    // 批量删除分组下所有图标（单条 SQL 代替逐个 DELETE）
-    this.db!.exec(`DELETE FROM ${iconData} WHERE iconGroup = ${sf(id)}`);
+    // 将分组下的图标移到未分组（而非删除）
+    this.db!.exec(
+      `UPDATE ${iconData} SET iconGroup = 'resource-uncategorized' WHERE iconGroup = ${sf(id)}`
+    );
     // 然后删除分组
     const targetDataSet: DataSet = { id: sf(id) };
     this.delDataOfTable(groupData, targetDataSet, { all: false }, callback);
@@ -719,6 +721,33 @@ class Database {
     const targetDataSet: DataSet = { iconGroup: sf('resource-deleted') };
     return (this.getDataOfTable(iconData, targetDataSet, { where: true, equal: false }) ||
       []) as Record<string, any>[];
+  };
+  // 单次查询所有图标并按 group 分组（resource-all 视图用）
+  getAllIconsGrouped = (): Record<string, Record<string, any>[]> => {
+    dev && console.log('getAllIconsGrouped');
+    const rawData = this.db!.exec(
+      `SELECT * FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
+    );
+    const result: Record<string, Record<string, any>[]> = {};
+    if (rawData.length === 0) return result;
+    const colNameList = rawData[0].columns;
+    rawData[0].values.forEach((row) => {
+      const rowData: Record<string, any> = {};
+      row.forEach((colData: any, index: number) => {
+        rowData[colNameList[index]] = colData;
+      });
+      const group = rowData.iconGroup || 'resource-uncategorized';
+      if (!result[group]) result[group] = [];
+      result[group].push(rowData);
+    });
+    // null 分组合并到 uncategorized
+    if (result['null']) {
+      result['resource-uncategorized'] = (result['resource-uncategorized'] || []).concat(
+        result['null']
+      );
+      delete result['null'];
+    }
+    return result;
   };
   // 从特定组中取图标
   getIconListFromGroup = (targetGroup: string | string[]): Record<string, any>[] => {

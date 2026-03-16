@@ -39,12 +39,13 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
   const [selectedGroup, setSelectedGroup] = useState<string>(config.defaultSelectedGroup);
   // 对话框可见性
   const [addGroupVisible, setAddGroupVisible] = useState(false);
-  const [editingGroupData, setEditingGroupData] = useState<GroupData | null>(null);
-  const [editGroupVisible, setEditGroupVisible] = useState(false);
+  const [renameGroupData, setRenameGroupData] = useState<GroupData | null>(null);
+  const [renameGroupVisible, setRenameGroupVisible] = useState(false);
   const [prefixVisible, setPrefixVisible] = useState(false);
   const [exportVisible, setExportVisible] = useState(false);
 
   const sideMenuWrapperRef = useRef<HTMLDivElement>(null);
+  const showPrefix = useCallback(() => setPrefixVisible(true), []);
 
   useEffect(() => {
     syncLeft();
@@ -66,64 +67,67 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
   );
 
   // 导入
-  const handleImportClick = (e: { key: string }) => {
-    if (e.key === 'importIcon') {
-      iconImporter({
-        onSelectSVG: (files: any[]) => {
-          db.addIcons(files, selectedGroup, () => {
-            message.success(`已成功导入 ${files.length} 个图标`);
-            syncLeft();
-          });
-        },
-      });
-    }
-    if (e.key === 'importProj') {
-      projImporter({
-        onSelectCP: (project: any) => {
-          setTimeout(() => {
-            confirm({
-              title: '导入项目',
-              content: '导入所选的项目后, 当前正在编辑的项目将会被覆盖, 确认要导入吗 ?',
-              okText: '导入',
-              onOk() {
-                cpLoader({ data: project.data }, () => {
-                  message.success('项目已导入');
-                  syncLeft();
-                  selectGroup('resource-all');
-                });
-              },
+  const handleImportClick = useCallback(
+    (e: { key: string }) => {
+      if (e.key === 'importIcon') {
+        iconImporter({
+          onSelectSVG: (files: any[]) => {
+            db.addIcons(files, selectedGroup, () => {
+              message.success(`已成功导入 ${files.length} 个图标`);
+              syncLeft();
             });
-          }, 250);
-        },
-        onSelectICP: (project: any) => {
-          setTimeout(() => {
-            confirm({
-              title: '导入项目',
-              content: '导入所选的项目后, 当前正在编辑的项目将会被覆盖, 确认要导入吗 ?',
-              okText: '导入',
-              onOk() {
-                icpLoader(project.data, () => {
-                  message.success('项目已导入');
-                  syncLeft();
-                  selectGroup('resource-all');
-                });
-              },
-            });
-          }, 250);
-        },
-      });
-    }
-  };
+          },
+        });
+      }
+      if (e.key === 'importProj') {
+        projImporter({
+          onSelectCP: (project: any) => {
+            setTimeout(() => {
+              confirm({
+                title: '导入项目',
+                content: '导入所选的项目后, 当前正在编辑的项目将会被覆盖, 确认要导入吗 ?',
+                okText: '导入',
+                onOk() {
+                  cpLoader({ data: project.data }, () => {
+                    message.success('项目已导入');
+                    syncLeft();
+                    selectGroup('resource-all');
+                  });
+                },
+              });
+            }, 250);
+          },
+          onSelectICP: (project: any) => {
+            setTimeout(() => {
+              confirm({
+                title: '导入项目',
+                content: '导入所选的项目后, 当前正在编辑的项目将会被覆盖, 确认要导入吗 ?',
+                okText: '导入',
+                onOk() {
+                  icpLoader(project.data, () => {
+                    message.success('项目已导入');
+                    syncLeft();
+                    selectGroup('resource-all');
+                  });
+                },
+              });
+            }, 250);
+          },
+        });
+      }
+    },
+    [selectedGroup, syncLeft, selectGroup]
+  );
 
   // 导出
-  const handleExportClick = (e?: { key?: string } | React.MouseEvent) => {
+  const handleExportClick = useCallback((e?: { key?: string } | React.MouseEvent) => {
     const key = e && 'key' in e && e.key ? e.key : 'exportIconfonts';
     if (key === 'exportProject') {
       handleExportProjects();
     } else {
       setExportVisible(true);
     }
-  };
+  }, []);
 
   const handleExportProjects = async () => {
     const result = await electronAPI.showSaveDialog({
@@ -156,9 +160,25 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         sideMenuWrapperRef={sideMenuWrapperRef}
         onMenuItemSelected={handleMenuItemSelected}
         onShowAddGroup={() => setAddGroupVisible(true)}
-        onShowEditGroup={(group: GroupData) => {
-          setEditingGroupData(group);
-          setEditGroupVisible(true);
+        onRenameGroup={(group: GroupData) => {
+          setRenameGroupData(group);
+          setRenameGroupVisible(true);
+        }}
+        onDeleteGroup={(group: GroupData) => {
+          confirm({
+            title: '删除分组',
+            content: `确定要删除分组「${group.groupName}」吗？该分组内的图标将移入未分组。`,
+            okText: '删除',
+            okType: 'danger',
+            onOk() {
+              db.delGroup(group.id, () => {
+                message.success('分组已删除');
+                syncLeft();
+                setSelectedGroup('resource-all');
+                handleGroupSelected('resource-all');
+              });
+            },
+          });
         }}
       />
 
@@ -166,10 +186,10 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
       <ImportExportBar
         onImportClick={handleImportClick}
         onExportClick={handleExportClick}
-        onShowEditPrefix={() => setPrefixVisible(true)}
+        onShowEditPrefix={showPrefix}
       />
 
-      {/* 分组管理对话框 */}
+      {/* 分组管理对话框（添加 + 重命名） */}
       <GroupDialogs
         addGroupVisible={addGroupVisible}
         onCloseAddGroup={() => setAddGroupVisible(false)}
@@ -178,13 +198,9 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
           handleGroupSelected(groupId);
         }}
         sideMenuWrapperRef={sideMenuWrapperRef}
-        editingGroupData={editingGroupData}
-        editGroupVisible={editGroupVisible}
-        onCloseEditGroup={() => setEditGroupVisible(false)}
-        onGroupDeleted={() => {
-          setSelectedGroup('resource-all');
-          handleGroupSelected('resource-all');
-        }}
+        renameGroupData={renameGroupData}
+        renameGroupVisible={renameGroupVisible}
+        onCloseRenameGroup={() => setRenameGroupVisible(false)}
         onGroupRenamed={(groupId: string) => {
           setSelectedGroup(groupId);
           handleGroupSelected(groupId);

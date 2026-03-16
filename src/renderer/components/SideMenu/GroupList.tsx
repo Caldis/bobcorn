@@ -8,8 +8,9 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Tags, Plus, Settings } from 'lucide-react';
+import { Tags, Plus, Settings, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Dropdown } from '../ui';
 import db from '../../database';
 import useAppStore from '../../store';
 import addGroupHint from '../../resources/imgs/nodata/addGroupHint.png';
@@ -21,13 +22,15 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
   isSelected,
   iconCount,
   onSelect,
-  onEdit,
+  onRename,
+  onDelete,
 }: {
   group: GroupData;
   isSelected: boolean;
   iconCount: number;
   onSelect: () => void;
-  onEdit: () => void;
+  onRename: () => void;
+  onDelete: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: group.id,
@@ -58,15 +61,27 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
         <span className="text-xs text-foreground-muted group-hover:opacity-0 transition-opacity">
           {iconCount}
         </span>
-        <button
-          className="absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
+        <span
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => e.stopPropagation()}
         >
-          <Settings size={11} />
-        </button>
+          <Dropdown
+            menu={{
+              items: [
+                { key: 'rename', label: '重命名' },
+                { key: 'delete', label: '删除分组' },
+              ],
+              onClick: (info) => {
+                if (info.key === 'rename') onRename();
+                if (info.key === 'delete') onDelete();
+              },
+            }}
+          >
+            <button className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-black/10 dark:hover:bg-white/10">
+              <Settings size={11} />
+            </button>
+          </Dropdown>
+        </span>
       </span>
     </div>
   );
@@ -78,7 +93,8 @@ interface GroupListProps {
   sideMenuWrapperRef: React.RefObject<HTMLDivElement>;
   onMenuItemSelected: (e: { key: string }) => void;
   onShowAddGroup: () => void;
-  onShowEditGroup: (group: GroupData) => void;
+  onRenameGroup: (group: GroupData) => void;
+  onDeleteGroup: (group: GroupData) => void;
 }
 
 const GroupList = React.memo(function GroupList({
@@ -87,7 +103,8 @@ const GroupList = React.memo(function GroupList({
   sideMenuWrapperRef,
   onMenuItemSelected,
   onShowAddGroup,
-  onShowEditGroup,
+  onRenameGroup,
+  onDeleteGroup,
 }: GroupListProps) {
   const syncLeft = useAppStore((state: any) => state.syncLeft);
 
@@ -144,7 +161,8 @@ const GroupList = React.memo(function GroupList({
                   isSelected={selectedGroup === group.id}
                   iconCount={groupIconCounts[group.id] || 0}
                   onSelect={() => onMenuItemSelected({ key: group.id })}
-                  onEdit={() => onShowEditGroup(group)}
+                  onRename={() => onRenameGroup(group)}
+                  onDelete={() => onDeleteGroup(group)}
                 />
               ))}
             </div>

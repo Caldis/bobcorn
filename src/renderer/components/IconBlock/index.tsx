@@ -6,6 +6,8 @@ import style from './index.module.css';
 import { Checkbox } from '../ui';
 import { sanitizeSVG } from '../../utils/sanitize';
 import { cn } from '../../lib/utils';
+// Store
+import useAppStore from '../../store';
 
 interface IconData {
   id: string;
@@ -13,7 +15,6 @@ interface IconData {
 }
 
 interface IconBlockProps {
-  selected?: boolean;
   checked?: boolean;
   data?: IconData;
   name?: string;
@@ -26,7 +27,6 @@ interface IconBlockProps {
 }
 
 const IconBlock = React.memo(function IconBlock({
-  selected = false,
   checked,
   data = {} as IconData,
   name = '',
@@ -37,7 +37,9 @@ const IconBlock = React.memo(function IconBlock({
   codeVisible = true,
   handleIconSelected,
 }: IconBlockProps) {
-  // Memoize sanitized SVG — only re-sanitize when content changes
+  // 直接从 store 读 selectedIcon — 选中变化只触发相关 2 个 IconBlock 重渲染
+  const selected = useAppStore((state: any) => state.selectedIcon === data.id);
+
   const sanitizedHtml = useMemo(() => sanitizeSVG(content), [content]);
 
   const handleSelected = useCallback(() => {
@@ -48,24 +50,15 @@ const IconBlock = React.memo(function IconBlock({
     <div
       data-testid="icon-block"
       className={cn(
-        // Layout
         'relative text-center z-[1]',
-        // Spacing
         'p-2',
-        // Card shape
         'rounded-lg',
-        // Border — transparent by default, accent when selected
         'border-2 border-transparent',
-        // Cursor
         'cursor-pointer',
-        // Smooth transitions
         'transition-all duration-200 ease-in-out',
-        // Hover — subtle lift + shadow
         'hover:shadow-md hover:bg-surface-accent hover:-translate-y-0.5',
         'dark:hover:bg-white/5 dark:hover:shadow-lg dark:hover:shadow-black/20',
-        // Active — press-down effect
         'active:scale-[0.96] active:border-brand-500',
-        // Selected state
         selected && [
           'border-brand-500 bg-surface-accent shadow-sm',
           'dark:border-brand-400 dark:bg-white/5 dark:shadow-brand-900/20',
@@ -73,12 +66,10 @@ const IconBlock = React.memo(function IconBlock({
       )}
       onClick={handleSelected}
     >
-      {/* Checkbox overlay */}
       {checked !== undefined && (
         <Checkbox className="absolute -top-0.5 -right-1.5 z-10" checked={checked} />
       )}
 
-      {/* Icon preview area */}
       <div className={cn(style.iconContentContainer, 'mx-auto w-[120px]')} style={{ width }}>
         <div
           className={cn(
@@ -90,7 +81,6 @@ const IconBlock = React.memo(function IconBlock({
         />
       </div>
 
-      {/* Name and code labels */}
       <div className="w-full" style={{ width }}>
         <p
           className={cn(

@@ -27,7 +27,7 @@ const ResourceNav = React.memo(function ResourceNav({
 
   const items = [
     { key: 'resource-all', icon: BookOpen, label: '全部', count: counts.all },
-    { key: 'resource-recent', icon: Clock, label: '最近更新' },
+    { key: 'resource-recent', icon: Clock, label: '最近更新', count: Math.min(50, counts.all) },
     {
       key: 'resource-uncategorized',
       icon: FileWarning,

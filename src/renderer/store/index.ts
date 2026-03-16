@@ -15,8 +15,10 @@ export interface State {
   sideEditorVisible: boolean;
   darkMode: boolean;
 
-  // Data (previously in component local state, synced via events)
+  // Data
   groupData: any[];
+  // 图标内容版本号 — 递增触发 SideEditor/IconBlock 刷新，不触发分组重建
+  iconContentVersion: number;
 }
 
 export interface Actions {
@@ -27,7 +29,9 @@ export interface Actions {
   setSideMenuVisible: (visible: boolean) => void;
   setSideEditorVisible: (visible: boolean) => void;
   toggleDarkMode: () => void;
-  syncLeft: () => void;
+  // 分级同步
+  syncLeft: () => void; // 重：刷新分组列表 + 图标网格（增删/移动图标/增删分组时用）
+  syncIconContent: () => void; // 轻：只递增版本号，触发 SideEditor 刷新（改名/改码/改色时用）
   syncAll: () => void;
 }
 
@@ -42,8 +46,9 @@ const useAppStore = create<State & Actions>((set, get) => ({
   sideEditorVisible: true,
   darkMode: false,
 
-  // Data (previously in component local state, synced via events)
+  // Data
   groupData: [],
+  iconContentVersion: 0,
 
   // Actions
   showSplashScreen: (show: boolean) =>
@@ -54,7 +59,6 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   selectGroup: (groupId: string) => {
     set({ selectedGroup: groupId, selectedIcon: null, selectedSource: 'local' });
-    // When selecting a group, ensure editor is visible (local mode)
     set({ sideEditorVisible: true });
   },
 
@@ -78,13 +82,17 @@ const useAppStore = create<State & Actions>((set, get) => ({
     document.documentElement.classList.toggle('dark', next);
   },
 
-  // Sync actions (replace SyncLeft/SyncCenter/SyncRight events)
+  // 重同步：刷新分组列表（触发 ResourceNav 计数 + GroupList 计数 + IconGridLocal 重载）
   syncLeft: () => {
     const data = (db as any).getGroupList();
     set({ groupData: data });
   },
 
-  // Combined sync for operations that affect multiple panels
+  // 轻同步：只通知图标内容变了（不触发分组列表/计数/网格重载）
+  syncIconContent: () => {
+    set({ iconContentVersion: get().iconContentVersion + 1 });
+  },
+
   syncAll: () => {
     get().syncLeft();
   },

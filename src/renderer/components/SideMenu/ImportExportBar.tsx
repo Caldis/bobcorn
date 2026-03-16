@@ -19,7 +19,7 @@ const ImportExportBar = React.memo(function ImportExportBar({
 
   return (
     <div className="flex shrink-0 items-center gap-1.5 border-t border-border px-3 h-[49px] pb-1">
-      <div className="flex flex-1">
+      <div className="flex flex-1 [&>button]:flex-1">
         <Dropdown
           menu={{
             items: [
@@ -29,12 +29,15 @@ const ImportExportBar = React.memo(function ImportExportBar({
             onClick: onImportClick,
           }}
         >
-          <Button className="!rounded-r-none !-mr-px flex-1" icon={<LogIn size={14} />}>
+          <Button
+            style={{ borderRadius: '6px 0 0 6px', marginRight: -1 }}
+            icon={<LogIn size={14} />}
+          >
             导入
           </Button>
         </Dropdown>
         <Button
-          className="!rounded-l-none flex-1"
+          style={{ borderRadius: '0 6px 6px 0', flex: 1 }}
           onClick={onExportClick}
           icon={<Save size={14} />}
         >

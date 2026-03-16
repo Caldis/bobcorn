@@ -46,20 +46,17 @@ const CHUNK_SIZE = 60; // icons per chunk for content-visibility batching
 
 const IconChunk = React.memo(function IconChunk({
   icons,
-  selectedIcon,
   iconBlockWidth,
   nameVisible,
   codeVisible,
   handleIconSelected,
 }: {
   icons: IconItem[];
-  selectedIcon: string | null;
   iconBlockWidth: number | string;
   nameVisible: boolean;
   codeVisible: boolean;
   handleIconSelected: (id: string | null, data?: any) => void;
 }) {
-  // 图标外框宽度 = 内容宽 + padding(16) + border(4)
   const colWidth = (typeof iconBlockWidth === 'number' ? iconBlockWidth : 100) + 20;
 
   return (
@@ -76,7 +73,6 @@ const IconChunk = React.memo(function IconChunk({
       {icons.map((icon) => (
         <IconBlock
           key={icon.id}
-          selected={icon.id === selectedIcon}
           data={icon}
           name={icon.iconName}
           code={icon.iconCode}
@@ -116,14 +112,8 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
     (group?: string) => {
       const targetGroup = group || selectedGroup;
       if (targetGroup === 'resource-all') {
-        const groupIconData: Record<string, IconItem[]> = {};
-        db.getGroupList().forEach(
-          (g: GroupItem) => (groupIconData[g.id] = db.getIconListFromGroup(g.id))
-        );
-        groupIconData['resource-uncategorized'] = db
-          .getIconListFromGroup('resource-uncategorized')
-          .concat(db.getIconListFromGroup('null'));
-        setIconData(groupIconData);
+        // 单次查询所有图标，JS 端分组（替代 N 次分组查询）
+        setIconData(db.getAllIconsGrouped());
       } else if (targetGroup === 'resource-recent') {
         const groupIconData: Record<string, IconItem[]> = {};
         groupIconData['resource-recent'] = db.getRecentlyUpdatedIcons(50);
@@ -378,7 +368,6 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
             <IconChunk
               key={`${group.id}-${ci}`}
               icons={chunk}
-              selectedIcon={selectedIcon}
               iconBlockWidth={iconBlockWidth}
               nameVisible={iconBlockNameVisible}
               codeVisible={iconBlockCodeVisible}
@@ -395,7 +384,6 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
       <IconChunk
         key={ci}
         icons={chunk}
-        selectedIcon={selectedIcon}
         iconBlockWidth={iconBlockWidth}
         nameVisible={iconBlockNameVisible}
         codeVisible={iconBlockCodeVisible}
@@ -406,7 +394,6 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
     selectedGroup,
     allGroupChunks,
     iconChunks,
-    selectedIcon,
     iconBlockWidth,
     iconBlockNameVisible,
     iconBlockCodeVisible,
