@@ -1,9 +1,19 @@
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 // React
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 // Antd
 import { Alert, Menu, Modal, Button, Dropdown, Checkbox, Badge, message } from 'antd';
+// DnD Kit (分组拖拽排序)
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import {
   AppstoreOutlined,
@@ -492,22 +502,21 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
     setExportGroupCheckAll(checkedValues.length === exportGroupFullList.length);
   };
 
-  // 界面构建相关
-  const buildGroupItems = () => {
-    return groupData.map((group: GroupData) => {
-      return (
-        <Menu.Item key={group.id} className={style.sideMenuGroupTitleContainer}>
-          {group.groupName}
-          <Button
-            className={style.sideMenuGroupAction}
-            shape="circle"
-            icon={<SettingOutlined />}
-            onClick={() => handleShowEditGroup(group)}
-          />
-        </Menu.Item>
-      );
-    });
-  };
+  // 分组拖拽排序
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIndex = groupData.findIndex((g: GroupData) => g.id === active.id);
+      const newIndex = groupData.findIndex((g: GroupData) => g.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+      const newOrder = arrayMove(groupData, oldIndex, newIndex);
+      db.reorderGroups(newOrder.map((g: GroupData) => g.id));
+      syncLeft();
+    },
+    [groupData]
+  );
 
   return (
     <div className="relative flex h-full w-full flex-col bg-surface dark:bg-surface">
@@ -572,39 +581,47 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
         </Menu>
       </div>
 
-      {/*分组部分 — 可滚动*/}
-      <div
-        className={cn('flex-1 overflow-y-auto overflow-x-hidden', style.sideMenuOverrides)}
-        ref={sideMenuWrapperRef}
-      >
-        <Menu
-          style={{ width: 250, border: 'none' }}
-          selectedKeys={[selectedGroup]}
-          onSelect={handleMenuItemSelected}
-          defaultOpenKeys={['groups']}
-          mode="inline"
-        >
-          <SubMenu
-            key="groups"
-            disabled={true}
-            title={
-              <div className="flex items-center gap-1.5">
-                <TagsOutlined />
-                <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
-                  分组
-                </span>
-                <Button
-                  className={style.groupAddBtn}
-                  shape="circle"
-                  icon={<PlusOutlined />}
-                  onClick={handleShowAddGroup}
-                />
-              </div>
-            }
+      {/*分组部分 — 可滚动 + 拖拽排序*/}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={sideMenuWrapperRef}>
+        {/* 分组标题栏 */}
+        <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
+          <TagsOutlined className="text-foreground-muted" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+            分组
+          </span>
+          <button
+            className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-brand-50 hover:text-brand-500 dark:hover:bg-brand-950/40"
+            onClick={handleShowAddGroup}
           >
-            {groupData.length !== 0 && buildGroupItems()}
-          </SubMenu>
-        </Menu>
+            <PlusOutlined style={{ fontSize: 11 }} />
+          </button>
+        </div>
+
+        {/* 可排序分组列表 */}
+        {groupData.length > 0 && (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={groupData.map((g: GroupData) => g.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="px-1 py-1">
+                {groupData.map((group: GroupData) => (
+                  <SortableGroupItem
+                    key={group.id}
+                    group={group}
+                    isSelected={selectedGroup === group.id}
+                    onSelect={() => handleMenuItemSelected({ key: group.id })}
+                    onEdit={() => handleShowEditGroup(group)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
 
         {groupData.length === 0 && (
           <div
@@ -643,6 +660,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
           </Button>
         </ButtonGroup>
         <Button
+          data-testid="settings-btn"
           type="default"
           shape="circle"
           icon={<SettingOutlined />}
@@ -875,6 +893,56 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
           </span>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+// 可排序分组项组件
+function SortableGroupItem({
+  group,
+  isSelected,
+  onSelect,
+  onEdit,
+}: {
+  group: GroupData;
+  isSelected: boolean;
+  onSelect: () => void;
+  onEdit: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: group.id,
+  });
+  const itemStyle: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    opacity: isDragging ? 0.8 : 1,
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={itemStyle}
+      {...attributes}
+      {...listeners}
+      onClick={onSelect}
+      className={cn(
+        'group flex cursor-pointer items-center rounded-md px-3 py-1.5 text-sm transition-colors',
+        isSelected
+          ? 'bg-brand-50 text-brand-600 font-medium dark:bg-brand-950/40 dark:text-brand-400'
+          : 'text-foreground hover:bg-surface-muted dark:hover:bg-white/5',
+        isDragging && 'shadow-md ring-1 ring-brand-300 dark:ring-brand-700'
+      )}
+    >
+      <span className="flex-1 truncate">{group.groupName}</span>
+      <button
+        className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10"
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit();
+        }}
+      >
+        <SettingOutlined style={{ fontSize: 11 }} />
+      </button>
     </div>
   );
 }

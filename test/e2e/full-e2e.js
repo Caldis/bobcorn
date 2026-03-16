@@ -590,20 +590,8 @@ async function run() {
       // (not the per-group gear icon). It's the button with anticon-setting
       // that is inside the IO button container (next to import/export).
       const settingsClicked = await win.evaluate(() => {
-        // The standalone settings button is a circle button next to the
-        // import/export ButtonGroup at the bottom of the side menu.
-        // It's distinguished by being shape="circle" and standalone (not inside a menu item).
-        const settingIcons = document.querySelectorAll('.anticon-setting');
-        for (const icon of settingIcons) {
-          const btn = icon.closest('button');
-          if (!btn) continue;
-          // The standalone settings button is NOT inside a .ant-menu-item
-          const insideMenuItem = btn.closest('.ant-menu-item');
-          if (!insideMenuItem) {
-            btn.click();
-            return true;
-          }
-        }
+        const btn = document.querySelector('[data-testid="settings-btn"]');
+        if (btn) { btn.click(); return true; }
         return false;
       });
       assert(settingsClicked, 'Settings button should be clickable');

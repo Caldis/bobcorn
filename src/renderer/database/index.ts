@@ -506,7 +506,24 @@ class Database {
   };
   getGroupList = (): Record<string, any>[] => {
     dev && console.log('getGroupList');
-    return (this.getDataOfTable(groupData) || []) as Record<string, any>[];
+    const rawData = this.db!.exec(`SELECT * FROM ${groupData} ORDER BY groupOrder ASC`);
+    if (rawData.length === 0) return [];
+    const colNameList = rawData[0].columns;
+    return rawData[0].values.map((row) => {
+      const rowData: Record<string, any> = {};
+      row.forEach((colData: any, index: number) => {
+        rowData[colNameList[index]] = colData;
+      });
+      return rowData;
+    });
+  };
+  // 批量更新分组排序
+  reorderGroups = (orderedIds: string[], callback?: () => void): void => {
+    dev && console.log('reorderGroups');
+    orderedIds.forEach((id, index) => {
+      this.db!.run(`UPDATE ${groupData} SET groupOrder = ${index} WHERE id = '${id}'`);
+    });
+    callback && callback();
   };
   setGroupName = (id: string, groupName: string, callback?: () => void): void => {
     dev && console.log('setGroupName');
