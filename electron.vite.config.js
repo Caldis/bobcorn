@@ -5,28 +5,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    plugins: [
-      externalizeDepsPlugin({ exclude: ['electron-updater'] }),
-      // Copy overlay.html to out/main/
-      {
-        name: 'copy-overlay-html',
-        writeBundle() {
-          const fs = require('fs');
-          const src = resolve(__dirname, 'src/main/screen-color-picker/overlay.html');
-          const dest = resolve(__dirname, 'out/main/overlay.html');
-          fs.copyFileSync(src, dest);
-        },
-      },
-    ],
+    plugins: [externalizeDepsPlugin({ exclude: ['electron-updater', 'electron-pixel-picker'] })],
     build: {
       outDir: 'out/main',
       rollupOptions: {
-        input: {
-          index: resolve(__dirname, 'src/main/index.ts'),
-          'overlay-preload': resolve(__dirname, 'src/main/screen-color-picker/overlay-preload.ts'),
-        },
+        input: resolve(__dirname, 'src/main/index.ts'),
         output: {
-          entryFileNames: '[name].js',
+          entryFileNames: 'index.js',
         },
       },
     },
