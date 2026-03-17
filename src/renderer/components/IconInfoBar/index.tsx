@@ -40,15 +40,16 @@ function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }: Ic
       <div
         className={cn(
           '[-webkit-app-region:no-drag]',
-          'relative flex flex-row gap-1',
+          'relative flex flex-row gap-1 self-stretch items-stretch',
           '-translate-x-[40%]',
-          'z-[100]'
+          'z-[100]',
+          '-mb-px'
         )}
       >
         <button
           onClick={() => handleSourceSelected('local')}
           className={cn(
-            'inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium',
+            'inline-flex items-center gap-1.5 px-3 text-sm font-medium',
             'border-b-2 transition-colors duration-150',
             selectedSource === 'local'
               ? 'border-brand-500 text-brand-600 dark:text-brand-400'
@@ -61,7 +62,7 @@ function IconInfoBar({ selectedGroup, selectedSource, handleSourceSelected }: Ic
         <button
           disabled
           className={cn(
-            'inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium',
+            'inline-flex items-center gap-1.5 px-3 text-sm font-medium',
             'border-b-2 border-transparent',
             'text-foreground-muted/40 cursor-not-allowed'
           )}

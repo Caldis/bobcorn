@@ -50,11 +50,7 @@ const ImportExportBar = React.memo(function ImportExportBar({
         icon={<Settings size={14} />}
         onClick={onShowEditPrefix}
       />
-      <Button
-        shape="circle"
-        icon={darkMode ? <Sun size={14} /> : <Moon size={14} />}
-        onClick={toggleDarkMode}
-      />
+      {/* Dark mode toggle hidden — logic kept in store */}
     </div>
   );
 });

@@ -49,8 +49,9 @@ function TitleBarButtonGroup() {
   };
 
   const buttonBase = cn(
-    'w-[45px] h-[29px]',
-    'bg-transparent p-0 border-none',
+    'w-[46px] h-[30px]',
+    'inline-flex items-center justify-center',
+    'bg-transparent p-0 m-0 border-none',
     'cursor-pointer outline-none',
     'hover:bg-neutral-300 dark:hover:bg-neutral-600',
     'active:bg-neutral-400 dark:active:bg-neutral-500',
@@ -60,10 +61,16 @@ function TitleBarButtonGroup() {
 
   return (
     <div
-      className={cn('fixed top-0 right-0', 'z-[10000]', '[-webkit-app-region:no-drag]')}
+      className={cn(
+        'fixed top-0 right-0',
+        'z-[10000]',
+        'inline-flex flex-row items-start',
+        '[-webkit-app-region:no-drag]'
+      )}
       id="titleBarButtonGroup"
+      style={{ gap: 0 }}
     >
-      <button className={cn(buttonBase, 'rounded-bl-[3px]')} onClick={handleWindowMinimum}>
+      <button className={cn(buttonBase)} onClick={handleWindowMinimum}>
         <img src={minimize} />
       </button>
       <button className={cn(buttonBase)} onClick={handleWindowMaximum}>
@@ -72,7 +79,6 @@ function TitleBarButtonGroup() {
       <button
         className={cn(
           buttonBase,
-          'rounded-br-[3px]',
           'hover:!bg-[#e81123] dark:hover:!bg-[#e81123]',
           'active:!bg-[#dc5c66] dark:active:!bg-[#dc5c66]'
         )}

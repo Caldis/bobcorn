@@ -374,6 +374,11 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
   const handleEyeDropper = useCallback(async () => {
     try {
       // EyeDropper API (Chromium/Electron)
+      // NOTE: In Electron, the EyeDropper can pick colors from anywhere on screen,
+      // but clicking outside the app window may cancel the operation (AbortError)
+      // due to Chromium's focus-loss handling. This is a known Chromium limitation
+      // and cannot be fixed at the application level. Alternative approaches
+      // (desktopCapturer + nativeImage) would add significant complexity.
       const dropper = new (window as any).EyeDropper();
       const result = await dropper.open();
       const hex = result.sRGBHex?.toLowerCase();
@@ -383,7 +388,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
         setColorInputError(false);
       }
     } catch {
-      // 用户按 Esc 取消，忽略
+      // 用户按 Esc 取消或点击窗口外导致焦点丢失 (AbortError)，忽略
     }
   }, [applyColor]);
 
