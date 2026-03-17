@@ -387,6 +387,37 @@
                 background: var(--color-accent-bg);
             }
 
+            .iconBlock {
+                position: relative;
+            }
+
+            .iconDownload {
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: none;
+                border-radius: 4px;
+                background: transparent;
+                color: var(--color-text-tertiary);
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+            }
+
+            .iconBlock:hover .iconDownload {
+                opacity: 1;
+            }
+
+            .iconDownload:hover {
+                background: var(--color-accent-bg);
+                color: var(--color-accent);
+            }
+
             .iconContent {
                 display: flex;
                 align-items: center;
@@ -755,6 +786,9 @@
                 <div class="iconContent"><!--iconContent--></div>
                 <div class="iconName"><!--iconName--></div>
                 <div class="iconCode"><!--iconCode--></div>
+                <button class="iconDownload" title="下载 SVG">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </button>
             </div>
             <div class="noIconHint">该分类下暂无图标</div>
         </div>
@@ -945,6 +979,7 @@
             }
             iconBlockTemplate.id = icon.id;
             iconBlockTemplate.onclick = copyIconCode;
+            iconBlockTemplate.querySelector(".iconDownload").onclick = downloadIconSvg;
             return iconBlockTemplate;
         }
 
@@ -1150,6 +1185,61 @@
             } else {
                 return true;
             }
+        }
+
+        // ==============================
+        // Download Icon as SVG
+        // ==============================
+        function downloadIconSvg(e) {
+            e.stopPropagation();
+            var block = this.closest(".iconBlock");
+            var iconName = block.querySelector(".iconName").textContent;
+            var contentEl = block.querySelector(".iconContent");
+
+            // Get the rendered icon element
+            var iconEl = contentEl.querySelector("svg") || contentEl.querySelector("i");
+            if (!iconEl) return;
+
+            var svgContent;
+            if (iconEl.tagName.toLowerCase() === "svg") {
+                // Symbol mode — clone the SVG
+                var clone = iconEl.cloneNode(true);
+                // Resolve <use> href
+                var useEl = clone.querySelector("use");
+                if (useEl) {
+                    var href = useEl.getAttribute("xlink:href") || useEl.getAttribute("href");
+                    var refEl = document.querySelector(href);
+                    if (refEl) {
+                        clone.innerHTML = refEl.innerHTML;
+                        var vb = refEl.getAttribute("viewBox");
+                        if (vb) clone.setAttribute("viewBox", vb);
+                    }
+                }
+                clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                clone.removeAttribute("class");
+                clone.removeAttribute("aria-hidden");
+                svgContent = new XMLSerializer().serializeToString(clone);
+            } else {
+                // Unicode/FontClass mode — render text to SVG via canvas measurement
+                var computed = window.getComputedStyle(iconEl);
+                var size = 1024;
+                svgContent = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '">' +
+                    '<text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" ' +
+                    'font-family="' + projectName + '" font-size="' + size + '" fill="currentColor">' +
+                    '&#x' + block.getAttribute("iconCode").replace(/[&#x;]/g, "") + ';</text></svg>';
+            }
+
+            // Trigger download
+            var blob = new Blob([svgContent], { type: "image/svg+xml" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = iconName + ".svg";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("已下载: " + iconName + ".svg");
         }
 
         // ==============================
