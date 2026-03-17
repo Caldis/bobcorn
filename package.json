@@ -97,8 +97,7 @@
     }
   },
   "author": {
-    "name": "Caldis",
-    "email": "chenbiaomail@qq.com"
+    "name": "Caldis"
   },
   "keywords": [
     "electron",

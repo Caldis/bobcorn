@@ -7,7 +7,7 @@
 import os from 'os';
 import path from 'path';
 import type { OpenDialogOptions, SaveDialogOptions } from 'electron';
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 
@@ -120,15 +120,30 @@ app.on('ready', async () => {
   });
 
   // IPC handlers for dialog operations (replaces electron.remote dialog)
-  ipcMain.handle('dialog-show-open', async (_event: Electron.IpcMainInvokeEvent, options: OpenDialogOptions) => {
-    return dialog.showOpenDialog(mainWindow!, options);
-  });
-  ipcMain.handle('dialog-show-save', async (_event: Electron.IpcMainInvokeEvent, options: SaveDialogOptions) => {
-    return dialog.showSaveDialog(mainWindow!, options);
-  });
-  ipcMain.on('get-app-path', (event: Electron.IpcMainEvent, name: Parameters<typeof app.getPath>[0]) => {
-    event.returnValue = app.getPath(name);
-  });
+  ipcMain.handle(
+    'dialog-show-open',
+    async (_event: Electron.IpcMainInvokeEvent, options: OpenDialogOptions) => {
+      return dialog.showOpenDialog(mainWindow!, options);
+    }
+  );
+  ipcMain.handle(
+    'dialog-show-save',
+    async (_event: Electron.IpcMainInvokeEvent, options: SaveDialogOptions) => {
+      return dialog.showSaveDialog(mainWindow!, options);
+    }
+  );
+  ipcMain.on(
+    'get-app-path',
+    (event: Electron.IpcMainEvent, name: Parameters<typeof app.getPath>[0]) => {
+      event.returnValue = app.getPath(name);
+    }
+  );
+  ipcMain.handle(
+    'shell-open-path',
+    async (_event: Electron.IpcMainInvokeEvent, fullPath: string) => {
+      return shell.openPath(fullPath);
+    }
+  );
 
   // Auto-update
   ipcMain.on('install-update', () => {

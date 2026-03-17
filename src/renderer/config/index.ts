@@ -33,7 +33,7 @@ const config: AppConfig = {
   defaultSelectedGroup: 'resource-all',
   // 可读取的图标文件格式
   acceptableIconTypes: ['image/svg+xml'],
-  // 可读取的项目文件格式: json 为 cyberpen, icp为本工具项目文件
+  // 可读取的项目文件格式: json 为旧版项目, icp为本工具项目文件
   acceptableProjectTypes: ['json', 'icp'],
   // 可用的 Unicode 公用字码范围, 从 57344 到 63743 共 6399 个
   publicRangeUnicodeDecMin: 57344,

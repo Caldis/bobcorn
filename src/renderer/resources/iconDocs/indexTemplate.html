@@ -389,33 +389,52 @@
 
             .iconBlock {
                 position: relative;
+                overflow: hidden;
             }
 
-            .iconDownload {
+            .iconOverlay {
                 position: absolute;
-                top: 6px;
-                right: 6px;
-                width: 24px;
-                height: 24px;
+                inset: 0;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                gap: 6px;
+                background: rgba(0, 0, 0, 0.85);
+                border-radius: var(--radius-md);
+                opacity: 0;
+                transition: opacity var(--transition-fast);
+                pointer-events: none;
+            }
+
+            .iconBlock:hover .iconOverlay {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .iconOverlay button {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                padding: 5px 12px;
                 border: none;
                 border-radius: 4px;
-                background: transparent;
-                color: var(--color-text-tertiary);
+                font-size: 11px;
+                font-weight: 500;
                 cursor: pointer;
-                opacity: 0;
-                transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+                transition: background var(--transition-fast);
+                white-space: nowrap;
             }
 
-            .iconBlock:hover .iconDownload {
-                opacity: 1;
+            .iconOverlay .overlayCopy,
+            .iconOverlay .overlayDownload {
+                background: rgba(255, 255, 255, 0.15);
+                color: #ffffff;
             }
 
-            .iconDownload:hover {
-                background: var(--color-accent-bg);
-                color: var(--color-accent);
+            .iconOverlay .overlayCopy:hover,
+            .iconOverlay .overlayDownload:hover {
+                background: rgba(255, 255, 255, 0.3);
             }
 
             .iconContent {
@@ -786,9 +805,16 @@
                 <div class="iconContent"><!--iconContent--></div>
                 <div class="iconName"><!--iconName--></div>
                 <div class="iconCode"><!--iconCode--></div>
-                <button class="iconDownload" title="下载 SVG">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </button>
+                <div class="iconOverlay">
+                    <button class="overlayCopy">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        复制编码
+                    </button>
+                    <button class="overlayDownload">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        下载 SVG
+                    </button>
+                </div>
             </div>
             <div class="noIconHint">该分类下暂无图标</div>
         </div>
@@ -978,8 +1004,8 @@
                     break;
             }
             iconBlockTemplate.id = icon.id;
-            iconBlockTemplate.onclick = copyIconCode;
-            iconBlockTemplate.querySelector(".iconDownload").onclick = downloadIconSvg;
+            iconBlockTemplate.querySelector(".overlayCopy").onclick = copyIconCode;
+            iconBlockTemplate.querySelector(".overlayDownload").onclick = downloadIconSvg;
             return iconBlockTemplate;
         }
 
@@ -1245,8 +1271,10 @@
         // ==============================
         // Copy to Clipboard (toast, no alert)
         // ==============================
-        function copyIconCode() {
-            var iconCode = document.getElementById(this.id).getAttribute("iconCode");
+        function copyIconCode(e) {
+            e.stopPropagation();
+            var block = this.closest(".iconBlock");
+            var iconCode = block.getAttribute("iconCode");
 
             // Modern clipboard API with fallback
             if (navigator.clipboard && navigator.clipboard.writeText) {

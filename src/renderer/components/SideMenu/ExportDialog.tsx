@@ -33,6 +33,8 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [exportLogs, setExportLogs] = useState<string[]>([]);
   const exportLogsEndRef = useRef<HTMLDivElement>(null);
+  const [exportedDirPath, setExportedDirPath] = useState<string>('');
+  const [exportedProjectName, setExportedProjectName] = useState<string>('');
 
   // 分组选择
   const [exportGroupFullList, setExportGroupFullList] = useState<ExportGroupOption[]>([]);
@@ -107,6 +109,8 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     setExportPhase('exporting');
     setExportProgress(0);
     setExportLogs([]);
+    setExportedDirPath(dirPath);
+    setExportedProjectName(projectName);
 
     // 使用 setTimeout 让每步有机会更新 UI
     const step = (progress: number, log: string) =>
@@ -360,10 +364,37 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             ))}
             <div ref={exportLogsEndRef} />
           </div>
-          {exportPhase === 'done' && (
-            <p className="mt-3 text-xs text-foreground-muted">
-              下次需要继续编辑图标，请打开导出目录下的 .icp 文件
-            </p>
+          {exportPhase === 'done' && exportedDirPath && (
+            <div className="mt-3 space-y-2">
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { name: '预览页面', file: `${exportedProjectName}.html` },
+                  { name: '项目文件', file: `${exportedProjectName}.icp` },
+                  { name: '打开目录', file: '' },
+                ].map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={() => {
+                      const target = item.file
+                        ? `${exportedDirPath}/${item.file}`
+                        : exportedDirPath;
+                      electronAPI.openPath(target);
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded text-xs font-medium',
+                      'border border-border',
+                      'text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-950/30',
+                      'transition-colors duration-150 cursor-pointer'
+                    )}
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-foreground-muted">
+                下次需要继续编辑图标，请打开 .icp 文件
+              </p>
+            </div>
           )}
         </div>
       )}

@@ -57,19 +57,8 @@ const IconChunk = React.memo(function IconChunk({
   codeVisible: boolean;
   handleIconSelected: (id: string | null, data?: any) => void;
 }) {
-  const colWidth = (typeof iconBlockWidth === 'number' ? iconBlockWidth : 100) + 20;
-
   return (
-    <div
-      style={{
-        contentVisibility: 'auto',
-        containIntrinsicSize: 'auto 200px',
-        display: 'grid',
-        gridTemplateColumns: `repeat(auto-fill, ${colWidth}px)`,
-        justifyContent: 'center',
-        gap: '4px',
-      }}
-    >
+    <>
       {icons.map((icon) => (
         <IconBlock
           key={icon.id}
@@ -83,7 +72,7 @@ const IconChunk = React.memo(function IconChunk({
           handleIconSelected={handleIconSelected}
         />
       ))}
-    </div>
+    </>
   );
 });
 
@@ -334,6 +323,18 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
     return groups;
   }, [iconData, selectedGroup, searchKeyword]);
 
+  // Grid 容器样式 — 所有图标共用一个 grid，不在 chunk 级别断开
+  const colWidth = (typeof iconBlockWidth === 'number' ? iconBlockWidth : 100) + 20;
+  const gridStyle: React.CSSProperties = useMemo(
+    () => ({
+      display: 'grid',
+      gridTemplateColumns: `repeat(auto-fill, ${colWidth}px)`,
+      justifyContent: 'center',
+      gap: '4px',
+    }),
+    [colWidth]
+  );
+
   // ── 渲染一般图标网格 ──────────────────────────────────────────
   const gridContent = useMemo(() => {
     if (selectedGroup === 'resource-all') {
@@ -364,32 +365,38 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
               {chunks.reduce((sum, c) => sum + c.length, 0)}
             </label>
           </div>
-          {chunks.map((chunk, ci) => (
-            <IconChunk
-              key={`${group.id}-${ci}`}
-              icons={chunk}
-              iconBlockWidth={iconBlockWidth}
-              nameVisible={iconBlockNameVisible}
-              codeVisible={iconBlockCodeVisible}
-              handleIconSelected={handleIconSelected}
-            />
-          ))}
+          <div style={gridStyle}>
+            {chunks.map((chunk, ci) => (
+              <IconChunk
+                key={`${group.id}-${ci}`}
+                icons={chunk}
+                iconBlockWidth={iconBlockWidth}
+                nameVisible={iconBlockNameVisible}
+                codeVisible={iconBlockCodeVisible}
+                handleIconSelected={handleIconSelected}
+              />
+            ))}
+          </div>
         </div>
       ));
     }
 
     // 普通分组 / 最近更新 / 未分组 etc.
     if (iconChunks.length === 0) return null;
-    return iconChunks.map((chunk, ci) => (
-      <IconChunk
-        key={ci}
-        icons={chunk}
-        iconBlockWidth={iconBlockWidth}
-        nameVisible={iconBlockNameVisible}
-        codeVisible={iconBlockCodeVisible}
-        handleIconSelected={handleIconSelected}
-      />
-    ));
+    return (
+      <div style={gridStyle}>
+        {iconChunks.map((chunk, ci) => (
+          <IconChunk
+            key={ci}
+            icons={chunk}
+            iconBlockWidth={iconBlockWidth}
+            nameVisible={iconBlockNameVisible}
+            codeVisible={iconBlockCodeVisible}
+            handleIconSelected={handleIconSelected}
+          />
+        ))}
+      </div>
+    );
   }, [
     selectedGroup,
     allGroupChunks,

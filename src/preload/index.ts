@@ -27,7 +27,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const buf = fs.readFileSync(filePath);
     return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
   },
-  writeFileSync: (filePath: string, data: string | NodeJS.ArrayBufferView): void => fs.writeFileSync(filePath, data),
+  writeFileSync: (filePath: string, data: string | NodeJS.ArrayBufferView): void =>
+    fs.writeFileSync(filePath, data),
   writeFile: (filePath: string, data: string | NodeJS.ArrayBufferView): Promise<void> => {
     // contextBridge cannot pass callbacks, so we make it promise-based
     return new Promise<void>((resolve, reject) => {
@@ -51,7 +52,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return false;
     }
   },
-  mkdirSync: (dirPath: string, options?: fs.MakeDirectoryOptions): string | undefined => fs.mkdirSync(dirPath, options),
+  mkdirSync: (dirPath: string, options?: fs.MakeDirectoryOptions): string | undefined =>
+    fs.mkdirSync(dirPath, options),
+
+  // Shell
+  openPath: (fullPath: string): Promise<string> => ipcRenderer.invoke('shell-open-path', fullPath),
 
   // Path utilities
   pathJoin: (...args: string[]): string => path.join(...args),

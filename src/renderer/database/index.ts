@@ -89,7 +89,7 @@ interface IconImportData {
   iconType: string;
 }
 
-/** CyberPen icon data for addIconsFromCpData */
+/** Legacy icon data for addIconsFromCpData */
 interface CpIconData {
   glyph: string;
   unicodeNum: string;
