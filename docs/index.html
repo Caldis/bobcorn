@@ -259,19 +259,96 @@
 
     <section class="hero">
         <div class="hero-badge">
-            <span>v1.4</span>
+            <span id="versionBadge">v1.5</span>
             Now with color editing & dark mode
         </div>
         <h1>Build <span>Icon Fonts</span><br>The Modern Way</h1>
         <p>Import SVG icons, organize into groups, edit colors inline, and export production-ready icon fonts in every format.</p>
         <div class="hero-buttons">
-            <a href="https://github.com/Caldis/bobcorn/releases" class="btn-primary">
+            <a id="downloadBtn" href="https://github.com/Caldis/bobcorn/releases" class="btn-primary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download
+                <span id="downloadLabel">Download</span>
             </a>
+            <a href="https://github.com/Caldis/bobcorn/releases" class="btn-secondary" id="allDownloads">All Downloads</a>
             <a href="https://github.com/Caldis/bobcorn" class="btn-secondary">View Source</a>
         </div>
     </section>
+
+    <script>
+    // Detect platform + arch and set download link to latest release asset
+    (function() {
+        var REPO = 'Caldis/bobcorn';
+        var ua = navigator.userAgent.toLowerCase();
+        var platform = 'unknown';
+        var label = 'Download';
+
+        if (ua.indexOf('win') !== -1) {
+            platform = 'windows';
+            label = 'Download for Windows';
+        } else if (ua.indexOf('mac') !== -1) {
+            // Check Apple Silicon vs Intel
+            var isArm = false;
+            try {
+                isArm = navigator.userAgentData && navigator.userAgentData.architecture === 'arm';
+            } catch(e) {}
+            // Fallback: check platform
+            if (!isArm && (navigator.platform === 'MacIntel' || ua.indexOf('arm') !== -1)) {
+                // Modern Macs report MacIntel even on ARM, use GPU detection
+                try {
+                    var canvas = document.createElement('canvas');
+                    var gl = canvas.getContext('webgl');
+                    var debugInfo = gl && gl.getExtension('WEBGL_debug_renderer_info');
+                    var renderer = debugInfo && gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    if (renderer && renderer.indexOf('Apple') !== -1) isArm = true;
+                } catch(e) {}
+            }
+            platform = isArm ? 'mac-arm64' : 'mac';
+            label = isArm ? 'Download for Mac (Apple Silicon)' : 'Download for Mac';
+        } else if (ua.indexOf('linux') !== -1) {
+            platform = 'linux';
+            label = 'Download for Linux';
+        }
+
+        document.getElementById('downloadLabel').textContent = label;
+
+        // Fetch latest release from GitHub API
+        fetch('https://api.github.com/repos/' + REPO + '/releases/latest')
+            .then(function(r) { return r.json(); })
+            .then(function(release) {
+                var version = release.tag_name.replace('v', '');
+                document.getElementById('versionBadge').textContent = 'v' + version;
+
+                // Find matching asset
+                var assets = release.assets || [];
+                var assetUrl = null;
+
+                for (var i = 0; i < assets.length; i++) {
+                    var name = assets[i].name;
+                    switch (platform) {
+                        case 'windows':
+                            if (name.match(/Setup.*\.exe$/i) && !name.match(/blockmap/)) assetUrl = assets[i].browser_download_url;
+                            break;
+                        case 'mac-arm64':
+                            if (name.match(/arm64\.dmg$/) && !name.match(/blockmap/)) assetUrl = assets[i].browser_download_url;
+                            break;
+                        case 'mac':
+                            if (name.match(/\.dmg$/) && !name.match(/arm64/) && !name.match(/blockmap/)) assetUrl = assets[i].browser_download_url;
+                            break;
+                        case 'linux':
+                            if (name.match(/\.AppImage$/)) assetUrl = assets[i].browser_download_url;
+                            break;
+                    }
+                }
+
+                if (assetUrl) {
+                    document.getElementById('downloadBtn').href = assetUrl;
+                }
+            })
+            .catch(function() {
+                // Fallback: link to releases page
+            });
+    })();
+    </script>
 
     <section class="features" id="features">
         <h2>Everything you need</h2>
