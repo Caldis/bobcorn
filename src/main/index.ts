@@ -14,6 +14,7 @@ import { registerScreenColorPicker } from './screen-color-picker';
 
 let mainWindow: BrowserWindow | null = null;
 const platform: string = os.platform();
+app.name = 'Bobcorn';
 
 if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
   try {
@@ -55,6 +56,7 @@ app.on('ready', async () => {
   }
 
   mainWindow = new BrowserWindow({
+    title: 'Bobcorn',
     show: false,
     width: 1200,
     minWidth: 1080,
