@@ -58,6 +58,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Shell
   openPath: (fullPath: string): Promise<string> => ipcRenderer.invoke('shell-open-path', fullPath),
 
+  // Screen color picker (fullscreen overlay with magnifier)
+  pickScreenColor: (): Promise<string> => ipcRenderer.invoke('pick-screen-color'),
+
   // Path utilities
   pathJoin: (...args: string[]): string => path.join(...args),
   pathResolve: (...args: string[]): string => path.resolve(...args),
