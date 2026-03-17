@@ -25,13 +25,18 @@ async function captureScreen(): Promise<string> {
   const { width, height } = primaryDisplay.size;
   const scaleFactor = primaryDisplay.scaleFactor;
 
+  // Use actual pixel dimensions for hi-DPI accuracy
+  const thumbWidth = Math.round(width * scaleFactor);
+  const thumbHeight = Math.round(height * scaleFactor);
+  console.log(
+    `[screen-color-picker] capturing ${thumbWidth}x${thumbHeight} (scale: ${scaleFactor})`
+  );
+
   const sources = await desktopCapturer.getSources({
     types: ['screen'],
-    thumbnailSize: {
-      width: Math.round(width * scaleFactor),
-      height: Math.round(height * scaleFactor),
-    },
+    thumbnailSize: { width: thumbWidth, height: thumbHeight },
   });
+  console.log(`[screen-color-picker] got ${sources.length} sources`);
 
   if (!sources.length) throw new Error('No screen source available');
 
@@ -51,7 +56,13 @@ async function openColorPicker(): Promise<string> {
   const { x, y } = primaryDisplay.bounds;
 
   // Capture screen BEFORE showing overlay
-  const screenshotDataUrl = await captureScreen();
+  let screenshotDataUrl: string;
+  try {
+    screenshotDataUrl = await captureScreen();
+  } catch (err) {
+    console.error('[screen-color-picker] capture failed:', err);
+    return '';
+  }
 
   return new Promise<string>((resolve) => {
     overlayWindow = new BrowserWindow({

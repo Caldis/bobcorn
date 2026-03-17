@@ -318,10 +318,11 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
     return extractSvgColors(iconData.iconContent);
   }, [iconData.iconContent]);
 
-  // 点击颜色区域外部时关闭编辑面板
+  // 点击颜色区域外部时关闭编辑面板（取色期间跳过）
   useEffect(() => {
     if (editingColorIdx === null) return;
     const handleClickOutside = (e: MouseEvent) => {
+      if (isPickingRef.current) return;
       if (colorSectionRef.current && !colorSectionRef.current.contains(e.target as Node)) {
         setEditingColorIdx(null);
       }
@@ -371,17 +372,20 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
     }
   }, [colorInputValue, applyColor]);
 
+  const isPickingRef = useRef(false);
+
   const handleEyeDropper = useCallback(async () => {
     try {
-      // 屏幕取色器：截屏 + 全屏 overlay + 放大镜，支持应用外取色
+      isPickingRef.current = true;
       const hex = await (window as any).electronAPI.pickScreenColor();
+      isPickingRef.current = false;
       if (hex) {
         applyColor(hex);
         setColorInputValue(hex);
         setColorInputError(false);
       }
     } catch {
-      // 取消或错误
+      isPickingRef.current = false;
     }
   }, [applyColor]);
 
