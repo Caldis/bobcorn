@@ -97,7 +97,8 @@
     }
   },
   "author": {
-    "name": "Caldis"
+    "name": "Caldis",
+    "email": "noreply@caldis.me"
   },
   "keywords": [
     "electron",
