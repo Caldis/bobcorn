@@ -639,17 +639,50 @@ class Database {
       this.iconCodeInRange(iconCode)
     );
   };
-  addIcons = (iconFilesData: IconFileData[], targetGroup: string, callback?: () => void): void => {
+  addIcons = (
+    iconFilesData: (IconFileData | File)[],
+    targetGroup: string,
+    callback?: () => void
+  ): void => {
     dev && console.log('addIcons');
+    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
+    let pending = iconFilesData.length;
+    if (pending === 0) {
+      callback && callback();
+      return;
+    }
+
+    const done = () => {
+      if (--pending <= 0) callback && callback();
+    };
+
     iconFilesData.forEach((data) => {
-      // 如果加入到 all 分组, 则转换为加入 未分类 分组
-      const dataSet = this.formatIconDataFromFilePath(
-        data.path,
-        targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup
-      );
-      this.addDataToTable(iconData, dataSet);
+      const filePath = (data as any).path;
+      if (filePath && typeof filePath === 'string' && filePath.length > 1) {
+        // Electron File with real path — read via fs
+        const dataSet = this.formatIconDataFromFilePath(filePath, group);
+        this.addDataToTable(iconData, dataSet);
+        done();
+      } else {
+        // Browser File without path — read via FileReader
+        const file = data as File;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const content = reader.result as string;
+          const dataSet = this.formatIconDataFromData(
+            {
+              iconName: file.name.replace(/\.[^.]+$/, ''),
+              iconContent: content,
+              iconType: file.name.split('.').pop() || 'svg',
+            },
+            group
+          );
+          this.addDataToTable(iconData, dataSet);
+          done();
+        };
+        reader.readAsText(file);
+      }
     });
-    callback && callback();
   };
   addIconsFromData = (
     iconFilesData: IconImportData[],
