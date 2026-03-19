@@ -36,7 +36,7 @@ jobs:
         run: npx electron-vite build
 
       - name: Unit tests
-        run: npx jest test/unit --verbose
+        run: npx vitest run
 
       - name: E2E tests (Linux only - needs display)
         if: runner.os == 'Linux'
