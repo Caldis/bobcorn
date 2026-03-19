@@ -21,4 +21,8 @@ export default defineConfig({
       '@': resolve(__dirname, 'src/renderer'),
     },
   },
+  // Ensure ?raw imports work for all file types including .css
+  css: {
+    modules: false,
+  },
 })

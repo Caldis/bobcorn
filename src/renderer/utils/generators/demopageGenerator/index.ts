@@ -1,12 +1,11 @@
 // Database
 import db from '../../../database';
-// Path
-import {
-  demoHTMLFile,
-  iconfontCSSFile,
-  iconfontJSHeadFile,
-  iconfontJSTailFile,
-} from '../../../config';
+// Templates — inlined at build time via Vite ?raw import
+// No runtime file I/O needed, works in both dev and production
+import htmlTemplate from '../../../resources/iconDocs/indexTemplate.html?raw';
+import cssTemplate from '../../../resources/iconDocs/iconfontTemplate(class).css?raw';
+import jsHead from '../../../resources/iconDocs/iconfontTemplate(symbol).head.txt?raw';
+import jsTail from '../../../resources/iconDocs/iconfontTemplate(symbol).tail.txt?raw';
 
 // ---------------------------------------------------------------------------
 // Type definitions
@@ -28,40 +27,13 @@ interface DemoIconData {
 }
 
 // ---------------------------------------------------------------------------
-// Template cache — read once, reuse across exports
-// ---------------------------------------------------------------------------
-let _htmlTemplate: string | null = null;
-let _cssTemplate: string | null = null;
-let _jsHead: string | null = null;
-let _jsTail: string | null = null;
-
-function getHtmlTemplate(): string {
-  if (!_htmlTemplate)
-    _htmlTemplate = (window as any).electronAPI.readFileSync(demoHTMLFile, 'utf-8');
-  return _htmlTemplate;
-}
-function getCssTemplate(): string {
-  if (!_cssTemplate)
-    _cssTemplate = (window as any).electronAPI.readFileSync(iconfontCSSFile, 'utf-8');
-  return _cssTemplate;
-}
-function getJsHead(): string {
-  if (!_jsHead) _jsHead = (window as any).electronAPI.readFileSync(iconfontJSHeadFile, 'utf-8');
-  return _jsHead;
-}
-function getJsTail(): string {
-  if (!_jsTail) _jsTail = (window as any).electronAPI.readFileSync(iconfontJSTailFile, 'utf-8');
-  return _jsTail;
-}
-
-// ---------------------------------------------------------------------------
 // Generators
 // ---------------------------------------------------------------------------
 
 // 生成demo页面文本
 export const demoHTMLGenerator = (groups: DemoGroupData[], icons: DemoIconData[]): string => {
   const parser = new DOMParser();
-  const pageTemplate = parser.parseFromString(getHtmlTemplate(), 'text/html');
+  const pageTemplate = parser.parseFromString(htmlTemplate, 'text/html');
   const iconsContainer = pageTemplate.querySelector('[content=icons]')!;
   iconsContainer.innerHTML = `
 		var projectName = ${JSON.stringify(db.getProjectName())}
@@ -75,7 +47,7 @@ export const demoHTMLGenerator = (groups: DemoGroupData[], icons: DemoIconData[]
 // 优化: 单次 replace + array.join 代替 += 循环
 export const iconfontCSSGenerator = (icons: DemoIconData[]): string => {
   const projectName = db.getProjectName();
-  const baseCSS = getCssTemplate().replace(/iconfont/g, projectName);
+  const baseCSS = cssTemplate.replace(/iconfont/g, projectName);
 
   // 预分配数组, 一次 join
   const parts: string[] = [baseCSS];
@@ -118,5 +90,5 @@ export const iconfontSymbolGenerator = (icons: DemoIconData[]): string => {
       `<symbol id="${projectName}-${icon.iconCode}" viewBox="${viewBox}">${normalized}</symbol>`;
   }
 
-  return getJsHead() + parts.join('') + getJsTail();
+  return jsHead + parts.join('') + jsTail;
 };

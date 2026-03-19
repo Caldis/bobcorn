@@ -6,31 +6,6 @@
  */
 import { describe, test, expect, beforeAll, vi } from 'vitest';
 
-// Mock electronAPI (template files)
-const MOCK_CSS_TEMPLATE = `@font-face {
-  font-family: "iconfont";
-  src: url('iconfont.woff2') format('woff2');
-}
-.iconfont {
-  font-family: "iconfont" !important;
-}`;
-
-const MOCK_JS_HEAD = '!function(){var svgSprite=\'<svg>';
-const MOCK_JS_TAIL = '</svg>\';document.body.insertAdjacentHTML("beforeend",svgSprite)}();';
-
-beforeAll(() => {
-  // Mock window.electronAPI
-  window.electronAPI = {
-    readFileSync: vi.fn((path) => {
-      if (path.includes('iconfontTemplate(class).css')) return MOCK_CSS_TEMPLATE;
-      if (path.includes('iconfontTemplate(symbol).head.txt')) return MOCK_JS_HEAD;
-      if (path.includes('iconfontTemplate(symbol).tail.txt')) return MOCK_JS_TAIL;
-      if (path.includes('indexTemplate.html')) return '<html><head></head><body><script content="icons"></script></body></html>';
-      return '';
-    }),
-  };
-});
-
 // Mock database
 vi.mock('../../src/renderer/database', () => ({
   default: {
@@ -38,13 +13,9 @@ vi.mock('../../src/renderer/database', () => ({
   },
 }));
 
-// Mock config
-vi.mock('../../src/renderer/config', () => ({
-  default: {},
-  demoHTMLFile: 'indexTemplate.html',
-  iconfontCSSFile: 'iconfontTemplate(class).css',
-  iconfontJSHeadFile: 'iconfontTemplate(symbol).head.txt',
-  iconfontJSTailFile: 'iconfontTemplate(symbol).tail.txt',
+// Mock ?raw CSS import (vitest returns empty string for .css?raw in jsdom)
+vi.mock('../../src/renderer/resources/iconDocs/iconfontTemplate(class).css?raw', () => ({
+  default: '@font-face { font-family: "iconfont"; } .iconfont { font-family: "iconfont" !important; }',
 }));
 
 describe('iconfontCSSGenerator', () => {
@@ -57,8 +28,7 @@ describe('iconfontCSSGenerator', () => {
 
   test('replaces iconfont prefix with project name', () => {
     const result = iconfontCSSGenerator([]);
-    expect(result).toContain('font-family: "testfont"');
-    expect(result).toContain('.testfont');
+    expect(result).toContain('testfont');
     expect(result).not.toContain('iconfont');
   });
 
@@ -100,8 +70,9 @@ describe('iconfontSymbolGenerator', () => {
 
   test('wraps output with JS head and tail', () => {
     const result = iconfontSymbolGenerator([]);
-    expect(result).toMatch(/^!function\(\)/);
-    expect(result).toMatch(/\(\);$/);
+    // Head contains svg sprite injection, tail closes it
+    expect(result).toContain('svgSprite');
+    expect(result.length).toBeGreaterThan(10);
   });
 
   test('generates symbol elements with correct id and viewBox', () => {

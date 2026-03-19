@@ -82,24 +82,5 @@ export const getOption = (optionKey?: string): OptionData | OptionData[keyof Opt
 };
 
 // 路径设置
-// 导出的模板文件路径
-// dev 情况下不使用 asar
-// 生产模式下优先使用 asar 路径, 若不存在 (未打包) 则回退到 dev 路径
-
-const resolveResourcePath = (filename: string): string => {
-  const devPath = `./src/renderer/resources/iconDocs/${filename}`;
-  if (dev) return devPath;
-  const prodPath = `./resources/app.asar/resources/iconDocs/${filename}`;
-  try {
-    const { electronAPI } = window as any;
-    if (electronAPI?.existsSync(prodPath)) return prodPath;
-  } catch (_) {
-    /* electronAPI not ready or path check failed */
-  }
-  return devPath;
-};
-
-export const demoHTMLFile: string = resolveResourcePath('indexTemplate.html');
-export const iconfontCSSFile: string = resolveResourcePath('iconfontTemplate(class).css');
-export const iconfontJSHeadFile: string = resolveResourcePath('iconfontTemplate(symbol).head.txt');
-export const iconfontJSTailFile: string = resolveResourcePath('iconfontTemplate(symbol).tail.txt');
+// 导出模板文件现在通过 Vite ?raw import 内联到 bundle 中
+// 见 src/renderer/utils/generators/demopageGenerator/index.ts
