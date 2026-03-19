@@ -133,19 +133,13 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         groupColor: '',
       });
 
-      await step(10, '生成 HTML 演示页面...');
-      const pageData = demoHTMLGenerator(
-        groups,
-        icons.map((icon: any) => Object.assign({}, icon, { iconContent: '' }))
-      );
-
-      await step(15, '生成 CSS 样式表...');
+      await step(10, '生成 CSS 样式表...');
       const cssData = iconfontCSSGenerator(icons);
 
-      await step(20, '生成 JS Symbol 引用...');
+      await step(15, '生成 JS Symbol 引用...');
       const jsData = iconfontSymbolGenerator(icons);
 
-      await step(25, `生成 SVG 字体 (${icons.length} glyphs)...`);
+      await step(20, `生成 SVG 字体 (${icons.length} glyphs)...`);
       const svgFont = await new Promise<string>((resolve, reject) => {
         svgFontGenerator(
           {
@@ -162,9 +156,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             },
           },
           (result: string) => (result ? resolve(result) : reject(new Error('SVG 字体生成失败'))),
-          // 进度回调 — SVG 字体生成占 25%→45% 区间
+          // 进度回调 — SVG 字体生成占 20%→40% 区间
           (processed: number, total: number) => {
-            const pct = 25 + Math.round((processed / total) * 20);
+            const pct = 20 + Math.round((processed / total) * 20);
             setExportProgress(pct);
             // 只在关键节点记日志，不刷屏
             if (processed === total) {
@@ -174,17 +168,25 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         );
       });
 
-      await step(45, '转换 TTF 字体...');
+      await step(42, '转换 TTF 字体...');
       const ttfFont = ttfFontGenerator({ svgFont });
 
-      await step(55, '转换 WOFF 字体...');
+      await step(50, '转换 WOFF 字体...');
       const woffFont = woffFontGenerator({ ttfFont });
 
-      await step(65, '转换 WOFF2 字体...');
+      await step(58, '转换 WOFF2 字体...');
       const woff2Font = woff2FontGenerator({ ttfFont });
 
-      await step(75, '转换 EOT 字体...');
+      await step(64, '转换 EOT 字体...');
       const eotFont = eotFontGenerator({ ttfFont });
+
+      await step(70, '生成 HTML 演示页面...');
+      const woff2Base64 = Buffer.from(woff2Font.buffer).toString('base64');
+      const pageData = demoHTMLGenerator(
+        groups,
+        icons.map((icon: any) => Object.assign({}, icon, { iconContent: '' })),
+        woff2Base64
+      );
 
       await step(80, '导出项目文件...');
       if (!electronAPI.accessSync(dirPath)) {

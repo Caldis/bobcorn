@@ -31,15 +31,28 @@ interface DemoIconData {
 // ---------------------------------------------------------------------------
 
 // 生成demo页面文本
-export const demoHTMLGenerator = (groups: DemoGroupData[], icons: DemoIconData[]): string => {
+// woff2Base64: woff2 字体 base64 编码，内嵌到 HTML 支持 file:// 打开
+export const demoHTMLGenerator = (
+  groups: DemoGroupData[],
+  icons: DemoIconData[],
+  woff2Base64?: string
+): string => {
   const parser = new DOMParser();
   const pageTemplate = parser.parseFromString(htmlTemplate, 'text/html');
   const iconsContainer = pageTemplate.querySelector('[content=icons]')!;
+  const fontLine = woff2Base64 ? `var fontBase64 = "${woff2Base64}";` : '';
+  const projectName = db.getProjectName();
   iconsContainer.innerHTML = `
-		var projectName = ${JSON.stringify(db.getProjectName())}
+		var projectName = ${JSON.stringify(projectName)}
 		var groups = ${JSON.stringify(groups)};
 		var icons = ${JSON.stringify(icons)};
+		${fontLine}
 	`;
+  // Preload symbol SVG sprite so SVG downloads work from any tab
+  const symbolPreload = pageTemplate.querySelector('[content=symbolPreload]');
+  if (symbolPreload) {
+    symbolPreload.setAttribute('src', `./${projectName}.js`);
+  }
   return pageTemplate.querySelector('html')!.outerHTML;
 };
 

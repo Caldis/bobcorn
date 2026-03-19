@@ -674,6 +674,8 @@
         </style>
     </head>
     <body>
+    <!-- Preload symbol SVG sprite so all tabs can download real SVG paths -->
+    <script content="symbolPreload"></script>
 
         <!-- Sticky Header: Tabs + Theme Toggle -->
         <div class="stickyHeader">
@@ -842,14 +844,16 @@
         // ==============================
         // Style definitions
         // ==============================
+        var fontSrc = (typeof fontBase64 !== 'undefined' && fontBase64)
+            ? "url(data:font/woff2;base64," + fontBase64 + ") format('woff2')"
+            : "url('" + projectName + ".eot?#iefix') format('embedded-opentype')," +
+              "url('" + projectName + ".woff2') format('woff2')," +
+              "url('" + projectName + ".woff') format('woff')," +
+              "url('" + projectName + ".ttf') format('truetype')";
         var unicodeImportStyle =
             "@font-face {" +
                 "font-family: '" + projectName + "';" +
-                "src: url('" + projectName + ".eot');" +
-                "src: url('" + projectName + ".eot?#iefix') format('embedded-opentype')," +
-                "url('" + projectName + ".woff') format('woff')," +
-                "url('" + projectName + ".ttf') format('truetype')," +
-                "url('" + projectName + ".svg#" + projectName + "') format('svg');" +
+                "src: " + fontSrc + ";" +
             "}" +
             "." + projectName + "{" +
                 "font-family:'" + projectName + "' !important;" +
@@ -1226,19 +1230,31 @@
             var iconEl = contentEl.querySelector("svg") || contentEl.querySelector("i");
             if (!iconEl) return;
 
+            // Always prefer the symbol definition (real SVG paths) over font-based text SVG.
+            // This ensures downloaded SVGs work standalone without the icon font installed.
+            // Extract hex code from any tab format:
+            //   unicode:   "&#xe000"        → "e000"
+            //   fontclass: "iconfont-e000"  → "e000"
+            //   symbol:    "#iconfont-e000" → "e000"
+            var iconCode = block.getAttribute("iconCode").replace(/.*-/, "").replace(/[&#x;]/g, "");
+            var symbolEl = document.querySelector("#" + projectName + "-" + iconCode);
             var svgContent;
-            if (iconEl.tagName.toLowerCase() === "svg") {
-                // Symbol mode — clone the SVG
+            if (symbolEl) {
+                // Found symbol definition — use actual SVG paths
+                var vb = symbolEl.getAttribute("viewBox") || "0 0 1024 1024";
+                svgContent = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + vb + '">' +
+                    symbolEl.innerHTML + '</svg>';
+            } else if (iconEl.tagName.toLowerCase() === "svg") {
+                // Symbol mode fallback — clone the SVG
                 var clone = iconEl.cloneNode(true);
-                // Resolve <use> href
                 var useEl = clone.querySelector("use");
                 if (useEl) {
                     var href = useEl.getAttribute("xlink:href") || useEl.getAttribute("href");
                     var refEl = document.querySelector(href);
                     if (refEl) {
                         clone.innerHTML = refEl.innerHTML;
-                        var vb = refEl.getAttribute("viewBox");
-                        if (vb) clone.setAttribute("viewBox", vb);
+                        var vb2 = refEl.getAttribute("viewBox");
+                        if (vb2) clone.setAttribute("viewBox", vb2);
                     }
                 }
                 clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -1246,13 +1262,12 @@
                 clone.removeAttribute("aria-hidden");
                 svgContent = new XMLSerializer().serializeToString(clone);
             } else {
-                // Unicode/FontClass mode — render text to SVG via canvas measurement
-                var computed = window.getComputedStyle(iconEl);
+                // Last resort — font-based text SVG (requires font installed)
                 var size = 1024;
                 svgContent = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '">' +
                     '<text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" ' +
                     'font-family="' + projectName + '" font-size="' + size + '" fill="currentColor">' +
-                    '&#x' + block.getAttribute("iconCode").replace(/[&#x;]/g, "") + ';</text></svg>';
+                    '&#x' + iconCode + ';</text></svg>';
             }
 
             // Trigger download

@@ -89,6 +89,16 @@ const createGlyphStream = (
 // Pre-compiled regex for SVG content cleanup
 const ARC_FIX_RE = /a0,0,0,0,1,0,0/g;
 
+// Strip non-renderable elements that svgicons2svgfont incorrectly extracts as glyph shapes.
+// <defs> may contain <clipPath>/<mask>/<filter> whose child shapes are NOT visible geometry
+// but svgicons2svgfont treats all <rect>/<path>/etc. as glyph outlines regardless of context.
+const DEFS_RE = /<defs[\s\S]*?<\/defs>/gi;
+const CLIP_PATH_ATTR_RE = /\s*clip-path="[^"]*"/gi;
+const MASK_ATTR_RE = /\s*mask="[^"]*"/gi;
+
+const cleanSVGForFont = (svg: string): string =>
+  svg.replace(DEFS_RE, '').replace(CLIP_PATH_ATTR_RE, '').replace(MASK_ATTR_RE, '');
+
 // ---------------------------------------------------------------------------
 // SVG → SVG Font (with progress callback)
 // ---------------------------------------------------------------------------
@@ -143,7 +153,7 @@ export const svgFontGenerator = (
   // Pre-compute unicode + clean content, write all glyphs
   for (let i = 0; i < total; i++) {
     const icon = icons[i];
-    const cleanContent = icon.iconContent.replace(ARC_FIX_RE, '');
+    const cleanContent = cleanSVGForFont(icon.iconContent.replace(ARC_FIX_RE, ''));
     const codePoint = parseInt(icon.iconCode, 16);
     const glyph = createGlyphStream(
       cleanContent,
