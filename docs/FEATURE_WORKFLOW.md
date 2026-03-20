@@ -5,7 +5,7 @@
 ### 1. Branch
 
 ```bash
-git checkout -b feat/description main
+git checkout -b feat/description master
 ```
 
 Naming: `feat/`, `fix/`, `refactor/`, `test/`, `docs/`
@@ -33,28 +33,33 @@ Key decisions:
 
 ### 4. Visual Verification
 
+开发时用 HMR 模式验证（renderer 改动自动生效）：
 ```bash
-# Build and preview
-taskkill /f /im electron.exe 2>/dev/null
-npx electron-vite build && npx electron-vite preview
+npx electron-vite dev
 ```
 
-Take screenshots of affected UI areas → save to `screenshots/`.
+如涉及 main/preload 改动，需重启（先杀旧进程保持单实例）。
 
 ### 5. Run All Tests
 
 ```bash
-# Unit
+# Unit (169 tests)
 npx vitest run
 
 # Lint
 npm run lint
 
-# E2E acceptance (20 checks)
+# E2E acceptance (21 checks, requires build)
 npx electron-vite build && node test/e2e/acceptance.js
+
+# Full E2E flow (15 steps, requires build)
+node test/e2e/full-e2e.js
+
+# Security audit
+npm run security-audit
 ```
 
-All 20 acceptance checks must pass. Zero page/console errors required.
+All tests must pass. Zero page/console errors required.
 
 ### 6. Commit
 
@@ -68,7 +73,7 @@ Commit types: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `security`, `p
 ### 7. Merge
 
 ```bash
-git checkout main && git merge feat/description
+git checkout master && git merge feat/description
 ```
 
 Post-merge: re-run acceptance tests to confirm no regressions.
@@ -78,6 +83,6 @@ Post-merge: re-run acceptance tests to confirm no regressions.
 - [ ] Tests written and passing
 - [ ] No ESLint errors (`npm run lint`)
 - [ ] Build succeeds (`npx electron-vite build`)
-- [ ] Acceptance tests pass (20/20)
+- [ ] Acceptance tests pass (21/21)
 - [ ] No page or console errors
 - [ ] Screenshots captured for UI changes

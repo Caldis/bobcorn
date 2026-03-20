@@ -15,14 +15,14 @@ git status  # should be clean
 # 2. Build
 npx electron-vite build
 
-# 3. Unit tests
+# 3. Unit tests (169 tests)
 npx vitest run
 
-# 4. E2E acceptance
-node test/e2e/acceptance.js  # 21/21 required
+# 4. E2E acceptance (21 checks)
+node test/e2e/acceptance.js
 
-# 5. Full flow
-node test/e2e/full-e2e.js  # 13/13 required
+# 5. Full E2E flow (15 steps)
+node test/e2e/full-e2e.js
 
 # 6. Security audit
 npm run security-audit
@@ -30,6 +30,8 @@ npm run security-audit
 # 7. Local package test (optional)
 npm run package-win
 ```
+
+所有测试必须全部通过 (0 失败) 才能发版。
 
 ## Release Steps
 
@@ -44,7 +46,7 @@ npm version minor
 npm version major
 
 # Push triggers CI → multi-platform build → GitHub Releases
-git push origin main --follow-tags
+git push origin master --follow-tags
 ```
 
 ## What Happens Automatically

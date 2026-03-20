@@ -11,7 +11,7 @@ Bobcorn 是一个 Electron + React 的图标字体管理/生成桌面工具。
 |---|------|------|
 | 运行时 | Electron | 28.3.3 |
 | UI | React (functional + hooks) | 18 |
-| 组件库 | antd (CSS-in-JS) | 5 |
+| 组件库 | Radix UI + Tailwind + lucide-react | — |
 | 状态管理 | Zustand | latest |
 | 构建 | electron-vite | 3.x |
 | 打包 | electron-builder | 24.13 |
@@ -27,14 +27,13 @@ Bobcorn 是一个 Electron + React 的图标字体管理/生成桌面工具。
 FNM="/c/Users/mail/AppData/Local/Microsoft/WinGet/Packages/Schniz.fnm_Microsoft.Winget.Source_8wekyb3d8bbwe/fnm.exe"
 eval "$("$FNM" env --shell bash)" && "$FNM" use 18
 
-# 启动前杀旧进程！
-taskkill /f /im electron.exe 2>/dev/null
+# 开发模式 (HMR 热更新，首选)
+cd /d/Code/bobcorn && npx electron-vite dev
 
-# 构建 + 启动
-cd /d/Code/bobcorn && npx electron-vite build && npx electron-vite preview
-
-# 验收测试 (20 checks)
-npx electron-vite build && node test/e2e/acceptance.js
+# 如需重启整个应用 (main/preload 变更时):
+# 先确保单实例 — 按命令行路径精确匹配 bobcorn 的 electron 进程，避免误杀其他 Electron 应用
+powershell -Command "Get-CimInstance Win32_Process -Filter \"name='electron.exe'\" | Where-Object { \$_.CommandLine -like '*bobcorn*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force -ErrorAction SilentlyContinue }"
+npx electron-vite dev
 ```
 
 ## 项目结构
@@ -86,22 +85,39 @@ bobcorn/
 | `src/renderer/store/README.md` | State tree + 使用模式 |
 | `src/renderer/database/README.md` | Schema + 异步初始化 + CRUD API |
 
-### 项目规划
+## 测试流程
 
-| 文件 | 内容 |
-|------|------|
-| `docs/2026-03-14-project-roadmap.md` | 全阶段升级路线图 (P0-P4) |
-| `docs/plans/2026-03-14-p0-security-runnability.md` | P0 实施计划 (已完成) |
-| `docs/plans/2026-03-14-p1-toolchain-modernization.md` | P1 实施计划 (已完成) |
-| `docs/plans/2026-03-14-p5-agent-ready-infrastructure.md` | P5 实施计划 |
+### 开发时
 
-## 验收测试协议
+renderer 改动通过 HMR 热更新，无需重启。main/preload 改动需重启应用（先杀旧进程保持单实例）。
 
-每次重大变更后必须运行完整验收：
+判断是否需要重启：
+- **仅 renderer**（组件/store/utils/样式）→ HMR 自动生效，无需操作
+- **涉及 main/preload**（IPC/窗口/菜单/文件系统 API）→ 杀进程 + 重启 `npx electron-vite dev`
 
-1. `npx electron-vite build` — 构建成功
-2. `node test/e2e/acceptance.js` — 20 项 E2E 检查全过
-3. 截图 UI 验收 — 闪屏/主界面/窗口控制/工具栏/美学检查
+### 发版前完整验收 (必须全部通过)
+
+```bash
+# 0. 确保单实例 (按命令行路径精确匹配 bobcorn)
+powershell -Command "Get-CimInstance Win32_Process -Filter \"name='electron.exe'\" | Where-Object { \$_.CommandLine -like '*bobcorn*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force -ErrorAction SilentlyContinue }"
+
+# 1. 构建
+npx electron-vite build
+
+# 2. 单元测试 (169 tests)
+npx vitest run
+
+# 3. E2E 验收测试 (21 checks)
+node test/e2e/acceptance.js
+
+# 4. Full E2E 流程测试 (15 steps)
+node test/e2e/full-e2e.js
+
+# 5. 安全审计
+npm run security-audit
+```
+
+所有测试必须全部通过，0 失败。当前已知问题需优先修复后才能发版。
 
 ## 关键约定
 

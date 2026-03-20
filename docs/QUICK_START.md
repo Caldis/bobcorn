@@ -16,30 +16,34 @@ eval "$("$FNM" env --shell bash)" && "$FNM" use 18
 cd /d/Code/bobcorn && npm install
 ```
 
-## Build & Run
+## Dev Mode (HMR, preferred)
 
 ```bash
-# Kill stale Electron processes first
-taskkill /f /im electron.exe 2>/dev/null
-
-# Build all three bundles (main + preload + renderer) and launch
-npx electron-vite build && npx electron-vite preview
+npx electron-vite dev
 ```
 
-## Dev Mode (hot reload)
+Renderer 改动自动热更新。main/preload 改动需重启：
 
 ```bash
+# 先杀旧进程 (按命令行路径精确匹配 bobcorn，避免误杀其他 Electron 应用)
+powershell -Command "Get-CimInstance Win32_Process -Filter \"name='electron.exe'\" | Where-Object { \$_.CommandLine -like '*bobcorn*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force -ErrorAction SilentlyContinue }"
 npx electron-vite dev
 ```
 
 ## Test
 
 ```bash
-# Unit tests (Vitest)
+# Unit tests (Vitest, 169 tests)
 npx vitest run
 
-# E2E acceptance (Playwright, requires build first)
+# E2E acceptance (21 checks, requires build)
 npx electron-vite build && node test/e2e/acceptance.js
+
+# Full E2E flow (15 steps, requires build)
+npx electron-vite build && node test/e2e/full-e2e.js
+
+# Security audit
+npm run security-audit
 ```
 
 ## Lint & Format

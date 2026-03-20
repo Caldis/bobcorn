@@ -60,7 +60,7 @@ The database and renderer modules use `import.meta.env` — mock it in tests or 
 npx electron-vite build && node test/e2e/acceptance.js
 ```
 
-### What It Checks (20 items)
+### What It Checks (21 items)
 
 1. **Launch:** window title, Electron version, window size
 2. **React:** root exists, content rendered
@@ -68,7 +68,7 @@ npx electron-vite build && node test/e2e/acceptance.js
 4. **Splash screen:** welcome text, new/open project buttons
 5. **Workspace:** side menu, icon grid, menu items, toolbar buttons
 6. **Window controls:** 3 title bar buttons (Win32)
-7. **Aesthetics:** stylesheets loaded, antd rendered, empty state hint
+7. **Aesthetics:** stylesheets loaded, UI components rendered, empty state hint
 8. **Errors:** zero page errors, zero console errors
 
 ### E2E Template (Playwright Electron)
