@@ -94,40 +94,24 @@ jobs:
         run: |
           set -euo pipefail
           TAG=${GITHUB_REF#refs/tags/}
+          REPO=${{ github.repository }}
           echo "Publishing ${TAG}"
+          BODY=$(cat changelog.md)
 
-          # electron-builder creates a single draft release; all platforms upload to it
-          DRAFT_IDS=$(gh api repos/${{ github.repository }}/releases \
-            --jq "[.[] | select(.draft==true and .tag_name==\"${TAG}\")] | .[].id")
-          echo "Found draft IDs: ${DRAFT_IDS:-none}"
+          # electron-builder creates a single draft release with all platform assets.
+          # Simply convert that draft to a published release — no need to download/reupload.
+          DRAFT_ID=$(gh api "repos/${REPO}/releases" \
+            --jq "[.[] | select(.draft==true and .tag_name==\"${TAG}\")] | .[0].id // empty")
 
-          # Always create published release first (draft != published)
-          if ! gh release view "${TAG}" --json isDraft --jq 'select(.isDraft==false)' >/dev/null 2>&1; then
-            echo "Creating release ${TAG}"
+          if [ -n "$DRAFT_ID" ]; then
+            echo "Converting draft ${DRAFT_ID} to published release"
+            gh api "repos/${REPO}/releases/${DRAFT_ID}" -X PATCH \
+              -f "draft=false" \
+              -f "name=${TAG#v}" \
+              -f "body=${BODY}"
+            echo "Published ${TAG} (converted from draft, assets preserved)"
+          else
+            echo "No draft found, creating release from tag"
             gh release create "${TAG}" --title "${TAG#v}" --notes-file changelog.md
+            echo "Published ${TAG} (no assets — electron-builder may not have run)"
           fi
-
-          # Download all assets from drafts, then delete drafts
-          mkdir -p /tmp/release-assets
-          for DRAFT_ID in $DRAFT_IDS; do
-            echo "Processing draft ${DRAFT_ID}"
-            ASSETS_JSON=$(gh api "repos/${{ github.repository }}/releases/${DRAFT_ID}/assets")
-            echo "$ASSETS_JSON" | jq -r '.[].url' | while read -r ASSET_URL; do
-              NAME=$(echo "$ASSETS_JSON" | jq -r ".[] | select(.url==\"${ASSET_URL}\") | .name")
-              echo "  Downloading ${NAME}"
-              gh api "${ASSET_URL}" -H "Accept: application/octet-stream" > "/tmp/release-assets/${NAME}"
-            done
-            gh api "repos/${{ github.repository }}/releases/${DRAFT_ID}" -X DELETE
-            echo "  Deleted draft ${DRAFT_ID}"
-          done
-
-          # Upload assets to published release
-          for f in /tmp/release-assets/*; do
-            [ -f "$f" ] || continue
-            echo "Uploading $(basename "$f")"
-            gh release upload "${TAG}" "$f" --clobber
-          done
-
-          # Update release body
-          gh release edit "${TAG}" --notes-file changelog.md
-          echo "Published ${TAG} with all platform assets"
