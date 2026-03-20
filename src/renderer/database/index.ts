@@ -167,6 +167,24 @@ class Database {
     if (!this.dbInited) {
       this.dbInited = true;
       this.db = new this.SQL!.Database(data);
+      // Migration: add iconContentOriginal column for existing projects
+      if (data) {
+        try {
+          const cols = this.db!.exec(`PRAGMA table_info(${iconData})`);
+          const hasCol =
+            cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'iconContentOriginal');
+          if (!hasCol) {
+            this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN iconContentOriginal TEXT`);
+            // Backfill: set original = current for existing icons
+            this.db!.run(
+              `UPDATE ${iconData} SET iconContentOriginal = iconContent WHERE iconContentOriginal IS NULL`
+            );
+            dev && console.log('Migration: added iconContentOriginal column');
+          }
+        } catch (e) {
+          dev && console.error('Migration error:', e);
+        }
+      }
     }
   };
   // 构建数据对表达式
@@ -406,7 +424,7 @@ class Database {
     );
     // 创建图标数据表, 并配置触发器自动更新时间戳
     this.db!.run(
-      `CREATE TABLE ${iconData} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${iconData} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, iconContentOriginal TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db!.run(
       `CREATE TRIGGER ${iconDataTimeRenewTrigger} AFTER UPDATE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${iconData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -567,6 +585,7 @@ class Database {
     const { electronAPI } = window;
     const fileData = electronAPI.readFileSync(path, 'utf-8');
     const svg = new SVG(fileData);
+    const content = sf(svg.formatSVG().getOuterHTML());
     return {
       id: sf(generateUUID()),
       iconCode: sf(this.getNewIconCode() as string),
@@ -574,11 +593,13 @@ class Database {
       iconGroup: sf(targetGroup),
       iconSize: electronAPI.statSync(path).size,
       iconType: sf(typeOfFile(nameOfPath(path))),
-      iconContent: sf(svg.formatSVG().getOuterHTML()),
+      iconContent: content,
+      iconContentOriginal: content,
     };
   };
   formatIconDataFromData = (obj: IconImportData, targetGroup: string): DataSet => {
     const svg = new SVG(obj.iconContent);
+    const content = sf(svg.formatSVG().getOuterHTML());
     return {
       id: sf(generateUUID()),
       iconCode: sf(this.getNewIconCode() as string),
@@ -586,11 +607,13 @@ class Database {
       iconGroup: sf(targetGroup),
       iconSize: sizeOfString(obj.iconContent),
       iconType: sf(obj.iconType),
-      iconContent: sf(svg.formatSVG().getOuterHTML()),
+      iconContent: content,
+      iconContentOriginal: content,
     };
   };
   formatIconDataFromCpData = (obj: CpIconData, targetGroup: string): DataSet => {
     const svg = new SVG(obj.glyph);
+    const content = sf(svg.formatSVG().getOuterHTML());
     return {
       id: sf(generateUUID()),
       iconCode: sf(obj.unicodeNum.toUpperCase()),
@@ -598,7 +621,8 @@ class Database {
       iconGroup: sf(targetGroup),
       iconSize: obj.size * 512,
       iconType: sf('svg'),
-      iconContent: sf(svg.formatSVG().getOuterHTML()),
+      iconContent: content,
+      iconContentOriginal: content,
     };
   };
   // 获取一个可用的图标字码
@@ -845,13 +869,15 @@ class Database {
       iconSize: sourceIconData.iconSize,
       iconType: sf(sourceIconData.iconType),
       iconContent: sf(sourceIconData.iconContent),
+      iconContentOriginal: sf(sourceIconData.iconContentOriginal || sourceIconData.iconContent),
     };
     this.addDataToTable(iconData, dataSet, callback);
   };
   renewIconData = (id: string, newIconFileData: RenewIconFileData, callback?: () => void): void => {
     dev && console.log('renewIconData');
     const { electronAPI } = window;
-    // 仅更新size,type,content
+    const content = sf(electronAPI.readFileSync(newIconFileData.path, 'utf-8'));
+    // 更新 size, type, content 以及原始内容
     const dataSet: DataSet = {
       id: sf(newIconFileData.id),
       iconCode: sf(newIconFileData.iconCode),
@@ -859,7 +885,8 @@ class Database {
       iconGroup: sf(newIconFileData.iconGroup),
       iconSize: electronAPI.statSync(newIconFileData.path).size,
       iconType: sf(typeOfFile(nameOfPath(newIconFileData.path))),
-      iconContent: sf(electronAPI.readFileSync(newIconFileData.path, 'utf-8')),
+      iconContent: content,
+      iconContentOriginal: content,
     };
     this.setIconData(id, dataSet, callback);
   };

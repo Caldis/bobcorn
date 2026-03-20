@@ -100,9 +100,9 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
       prevSelectedIconRef.current = selectedIcon;
       if (selectedIcon) {
         sync(selectedIcon);
-        // 保存选中时的原始内容，用于颜色重置
+        // 从数据库读取导入时的原始内容，用于颜色重置
         const data = db.getIconData(selectedIcon);
-        setOriginalIconContent(data.iconContent);
+        setOriginalIconContent(data.iconContentOriginal || data.iconContent);
         setEditingColorIdx(null);
       }
     }
