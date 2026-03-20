@@ -41,15 +41,15 @@ jobs:
           - os: windows-latest
             platform: win
             builder_args: --win --x64
-            expected_files: Bobcorn-Setup-*.exe
+            expected_files: "*.exe"
           - os: macos-latest
             platform: mac
             builder_args: --mac
-            expected_files: Bobcorn-*.dmg
+            expected_files: "*.dmg"
           - os: ubuntu-latest
             platform: linux
             builder_args: --linux
-            expected_files: Bobcorn-*.AppImage
+            expected_files: "*.AppImage"
 
     steps:
       - uses: actions/checkout@v4
@@ -88,14 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.platform }}
-          path: |
-            release/*.exe
-            release/*.exe.blockmap
-            release/*.dmg
-            release/*.dmg.blockmap
-            release/*.AppImage
-            release/*.deb
-            release/latest*.yml
+          path: release/
           retention-days: 7
 
   # ── Phase 3: Publish (only if ALL platforms succeeded) ─────────
@@ -118,31 +111,18 @@ jobs:
         run: |
           set -euo pipefail
           echo "=== Validating all platform artifacts ==="
+          find artifacts/ -type f | sort
 
           MISSING=""
-          # Windows
-          if ! ls artifacts/release-win/*.exe 1>/dev/null 2>&1; then
-            MISSING="$MISSING Windows(.exe)"
-          fi
-          # macOS
-          if ! ls artifacts/release-mac/*.dmg 1>/dev/null 2>&1; then
-            MISSING="$MISSING macOS(.dmg)"
-          fi
-          # Linux
-          if ! ls artifacts/release-linux/*.AppImage 1>/dev/null 2>&1; then
-            MISSING="$MISSING Linux(.AppImage)"
-          fi
+          find artifacts/release-win/ -name "*.exe" | grep -q . || MISSING="$MISSING Windows(.exe)"
+          find artifacts/release-mac/ -name "*.dmg" | grep -q . || MISSING="$MISSING macOS(.dmg)"
+          find artifacts/release-linux/ -name "*.AppImage" | grep -q . || MISSING="$MISSING Linux(.AppImage)"
 
           if [ -n "$MISSING" ]; then
             echo "::error::Missing platform artifacts:$MISSING"
-            echo "All 3 platforms must succeed before publishing."
             exit 1
           fi
-
-          echo "All platforms present:"
-          ls -lh artifacts/release-win/*.exe
-          ls -lh artifacts/release-mac/*.dmg
-          ls -lh artifacts/release-linux/*.AppImage
+          echo "All 3 platforms verified."
 
       - name: Generate changelog
         run: |
@@ -193,13 +173,13 @@ jobs:
           # Create fresh release
           gh release create "${TAG}" --title "${TAG#v}" --notes-file changelog.md
 
-          # Upload all assets from all platforms
+          # Upload all release assets (handle filenames with spaces)
           find artifacts/ -type f \( \
             -name "*.exe" -o -name "*.exe.blockmap" \
             -o -name "*.dmg" -o -name "*.dmg.blockmap" \
             -o -name "*.AppImage" -o -name "*.deb" \
             -o -name "latest*.yml" \
-          \) | while read -r f; do
+          \) -print0 | while IFS= read -r -d '' f; do
             echo "Uploading $(basename "$f")"
             gh release upload "${TAG}" "$f" --clobber
           done
