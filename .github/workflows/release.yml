@@ -101,8 +101,8 @@ jobs:
             --jq "[.[] | select(.draft==true and .tag_name==\"${TAG}\")] | .[].id")
           echo "Found draft IDs: ${DRAFT_IDS:-none}"
 
-          # Create published release if it doesn't exist yet
-          if ! gh release view "${TAG}" >/dev/null 2>&1; then
+          # Always create published release first (draft != published)
+          if ! gh release view "${TAG}" --json isDraft --jq 'select(.isDraft==false)' >/dev/null 2>&1; then
             echo "Creating release ${TAG}"
             gh release create "${TAG}" --title "${TAG#v}" --notes-file changelog.md
           fi
