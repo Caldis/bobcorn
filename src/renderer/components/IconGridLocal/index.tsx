@@ -254,16 +254,13 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
   }, [handleIconSelected, selectedIcons, clearBatchSelection]);
 
   // Batch-aware click handler
+  // Priority: Shift range > batch toggle (batchMode/Ctrl/has selection) > single select
   const handleIconClick = useCallback(
     (id: string, data: any, e?: React.MouseEvent) => {
       const isCtrl = e && (e.ctrlKey || e.metaKey);
       const isShift = e && e.shiftKey;
 
-      if (batchMode || isCtrl) {
-        toggleIconSelection(id);
-        return;
-      }
-
+      // Shift+Click: range select (works in any mode)
       if (isShift && lastClickedIconId) {
         const ids = flatIconIdsRef.current;
         const startIdx = ids.indexOf(lastClickedIconId);
@@ -275,11 +272,19 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
         return;
       }
 
+      // In batch mode (toggle on, Ctrl held, or has selection): click = toggle
+      if (batchMode || isCtrl || selectedIcons.size > 0) {
+        toggleIconSelection(id);
+        return;
+      }
+
+      // Normal single click
       setLastClickedIconId(id);
       handleIconSelected(id, data);
     },
     [
       batchMode,
+      selectedIcons,
       lastClickedIconId,
       toggleIconSelection,
       setIconSelection,

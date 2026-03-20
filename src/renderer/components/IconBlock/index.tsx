@@ -77,7 +77,15 @@ const IconBlock = React.memo(function IconBlock({
       onClick={handleSelected}
     >
       {showCheckbox && (
-        <Checkbox className="absolute -top-0.5 -right-1.5 z-10" checked={batchSelected} />
+        <div
+          className="absolute -top-0.5 -right-1.5 z-10"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleIconSelected?.(data.id, data, e);
+          }}
+        >
+          <Checkbox className="pointer-events-none" checked={batchSelected} />
+        </div>
       )}
 
       <div className={cn(style.iconContentContainer, 'mx-auto w-[120px]')} style={{ width }}>

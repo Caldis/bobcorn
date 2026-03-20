@@ -120,10 +120,13 @@ const useAppStore = create<State & Actions>((set, get) => ({
     const next = new Set(get().selectedIcons);
     if (next.has(id)) next.delete(id);
     else next.add(id);
-    set({ selectedIcons: next, lastClickedIconId: id });
+    // Auto-enter batch mode when any icon selected, auto-exit when all deselected
+    const batchMode = next.size > 0;
+    set({ selectedIcons: next, batchMode, lastClickedIconId: id });
   },
   setIconSelection: (ids: string[]) => {
-    set({ selectedIcons: new Set(ids) });
+    const next = new Set(ids);
+    set({ selectedIcons: next, batchMode: next.size > 0 });
   },
   selectAllIcons: (ids: string[]) => {
     set({ selectedIcons: new Set(ids) });
