@@ -15,6 +15,11 @@ export interface State {
   sideEditorVisible: boolean;
   darkMode: boolean;
 
+  // Batch selection
+  selectedIcons: Set<string>;
+  batchMode: boolean;
+  lastClickedIconId: string | null;
+
   // Data
   groupData: any[];
   // 图标内容版本号 — 递增触发 SideEditor 刷新
@@ -31,6 +36,14 @@ export interface Actions {
   setSideMenuVisible: (visible: boolean) => void;
   setSideEditorVisible: (visible: boolean) => void;
   toggleDarkMode: () => void;
+  // Batch selection
+  toggleBatchMode: () => void;
+  toggleIconSelection: (id: string) => void;
+  setIconSelection: (ids: string[]) => void;
+  selectAllIcons: (ids: string[]) => void;
+  invertSelection: (visibleIds: string[]) => void;
+  clearBatchSelection: () => void;
+  setLastClickedIconId: (id: string | null) => void;
   // 分级同步
   syncLeft: () => void; // 重：刷新分组列表 + 图标网格（增删/移动图标/增删分组时用）
   syncIconContent: () => void; // 轻：递增版本号，触发 SideEditor 刷新
@@ -49,6 +62,11 @@ const useAppStore = create<State & Actions>((set, get) => ({
   sideEditorVisible: true,
   darkMode: false,
 
+  // Batch selection
+  selectedIcons: new Set<string>(),
+  batchMode: false,
+  lastClickedIconId: null,
+
   // Data
   groupData: [],
   iconContentVersion: 0,
@@ -62,7 +80,14 @@ const useAppStore = create<State & Actions>((set, get) => ({
     }),
 
   selectGroup: (groupId: string) => {
-    set({ selectedGroup: groupId, selectedIcon: null, selectedSource: 'local' });
+    set({
+      selectedGroup: groupId,
+      selectedIcon: null,
+      selectedSource: 'local',
+      selectedIcons: new Set<string>(),
+      batchMode: false,
+      lastClickedIconId: null,
+    });
     set({ sideEditorVisible: true });
   },
 
@@ -84,6 +109,34 @@ const useAppStore = create<State & Actions>((set, get) => ({
     set({ darkMode: next });
     setOption({ darkMode: next });
     document.documentElement.classList.toggle('dark', next);
+  },
+
+  // Batch selection actions
+  toggleBatchMode: () => {
+    const current = get().batchMode;
+    set({ batchMode: !current, selectedIcons: new Set<string>(), lastClickedIconId: null });
+  },
+  toggleIconSelection: (id: string) => {
+    const next = new Set(get().selectedIcons);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    set({ selectedIcons: next, lastClickedIconId: id });
+  },
+  setIconSelection: (ids: string[]) => {
+    set({ selectedIcons: new Set(ids) });
+  },
+  selectAllIcons: (ids: string[]) => {
+    set({ selectedIcons: new Set(ids) });
+  },
+  invertSelection: (visibleIds: string[]) => {
+    const current = get().selectedIcons;
+    set({ selectedIcons: new Set(visibleIds.filter((id) => !current.has(id))) });
+  },
+  clearBatchSelection: () => {
+    set({ selectedIcons: new Set<string>(), batchMode: false, lastClickedIconId: null });
+  },
+  setLastClickedIconId: (id: string | null) => {
+    set({ lastClickedIconId: id });
   },
 
   // 重同步：刷新分组列表（触发 ResourceNav 计数 + GroupList 计数 + IconGridLocal 重载）
