@@ -3,9 +3,20 @@ import React, { useState } from 'react';
 // UI
 import { Button, Slider, Switch } from '../ui';
 import { RadioGroup, RadioButton } from '../ui/radio';
-import { X, Eye, Search } from 'lucide-react';
+import {
+  X,
+  Eye,
+  Search,
+  ToggleLeft,
+  ToggleRight,
+  CheckSquare,
+  CheckCircle,
+  XCircle,
+} from 'lucide-react';
 // Utils
 import { cn } from '../../lib/utils';
+// Store
+import useAppStore from '../../store';
 
 interface IconToolbarProps {
   defaultIconWidth?: number;
@@ -15,6 +26,7 @@ interface IconToolbarProps {
   defaultCodeVisible?: boolean;
   updateCodeVisible?: (visible: boolean) => void;
   updateSearchKeyword?: (keyword: string) => void;
+  visibleIconIds?: string[];
 }
 
 function IconToolbar({
@@ -25,7 +37,15 @@ function IconToolbar({
   defaultCodeVisible = true,
   updateCodeVisible = () => {},
   updateSearchKeyword = () => {},
+  visibleIconIds = [],
 }: IconToolbarProps) {
+  const batchMode = useAppStore((state: any) => state.batchMode);
+  const selectedIcons = useAppStore((state: any) => state.selectedIcons);
+  const toggleBatchMode = useAppStore((state: any) => state.toggleBatchMode);
+  const selectAllIcons = useAppStore((state: any) => state.selectAllIcons);
+  const invertSelection = useAppStore((state: any) => state.invertSelection);
+  const clearBatchSelection = useAppStore((state: any) => state.clearBatchSelection);
+
   const [orderType, setOrderType] = useState<string>('addTime');
   const [orderDirection, setOrderDirection] = useState<string>('forward');
   const [showActionBar, setShowActionBar] = useState<boolean>(false);
@@ -69,6 +89,8 @@ function IconToolbar({
   const iconWidthControllerTipFormatter = (value?: number) => {
     return `${(value ?? 100) - 50}%`;
   };
+
+  const showBatchControls = batchMode || selectedIcons.size > 0;
 
   return (
     <div className="relative w-full h-[49px] pb-1 border-t border-border">
@@ -163,8 +185,53 @@ function IconToolbar({
           />
         </div>
 
+        {/* 批量模式控制 */}
+        <div className="flex items-center gap-0.5 ml-2">
+          <button
+            className={cn(
+              'inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors',
+              batchMode
+                ? 'bg-brand-500 text-white'
+                : 'text-foreground-muted hover:text-foreground hover:bg-surface-accent'
+            )}
+            onClick={toggleBatchMode}
+            title="批量选择模式"
+          >
+            {batchMode ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
+            批量
+          </button>
+
+          {showBatchControls && (
+            <>
+              <button
+                className="inline-flex items-center gap-0.5 px-1.5 py-1 rounded text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent"
+                onClick={() => selectAllIcons(visibleIconIds)}
+                title="全选"
+              >
+                <CheckSquare size={12} /> 全选
+              </button>
+              <button
+                className="inline-flex items-center gap-0.5 px-1.5 py-1 rounded text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent"
+                onClick={() => invertSelection(visibleIconIds)}
+                title="反选"
+              >
+                <CheckCircle size={12} /> 反选
+              </button>
+              {selectedIcons.size > 0 && (
+                <button
+                  className="inline-flex items-center gap-0.5 px-1.5 py-1 rounded text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent"
+                  onClick={clearBatchSelection}
+                  title="取消全选"
+                >
+                  <XCircle size={12} /> 取消
+                </button>
+              )}
+            </>
+          )}
+        </div>
+
         {/* 搜索栏 */}
-        <div className="ml-4 mr-1.5">
+        <div className="ml-2 mr-1.5">
           <div className="relative">
             <Search
               size={12}

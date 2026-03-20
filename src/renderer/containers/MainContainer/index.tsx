@@ -8,6 +8,7 @@ import SplashScreen from '../../components/SplashScreen';
 import SideMenu from '../../components/SideMenu';
 import SideGrid from '../../components/SideGrid';
 import SideEditor from '../../components/SideEditor';
+import BatchPanel from '../../components/BatchPanel';
 // Utils
 import { cn } from '../../lib/utils';
 import { preventDrop, disableChromeAutoFocus, platform } from '../../utils/tools';
@@ -77,6 +78,7 @@ function MainContainer() {
   const selectedSource = useAppStore((state: any) => state.selectedSource);
   const sideMenuVisible = useAppStore((state: any) => state.sideMenuVisible);
   const sideEditorVisible = useAppStore((state: any) => state.sideEditorVisible);
+  const selectedIcons = useAppStore((state: any) => state.selectedIcons);
 
   const showSplashScreen = useAppStore((state: any) => state.showSplashScreen);
   const selectGroup = useAppStore((state: any) => state.selectGroup);
@@ -182,7 +184,11 @@ function MainContainer() {
           contain: 'layout style paint',
         }}
       >
-        <SideEditor selectedGroup={selectedGroup} selectedIcon={selectedIcon} />
+        {selectedIcons.size >= 2 ? (
+          <BatchPanel selectedGroup={selectedGroup} />
+        ) : (
+          <SideEditor selectedGroup={selectedGroup} selectedIcon={selectedIcon} />
+        )}
       </div>
 
       {/*控制按钮*/}

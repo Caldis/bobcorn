@@ -15,7 +15,6 @@ interface IconData {
 }
 
 interface IconBlockProps {
-  checked?: boolean;
   data?: IconData;
   name?: string;
   code?: string;
@@ -23,11 +22,10 @@ interface IconBlockProps {
   width?: number | string;
   nameVisible?: boolean;
   codeVisible?: boolean;
-  handleIconSelected?: (id: string, data: IconData) => void;
+  handleIconSelected?: (id: string, data: IconData, e?: React.MouseEvent) => void;
 }
 
 const IconBlock = React.memo(function IconBlock({
-  checked,
   data = {} as IconData,
   name = '',
   code,
@@ -38,15 +36,20 @@ const IconBlock = React.memo(function IconBlock({
   handleIconSelected,
 }: IconBlockProps) {
   const selected = useAppStore((state: any) => state.selectedIcon === data.id);
+  const batchSelected = useAppStore((state: any) => state.selectedIcons.has(data.id));
+  const showCheckbox = useAppStore((state: any) => state.batchMode || state.selectedIcons.size > 0);
   // 热更新：优先使用 store 中 patch 的内容
   const patchedContent = useAppStore((state: any) => state.patchedIcons?.[data.id]);
   const effectiveContent = patchedContent || content;
 
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 
-  const handleSelected = useCallback(() => {
-    handleIconSelected?.(data.id, data);
-  }, [data.id]);
+  const handleSelected = useCallback(
+    (e: React.MouseEvent) => {
+      handleIconSelected?.(data.id, data, e);
+    },
+    [data.id]
+  );
 
   return (
     <div
@@ -64,12 +67,17 @@ const IconBlock = React.memo(function IconBlock({
         selected && [
           'border-brand-500 bg-surface-accent shadow-sm',
           'dark:border-brand-400 dark:bg-white/5 dark:shadow-brand-900/20',
-        ]
+        ],
+        batchSelected &&
+          !selected && [
+            'bg-brand-50 border-brand-300',
+            'dark:bg-brand-950/30 dark:border-brand-500/50',
+          ]
       )}
       onClick={handleSelected}
     >
-      {checked !== undefined && (
-        <Checkbox className="absolute -top-0.5 -right-1.5 z-10" checked={checked} />
+      {showCheckbox && (
+        <Checkbox className="absolute -top-0.5 -right-1.5 z-10" checked={batchSelected} />
       )}
 
       <div className={cn(style.iconContentContainer, 'mx-auto w-[120px]')} style={{ width }}>

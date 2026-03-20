@@ -49,13 +49,13 @@ const IconChunk = React.memo(function IconChunk({
   iconBlockWidth,
   nameVisible,
   codeVisible,
-  handleIconSelected,
+  handleIconClick,
 }: {
   icons: IconItem[];
   iconBlockWidth: number | string;
   nameVisible: boolean;
   codeVisible: boolean;
-  handleIconSelected: (id: string | null, data?: any) => void;
+  handleIconClick: (id: string, data: any, e?: React.MouseEvent) => void;
 }) {
   return (
     <>
@@ -69,7 +69,7 @@ const IconChunk = React.memo(function IconChunk({
           width={iconBlockWidth}
           nameVisible={nameVisible}
           codeVisible={codeVisible}
-          handleIconSelected={handleIconSelected}
+          handleIconSelected={handleIconClick}
         />
       ))}
     </>
@@ -79,6 +79,13 @@ const IconChunk = React.memo(function IconChunk({
 function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: IconGridLocalProps) {
   const syncLeft = useAppStore((state: any) => state.syncLeft);
   const selectGroup = useAppStore((state: any) => state.selectGroup);
+  const batchMode = useAppStore((state: any) => state.batchMode);
+  const selectedIcons = useAppStore((state: any) => state.selectedIcons);
+  const toggleIconSelection = useAppStore((state: any) => state.toggleIconSelection);
+  const setIconSelection = useAppStore((state: any) => state.setIconSelection);
+  const lastClickedIconId = useAppStore((state: any) => state.lastClickedIconId);
+  const setLastClickedIconId = useAppStore((state: any) => state.setLastClickedIconId);
+  const clearBatchSelection = useAppStore((state: any) => state.clearBatchSelection);
 
   const [iconData, setIconData] = useState<Record<string, IconItem[]>>({});
   const [iconBlockWrapperMaxWidth, setIconBlockWrapperMaxWidth] = useState<string>('100%');
@@ -95,6 +102,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
   const widthTmpRef = useRef<number | null>(null);
   const prevSelectedGroupRef = useRef<string>(selectedGroup);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flatIconIdsRef = useRef<string[]>([]);
 
   // Sync icon data
   const sync = useCallback(
@@ -241,8 +249,55 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
 
   // 取消选择图标
   const deselectIcon = useCallback(() => {
+    if (selectedIcons.size > 0) clearBatchSelection();
     handleIconSelected(null);
-  }, [handleIconSelected]);
+  }, [handleIconSelected, selectedIcons, clearBatchSelection]);
+
+  // Batch-aware click handler
+  const handleIconClick = useCallback(
+    (id: string, data: any, e?: React.MouseEvent) => {
+      const isCtrl = e && (e.ctrlKey || e.metaKey);
+      const isShift = e && e.shiftKey;
+
+      if (batchMode || isCtrl) {
+        toggleIconSelection(id);
+        return;
+      }
+
+      if (isShift && lastClickedIconId) {
+        const ids = flatIconIdsRef.current;
+        const startIdx = ids.indexOf(lastClickedIconId);
+        const endIdx = ids.indexOf(id);
+        if (startIdx !== -1 && endIdx !== -1) {
+          const [lo, hi] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
+          setIconSelection(ids.slice(lo, hi + 1));
+        }
+        return;
+      }
+
+      setLastClickedIconId(id);
+      handleIconSelected(id, data);
+    },
+    [
+      batchMode,
+      lastClickedIconId,
+      toggleIconSelection,
+      setIconSelection,
+      setLastClickedIconId,
+      handleIconSelected,
+    ]
+  );
+
+  // Escape to exit batch mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && (batchMode || selectedIcons.size > 0)) {
+        clearBatchSelection();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [batchMode, selectedIcons, clearBatchSelection]);
 
   // ── 搜索过滤（预编译 regex + memoize 结果）──────────────────────
   const filteredIcons = useMemo(() => {
@@ -323,6 +378,17 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
     return groups;
   }, [iconData, selectedGroup, searchKeyword]);
 
+  // Update flat icon ID list for Shift range selection
+  useEffect(() => {
+    if (selectedGroup === 'resource-all' && allGroupChunks) {
+      flatIconIdsRef.current = allGroupChunks.flatMap(({ chunks }) =>
+        chunks.flatMap((c) => c.map((icon) => icon.id))
+      );
+    } else {
+      flatIconIdsRef.current = filteredIcons.map((icon) => icon.id);
+    }
+  }, [selectedGroup, allGroupChunks, filteredIcons]);
+
   // Grid 容器样式 — 所有图标共用一个 grid，不在 chunk 级别断开
   const colWidth = (typeof iconBlockWidth === 'number' ? iconBlockWidth : 100) + 20;
   const gridStyle: React.CSSProperties = useMemo(
@@ -373,7 +439,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
                 iconBlockWidth={iconBlockWidth}
                 nameVisible={iconBlockNameVisible}
                 codeVisible={iconBlockCodeVisible}
-                handleIconSelected={handleIconSelected}
+                handleIconClick={handleIconClick}
               />
             ))}
           </div>
@@ -392,7 +458,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
             iconBlockWidth={iconBlockWidth}
             nameVisible={iconBlockNameVisible}
             codeVisible={iconBlockCodeVisible}
-            handleIconSelected={handleIconSelected}
+            handleIconClick={handleIconClick}
           />
         ))}
       </div>
@@ -404,7 +470,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
     iconBlockWidth,
     iconBlockNameVisible,
     iconBlockCodeVisible,
-    handleIconSelected,
+    handleIconClick,
     deselectIcon,
     selectGroup,
   ]);
@@ -560,6 +626,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
           defaultCodeVisible={getOption().iconBlockCodeVisible}
           updateCodeVisible={updateCodeVisible}
           updateSearchKeyword={updateSearchKeyword}
+          visibleIconIds={flatIconIdsRef.current}
         />
       </div>
     </div>

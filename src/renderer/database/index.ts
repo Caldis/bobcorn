@@ -2,6 +2,7 @@ const dev: boolean = import.meta.env?.DEV ?? false;
 
 // SVG
 import SVG from '../utils/svg';
+import { extractSvgColors, replaceSvgColor } from '../utils/svg/colors';
 // SQLite (use ASM build - pure JS, no WASM file needed)
 import initSqlJs from 'sql.js/dist/sql-asm.js';
 // Config
@@ -873,6 +874,57 @@ class Database {
     };
     this.addDataToTable(iconData, dataSet, callback);
   };
+  // ── Batch operations ─────────────────────────────────────────────
+  moveIcons = (ids: string[], targetGroup: string, callback?: () => void): void => {
+    dev && console.log('moveIcons');
+    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
+    const placeholders = ids.map(() => '?').join(',');
+    this.db!.run(`UPDATE ${iconData} SET iconGroup = ? WHERE id IN (${placeholders})`, [
+      group,
+      ...ids,
+    ]);
+    callback && callback();
+  };
+  delIcons = (ids: string[], callback?: () => void): void => {
+    dev && console.log('delIcons');
+    const placeholders = ids.map(() => '?').join(',');
+    this.db!.run(`DELETE FROM ${iconData} WHERE id IN (${placeholders})`, ids);
+    callback && callback();
+  };
+  duplicateIcons = (ids: string[], targetGroup: string, callback?: () => void): void => {
+    dev && console.log('duplicateIcons');
+    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
+    ids.forEach((id) => {
+      const source = this.getIconData(id);
+      const dataSet: DataSet = {
+        id: sf(generateUUID()),
+        iconCode: sf(this.getNewIconCode() as string),
+        iconName: sf(source.iconName),
+        iconGroup: sf(group),
+        iconSize: source.iconSize,
+        iconType: sf(source.iconType),
+        iconContent: sf(source.iconContent),
+        iconContentOriginal: sf(source.iconContentOriginal || source.iconContent),
+      };
+      this.addDataToTable(iconData, dataSet);
+    });
+    callback && callback();
+  };
+  updateIconsColor = (ids: string[], targetColor: string, callback?: () => void): void => {
+    dev && console.log('updateIconsColor');
+    ids.forEach((id) => {
+      const icon = this.getIconData(id);
+      let content = icon.iconContent;
+      const colors = extractSvgColors(content);
+      colors.forEach((c: { color: string }) => {
+        content = replaceSvgColor(content, c.color, targetColor);
+      });
+      const escaped = content.replace(/'/g, "''");
+      this.setIconData(id, { iconContent: `'${escaped}'` });
+    });
+    callback && callback();
+  };
+
   renewIconData = (id: string, newIconFileData: RenewIconFileData, callback?: () => void): void => {
     dev && console.log('renewIconData');
     const { electronAPI } = window;
