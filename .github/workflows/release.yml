@@ -9,11 +9,47 @@ permissions:
   contents: write
 
 jobs:
+  # ── Phase 1: Test gate ──────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build
+        run: npx electron-vite build
+
+      - name: Unit tests
+        run: npx vitest run
+
+  # ── Phase 2: Multi-platform build ──────────────────────────────
   build:
+    needs: test
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false  # Let all platforms try, so we see ALL failures
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            platform: win
+            builder_args: --win --x64
+            expected_files: Bobcorn-Setup-*.exe
+          - os: macos-latest
+            platform: mac
+            builder_args: --mac
+            expected_files: Bobcorn-*.dmg
+          - os: ubuntu-latest
+            platform: linux
+            builder_args: --linux
+            expected_files: Bobcorn-*.AppImage
 
     steps:
       - uses: actions/checkout@v4
@@ -30,45 +66,93 @@ jobs:
       - name: Build
         run: npx electron-vite build
 
-      - name: Package & upload (Windows)
-        if: runner.os == 'Windows'
-        run: npx electron-builder --win --x64 --publish always
+      - name: Package (no publish)
+        run: npx electron-builder ${{ matrix.builder_args }} --publish never
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Package & upload (macOS)
-        if: runner.os == 'macOS'
-        run: npx electron-builder --mac --publish always
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate build output
+        shell: bash
+        run: |
+          echo "Checking for expected files: ${{ matrix.expected_files }}"
+          FILES=$(find release/ -name "${{ matrix.expected_files }}" 2>/dev/null | head -5)
+          if [ -z "$FILES" ]; then
+            echo "::error::No matching files found for pattern: ${{ matrix.expected_files }}"
+            ls -la release/ 2>/dev/null || echo "release/ directory does not exist"
+            exit 1
+          fi
+          echo "Found:"
+          echo "$FILES"
 
-      - name: Package & upload (Linux)
-        if: runner.os == 'Linux'
-        run: npx electron-builder --linux --publish always
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            release/*.exe
+            release/*.exe.blockmap
+            release/*.dmg
+            release/*.dmg.blockmap
+            release/*.AppImage
+            release/*.deb
+            release/latest*.yml
+          retention-days: 7
 
+  # ── Phase 3: Publish (only if ALL platforms succeeded) ─────────
   publish:
     needs: build
+    # This job ONLY runs if every matrix build succeeded
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Generate changelog
-        id: changelog
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          merge-multiple: false
+
+      - name: Validate all platforms present
         run: |
-          # Get previous tag
+          set -euo pipefail
+          echo "=== Validating all platform artifacts ==="
+
+          MISSING=""
+          # Windows
+          if ! ls artifacts/release-win/*.exe 1>/dev/null 2>&1; then
+            MISSING="$MISSING Windows(.exe)"
+          fi
+          # macOS
+          if ! ls artifacts/release-mac/*.dmg 1>/dev/null 2>&1; then
+            MISSING="$MISSING macOS(.dmg)"
+          fi
+          # Linux
+          if ! ls artifacts/release-linux/*.AppImage 1>/dev/null 2>&1; then
+            MISSING="$MISSING Linux(.AppImage)"
+          fi
+
+          if [ -n "$MISSING" ]; then
+            echo "::error::Missing platform artifacts:$MISSING"
+            echo "All 3 platforms must succeed before publishing."
+            exit 1
+          fi
+
+          echo "All platforms present:"
+          ls -lh artifacts/release-win/*.exe
+          ls -lh artifacts/release-mac/*.dmg
+          ls -lh artifacts/release-linux/*.AppImage
+
+      - name: Generate changelog
+        run: |
           PREV_TAG=$(git tag --sort=-creatordate | head -2 | tail -1)
           CURRENT_TAG=${GITHUB_REF#refs/tags/}
 
-          # Generate changelog from commits
           echo "## What's Changed" > changelog.md
           echo "" >> changelog.md
 
           if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
-            # Categorize commits
             echo "### Features" >> changelog.md
             git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^feat" >> changelog.md || true
             echo "" >> changelog.md
@@ -88,30 +172,61 @@ jobs:
           echo "---" >> changelog.md
           echo "*Built by AI Agent teams using Claude Code.*" >> changelog.md
 
-      - name: Publish release with changelog
+      - name: Create release and upload all assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           TAG=${GITHUB_REF#refs/tags/}
-          REPO=${{ github.repository }}
-          echo "Publishing ${TAG}"
-          BODY=$(cat changelog.md)
 
-          # electron-builder creates a single draft release with all platform assets.
-          # Simply convert that draft to a published release — no need to download/reupload.
-          DRAFT_ID=$(gh api "repos/${REPO}/releases" \
-            --jq "[.[] | select(.draft==true and .tag_name==\"${TAG}\")] | .[0].id // empty")
+          # Clean up any leftover draft releases from failed previous runs
+          DRAFT_IDS=$(gh api repos/${{ github.repository }}/releases \
+            --jq "[.[] | select(.draft==true and .tag_name==\"${TAG}\")] | .[].id" 2>/dev/null || true)
+          for DID in $DRAFT_IDS; do
+            echo "Cleaning up stale draft $DID"
+            gh api repos/${{ github.repository }}/releases/${DID} -X DELETE 2>/dev/null || true
+          done
 
-          if [ -n "$DRAFT_ID" ]; then
-            echo "Converting draft ${DRAFT_ID} to published release"
-            gh api "repos/${REPO}/releases/${DRAFT_ID}" -X PATCH \
-              -f "draft=false" \
-              -f "name=${TAG#v}" \
-              -f "body=${BODY}"
-            echo "Published ${TAG} (converted from draft, assets preserved)"
-          else
-            echo "No draft found, creating release from tag"
-            gh release create "${TAG}" --title "${TAG#v}" --notes-file changelog.md
-            echo "Published ${TAG} (no assets — electron-builder may not have run)"
+          # Delete existing published release for this tag (re-run scenario)
+          gh release delete "${TAG}" --yes 2>/dev/null || true
+
+          # Create fresh release
+          gh release create "${TAG}" --title "${TAG#v}" --notes-file changelog.md
+
+          # Upload all assets from all platforms
+          find artifacts/ -type f \( \
+            -name "*.exe" -o -name "*.exe.blockmap" \
+            -o -name "*.dmg" -o -name "*.dmg.blockmap" \
+            -o -name "*.AppImage" -o -name "*.deb" \
+            -o -name "latest*.yml" \
+          \) | while read -r f; do
+            echo "Uploading $(basename "$f")"
+            gh release upload "${TAG}" "$f" --clobber
+          done
+
+      - name: Verify release integrity
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG=${GITHUB_REF#refs/tags/}
+
+          echo "=== Release integrity check ==="
+          ASSETS=$(gh release view "${TAG}" --json assets --jq '.assets[].name')
+          echo "$ASSETS"
+
+          ERRORS=""
+          echo "$ASSETS" | grep -q '\.exe$' || ERRORS="$ERRORS [MISSING: .exe]"
+          echo "$ASSETS" | grep -q '\.dmg$' || ERRORS="$ERRORS [MISSING: .dmg]"
+          echo "$ASSETS" | grep -q '\.AppImage$' || ERRORS="$ERRORS [MISSING: .AppImage]"
+          echo "$ASSETS" | grep -q 'latest\.yml$' || ERRORS="$ERRORS [MISSING: latest.yml]"
+          echo "$ASSETS" | grep -q 'latest-mac\.yml$' || ERRORS="$ERRORS [MISSING: latest-mac.yml]"
+          echo "$ASSETS" | grep -q 'latest-linux\.yml$' || ERRORS="$ERRORS [MISSING: latest-linux.yml]"
+
+          if [ -n "$ERRORS" ]; then
+            echo "::error::Release integrity check failed:$ERRORS"
+            exit 1
           fi
+
+          ASSET_COUNT=$(echo "$ASSETS" | wc -l)
+          echo "Release ${TAG} verified: ${ASSET_COUNT} assets, all platforms present."

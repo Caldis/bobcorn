@@ -119,6 +119,19 @@ npm run security-audit
 
 所有测试必须全部通过，0 失败。当前已知问题需优先修复后才能发版。
 
+### 发版
+
+```bash
+npm version patch   # 或 minor / major
+git push origin master --follow-tags
+```
+
+CI 自动处理：test → 3 平台构建 → 验证产物齐全 → 创建 release 上传。
+**不要手动 `gh release create`**，会导致 CI 产物丢失。
+详见 `docs/RELEASE.md`。
+
+CI 失败时：查看日志 → 修复 → 删 tag 重打 → 重新 push。
+
 ## 关键约定
 
 - 状态管理使用 Zustand store (`src/renderer/store/index.js`)，不要引入 GlobalEvent

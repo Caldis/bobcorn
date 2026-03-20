@@ -49,21 +49,53 @@ npm version major
 git push origin master --follow-tags
 ```
 
-## What Happens Automatically
+**发版后不要手动创建 `gh release`** — CI 会自动处理。手动创建会导致 CI 产物丢失。
 
-1. `npm version` creates a commit + git tag (e.g., `v1.0.1`)
-2. `git push --follow-tags` pushes commit + tag to GitHub
-3. GitHub Actions `release.yml` triggers on tag push
-4. CI builds for Windows (x64), macOS (x64+arm64), Linux (deb+AppImage)
-5. `electron-builder --publish always` uploads installers to GitHub Releases
-6. Users with installed app receive auto-update notification via `electron-updater`
+## CI 发布流程 (release.yml)
+
+Tag push 触发 4 个阶段：
+
+```
+Phase 1: test        ← vitest 单元测试必须通过
+    ↓
+Phase 2: build       ← 3 平台并行构建 (win/mac/linux)
+    ↓                   electron-builder --publish never (不直接上传)
+    ↓                   构建产物存入 GitHub Actions artifacts
+    ↓                   每个平台验证产物存在
+    ↓
+Phase 3: publish     ← 仅当 3 平台全部成功才运行
+    ↓                   验证 3 平台产物齐全
+    ↓                   创建 release + 上传全部资产
+    ↓                   最终完整性校验 (exe/dmg/AppImage/latest*.yml)
+```
+
+**关键保障：**
+- 任一平台构建失败 → publish job 不运行 → 不会发布残缺版本
+- publish 前二次验证产物完整性
+- 发布后三次验证 release 资产齐全
+- 重复运行安全：自动清理旧 draft/release 后重建
+
+## CI 失败处理
+
+如果 CI 构建失败：
+
+1. 查看 `gh run list --limit 3` 找到失败的 run
+2. 查看 `gh run view <run-id> --log` 定位失败平台和原因
+3. 修复代码并提交
+4. 删除失败的 tag 并重新打 tag：
+   ```bash
+   git tag -d v1.x.x
+   git push origin :refs/tags/v1.x.x
+   npm version patch  # or re-tag manually
+   git push origin master --follow-tags
+   ```
 
 ## Version Scheme
 
 - `1.0.0-rc.N` — release candidates (pre-release)
 - `1.0.0` — stable release
 - Patch: bug fixes, dependency updates
-- Minor: new features (e.g., icon marketplace)
+- Minor: new features
 - Major: breaking changes (e.g., file format change)
 
 ## Troubleshooting
@@ -78,3 +110,6 @@ Use `--config.win.sign=false` or run as admin.
 
 ### Auto-updater 404
 Normal if no GitHub Release exists yet. Will resolve after first release.
+
+### Release has no assets
+**不要手动 `gh release create`**。让 CI 自动处理。如果 CI 失败，修复后删 tag 重来。
