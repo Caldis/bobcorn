@@ -102,7 +102,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
         sync(selectedIcon);
         // 从数据库读取导入时的原始内容，用于颜色重置
         const data = db.getIconData(selectedIcon);
-        setOriginalIconContent(data.iconContentOriginal || data.iconContent);
+        setOriginalIconContent(db.getOriginalContent(data));
         setEditingColorIdx(null);
       }
     }
@@ -342,6 +342,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
   const applyColor = useCallback(
     (newColor: string) => {
       if (editingColorIdx === null || !svgColors[editingColorIdx]) return;
+      db.ensureOriginalContent(selectedIcon);
       const oldColor = svgColors[editingColorIdx].color;
       const updatedSvg = replaceSvgColor(iconData.iconContent, oldColor, newColor);
       const escaped = updatedSvg.replace(/'/g, "''");

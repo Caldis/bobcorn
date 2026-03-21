@@ -30,11 +30,22 @@ function SplashScreen() {
         });
       },
       onSelectICP: (project: any) => {
+        const p = (window as any).__BOBCORN_PERF__;
+        p?.startSession();
+        p?.mark('import.total');
         icpLoader(project.data, () => {
+          p?.mark('import.uiUpdate');
           showSplashScreen(false);
           message.success(`项目已导入`);
+          p?.mark('import.syncLeft');
           syncLeft();
+          p?.measure('import.syncLeft');
+          p?.mark('import.selectGroup');
           selectGroup('resource-all');
+          p?.measure('import.selectGroup');
+          p?.measure('import.uiUpdate');
+          p?.measure('import.total');
+          p?.endSession();
         });
       },
     });

@@ -100,12 +100,12 @@ async function run() {
   await window.waitForTimeout(2000);
   await window.screenshot({ path: path.join(screenshotDir, 'accept-02-workspace.png') });
 
-  const sideMenu = await window.locator('[class*="sideMenuContainer"]').count();
-  const iconGrid = await window.locator('[class*="iconContainZone"], [class*="iconGridOuterContainer"]').count();
+  const sideMenu = await window.locator('text=全部').count();
+  const iconGrid = await window.locator('#iconGridLocalContainer').count();
   assert('Side menu rendered', sideMenu > 0);
   assert('Icon grid rendered', iconGrid > 0);
 
-  const menuItems = await window.locator('.ant-menu-item').count();
+  const menuItems = await window.locator('text=全部').count() + await window.locator('text=未分组').count() + await window.locator('text=回收站').count();
   assert('Menu items present (全部/未分组/回收站)', menuItems >= 3, `${menuItems} items`);
 
   const toolbar = await window.locator('text=导入').count();
@@ -116,7 +116,7 @@ async function run() {
 
   // --- Phase 5: Window Controls (Win32) ---
   console.log('\nPhase 5: Window Controls');
-  const titleBarBtns = await window.locator('[class*="titleBarButtonGroup"] button').count();
+  const titleBarBtns = await window.locator('#titleBarButtonGroup button').count();
   assert('Window control buttons', titleBarBtns === 3, `${titleBarBtns} buttons`);
 
   // --- Phase 6: UI Aesthetics ---

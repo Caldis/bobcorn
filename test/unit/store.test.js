@@ -30,6 +30,11 @@ function resetStore() {
     sideMenuVisible: true,
     sideEditorVisible: true,
     darkMode: false,
+    selectedIcons: new Set(),
+    batchMode: false,
+    lastClickedIconId: null,
+    iconContentVersion: 0,
+    patchedIcons: {},
     groupData: [],
   });
 }
@@ -142,6 +147,63 @@ describe('useAppStore', () => {
       useAppStore.getState().setSideEditorVisible(false);
       useAppStore.getState().setSideEditorVisible(true);
       expect(useAppStore.getState().sideEditorVisible).toBe(true);
+    });
+  });
+
+  // ── batch selection ─────────────────────────────────────────────
+  describe('batch selection', () => {
+    it('selectAllIcons enters batch mode and tracks the last selected id', () => {
+      useAppStore.getState().selectAllIcons(['a', 'b', 'c']);
+      const state = useAppStore.getState();
+
+      expect([...state.selectedIcons]).toEqual(['a', 'b', 'c']);
+      expect(state.batchMode).toBe(true);
+      expect(state.lastClickedIconId).toBe('c');
+    });
+
+    it('selectAllIcons with an empty list clears batch mode and last clicked id', () => {
+      useAppStore.setState({
+        selectedIcons: new Set(['x']),
+        batchMode: true,
+        lastClickedIconId: 'x',
+      });
+
+      useAppStore.getState().selectAllIcons([]);
+      const state = useAppStore.getState();
+
+      expect([...state.selectedIcons]).toEqual([]);
+      expect(state.batchMode).toBe(false);
+      expect(state.lastClickedIconId).toBeNull();
+    });
+
+    it('invertSelection keeps batch mode enabled when icons remain selected', () => {
+      useAppStore.setState({
+        selectedIcons: new Set(['b']),
+        batchMode: true,
+        lastClickedIconId: 'b',
+      });
+
+      useAppStore.getState().invertSelection(['a', 'b', 'c']);
+      const state = useAppStore.getState();
+
+      expect([...state.selectedIcons]).toEqual(['a', 'c']);
+      expect(state.batchMode).toBe(true);
+      expect(state.lastClickedIconId).toBeNull();
+    });
+
+    it('invertSelection exits batch mode when the result is empty', () => {
+      useAppStore.setState({
+        selectedIcons: new Set(['a', 'b']),
+        batchMode: true,
+        lastClickedIconId: 'b',
+      });
+
+      useAppStore.getState().invertSelection(['a', 'b']);
+      const state = useAppStore.getState();
+
+      expect([...state.selectedIcons]).toEqual([]);
+      expect(state.batchMode).toBe(false);
+      expect(state.lastClickedIconId).toBeNull();
     });
   });
 });

@@ -1,5 +1,5 @@
 // React
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState, useEffect } from 'react';
 // Style — minimal residual CSS module for SVG sizing rules only
 import style from './index.module.css';
 // UI
@@ -8,6 +8,8 @@ import { sanitizeSVG } from '../../utils/sanitize';
 import { cn } from '../../lib/utils';
 // Store
 import useAppStore from '../../store';
+// Database — lazy content loading
+import db from '../../database';
 
 interface IconData {
   id: string;
@@ -23,6 +25,10 @@ interface IconBlockProps {
   nameVisible?: boolean;
   codeVisible?: boolean;
   handleIconSelected?: (id: string, data: IconData, e?: React.MouseEvent) => void;
+  // Selection state (lifted from store to props)
+  selected?: boolean;
+  batchSelected?: boolean;
+  showCheckbox?: boolean;
 }
 
 const IconBlock = React.memo(function IconBlock({
@@ -34,13 +40,23 @@ const IconBlock = React.memo(function IconBlock({
   nameVisible = true,
   codeVisible = true,
   handleIconSelected,
+  selected = false,
+  batchSelected = false,
+  showCheckbox = false,
 }: IconBlockProps) {
-  const selected = useAppStore((state: any) => state.selectedIcon === data.id);
-  const batchSelected = useAppStore((state: any) => state.selectedIcons.has(data.id));
-  const showCheckbox = useAppStore((state: any) => state.batchMode || state.selectedIcons.size > 0);
-  // 热更新：优先使用 store 中 patch 的内容
+  // Only 1 store subscription — hot-patch content for color editing
   const patchedContent = useAppStore((state: any) => state.patchedIcons?.[data.id]);
-  const effectiveContent = patchedContent || content;
+
+  // Lazy-load SVG content from database when icon is mounted (visible in viewport)
+  const [lazyContent, setLazyContent] = useState(content || '');
+  useEffect(() => {
+    if (!content && data.id && !patchedContent) {
+      const loaded = db.getIconContent(data.id);
+      if (loaded) setLazyContent(loaded);
+    }
+  }, [data.id, content, patchedContent]);
+
+  const effectiveContent = patchedContent || content || lazyContent;
 
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 
@@ -48,7 +64,7 @@ const IconBlock = React.memo(function IconBlock({
     (e: React.MouseEvent) => {
       handleIconSelected?.(data.id, data, e);
     },
-    [data.id]
+    [data, handleIconSelected]
   );
 
   return (

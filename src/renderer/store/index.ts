@@ -129,11 +129,17 @@ const useAppStore = create<State & Actions>((set, get) => ({
     set({ selectedIcons: next, batchMode: next.size > 0 });
   },
   selectAllIcons: (ids: string[]) => {
-    set({ selectedIcons: new Set(ids) });
+    const next = new Set(ids);
+    set({
+      selectedIcons: next,
+      batchMode: next.size > 0,
+      lastClickedIconId: ids[ids.length - 1] ?? null,
+    });
   },
   invertSelection: (visibleIds: string[]) => {
     const current = get().selectedIcons;
-    set({ selectedIcons: new Set(visibleIds.filter((id) => !current.has(id))) });
+    const next = new Set(visibleIds.filter((id) => !current.has(id)));
+    set({ selectedIcons: next, batchMode: next.size > 0, lastClickedIconId: null });
   },
   clearBatchSelection: () => {
     set({ selectedIcons: new Set<string>(), batchMode: false, lastClickedIconId: null });

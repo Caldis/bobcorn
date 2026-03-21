@@ -2,6 +2,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import MainContainer from './containers/MainContainer';
 import { dbReady } from './database';
+// Initialize profiler (attaches to window.__BOBCORN_PERF__)
+import './utils/profiler';
 
 async function mount() {
   // Wait for sql.js WASM engine to initialize before rendering

@@ -167,21 +167,26 @@ class Database {
     dev && console.log('initDatabases');
     if (!this.dbInited) {
       this.dbInited = true;
+      const p = (window as any).__BOBCORN_PERF__;
+      p?.mark('db.sqljs_deserialize');
       this.db = new this.SQL!.Database(data);
+      p?.measure('db.sqljs_deserialize');
       // Migration: add iconContentOriginal column for existing projects
       if (data) {
         try {
+          p?.mark('db.migration_check');
           const cols = this.db!.exec(`PRAGMA table_info(${iconData})`);
           const hasCol =
             cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'iconContentOriginal');
           if (!hasCol) {
+            p?.mark('db.migration_alter');
             this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN iconContentOriginal TEXT`);
-            // Backfill: set original = current for existing icons
-            this.db!.run(
-              `UPDATE ${iconData} SET iconContentOriginal = iconContent WHERE iconContentOriginal IS NULL`
-            );
-            dev && console.log('Migration: added iconContentOriginal column');
+            // No bulk backfill — iconContentOriginal stays NULL for legacy rows.
+            // Populated lazily by ensureOriginalContent() on first content mutation.
+            p?.measure('db.migration_alter');
+            dev && console.log('Migration: added iconContentOriginal column (lazy backfill)');
           }
+          p?.measure('db.migration_check');
         } catch (e) {
           dev && console.error('Migration error:', e);
         }
@@ -524,16 +529,23 @@ class Database {
   };
   getGroupList = (): Record<string, any>[] => {
     dev && console.log('getGroupList');
+    const p = (window as any).__BOBCORN_PERF__;
+    p?.mark('db.getGroupList');
     const rawData = this.db!.exec(`SELECT * FROM ${groupData} ORDER BY groupOrder ASC`);
-    if (rawData.length === 0) return [];
+    if (rawData.length === 0) {
+      p?.measure('db.getGroupList');
+      return [];
+    }
     const colNameList = rawData[0].columns;
-    return rawData[0].values.map((row) => {
+    const result = rawData[0].values.map((row) => {
       const rowData: Record<string, any> = {};
       row.forEach((colData: any, index: number) => {
         rowData[colNameList[index]] = colData;
       });
       return rowData;
     });
+    p?.measure('db.getGroupList');
+    return result;
   };
   // 批量更新分组排序
   reorderGroups = (orderedIds: string[], callback?: () => void): void => {
@@ -761,7 +773,7 @@ class Database {
   getRecentlyUpdatedIcons = (limit: number = 50): Record<string, any>[] => {
     dev && console.log('getRecentlyUpdatedIcons');
     const rawData = this.db!.exec(
-      `SELECT * FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' ORDER BY updateTime DESC LIMIT ${limit}`
+      `SELECT ${Database.ICON_META_COLS} FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' ORDER BY updateTime DESC LIMIT ${limit}`
     );
     if (rawData.length === 0) return [];
     const colNameList = rawData[0].columns;
@@ -780,11 +792,18 @@ class Database {
     return (this.getDataOfTable(iconData, targetDataSet, { where: true, equal: false }) ||
       []) as Record<string, any>[];
   };
-  // 单次查询所有图标并按 group 分组（resource-all 视图用）
+  // ── Metadata-only columns (excludes heavy iconContent/iconContentOriginal TEXT) ──
+  // Used for grid listing — content loaded lazily per-icon when visible
+  static ICON_META_COLS =
+    'id, iconCode, iconName, iconGroup, iconSize, iconType, createTime, updateTime';
+
+  // 单次查询所有图标并按 group 分组（resource-all 视图用）— 仅元数据，不含 SVG 内容
   getAllIconsGrouped = (): Record<string, Record<string, any>[]> => {
     dev && console.log('getAllIconsGrouped');
+    const p = (window as any).__BOBCORN_PERF__;
+    p?.mark('db.getAllIconsGrouped');
     const rawData = this.db!.exec(
-      `SELECT * FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
+      `SELECT ${Database.ICON_META_COLS} FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
     );
     const result: Record<string, Record<string, any>[]> = {};
     if (rawData.length === 0) return result;
@@ -805,27 +824,81 @@ class Database {
       );
       delete result['null'];
     }
+    p?.measure('db.getAllIconsGrouped');
     return result;
   };
-  // 从特定组中取图标
+
+  // 获取单个图标的 SVG 内容 — 用于虚拟化按需加载
+  getIconContent = (id: string): string => {
+    const stmt = this.db!.prepare(`SELECT iconContent FROM ${iconData} WHERE id = ?`);
+    stmt.bind([id]);
+    if (stmt.step()) {
+      const result = stmt.get();
+      stmt.free();
+      return (result[0] as string) || '';
+    }
+    stmt.free();
+    return '';
+  };
+
+  /** Lazy backfill: if iconContentOriginal is NULL, copy current iconContent into it.
+   *  Called before any content mutation to preserve the pre-edit baseline. */
+  ensureOriginalContent = (id: string): void => {
+    const stmt = this.db!.prepare(`SELECT iconContentOriginal FROM ${iconData} WHERE id = ?`);
+    stmt.bind([id]);
+    if (stmt.step()) {
+      const val = stmt.get()[0];
+      stmt.free();
+      if (val === null || val === undefined) {
+        this.db!.run(
+          `UPDATE ${iconData} SET iconContentOriginal = iconContent WHERE id = ${sf(id)}`
+        );
+      }
+    } else {
+      stmt.free();
+    }
+  };
+
+  /** Centralized fallback: returns original content for color reset, handling legacy NULL rows. */
+  getOriginalContent = (data: Record<string, any>): string => {
+    return (data.iconContentOriginal ?? data.iconContent ?? '') as string;
+  };
+
+  // 从特定组中取图标 — 仅元数据，不含 SVG 内容
   getIconListFromGroup = (targetGroup: string | string[]): Record<string, any>[] => {
     dev && console.log('getIconListFromGroup');
+    const cols = Database.ICON_META_COLS;
     if (typeof targetGroup === 'string') {
-      // 从一个目标组中取
       if (targetGroup === 'resource-all') {
-        // 如果取 resource-all 分组, 则直接取all
-        return (this.getDataOfTable(iconData) || []) as Record<string, any>[];
+        const rawData = this.db!.exec(`SELECT ${cols} FROM ${iconData}`);
+        if (rawData.length === 0) return [];
+        const colNameList = rawData[0].columns;
+        return rawData[0].values.map((row) => {
+          const rowData: Record<string, any> = {};
+          row.forEach((colData: any, index: number) => {
+            rowData[colNameList[index]] = colData;
+          });
+          return rowData;
+        });
       } else {
-        const targetDataSet: DataSet = { iconGroup: sf(targetGroup) };
-        return (this.getDataOfTable(iconData, targetDataSet, { where: true }) || []) as Record<
-          string,
-          any
-        >[];
+        const rawData = this.db!.exec(
+          `SELECT ${cols} FROM ${iconData} WHERE iconGroup = ${sf(targetGroup)}`
+        );
+        if (rawData.length === 0) return [];
+        const colNameList = rawData[0].columns;
+        return rawData[0].values.map((row) => {
+          const rowData: Record<string, any> = {};
+          row.forEach((colData: any, index: number) => {
+            rowData[colNameList[index]] = colData;
+          });
+          return rowData;
+        });
       }
     } else if (Array.isArray(targetGroup) && targetGroup.length > 0) {
-      // 多个组 — 用 SQL IN 单次查询代替多次 concat
       const inClause = targetGroup.map((id) => sf(id)).join(',');
-      const rawData = this.db!.exec(`SELECT * FROM ${iconData} WHERE iconGroup IN (${inClause})`);
+      const rawData = this.db!.exec(
+        `SELECT ${cols} FROM ${iconData} WHERE iconGroup IN (${inClause})`
+      );
       if (rawData.length === 0) return [];
       const colNameList = rawData[0].columns;
       return rawData[0].values.map((row) => {
@@ -870,7 +943,7 @@ class Database {
       iconSize: sourceIconData.iconSize,
       iconType: sf(sourceIconData.iconType),
       iconContent: sf(sourceIconData.iconContent),
-      iconContentOriginal: sf(sourceIconData.iconContentOriginal || sourceIconData.iconContent),
+      iconContentOriginal: sf(this.getOriginalContent(sourceIconData)),
     };
     this.addDataToTable(iconData, dataSet, callback);
   };
@@ -904,7 +977,7 @@ class Database {
         iconSize: source.iconSize,
         iconType: sf(source.iconType),
         iconContent: sf(source.iconContent),
-        iconContentOriginal: sf(source.iconContentOriginal || source.iconContent),
+        iconContentOriginal: sf(this.getOriginalContent(source)),
       };
       this.addDataToTable(iconData, dataSet);
     });
@@ -913,6 +986,7 @@ class Database {
   updateIconsColor = (ids: string[], targetColor: string, callback?: () => void): void => {
     dev && console.log('updateIconsColor');
     ids.forEach((id) => {
+      this.ensureOriginalContent(id);
       const icon = this.getIconData(id);
       let content = icon.iconContent;
       const colors = extractSvgColors(content);

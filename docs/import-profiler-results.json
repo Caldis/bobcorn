@@ -1,0 +1,352 @@
+[
+  {
+    "round": 1,
+    "wallClockMs": 237,
+    "iconBlockCount": 40,
+    "domNodes": 733,
+    "heapMB": 595,
+    "profiler": {
+      "sessionId": 1,
+      "entries": [
+        {
+          "name": "db.sqljs_deserialize",
+          "start": 3211.100000023842,
+          "end": 3212.399999976158,
+          "duration": 1.2999999523162842
+        },
+        {
+          "name": "db.migration_alter",
+          "start": 3215.2000000476837,
+          "end": 3217.5,
+          "duration": 2.299999952316284
+        },
+        {
+          "name": "db.migration_check",
+          "start": 3212.399999976158,
+          "end": 3217.5,
+          "duration": 5.100000023841858
+        },
+        {
+          "name": "icpLoader.initProject",
+          "start": 3211.100000023842,
+          "end": 3217.5,
+          "duration": 6.399999976158142
+        },
+        {
+          "name": "db.getGroupList",
+          "start": 3217.7999999523163,
+          "end": 3218.600000023842,
+          "duration": 0.8000000715255737
+        },
+        {
+          "name": "import.syncLeft",
+          "start": 3217.7999999523163,
+          "end": 3218.7000000476837,
+          "duration": 0.9000000953674316
+        },
+        {
+          "name": "import.selectGroup",
+          "start": 3218.7000000476837,
+          "end": 3218.7000000476837,
+          "duration": 0
+        },
+        {
+          "name": "import.uiUpdate",
+          "start": 3217.5,
+          "end": 3218.7000000476837,
+          "duration": 1.2000000476837158
+        },
+        {
+          "name": "import.total",
+          "start": 3211.100000023842,
+          "end": 3218.7000000476837,
+          "duration": 7.600000023841858
+        }
+      ],
+      "totalStart": 3211.100000023842,
+      "totalEnd": 3218.7000000476837,
+      "totalDuration": 7.600000023841858
+    },
+    "errors": 0
+  },
+  {
+    "round": 2,
+    "wallClockMs": 222,
+    "iconBlockCount": 40,
+    "domNodes": 733,
+    "heapMB": 595,
+    "profiler": {
+      "sessionId": 1,
+      "entries": [
+        {
+          "name": "db.sqljs_deserialize",
+          "start": 3212.2999999523163,
+          "end": 3213.2999999523163,
+          "duration": 1
+        },
+        {
+          "name": "db.migration_alter",
+          "start": 3215.7000000476837,
+          "end": 3217.899999976158,
+          "duration": 2.1999999284744263
+        },
+        {
+          "name": "db.migration_check",
+          "start": 3213.2999999523163,
+          "end": 3217.899999976158,
+          "duration": 4.600000023841858
+        },
+        {
+          "name": "icpLoader.initProject",
+          "start": 3212.2999999523163,
+          "end": 3217.899999976158,
+          "duration": 5.600000023841858
+        },
+        {
+          "name": "db.getGroupList",
+          "start": 3218.100000023842,
+          "end": 3218.7999999523163,
+          "duration": 0.6999999284744263
+        },
+        {
+          "name": "import.syncLeft",
+          "start": 3218.100000023842,
+          "end": 3218.7999999523163,
+          "duration": 0.6999999284744263
+        },
+        {
+          "name": "import.selectGroup",
+          "start": 3218.7999999523163,
+          "end": 3218.899999976158,
+          "duration": 0.10000002384185791
+        },
+        {
+          "name": "import.uiUpdate",
+          "start": 3217.899999976158,
+          "end": 3218.899999976158,
+          "duration": 1
+        },
+        {
+          "name": "import.total",
+          "start": 3212.2999999523163,
+          "end": 3218.899999976158,
+          "duration": 6.600000023841858
+        }
+      ],
+      "totalStart": 3212.2999999523163,
+      "totalEnd": 3219,
+      "totalDuration": 6.700000047683716
+    },
+    "errors": 0
+  },
+  {
+    "round": 3,
+    "wallClockMs": 239,
+    "iconBlockCount": 40,
+    "domNodes": 733,
+    "heapMB": 595,
+    "profiler": {
+      "sessionId": 1,
+      "entries": [
+        {
+          "name": "db.sqljs_deserialize",
+          "start": 3212.600000023842,
+          "end": 3214,
+          "duration": 1.399999976158142
+        },
+        {
+          "name": "db.migration_alter",
+          "start": 3216.7999999523163,
+          "end": 3219.1999999284744,
+          "duration": 2.399999976158142
+        },
+        {
+          "name": "db.migration_check",
+          "start": 3214,
+          "end": 3219.1999999284744,
+          "duration": 5.199999928474426
+        },
+        {
+          "name": "icpLoader.initProject",
+          "start": 3212.600000023842,
+          "end": 3219.1999999284744,
+          "duration": 6.599999904632568
+        },
+        {
+          "name": "db.getGroupList",
+          "start": 3219.5,
+          "end": 3220.2999999523163,
+          "duration": 0.7999999523162842
+        },
+        {
+          "name": "import.syncLeft",
+          "start": 3219.5,
+          "end": 3220.2999999523163,
+          "duration": 0.7999999523162842
+        },
+        {
+          "name": "import.selectGroup",
+          "start": 3220.2999999523163,
+          "end": 3220.399999976158,
+          "duration": 0.10000002384185791
+        },
+        {
+          "name": "import.uiUpdate",
+          "start": 3219.1999999284744,
+          "end": 3220.399999976158,
+          "duration": 1.2000000476837158
+        },
+        {
+          "name": "import.total",
+          "start": 3212.600000023842,
+          "end": 3220.399999976158,
+          "duration": 7.799999952316284
+        }
+      ],
+      "totalStart": 3212.600000023842,
+      "totalEnd": 3220.399999976158,
+      "totalDuration": 7.799999952316284
+    },
+    "errors": 0
+  },
+  {
+    "round": 4,
+    "wallClockMs": 225,
+    "iconBlockCount": 40,
+    "domNodes": 733,
+    "heapMB": 595,
+    "profiler": {
+      "sessionId": 1,
+      "entries": [
+        {
+          "name": "db.sqljs_deserialize",
+          "start": 3192.899999976158,
+          "end": 3193.899999976158,
+          "duration": 1
+        },
+        {
+          "name": "db.migration_alter",
+          "start": 3196.399999976158,
+          "end": 3198.7000000476837,
+          "duration": 2.3000000715255737
+        },
+        {
+          "name": "db.migration_check",
+          "start": 3193.899999976158,
+          "end": 3198.7000000476837,
+          "duration": 4.800000071525574
+        },
+        {
+          "name": "icpLoader.initProject",
+          "start": 3192.899999976158,
+          "end": 3198.7000000476837,
+          "duration": 5.800000071525574
+        },
+        {
+          "name": "db.getGroupList",
+          "start": 3199,
+          "end": 3199.8000000715256,
+          "duration": 0.8000000715255737
+        },
+        {
+          "name": "import.syncLeft",
+          "start": 3199,
+          "end": 3199.8000000715256,
+          "duration": 0.8000000715255737
+        },
+        {
+          "name": "import.selectGroup",
+          "start": 3199.8000000715256,
+          "end": 3199.8000000715256,
+          "duration": 0
+        },
+        {
+          "name": "import.uiUpdate",
+          "start": 3198.7000000476837,
+          "end": 3199.8000000715256,
+          "duration": 1.100000023841858
+        },
+        {
+          "name": "import.total",
+          "start": 3192.899999976158,
+          "end": 3199.8000000715256,
+          "duration": 6.900000095367432
+        }
+      ],
+      "totalStart": 3192.899999976158,
+      "totalEnd": 3199.8000000715256,
+      "totalDuration": 6.900000095367432
+    },
+    "errors": 0
+  },
+  {
+    "round": 5,
+    "wallClockMs": 238,
+    "iconBlockCount": 40,
+    "domNodes": 733,
+    "heapMB": 595,
+    "profiler": {
+      "sessionId": 1,
+      "entries": [
+        {
+          "name": "db.sqljs_deserialize",
+          "start": 3213.2999999523163,
+          "end": 3214.5,
+          "duration": 1.2000000476837158
+        },
+        {
+          "name": "db.migration_alter",
+          "start": 3217.899999976158,
+          "end": 3220.600000023842,
+          "duration": 2.700000047683716
+        },
+        {
+          "name": "db.migration_check",
+          "start": 3214.5,
+          "end": 3220.600000023842,
+          "duration": 6.100000023841858
+        },
+        {
+          "name": "icpLoader.initProject",
+          "start": 3213.2999999523163,
+          "end": 3220.600000023842,
+          "duration": 7.300000071525574
+        },
+        {
+          "name": "db.getGroupList",
+          "start": 3221,
+          "end": 3222,
+          "duration": 1
+        },
+        {
+          "name": "import.syncLeft",
+          "start": 3221,
+          "end": 3222.100000023842,
+          "duration": 1.100000023841858
+        },
+        {
+          "name": "import.selectGroup",
+          "start": 3222.100000023842,
+          "end": 3222.100000023842,
+          "duration": 0
+        },
+        {
+          "name": "import.uiUpdate",
+          "start": 3220.7000000476837,
+          "end": 3222.100000023842,
+          "duration": 1.399999976158142
+        },
+        {
+          "name": "import.total",
+          "start": 3213.2999999523163,
+          "end": 3222.100000023842,
+          "duration": 8.800000071525574
+        }
+      ],
+      "totalStart": 3213.2999999523163,
+      "totalEnd": 3222.2000000476837,
+      "totalDuration": 8.900000095367432
+    },
+    "errors": 0
+  }
+]

@@ -1,20 +1,22 @@
 // React
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+// Virtual rendering
+import { useVirtualizer } from '@tanstack/react-virtual';
 // React Dropzone
-import Dropzone from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 // UI
 import { message, confirm } from '../ui';
 // Components
 import IconBlock from '../IconBlock';
 import IconToolbar from '../IconToolbar';
+// ViewModel
+import { computeIconGridViewModel, type IconItem } from './viewModel';
 // Utils
 import { cn } from '../../lib/utils';
 // Database
 import db from '../../database';
 // Config
-import config, { defOption, setOption, getOption } from '../../config';
-// Utils
-import { throttleMustRun } from '../../utils/tools';
+import config, { defOption, setOption, getOption, type OptionData } from '../../config';
 // Images
 import noIconHintSad from '../../resources/imgs/nodata/noIconHint-sad.png';
 import noIconHintHappy from '../../resources/imgs/nodata/noIconHint-happy.png';
@@ -27,104 +29,83 @@ interface IconGridLocalProps {
   selectedIcon: string | null;
 }
 
-interface IconItem {
-  id: string;
-  iconName: string;
-  iconCode: string;
-  iconContent: string;
-  [key: string]: any;
-}
+const HEADER_HEIGHT = 42;
 
-interface GroupItem {
-  id: string;
-  groupName: string;
-  [key: string]: any;
-}
-
-// ── content-visibility wrapper for lazy rendering ───────────────────
-const CHUNK_SIZE = 60; // icons per chunk for content-visibility batching
-
-const IconChunk = React.memo(function IconChunk({
-  icons,
-  iconBlockWidth,
-  nameVisible,
-  codeVisible,
-  handleIconClick,
-}: {
-  icons: IconItem[];
-  iconBlockWidth: number | string;
-  nameVisible: boolean;
-  codeVisible: boolean;
-  handleIconClick: (id: string, data: any, e?: React.MouseEvent) => void;
-}) {
-  return (
-    <>
-      {icons.map((icon) => (
-        <IconBlock
-          key={icon.id}
-          data={icon}
-          name={icon.iconName}
-          code={icon.iconCode}
-          content={icon.iconContent}
-          width={iconBlockWidth}
-          nameVisible={nameVisible}
-          codeVisible={codeVisible}
-          handleIconSelected={handleIconClick}
-        />
-      ))}
-    </>
-  );
-});
-
-function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: IconGridLocalProps) {
+function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps) {
+  const options = getOption() as OptionData;
   const syncLeft = useAppStore((state: any) => state.syncLeft);
   const selectGroup = useAppStore((state: any) => state.selectGroup);
-  const batchMode = useAppStore((state: any) => state.batchMode);
-  const selectedIcons = useAppStore((state: any) => state.selectedIcons);
-  const toggleIconSelection = useAppStore((state: any) => state.toggleIconSelection);
-  const setIconSelection = useAppStore((state: any) => state.setIconSelection);
-  const lastClickedIconId = useAppStore((state: any) => state.lastClickedIconId);
-  const setLastClickedIconId = useAppStore((state: any) => state.setLastClickedIconId);
-  const clearBatchSelection = useAppStore((state: any) => state.clearBatchSelection);
 
+  // Selection state — subscribed once at grid level, passed as props to IconBlock
+  const selectedIconStore = useAppStore((state: any) => state.selectedIcon);
+  const selectedIcons = useAppStore((state: any) => state.selectedIcons);
+  const showCheckbox = useAppStore((state: any) => state.batchMode || state.selectedIcons.size > 0);
+
+  // Event-time reads via getState()
+  const getStore = () => useAppStore.getState();
+
+  // ── State ───────────────────────────────────────────────────────────
   const [iconData, setIconData] = useState<Record<string, IconItem[]>>({});
-  const [iconBlockWrapperMaxWidth, setIconBlockWrapperMaxWidth] = useState<string>('100%');
-  const [iconBlockWrapperOpacity, setIconBlockWrapperOpacity] = useState<number>(0);
-  const [iconBlockWidth, setIconBlockWidth] = useState<number | string>(getOption().iconBlockSize);
+  const [iconBlockWidth, setIconBlockWidth] = useState<number | string>(options.iconBlockSize);
   const [iconBlockNameVisible, setIconBlockNameVisible] = useState<boolean>(
-    getOption().iconBlockNameVisible
+    options.iconBlockNameVisible
   );
   const [iconBlockCodeVisible, setIconBlockCodeVisible] = useState<boolean>(
-    getOption().iconBlockCodeVisible
+    options.iconBlockCodeVisible
   );
   const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [ready, setReady] = useState(false);
 
-  const widthTmpRef = useRef<number | null>(null);
+  // ── Refs ────────────────────────────────────────────────────────────
+  const scrollRef = useRef<HTMLDivElement>(null);
   const prevSelectedGroupRef = useRef<string>(selectedGroup);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchLastFireRef = useRef<number>(0);
   const flatIconIdsRef = useRef<string[]>([]);
+  const widthTmpRef = useRef<number | null>(null);
+  const widthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollCacheRef = useRef<Map<string, number>>(new Map());
 
-  // Sync icon data
+  // ── Column count from container width ───────────────────────────────
+  const colWidth = (typeof iconBlockWidth === 'number' ? iconBlockWidth : 100) + 20;
+  const columns = useMemo(
+    () => Math.max(1, containerWidth > 0 ? Math.floor(containerWidth / colWidth) : 1),
+    [containerWidth, colWidth]
+  );
+
+  // ── ResizeObserver for container width ──────────────────────────────
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        requestAnimationFrame(() => setContainerWidth(entry.contentRect.width));
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // ── Database sync ───────────────────────────────────────────────────
   const sync = useCallback(
     (group?: string) => {
       const targetGroup = group || selectedGroup;
       if (targetGroup === 'resource-all') {
-        // 单次查询所有图标，JS 端分组（替代 N 次分组查询）
-        setIconData(db.getAllIconsGrouped());
+        setIconData(db.getAllIconsGrouped() as Record<string, IconItem[]>);
       } else if (targetGroup === 'resource-recent') {
-        const groupIconData: Record<string, IconItem[]> = {};
-        groupIconData['resource-recent'] = db.getRecentlyUpdatedIcons(50);
-        setIconData(groupIconData);
+        setIconData({ 'resource-recent': db.getRecentlyUpdatedIcons(50) as IconItem[] });
       } else if (targetGroup === 'resource-uncategorized') {
-        const groupIconData: Record<string, IconItem[]> = {};
-        groupIconData['resource-uncategorized'] = db
-          .getIconListFromGroup('resource-uncategorized')
-          .concat(db.getIconListFromGroup('null'));
-        setIconData(groupIconData);
+        setIconData({
+          'resource-uncategorized': db
+            .getIconListFromGroup('resource-uncategorized')
+            .concat(db.getIconListFromGroup('null')) as IconItem[],
+        });
       } else {
         setIconData((prev) => ({
           ...prev,
-          [targetGroup]: db.getIconListFromGroup(targetGroup),
+          [targetGroup]: db.getIconListFromGroup(targetGroup) as IconItem[],
         }));
       }
     },
@@ -132,15 +113,11 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
   );
 
   useEffect(() => {
-    // Initial sync
     sync();
-    // 进入后延迟一点, 设置一下位置和透明度
-    setTimeout(() => {
-      setIconBlockWrapperOpacity(1);
-    }, 500);
-  }, []);
+    const timer = setTimeout(() => setReady(true), 300);
+    return () => clearTimeout(timer);
+  }, [sync]);
 
-  // Subscribe to store changes to trigger re-sync (replaces SyncCenterLocal event)
   const groupData = useAppStore((state: any) => state.groupData);
   useEffect(() => {
     sync();
@@ -148,24 +125,78 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
 
   useEffect(() => {
     if (selectedGroup !== prevSelectedGroupRef.current) {
+      // Save scroll position for old view
+      if (scrollRef.current) {
+        scrollCacheRef.current.set(prevSelectedGroupRef.current, scrollRef.current.scrollTop);
+      }
       prevSelectedGroupRef.current = selectedGroup;
       sync(selectedGroup);
       deselectIcon();
     }
   }, [selectedGroup]);
 
-  // Toolbar相关
+  // ── ViewModel ───────────────────────────────────────────────────────
+  const groupList = useMemo(() => (db as any).getGroupList() || [], [groupData]);
+
+  const viewModel = useMemo(() => {
+    const p = (window as any).__BOBCORN_PERF__;
+    p?.mark('viewModel.compute');
+    const result = computeIconGridViewModel({
+      iconData,
+      selectedGroup,
+      searchKeyword,
+      columns,
+      groupList,
+    });
+    p?.measure('viewModel.compute');
+    return result;
+  }, [iconData, selectedGroup, searchKeyword, columns, groupList]);
+
+  // Update flatIconIds ref for Shift+Click range selection
+  useEffect(() => {
+    flatIconIdsRef.current = viewModel.flatIconIds;
+  }, [viewModel.flatIconIds]);
+
+  // ── Row height calculation ──────────────────────────────────────────
+  const rowHeight = useMemo(() => {
+    const w = typeof iconBlockWidth === 'number' ? iconBlockWidth : 100;
+    const nameH = iconBlockNameVisible ? 22 : 0;
+    const codeH = iconBlockCodeVisible ? 22 : 0;
+    return w + nameH + codeH + 24;
+  }, [iconBlockWidth, iconBlockNameVisible, iconBlockCodeVisible]);
+
+  // ── Virtualizer ─────────────────────────────────────────────────────
+  const virtualizer = useVirtualizer({
+    count: viewModel.rows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: (index) => (viewModel.rows[index]?.kind === 'header' ? HEADER_HEIGHT : rowHeight),
+    getItemKey: (index) => viewModel.rows[index]?.key ?? String(index),
+    overscan: 3,
+  });
+
+  // Restore scroll position on view change
+  useEffect(() => {
+    if (viewModel.rows.length > 0) {
+      const cached = scrollCacheRef.current.get(selectedGroup);
+      if (cached !== undefined && scrollRef.current) {
+        requestAnimationFrame(() => {
+          scrollRef.current?.scrollTo(0, cached);
+        });
+      }
+    }
+  }, [selectedGroup, viewModel.rows.length > 0 ? 1 : 0]);
+
+  // ── Toolbar callbacks ───────────────────────────────────────────────
   const updateNameVisible = useCallback((visible: boolean) => {
     setIconBlockNameVisible(visible);
     setOption({ iconBlockNameVisible: visible });
   }, []);
+
   const updateCodeVisible = useCallback((visible: boolean) => {
     setIconBlockCodeVisible(visible);
     setOption({ iconBlockCodeVisible: visible });
   }, []);
 
-  // 更新搜索字符串 — throttle 300ms (输入过程中也能看到中间结果)
-  const searchLastFireRef = useRef<number>(0);
   const updateSearchKeyword = useCallback((value: string) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     const now = Date.now();
@@ -181,30 +212,26 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
     }
   }, []);
 
-  // Icon容器宽度 — debounce 避免拖拽时频繁重渲染
-  const widthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const updateIconWrapperWidth = useCallback((width: number) => {
     if (width) widthTmpRef.current = width;
     if (widthTimerRef.current) clearTimeout(widthTimerRef.current);
     widthTimerRef.current = setTimeout(() => {
       const iconWidth = width || widthTmpRef.current || defOption.iconBlockSize;
-      setIconBlockWrapperMaxWidth('100%');
       setIconBlockWidth(iconWidth || 'auto');
-      setIconBlockWrapperOpacity(1);
       setOption({ iconBlockSize: width });
     }, 150);
   }, []);
 
-  // 拖放事件相关
+  // ── Drag & drop (useDropzone hook — shares ref with scroll container) ──
   const onIconDrop = useCallback(
     (acceptedFiles: File[]) => {
-      const acceptableIcons = acceptedFiles.filter((file) => {
-        return config.acceptableIconTypes.includes(file.type);
-      });
+      const acceptableIcons = acceptedFiles.filter((file) =>
+        config.acceptableIconTypes.includes(file.type)
+      );
       if (acceptedFiles.length === 1) {
         const ext = acceptedFiles[0].name.split('.').pop()?.toLowerCase();
         if (ext === 'icp' || ext === 'cp') {
-          // TODO: 接受项目文件
+          /* TODO: accept project file */
         }
         if (acceptableIcons.length > 0) {
           db.addIcons(acceptableIcons, selectedGroup, () => {
@@ -247,326 +274,110 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
     [selectedGroup, syncLeft, sync]
   );
 
-  // 取消选择图标
-  const deselectIcon = useCallback(() => {
-    if (selectedIcons.size > 0) clearBatchSelection();
-    handleIconSelected(null);
-  }, [handleIconSelected, selectedIcons, clearBatchSelection]);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    noClick: true,
+    onDrop: onIconDrop,
+  });
 
-  // Batch-aware click handler
-  // Priority: Shift range > batch toggle (batchMode/Ctrl/has selection) > single select
+  // Merge dropzone ref with scroll ref
+  const dropzoneRootProps = getRootProps();
+  const dropzoneRefObj = dropzoneRootProps.ref;
+  const mergedScrollRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      scrollRef.current = node;
+      if (dropzoneRefObj) {
+        if (typeof dropzoneRefObj === 'function') dropzoneRefObj(node);
+        else (dropzoneRefObj as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      }
+    },
+    [dropzoneRefObj]
+  );
+
+  // ── Click handlers ──────────────────────────────────────────────────
+  const deselectIcon = useCallback(() => {
+    const s = getStore();
+    if (s.selectedIcons.size > 0) s.clearBatchSelection();
+    handleIconSelected(null);
+  }, [handleIconSelected]);
+
   const handleIconClick = useCallback(
     (id: string, data: any, e?: React.MouseEvent) => {
+      const s = getStore();
       const isCtrl = e && (e.ctrlKey || e.metaKey);
       const isShift = e && e.shiftKey;
 
-      // Shift+Click: range select (works in any mode)
-      if (isShift && lastClickedIconId) {
+      if (isShift && s.lastClickedIconId) {
         const ids = flatIconIdsRef.current;
-        const startIdx = ids.indexOf(lastClickedIconId);
+        const startIdx = ids.indexOf(s.lastClickedIconId);
         const endIdx = ids.indexOf(id);
         if (startIdx !== -1 && endIdx !== -1) {
           const [lo, hi] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
-          setIconSelection(ids.slice(lo, hi + 1));
+          s.setIconSelection(ids.slice(lo, hi + 1));
         }
         return;
       }
 
-      // In batch mode (toggle on, Ctrl held, or has selection): click = toggle
-      if (batchMode || isCtrl || selectedIcons.size > 0) {
-        toggleIconSelection(id);
+      if (s.batchMode || isCtrl || s.selectedIcons.size > 0) {
+        s.toggleIconSelection(id);
         return;
       }
 
-      // Normal single click
-      setLastClickedIconId(id);
+      s.setLastClickedIconId(id);
       handleIconSelected(id, data);
     },
-    [
-      batchMode,
-      selectedIcons,
-      lastClickedIconId,
-      toggleIconSelection,
-      setIconSelection,
-      setLastClickedIconId,
-      handleIconSelected,
-    ]
+    [handleIconSelected]
   );
 
   // Escape to exit batch mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && (batchMode || selectedIcons.size > 0)) {
-        clearBatchSelection();
+      const s = getStore();
+      if (e.key === 'Escape' && (s.batchMode || s.selectedIcons.size > 0)) {
+        s.clearBatchSelection();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [batchMode, selectedIcons, clearBatchSelection]);
+  }, []);
 
-  // ── 搜索过滤（预编译 regex + memoize 结果）──────────────────────
-  const filteredIcons = useMemo(() => {
-    const icons = iconData[selectedGroup];
-    if (!icons) return [];
-    if (!searchKeyword) return icons;
-
-    try {
-      const re = new RegExp(searchKeyword, 'ig');
-      return icons.filter(
-        (icon) =>
-          re.test(icon.iconName) ||
-          ((re.lastIndex = 0), re.test(icon.iconCode)) ||
-          ((re.lastIndex = 0), false)
-      );
-    } catch {
-      // Invalid regex — fallback to includes
-      const kw = searchKeyword.toLowerCase();
-      return icons.filter(
-        (icon) =>
-          icon.iconName.toLowerCase().includes(kw) || icon.iconCode.toLowerCase().includes(kw)
-      );
-    }
-  }, [iconData, selectedGroup, searchKeyword]);
-
-  // ── 分块渲染 — 将图标列表切分为 CHUNK_SIZE 的块 ────────────────
-  const iconChunks = useMemo(() => {
-    const chunks: IconItem[][] = [];
-    for (let i = 0; i < filteredIcons.length; i += CHUNK_SIZE) {
-      chunks.push(filteredIcons.slice(i, i + CHUNK_SIZE));
-    }
-    return chunks;
-  }, [filteredIcons]);
-
-  // ── "全部" 视图：按分组显示 ─────────────────────────────────────
-  const allGroupChunks = useMemo(() => {
-    if (selectedGroup !== 'resource-all') return null;
-
-    const groups: { group: GroupItem; chunks: IconItem[][] }[] = [];
-    const uncatIcons = iconData['resource-uncategorized'] || [];
-    if (uncatIcons.length > 0) {
-      const chunks: IconItem[][] = [];
-      const filtered = searchKeyword
-        ? uncatIcons.filter((icon) => {
-            const kw = searchKeyword.toLowerCase();
-            return (
-              icon.iconName.toLowerCase().includes(kw) || icon.iconCode.toLowerCase().includes(kw)
-            );
-          })
-        : uncatIcons;
-      for (let i = 0; i < filtered.length; i += CHUNK_SIZE) {
-        chunks.push(filtered.slice(i, i + CHUNK_SIZE));
-      }
-      if (filtered.length > 0) {
-        groups.push({ group: { id: 'resource-uncategorized', groupName: '未分组' }, chunks });
-      }
-    }
-
-    db.getGroupList().forEach((g: GroupItem) => {
-      const gIcons = iconData[g.id] || [];
-      if (gIcons.length === 0) return;
-      const filtered = searchKeyword
-        ? gIcons.filter((icon) => {
-            const kw = searchKeyword.toLowerCase();
-            return (
-              icon.iconName.toLowerCase().includes(kw) || icon.iconCode.toLowerCase().includes(kw)
-            );
-          })
-        : gIcons;
-      if (filtered.length === 0) return;
-      const chunks: IconItem[][] = [];
-      for (let i = 0; i < filtered.length; i += CHUNK_SIZE) {
-        chunks.push(filtered.slice(i, i + CHUNK_SIZE));
-      }
-      groups.push({ group: g, chunks });
-    });
-
-    return groups;
-  }, [iconData, selectedGroup, searchKeyword]);
-
-  // Update flat icon ID list for Shift range selection
-  useEffect(() => {
-    if (selectedGroup === 'resource-all' && allGroupChunks) {
-      flatIconIdsRef.current = allGroupChunks.flatMap(({ chunks }) =>
-        chunks.flatMap((c) => c.map((icon) => icon.id))
-      );
-    } else {
-      flatIconIdsRef.current = filteredIcons.map((icon) => icon.id);
-    }
-  }, [selectedGroup, allGroupChunks, filteredIcons]);
-
-  // Grid 容器样式 — 所有图标共用一个 grid，不在 chunk 级别断开
-  const colWidth = (typeof iconBlockWidth === 'number' ? iconBlockWidth : 100) + 20;
-  const gridStyle: React.CSSProperties = useMemo(
-    () => ({
-      display: 'grid',
-      gridTemplateColumns: `repeat(auto-fill, ${colWidth}px)`,
-      justifyContent: 'center',
-      gap: '4px',
-    }),
-    [colWidth]
-  );
-
-  // ── 渲染一般图标网格 ──────────────────────────────────────────
-  const gridContent = useMemo(() => {
-    if (selectedGroup === 'resource-all') {
-      if (!allGroupChunks || allGroupChunks.length === 0) return null;
-      return allGroupChunks.map(({ group, chunks }) => (
-        <div key={group.id}>
-          <div
-            className={cn(
-              'relative z-[1] cursor-pointer text-left',
-              'w-full h-[30px] mt-2.5',
-              'transition-colors duration-300',
-              'bg-surface-muted dark:bg-surface-muted',
-              'hover:bg-brand-50 dark:hover:bg-brand-950/40',
-              'active:bg-brand-100 dark:active:bg-brand-900/40'
-            )}
-            onClick={() => selectGroup(group.id)}
-          >
-            <span className="leading-[30px] ml-[18px] text-brand-500 dark:text-brand-400">
-              {group.groupName}
-            </span>
-            <label
-              className={cn(
-                'ml-2 px-1 py-0.5',
-                'bg-brand-500 dark:bg-brand-600',
-                'rounded text-white text-xs'
-              )}
-            >
-              {chunks.reduce((sum, c) => sum + c.length, 0)}
-            </label>
-          </div>
-          <div style={gridStyle}>
-            {chunks.map((chunk, ci) => (
-              <IconChunk
-                key={`${group.id}-${ci}`}
-                icons={chunk}
-                iconBlockWidth={iconBlockWidth}
-                nameVisible={iconBlockNameVisible}
-                codeVisible={iconBlockCodeVisible}
-                handleIconClick={handleIconClick}
-              />
-            ))}
-          </div>
-        </div>
-      ));
-    }
-
-    // 普通分组 / 最近更新 / 未分组 etc.
-    if (iconChunks.length === 0) return null;
+  // ── No-data blocks ──────────────────────────────────────────────────
+  const geneNodataBlock = () => {
+    const hints: Record<string, { img: string; lines: string[] }> = {
+      'resource-all': {
+        img: noIconHintSad,
+        lines: ['还没有图标', '直接拖拽图标到此处可添加图标'],
+      },
+      'resource-uncategorized': {
+        img: noIconHintHappy,
+        lines: ['图标都已经妥善分类了', '当新加入的图标未分类时, 将出现在此处'],
+      },
+      'resource-recent': {
+        img: noIconHintSad,
+        lines: ['还没有更新过的图标'],
+      },
+      'resource-recycleBin': {
+        img: noIconHintHappy,
+        lines: ['回收站很干净', '当图标被回收后, 将会出现在此处'],
+      },
+    };
+    const h = hints[selectedGroup] || { img: noIconHintSad, lines: ['这个分组没有图标'] };
     return (
-      <div style={gridStyle}>
-        {iconChunks.map((chunk, ci) => (
-          <IconChunk
-            key={ci}
-            icons={chunk}
-            iconBlockWidth={iconBlockWidth}
-            nameVisible={iconBlockNameVisible}
-            codeVisible={iconBlockCodeVisible}
-            handleIconClick={handleIconClick}
-          />
-        ))}
+      <div
+        className={cn(
+          'absolute inset-0 w-full h-[calc(100vh-116px)]',
+          'flex flex-col justify-center items-center text-center'
+        )}
+      >
+        <img className="w-[150px]" src={h.img} />
+        <div>
+          {h.lines.map((line, i) => (
+            <p key={i} className="text-foreground-muted dark:text-foreground-muted mb-2">
+              {line}
+            </p>
+          ))}
+        </div>
       </div>
     );
-  }, [
-    selectedGroup,
-    allGroupChunks,
-    iconChunks,
-    iconBlockWidth,
-    iconBlockNameVisible,
-    iconBlockCodeVisible,
-    handleIconClick,
-    deselectIcon,
-    selectGroup,
-  ]);
-
-  const geneNodataBlock = () => {
-    if (selectedGroup === 'resource-all') {
-      return (
-        <div
-          className={cn(
-            'absolute inset-0 w-full h-[calc(100vh-116px)]',
-            'flex flex-col justify-center items-center text-center'
-          )}
-        >
-          <img className="w-[150px]" src={noIconHintSad} />
-          <div>
-            <p className="text-foreground-muted dark:text-foreground-muted mb-2">还没有图标</p>
-            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
-              直接拖拽图标到此处可添加图标
-            </p>
-          </div>
-        </div>
-      );
-    } else if (selectedGroup === 'resource-uncategorized') {
-      return (
-        <div
-          className={cn(
-            'absolute inset-0 w-full h-[calc(100vh-116px)]',
-            'flex flex-col justify-center items-center text-center'
-          )}
-        >
-          <img className="w-[150px]" src={noIconHintHappy} />
-          <div>
-            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
-              图标都已经妥善分类了
-            </p>
-            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
-              当新加入的图标未分类时, 将出现在此处
-            </p>
-          </div>
-        </div>
-      );
-    } else if (selectedGroup === 'resource-recent') {
-      return (
-        <div
-          className={cn(
-            'absolute inset-0 w-full h-[calc(100vh-116px)]',
-            'flex flex-col justify-center items-center text-center'
-          )}
-        >
-          <img className="w-[150px]" src={noIconHintSad} />
-          <div>
-            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
-              还没有更新过的图标
-            </p>
-          </div>
-        </div>
-      );
-    } else if (selectedGroup === 'resource-recycleBin') {
-      return (
-        <div
-          className={cn(
-            'absolute inset-0 w-full h-[calc(100vh-116px)]',
-            'flex flex-col justify-center items-center text-center'
-          )}
-        >
-          <img className="w-[150px]" src={noIconHintHappy} />
-          <div>
-            <p className="text-foreground-muted dark:text-foreground-muted mb-2">回收站很干净</p>
-            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
-              当图标被回收后, 将会出现在此处
-            </p>
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className={cn(
-            'absolute inset-0 w-full h-[calc(100vh-116px)]',
-            'flex flex-col justify-center items-center text-center'
-          )}
-        >
-          <img className="w-[150px]" src={noIconHintSad} />
-          <div>
-            <p className="text-foreground-muted dark:text-foreground-muted mb-2">
-              这个分组没有图标
-            </p>
-          </div>
-        </div>
-      );
-    }
   };
 
   const hasIcons =
@@ -574,35 +385,108 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
       ? db.getIconCount() !== 0
       : iconData[selectedGroup] && iconData[selectedGroup].length !== 0;
 
+  // ── Render virtual items ────────────────────────────────────────────
+  const virtualItems = virtualizer.getVirtualItems();
+  const totalHeight = virtualizer.getTotalSize();
+
   return (
     <div className="relative w-full h-full flex flex-col" id="iconGridLocalContainer">
-      <Dropzone noClick onDrop={onIconDrop}>
-        {({ getRootProps, getInputProps, isDragActive }) => (
-          <div
-            {...getRootProps({
-              className: cn(
-                'relative text-center flex-grow',
-                'overflow-hidden overflow-y-auto',
-                'transition-[filter] duration-300',
-                isDragActive && 'blur-[30px]'
-              ),
-            })}
-          >
-            <input {...getInputProps()} />
-            <div className="absolute inset-0 opacity-0 z-0" onClick={deselectIcon} />
-            <div
-              className="relative w-full"
-              style={{
-                width: '100%',
-                maxWidth: iconBlockWrapperMaxWidth,
-                opacity: iconBlockWrapperOpacity,
-              }}
-            >
-              {hasIcons ? gridContent || geneNodataBlock() : geneNodataBlock()}
-            </div>
-          </div>
+      <div
+        {...dropzoneRootProps}
+        ref={mergedScrollRef}
+        className={cn(
+          'relative text-center flex-grow',
+          'overflow-hidden overflow-y-auto',
+          'transition-[filter] duration-300',
+          isDragActive && 'blur-[30px]'
         )}
-      </Dropzone>
+      >
+        <input {...getInputProps()} />
+        <div className="absolute inset-0 opacity-0 z-0" onClick={deselectIcon} />
+
+        {hasIcons && viewModel.rows.length > 0 ? (
+          <div
+            className={cn(
+              'relative w-full transition-opacity duration-300',
+              ready ? 'opacity-100' : 'opacity-0'
+            )}
+            style={{ height: totalHeight }}
+          >
+            {virtualItems.map((virtualRow) => {
+              const row = viewModel.rows[virtualRow.index];
+              if (!row) return null;
+
+              if (row.kind === 'header') {
+                return (
+                  <div
+                    key={row.key}
+                    data-index={virtualRow.index}
+                    ref={virtualizer.measureElement}
+                    className="absolute left-0 w-full"
+                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                  >
+                    <div
+                      className={cn(
+                        'relative z-[1] cursor-pointer text-left',
+                        'w-full h-[30px] mt-2.5',
+                        'transition-colors duration-300',
+                        'bg-surface-muted dark:bg-surface-muted',
+                        'hover:bg-brand-50 dark:hover:bg-brand-950/40',
+                        'active:bg-brand-100 dark:active:bg-brand-900/40'
+                      )}
+                      onClick={() => selectGroup(row.groupId)}
+                    >
+                      <span className="leading-[30px] ml-[18px] text-brand-500 dark:text-brand-400">
+                        {row.groupName}
+                      </span>
+                      <label
+                        className={cn(
+                          'ml-2 px-1 py-0.5',
+                          'bg-brand-500 dark:bg-brand-600',
+                          'rounded text-white text-xs'
+                        )}
+                      >
+                        {row.count}
+                      </label>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={row.key}
+                  data-index={virtualRow.index}
+                  ref={virtualizer.measureElement}
+                  className="absolute left-0 w-full flex justify-center gap-1"
+                  style={{ transform: `translateY(${virtualRow.start}px)` }}
+                >
+                  {row.icons.map((icon) => (
+                    <IconBlock
+                      key={icon.id}
+                      data={icon}
+                      name={icon.iconName}
+                      code={icon.iconCode}
+                      content={icon.iconContent}
+                      width={iconBlockWidth}
+                      nameVisible={iconBlockNameVisible}
+                      codeVisible={iconBlockCodeVisible}
+                      handleIconSelected={handleIconClick}
+                      selected={selectedIconStore === icon.id}
+                      batchSelected={selectedIcons.has(icon.id)}
+                      showCheckbox={showCheckbox}
+                    />
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          geneNodataBlock()
+        )}
+      </div>
+
+      {/* Drag hint overlay */}
       <div
         className={cn(
           'opacity-0 absolute inset-x-0 top-0',
@@ -622,13 +506,14 @@ function IconGridLocal({ selectedGroup, handleIconSelected, selectedIcon }: Icon
           </div>
         </div>
       </div>
+
       <div className="z-10">
         <IconToolbar
-          defaultIconWidth={getOption().iconBlockSize}
+          defaultIconWidth={options.iconBlockSize}
           updateIconWidth={updateIconWrapperWidth}
-          defaultNameVisible={getOption().iconBlockNameVisible}
+          defaultNameVisible={options.iconBlockNameVisible}
           updateNameVisible={updateNameVisible}
-          defaultCodeVisible={getOption().iconBlockCodeVisible}
+          defaultCodeVisible={options.iconBlockCodeVisible}
           updateCodeVisible={updateCodeVisible}
           updateSearchKeyword={updateSearchKeyword}
           visibleIconIds={flatIconIdsRef.current}

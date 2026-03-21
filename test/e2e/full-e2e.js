@@ -51,27 +51,14 @@ function assert(condition, message) {
 }
 
 /**
- * Dismiss any open modal by pressing Escape repeatedly.
- * This prevents stale modal overlays from blocking subsequent clicks.
+ * Dismiss any open modal/dialog by pressing Escape repeatedly.
+ * Radix dialogs and custom Dialog component both respond to Escape key.
+ * Press 3 times to ensure all stacked overlays are dismissed.
  */
 async function dismissModals(win) {
   for (let i = 0; i < 3; i++) {
-    const hasVisibleModal = await win.evaluate(() => {
-      const wraps = document.querySelectorAll('.ant-modal-wrap');
-      for (const w of wraps) {
-        if (w.style.display !== 'none' && w.offsetParent !== null) return true;
-        // Also check if the wrap is visible via computed style
-        const cs = window.getComputedStyle(w);
-        if (cs.display !== 'none' && cs.visibility !== 'hidden') return true;
-      }
-      return false;
-    });
-    if (hasVisibleModal) {
-      await win.keyboard.press('Escape');
-      await sleep(600);
-    } else {
-      break;
-    }
+    await win.keyboard.press('Escape');
+    await sleep(400);
   }
 }
 
@@ -199,8 +186,8 @@ async function run() {
       await sleep(800);
       await screenshot(win, 'import-dropdown');
 
-      // Click "导入图标" in the dropdown
-      const importIconItem = win.locator('.ant-dropdown-menu-item:has-text("导入图标"), .ant-menu-item:has-text("导入图标")').first();
+      // Click "导入图标" in the dropdown (portaled to body)
+      const importIconItem = win.locator('button:has-text("导入图标")').first();
       await importIconItem.click({ timeout: 5000 });
       await sleep(4000); // Wait for SVG processing, db ops, React re-render
 
@@ -293,12 +280,12 @@ async function run() {
     try {
       await dismissModals(win);
 
-      // The "+" button is inside a disabled SubMenu (disabled prevents collapsing,
-      // not the button itself). Use JS click to bypass Playwright's actionability checks.
+      // The "+" button uses a lucide-react <Plus> icon (renders as <svg class="lucide-plus">).
+      // Use JS click to bypass Playwright's actionability checks.
       const plusBtnClicked = await win.evaluate(() => {
-        const btn = document.querySelector('button .anticon-plus');
-        if (btn) {
-          btn.closest('button').click();
+        const svg = document.querySelector('button svg.lucide-plus');
+        if (svg) {
+          svg.closest('button').click();
           return true;
         }
         return false;
@@ -307,41 +294,27 @@ async function run() {
       await sleep(1000);
       await screenshot(win, 'add-group-dialog');
 
-      // Modal should appear with title "添加分组"
-      const modalTitle = await win.locator('.ant-modal-title:has-text("添加分组")').isVisible({ timeout: 3000 });
+      // Modal should appear with title "添加分组" (Radix Dialog with role="dialog")
+      const modalTitle = await win.locator('text=添加分组').first().isVisible({ timeout: 3000 });
       assert(modalTitle, 'Add group modal should appear');
 
-      // Type group name in the visible modal's input
-      // Use the modal that has "添加分组" as title
-      const modalInput = win.locator('.ant-modal:visible input').first();
+      // Type group name in the visible dialog's input
+      const modalInput = win.locator('[role="dialog"] input').first();
       await modalInput.fill('E2E测试分组');
       await sleep(500);
       await screenshot(win, 'group-name-entered');
 
-      // Click the confirm button in the visible modal
-      // The button text in antd5 is "确 认" (with space) or "确认"
+      // Click the confirm button in the visible dialog
+      // The Dialog component renders buttons in a footer div inside [role="dialog"]
       const confirmClicked = await win.evaluate(() => {
-        // Find the visible modal with "添加分组" title
-        const modals = document.querySelectorAll('.ant-modal-root');
-        for (const root of modals) {
-          const title = root.querySelector('.ant-modal-title');
-          if (title && title.textContent.includes('添加分组')) {
-            const wrap = root.querySelector('.ant-modal-wrap');
-            if (wrap && wrap.style.display !== 'none') {
-              const okBtn = root.querySelector('.ant-btn-primary');
-              if (okBtn) {
-                okBtn.click();
-                return true;
-              }
+        const dialogs = document.querySelectorAll('[role="dialog"]');
+        for (const dialog of dialogs) {
+          const btns = dialog.querySelectorAll('button');
+          for (const btn of btns) {
+            if (btn.textContent.includes('确') && btn.offsetParent !== null) {
+              btn.click();
+              return true;
             }
-          }
-        }
-        // Fallback: find any visible primary button in a modal
-        const btns = document.querySelectorAll('.ant-modal-footer .ant-btn-primary');
-        for (const btn of btns) {
-          if (btn.offsetParent !== null) {
-            btn.click();
-            return true;
           }
         }
         return false;
@@ -372,10 +345,11 @@ async function run() {
       await dismissModals(win);
 
       // Click "全部" to show all icons (use JS click to bypass any overlay)
+      // ResourceNav renders <button> elements for each nav item
       await win.evaluate(() => {
-        const items = document.querySelectorAll('.ant-menu-item');
-        for (const item of items) {
-          if (item.textContent.includes('全部')) { item.click(); return; }
+        const btns = document.querySelectorAll('nav button');
+        for (const btn of btns) {
+          if (btn.textContent.includes('全部')) { btn.click(); return; }
         }
       });
       await sleep(1000);
@@ -480,17 +454,17 @@ async function run() {
       });
       await sleep(1500);
 
-      // Click "导出图标字体" OK button in the export modal
+      // Click "导出图标字体" OK button in the Radix dialog
       const exportTriggered = await win.evaluate(() => {
-        const wraps = document.querySelectorAll('.ant-modal-wrap');
-        for (const wrap of wraps) {
-          if (wrap.style.display === 'none') continue;
-          const title = wrap.querySelector('.ant-modal-title');
-          if (title && title.textContent.includes('导出图标字体')) {
-            const okBtn = wrap.querySelector('.ant-btn-primary');
-            if (okBtn) {
-              okBtn.click();
-              return true;
+        const dialogs = document.querySelectorAll('[role="dialog"]');
+        for (const dialog of dialogs) {
+          if (dialog.textContent.includes('导出图标字体')) {
+            const btns = dialog.querySelectorAll('button');
+            for (const btn of btns) {
+              if (btn.textContent.includes('导出图标字体') && btn.offsetParent !== null) {
+                btn.click();
+                return true;
+              }
             }
           }
         }
@@ -587,8 +561,8 @@ async function run() {
       await dismissModals(win);
 
       // Use JS click on the standalone settings gear button at the bottom
-      // (not the per-group gear icon). It's the button with anticon-setting
-      // that is inside the IO button container (next to import/export).
+      // (not the per-group gear icon). It has data-testid="settings-btn"
+      // and is inside the IO button container (next to import/export).
       const settingsClicked = await win.evaluate(() => {
         const btn = document.querySelector('[data-testid="settings-btn"]');
         if (btn) { btn.click(); return true; }
@@ -601,13 +575,12 @@ async function run() {
       const settingsTitle = await win.locator('text=修改图标字体前缀').first().isVisible({ timeout: 3000 }).catch(() => false);
       const warningAlert = await win.locator('text=请务必当心').first().isVisible({ timeout: 2000 }).catch(() => false);
 
-      // Get prefix value from the visible modal input
+      // Get prefix value from the visible Radix dialog input
       const prefixValue = await win.evaluate(() => {
-        const modals = document.querySelectorAll('.ant-modal-root');
-        for (const root of modals) {
-          const title = root.querySelector('.ant-modal-title');
-          if (title && title.textContent.includes('修改图标字体前缀')) {
-            const input = root.querySelector('input');
+        const dialogs = document.querySelectorAll('[role="dialog"]');
+        for (const dialog of dialogs) {
+          if (dialog.textContent.includes('修改图标字体前缀')) {
+            const input = dialog.querySelector('input');
             return input ? input.value : '';
           }
         }
@@ -635,8 +608,8 @@ async function run() {
     try {
       await dismissModals(win);
 
-      const slider = await win.locator('.ant-slider').first().isVisible({ timeout: 3000 }).catch(() => false);
-      const eyeBtn = await win.locator('button:has(.anticon-eye)').first().isVisible({ timeout: 2000 }).catch(() => false);
+      const slider = await win.locator('[role="slider"]').first().isVisible({ timeout: 3000 }).catch(() => false);
+      const eyeBtn = await win.locator('button:has(svg.lucide-eye)').first().isVisible({ timeout: 2000 }).catch(() => false);
       const searchInput = await win.locator('input[placeholder*="搜索"]').first().isVisible({ timeout: 2000 }).catch(() => false);
 
       console.log(`    Toolbar: slider=${slider}, eyeBtn=${eyeBtn}, search=${searchInput}`);
@@ -688,11 +661,12 @@ async function run() {
       await dismissModals(win);
 
       // Use JS clicks for menu navigation to bypass any potential overlay
+      // ResourceNav renders <button> elements inside <nav>
       // Click "未分组"
       await win.evaluate(() => {
-        const items = document.querySelectorAll('.ant-menu-item');
-        for (const item of items) {
-          if (item.textContent.includes('未分组')) { item.click(); return; }
+        const btns = document.querySelectorAll('nav button');
+        for (const btn of btns) {
+          if (btn.textContent.includes('未分组')) { btn.click(); return; }
         }
       });
       await sleep(1000);
@@ -700,9 +674,9 @@ async function run() {
 
       // Click "回收站"
       await win.evaluate(() => {
-        const items = document.querySelectorAll('.ant-menu-item');
-        for (const item of items) {
-          if (item.textContent.includes('回收站')) { item.click(); return; }
+        const btns = document.querySelectorAll('nav button');
+        for (const btn of btns) {
+          if (btn.textContent.includes('回收站')) { btn.click(); return; }
         }
       });
       await sleep(1000);
@@ -713,9 +687,9 @@ async function run() {
 
       // Click back to "全部"
       await win.evaluate(() => {
-        const items = document.querySelectorAll('.ant-menu-item');
-        for (const item of items) {
-          if (item.textContent.includes('全部')) { item.click(); return; }
+        const btns = document.querySelectorAll('nav button');
+        for (const btn of btns) {
+          if (btn.textContent.includes('全部')) { btn.click(); return; }
         }
       });
       await sleep(1000);
@@ -750,22 +724,26 @@ async function run() {
       await importBtn2.click();
       await sleep(800);
 
-      const importProjItem = win.locator('.ant-dropdown-menu-item:has-text("导入项目"), .ant-menu-item:has-text("导入项目")').first();
+      // Dropdown renders portaled <button> items to document.body
+      const importProjItem = win.locator('button:has-text("导入项目")').first();
       await importProjItem.click({ timeout: 5000 });
       await sleep(2000);
 
-      // Wait for confirmation dialog
-      const confirmDialogVisible = await win.locator('.ant-modal-confirm').first().isVisible({ timeout: 3000 }).catch(() => false);
+      // Wait for confirmation dialog (Radix Dialog with role="dialog")
+      const confirmDialogVisible = await win.locator('[role="dialog"]').first().isVisible({ timeout: 3000 }).catch(() => false);
       console.log(`    Confirm dialog visible: ${confirmDialogVisible}`);
 
       if (confirmDialogVisible) {
-        // Click the "导入" (OK) button in the confirm dialog
+        // Click the confirm/OK button in the dialog (text "确定" or "导入")
         await win.evaluate(() => {
-          const btns = document.querySelectorAll('.ant-btn-primary');
-          for (const btn of btns) {
-            if (btn.offsetParent !== null) {
-              btn.click();
-              return;
+          const dialogs = document.querySelectorAll('[role="dialog"]');
+          for (const dialog of dialogs) {
+            const btns = dialog.querySelectorAll('button');
+            for (const btn of btns) {
+              if ((btn.textContent.includes('确定') || btn.textContent.includes('导入')) && btn.offsetParent !== null) {
+                btn.click();
+                return;
+              }
             }
           }
         });
@@ -821,15 +799,18 @@ async function run() {
       });
       await sleep(1500);
 
-      // Click "导出图标字体" OK button
+      // Click "导出图标字体" OK button in the Radix dialog
       await win.evaluate(() => {
-        const wraps = document.querySelectorAll('.ant-modal-wrap');
-        for (const wrap of wraps) {
-          if (wrap.style.display === 'none') continue;
-          const title = wrap.querySelector('.ant-modal-title');
-          if (title && title.textContent.includes('导出图标字体')) {
-            const okBtn = wrap.querySelector('.ant-btn-primary');
-            if (okBtn) { okBtn.click(); return true; }
+        const dialogs = document.querySelectorAll('[role="dialog"]');
+        for (const dialog of dialogs) {
+          if (dialog.textContent.includes('导出图标字体')) {
+            const btns = dialog.querySelectorAll('button');
+            for (const btn of btns) {
+              if (btn.textContent.includes('导出图标字体') && btn.offsetParent !== null) {
+                btn.click();
+                return true;
+              }
+            }
           }
         }
         return false;
@@ -935,13 +916,16 @@ async function run() {
       await sleep(1500);
 
       await win.evaluate(() => {
-        const wraps = document.querySelectorAll('.ant-modal-wrap');
-        for (const wrap of wraps) {
-          if (wrap.style.display === 'none') continue;
-          const title = wrap.querySelector('.ant-modal-title');
-          if (title && title.textContent.includes('导出图标字体')) {
-            const okBtn = wrap.querySelector('.ant-btn-primary');
-            if (okBtn) { okBtn.click(); return true; }
+        const dialogs = document.querySelectorAll('[role="dialog"]');
+        for (const dialog of dialogs) {
+          if (dialog.textContent.includes('导出图标字体')) {
+            const btns = dialog.querySelectorAll('button');
+            for (const btn of btns) {
+              if (btn.textContent.includes('导出图标字体') && btn.offsetParent !== null) {
+                btn.click();
+                return true;
+              }
+            }
           }
         }
         return false;

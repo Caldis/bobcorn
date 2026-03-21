@@ -11,6 +11,7 @@ export interface ProjectFileData {
 // 读取项目文件数据
 const projFileLoader = (path: string): ProjectFileData | false => {
   const { electronAPI } = window;
+  const p = (window as any).__BOBCORN_PERF__;
   const fileType = typeOfFile(nameOfPath(path)).toLowerCase();
   // 如果为 json 文件, 可能是cp文件, 需要进一步校验
   if (fileType === 'json') {
@@ -30,7 +31,9 @@ const projFileLoader = (path: string): ProjectFileData | false => {
   } else if (fileType === 'icp') {
     // icp文件
     try {
+      p?.mark('fileLoader.readFileSync');
       const projectData = electronAPI.readFileSync(path);
+      p?.measure('fileLoader.readFileSync');
       if (projectData) {
         return {
           type: 'icp',
