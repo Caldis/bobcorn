@@ -317,9 +317,15 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         return;
       }
 
-      if (s.batchMode || isCtrl || s.selectedIcons.size > 0) {
+      if (isCtrl) {
         s.toggleIconSelection(id);
         return;
+      }
+
+      // Plain click (no modifier) while in batch mode → exit batch, select only this icon
+      if (s.batchMode || s.selectedIcons.size > 0) {
+        s.clearBatchSelection();
+        // Fall through to normal single-select below
       }
 
       s.setLastClickedIconId(id);

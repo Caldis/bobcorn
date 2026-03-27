@@ -205,5 +205,65 @@ describe('useAppStore', () => {
       expect(state.batchMode).toBe(false);
       expect(state.lastClickedIconId).toBeNull();
     });
+
+    // ── toggleIconSelection carry-over ────────────────────────────
+    it('toggleIconSelection carries over selectedIcon on first Ctrl+click', () => {
+      // Simulate: user clicked icon A (single-select), then Ctrl+clicks icon B
+      useAppStore.setState({ selectedIcon: 'a', selectedIcons: new Set(), batchMode: false });
+
+      useAppStore.getState().toggleIconSelection('b');
+      const state = useAppStore.getState();
+
+      expect([...state.selectedIcons]).toEqual(expect.arrayContaining(['a', 'b']));
+      expect(state.selectedIcons.size).toBe(2);
+      expect(state.batchMode).toBe(true);
+      // Single-select cleared to unify visual state
+      expect(state.selectedIcon).toBeNull();
+    });
+
+    it('toggleIconSelection on same icon as selectedIcon enters then exits batch', () => {
+      // Simulate: user clicked icon A, then Ctrl+clicks A again → deselect
+      useAppStore.setState({ selectedIcon: 'a', selectedIcons: new Set(), batchMode: false });
+
+      useAppStore.getState().toggleIconSelection('a');
+      const state = useAppStore.getState();
+
+      // A was carried over, then toggled off → empty
+      expect(state.selectedIcons.size).toBe(0);
+      expect(state.batchMode).toBe(false);
+    });
+
+    it('toggleIconSelection without selectedIcon does not carry over', () => {
+      useAppStore.setState({ selectedIcon: null, selectedIcons: new Set(), batchMode: false });
+
+      useAppStore.getState().toggleIconSelection('x');
+      const state = useAppStore.getState();
+
+      expect([...state.selectedIcons]).toEqual(['x']);
+      expect(state.batchMode).toBe(true);
+    });
+
+    it('toggleIconSelection in existing batch mode does not carry over again', () => {
+      // Already in batch with {a, b}, Ctrl+click c
+      useAppStore.setState({ selectedIcon: null, selectedIcons: new Set(['a', 'b']), batchMode: true });
+
+      useAppStore.getState().toggleIconSelection('c');
+      const state = useAppStore.getState();
+
+      expect([...state.selectedIcons]).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+      expect(state.selectedIcons.size).toBe(3);
+    });
+
+    // ── setIconSelection clears selectedIcon ──────────────────────
+    it('setIconSelection clears selectedIcon when entering batch', () => {
+      useAppStore.setState({ selectedIcon: 'a', selectedIcons: new Set(), batchMode: false });
+
+      useAppStore.getState().setIconSelection(['b', 'c', 'd']);
+      const state = useAppStore.getState();
+
+      expect([...state.selectedIcons]).toEqual(['b', 'c', 'd']);
+      expect(state.batchMode).toBe(true);
+      expect(state.selectedIcon).toBeNull();
+    });
   });
 });

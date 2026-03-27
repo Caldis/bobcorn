@@ -97,7 +97,7 @@ const IconBlock = React.memo(function IconBlock({
           className="absolute -top-0.5 -right-1.5 z-10"
           onClick={(e) => {
             e.stopPropagation();
-            handleIconSelected?.(data.id, data, e);
+            useAppStore.getState().toggleIconSelection(data.id);
           }}
         >
           <Checkbox className="pointer-events-none" checked={batchSelected} />

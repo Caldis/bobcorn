@@ -119,16 +119,32 @@ const useAppStore = create<State & Actions>((set, get) => ({
     set({ batchMode: !batchMode, selectedIcons: next, lastClickedIconId: null });
   },
   toggleIconSelection: (id: string) => {
-    const next = new Set(get().selectedIcons);
+    const { selectedIcons, selectedIcon } = get();
+    const next = new Set(selectedIcons);
+    // Carry over single-selected icon when first entering batch mode (Ctrl+click)
+    if (next.size === 0 && selectedIcon) {
+      next.add(selectedIcon);
+    }
     if (next.has(id)) next.delete(id);
     else next.add(id);
     // Auto-enter batch mode when any icon selected, auto-exit when all deselected
     const batchMode = next.size > 0;
-    set({ selectedIcons: next, batchMode, lastClickedIconId: id });
+    // Clear single-select highlight to unify visual state in batch mode
+    set({
+      selectedIcons: next,
+      batchMode,
+      lastClickedIconId: id,
+      selectedIcon: batchMode ? null : selectedIcon,
+    });
   },
   setIconSelection: (ids: string[]) => {
     const next = new Set(ids);
-    set({ selectedIcons: next, batchMode: next.size > 0 });
+    // Clear single-select highlight to unify visual state in batch mode
+    set({
+      selectedIcons: next,
+      batchMode: next.size > 0,
+      selectedIcon: next.size > 0 ? null : get().selectedIcon,
+    });
   },
   selectAllIcons: (ids: string[]) => {
     const next = new Set(ids);
