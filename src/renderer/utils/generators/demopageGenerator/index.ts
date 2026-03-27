@@ -1,5 +1,7 @@
 // Database
 import db from '../../../database';
+// Shared SVG utility
+import { flattenSvgUseRefs } from '../iconfontGenerator';
 // Templates — inlined at build time via Vite ?raw import
 // No runtime file I/O needed, works in both dev and production
 import htmlTemplate from '../../../resources/iconDocs/indexTemplate.html?raw';
@@ -86,7 +88,10 @@ export const iconfontSymbolGenerator = (icons: DemoIconData[]): string => {
 
   for (let i = 0; i < icons.length; i++) {
     const icon = icons[i];
-    const content = icon.iconContent;
+    // Flatten <use> references to avoid ID collisions in the SVG sprite.
+    // Design tools (Sketch/Figma) export paths in <defs> referenced via <use>,
+    // but all icons sharing id="path-1" causes cross-references in a single sprite.
+    const content = flattenSvgUseRefs(icon.iconContent);
 
     // 用 regex 提取 viewBox，避免 DOMParser 开销
     const vbMatch = VIEWBOX_RE.exec(content);

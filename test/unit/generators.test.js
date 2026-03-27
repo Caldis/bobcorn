@@ -141,6 +141,107 @@ describe('iconfontSymbolGenerator', () => {
   });
 });
 
+describe('flattenSvgUseRefs', () => {
+  let flattenSvgUseRefs;
+
+  beforeAll(async () => {
+    const mod = await import('../../src/renderer/utils/generators/iconfontGenerator/index');
+    flattenSvgUseRefs = mod.flattenSvgUseRefs;
+  });
+
+  test('inlines <use> referencing <path> in <defs> (Sketch pattern)', () => {
+    const svg = `<svg viewBox="0 0 48 48">
+    <defs>
+        <path d="M9.5,41 L8,39.625" id="path-1"/>
+    </defs>
+    <g fill="none">
+        <mask id="mask-2" fill="white"><use xlink:href="#path-1"/></mask>
+        <use fill="#000000" xlink:href="#path-1"/>
+    </g>
+</svg>`;
+    const result = flattenSvgUseRefs(svg);
+    // The visible <use> should be replaced with inlined <path>
+    expect(result).toContain('d="M9.5,41 L8,39.625"');
+    expect(result).toContain('fill="#000000"');
+    // <use> elements should be gone
+    expect(result).not.toContain('xlink:href="#path-1"');
+  });
+
+  test('inlines <use> referencing <polygon> in <defs>', () => {
+    const svg = `<svg viewBox="0 0 48 48">
+    <defs><polygon id="path-1" points="20.4 38 27.6 38"/></defs>
+    <g><use fill="#000000" xlink:href="#path-1"/></g>
+</svg>`;
+    const result = flattenSvgUseRefs(svg);
+    expect(result).toContain('points="20.4 38 27.6 38"');
+    expect(result).toContain('fill="#000000"');
+    expect(result).not.toContain('<use');
+  });
+
+  test('returns unchanged SVG without <defs>', () => {
+    const svg = '<svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6"/></svg>';
+    expect(flattenSvgUseRefs(svg)).toBe(svg);
+  });
+
+  test('keeps <use> that references non-defs element', () => {
+    const svg = `<svg><g id="group1"><path d="M0 0"/></g><use href="#group1"/></svg>`;
+    const result = flattenSvgUseRefs(svg);
+    expect(result).toContain('href="#group1"');
+  });
+
+  test('handles multiple icons with same id pattern', () => {
+    // Two SVGs with id="path-1" — each should inline its own path
+    const svg1 = `<svg><defs><path id="path-1" d="M1 1"/></defs><use fill="#000" xlink:href="#path-1"/></svg>`;
+    const svg2 = `<svg><defs><path id="path-1" d="M2 2"/></defs><use fill="#000" xlink:href="#path-1"/></svg>`;
+    const r1 = flattenSvgUseRefs(svg1);
+    const r2 = flattenSvgUseRefs(svg2);
+    expect(r1).toContain('d="M1 1"');
+    expect(r2).toContain('d="M2 2"');
+    // Neither should contain <use>
+    expect(r1).not.toContain('<use');
+    expect(r2).not.toContain('<use');
+  });
+});
+
+describe('iconfontSymbolGenerator — flattened <use>', () => {
+  let iconfontSymbolGenerator;
+
+  beforeAll(async () => {
+    const mod = await import('../../src/renderer/utils/generators/demopageGenerator/index');
+    iconfontSymbolGenerator = mod.iconfontSymbolGenerator;
+  });
+
+  test('Sketch-pattern icons produce self-contained symbols without <use>', () => {
+    const icons = [
+      {
+        iconCode: 'EB37',
+        iconName: 'col',
+        iconContent: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+    <defs><path d="M9.5,41 C8.672,41 8,40.384 8,39.625" id="path-1"/></defs>
+    <g fill="none"><use fill="#000000" xlink:href="#path-1"/></g>
+</svg>`,
+      },
+      {
+        iconCode: 'EB4B',
+        iconName: 'home',
+        iconContent: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+    <defs><polygon id="path-1" points="20.4 38 27.6 38"/></defs>
+    <g fill="none"><use fill="#000000" xlink:href="#path-1"/></g>
+</svg>`,
+      },
+    ];
+    const result = iconfontSymbolGenerator(icons);
+    // Each symbol should have inlined geometry, not <use> references
+    expect(result).not.toContain('xlink:href="#path-1"');
+    // col should have its own path data
+    expect(result).toContain('M9.5,41');
+    // home should have its own polygon data
+    expect(result).toContain('points="20.4 38 27.6 38"');
+    // No ID collisions — "path-1" should not appear in symbol output
+    expect(result).not.toContain('id="path-1"');
+  });
+});
+
 describe('demoHTMLGenerator', () => {
   let demoHTMLGenerator;
 

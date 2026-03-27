@@ -89,15 +89,89 @@ const createGlyphStream = (
 // Pre-compiled regex for SVG content cleanup
 const ARC_FIX_RE = /a0,0,0,0,1,0,0/g;
 
+// ---------------------------------------------------------------------------
+// Flatten <use> references — resolve <use xlink:href="#id"/> by inlining
+// the referenced element from <defs>.
+//
+// Many design tools (Sketch, Figma) export SVGs with path data in <defs>
+// and render via <use>:
+//   <defs><path id="path-1" d="M..."/></defs>
+//   <use fill="#000" xlink:href="#path-1"/>
+//
+// This breaks both font generation (cleanSVGForFont strips <defs>, losing
+// the path data) and symbol sprites (all icons share id="path-1" → collision).
+//
+// After flattening: <path d="M..." fill="#000"/>
+// ---------------------------------------------------------------------------
+
+export const flattenSvgUseRefs = (svg: string): string => {
+  // Step 1: Build ID → element map from <defs> blocks
+  const idMap: Record<string, { tag: string; attrs: string; inner?: string }> = {};
+
+  const defsRe = /<defs[^>]*>([\s\S]*?)<\/defs>/gi;
+  let dm;
+  while ((dm = defsRe.exec(svg)) !== null) {
+    const body = dm[1];
+    const elemRe = /<(\w+)\s+([^>]*?\bid="([^"]+)"[^>]*?)(?:\s*\/>|>([\s\S]*?)<\/\1>)/g;
+    let em;
+    while ((em = elemRe.exec(body)) !== null) {
+      const [, tag, allAttrs, id, inner] = em;
+      idMap[id] = {
+        tag,
+        attrs: allAttrs.replace(/\s*\bid="[^"]*"/, '').trim(),
+        inner,
+      };
+    }
+  }
+
+  if (Object.keys(idMap).length === 0) return svg;
+
+  // Step 2: Replace <use href="#id"> with inlined element
+  let result = svg.replace(
+    /<use\s+([^>]*?(?:xlink:)?href="#([^"]+)"[^>]*?)(?:\s*\/>|\s*><\/use>)/gi,
+    (match, allAttrs: string, refId: string) => {
+      const ref = idMap[refId];
+      if (!ref) return match;
+
+      // Extract non-href/id attributes from <use> to merge onto the inlined element
+      const useAttrs = allAttrs
+        .replace(/\s*(?:xlink:)?href="[^"]*"/g, '')
+        .replace(/\s*\bid="[^"]*"/g, '')
+        .trim();
+
+      const merged = [ref.attrs, useAttrs].filter(Boolean).join(' ');
+
+      return ref.inner != null
+        ? `<${ref.tag} ${merged}>${ref.inner}</${ref.tag}>`
+        : `<${ref.tag} ${merged}/>`;
+    }
+  );
+
+  // Step 3: Remove <defs> blocks (referenced elements already inlined).
+  // Also remove <mask> elements — Sketch pattern defines masks that aren't
+  // applied (no mask="url(#...)" attribute), and their child geometry would
+  // be incorrectly extracted as glyph outlines by svgicons2svgfont.
+  result = result.replace(/<defs[^>]*>[\s\S]*?<\/defs>/gi, '');
+  result = result.replace(/<mask[^>]*>[\s\S]*?<\/mask>/gi, '');
+
+  return result;
+};
+
 // Strip non-renderable elements that svgicons2svgfont incorrectly extracts as glyph shapes.
 // <defs> may contain <clipPath>/<mask>/<filter> whose child shapes are NOT visible geometry
 // but svgicons2svgfont treats all <rect>/<path>/etc. as glyph outlines regardless of context.
+// <mask> elements also contain child geometry that should not become glyph outlines.
 const DEFS_RE = /<defs[\s\S]*?<\/defs>/gi;
+const MASK_ELEM_RE = /<mask[\s\S]*?<\/mask>/gi;
 const CLIP_PATH_ATTR_RE = /\s*clip-path="[^"]*"/gi;
 const MASK_ATTR_RE = /\s*mask="[^"]*"/gi;
 
 const cleanSVGForFont = (svg: string): string =>
-  svg.replace(DEFS_RE, '').replace(CLIP_PATH_ATTR_RE, '').replace(MASK_ATTR_RE, '');
+  svg
+    .replace(DEFS_RE, '')
+    .replace(MASK_ELEM_RE, '')
+    .replace(CLIP_PATH_ATTR_RE, '')
+    .replace(MASK_ATTR_RE, '');
 
 // ---------------------------------------------------------------------------
 // SVG → SVG Font (with progress callback)
@@ -153,7 +227,8 @@ export const svgFontGenerator = (
   // Pre-compute unicode + clean content, write all glyphs
   for (let i = 0; i < total; i++) {
     const icon = icons[i];
-    const cleanContent = cleanSVGForFont(icon.iconContent.replace(ARC_FIX_RE, ''));
+    const resolved = flattenSvgUseRefs(icon.iconContent);
+    const cleanContent = cleanSVGForFont(resolved.replace(ARC_FIX_RE, ''));
     const codePoint = parseInt(icon.iconCode, 16);
     const glyph = createGlyphStream(
       cleanContent,

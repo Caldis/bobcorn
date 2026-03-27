@@ -113,8 +113,10 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // Batch selection actions
   toggleBatchMode: () => {
-    const current = get().batchMode;
-    set({ batchMode: !current, selectedIcons: new Set<string>(), lastClickedIconId: null });
+    const { batchMode, selectedIcon } = get();
+    // When entering batch mode, carry over the currently single-selected icon
+    const next = !batchMode && selectedIcon ? new Set<string>([selectedIcon]) : new Set<string>();
+    set({ batchMode: !batchMode, selectedIcons: next, lastClickedIconId: null });
   },
   toggleIconSelection: (id: string) => {
     const next = new Set(get().selectedIcons);
