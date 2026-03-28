@@ -41,7 +41,8 @@
       "package.json"
     ],
     "asarUnpack": [
-      "out/renderer/**"
+      "out/renderer/**",
+      "node_modules/electron-pixel-picker/**"
     ],
     "dmg": {
       "contents": [
@@ -156,7 +157,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.3.3",
-    "electron-pixel-picker": "file:../electron-pixel-picker",
+    "electron-pixel-picker": "^1.0.2",
     "electron-titlebar-windows": "^3.0.0",
     "electron-updater": "^6.8.3",
     "lucide-react": "^0.577.0",
