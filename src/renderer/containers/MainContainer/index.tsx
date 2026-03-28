@@ -1,7 +1,5 @@
 // React
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-// UI
-import { Dialog } from '../../components/ui';
 // Components
 import TitleBarButtonGroup from '../../components/TitleBar/button';
 import SplashScreen from '../../components/SplashScreen';
@@ -72,7 +70,6 @@ function ResizeHandle({
 // ── Main Container ──────────────────────────────────────────────────
 function MainContainer() {
   const splashScreenVisible = useAppStore((state: any) => state.splashScreenVisible);
-  const contentVisible = useAppStore((state: any) => state.contentVisible);
   const selectedGroup = useAppStore((state: any) => state.selectedGroup);
   const selectedIcon = useAppStore((state: any) => state.selectedIcon);
   const selectedSource = useAppStore((state: any) => state.selectedSource);
@@ -80,7 +77,6 @@ function MainContainer() {
   const sideEditorVisible = useAppStore((state: any) => state.sideEditorVisible);
   const selectedIcons = useAppStore((state: any) => state.selectedIcons);
 
-  const showSplashScreen = useAppStore((state: any) => state.showSplashScreen);
   const selectGroup = useAppStore((state: any) => state.selectGroup);
   const selectIcon = useAppStore((state: any) => state.selectIcon);
   const selectSource = useAppStore((state: any) => state.selectSource);
@@ -112,86 +108,72 @@ function MainContainer() {
   useEffect(() => {
     preventDrop();
     disableChromeAutoFocus();
-    // Initialize dark mode from persisted settings
+    // Sync dark mode store state (DOM class already applied in bootstrap.tsx)
     if (opts.darkMode) {
-      document.documentElement.classList.add('dark');
       useAppStore.getState().toggleDarkMode();
     }
-    setTimeout(() => showSplashScreen(true), 100);
   }, []);
 
   return (
     <div className="flex h-full w-full flex-row flex-nowrap">
-      {/*欢迎界面*/}
-      <Dialog
-        closable={false}
-        open={splashScreenVisible}
-        onClose={() => showSplashScreen(false)}
-        maskClosable={false}
-        footer={null}
-      >
+      {splashScreenVisible ? (
+        /* 欢迎界面 — 全页渲染，不使用 Dialog */
         <SplashScreen />
-      </Dialog>
+      ) : (
+        /* 主体内容 — 三栏布局 */
+        <>
+          {/*左侧边栏*/}
+          <div
+            className={cn(
+              'shrink-0 overflow-hidden transition-[opacity] duration-300',
+              !sideMenuVisible && '!w-0 !opacity-0'
+            )}
+            style={{
+              width: sideMenuVisible ? leftWidth : 0,
+              contain: 'layout style paint',
+            }}
+          >
+            <SideMenu handleGroupSelected={selectGroup} selectedGroup={selectedGroup} />
+          </div>
 
-      {/*主体内容 — 左侧边栏*/}
-      <div
-        className={cn(
-          'shrink-0 overflow-hidden transition-[opacity] duration-300',
-          !sideMenuVisible && '!w-0 !opacity-0'
-        )}
-        style={{
-          width: sideMenuVisible ? leftWidth : 0,
-          opacity: contentVisible ? 1 : 0,
-          contain: 'layout style paint',
-        }}
-      >
-        <SideMenu handleGroupSelected={selectGroup} selectedGroup={selectedGroup} />
-      </div>
+          {/* 左侧拖拽分隔线 */}
+          {sideMenuVisible ? <ResizeHandle onResize={handleLeftResize} side="left" /> : null}
 
-      {/* 左侧拖拽分隔线 */}
-      {sideMenuVisible && contentVisible ? (
-        <ResizeHandle onResize={handleLeftResize} side="left" />
-      ) : null}
+          {/*中央图标网格*/}
+          <div className="min-w-0 flex-1 overflow-hidden" style={{ contain: 'strict' }}>
+            <SideGrid
+              selectedGroup={selectedGroup}
+              handleIconSelected={selectIcon}
+              selectedIcon={selectedIcon}
+              handleSourceSelected={selectSource}
+              selectedSource={selectedSource}
+            />
+          </div>
 
-      {/*主体内容 — 中央图标网格*/}
-      <div
-        className="min-w-0 flex-1 overflow-hidden transition-opacity duration-300"
-        style={{ opacity: contentVisible ? 1 : 0, contain: 'strict' }}
-      >
-        <SideGrid
-          selectedGroup={selectedGroup}
-          handleIconSelected={selectIcon}
-          selectedIcon={selectedIcon}
-          handleSourceSelected={selectSource}
-          selectedSource={selectedSource}
-        />
-      </div>
+          {/* 右侧拖拽分隔线 */}
+          {sideEditorVisible ? <ResizeHandle onResize={handleRightResize} side="right" /> : null}
 
-      {/* 右侧拖拽分隔线 */}
-      {sideEditorVisible && contentVisible ? (
-        <ResizeHandle onResize={handleRightResize} side="right" />
-      ) : null}
+          {/*右侧编辑器*/}
+          <div
+            className={cn(
+              'shrink-0 overflow-hidden bg-surface-muted transition-[opacity] duration-300',
+              !sideEditorVisible && '!w-0 !opacity-0'
+            )}
+            style={{
+              width: sideEditorVisible ? rightWidth : 0,
+              contain: 'layout style paint',
+            }}
+          >
+            {selectedIcons.size >= 2 ? (
+              <BatchPanel selectedGroup={selectedGroup} />
+            ) : (
+              <SideEditor selectedGroup={selectedGroup} selectedIcon={selectedIcon} />
+            )}
+          </div>
+        </>
+      )}
 
-      {/*主体内容 — 右侧编辑器*/}
-      <div
-        className={cn(
-          'shrink-0 overflow-hidden bg-surface-muted transition-[opacity] duration-300',
-          !sideEditorVisible && '!w-0 !opacity-0'
-        )}
-        style={{
-          width: sideEditorVisible ? rightWidth : 0,
-          opacity: contentVisible ? 1 : 0,
-          contain: 'layout style paint',
-        }}
-      >
-        {selectedIcons.size >= 2 ? (
-          <BatchPanel selectedGroup={selectedGroup} />
-        ) : (
-          <SideEditor selectedGroup={selectedGroup} selectedIcon={selectedIcon} />
-        )}
-      </div>
-
-      {/*控制按钮*/}
+      {/*控制按钮 — 始终渲染，不受 splash 状态影响*/}
       {platform() === 'win32' && <TitleBarButtonGroup />}
     </div>
   );

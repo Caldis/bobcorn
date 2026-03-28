@@ -8,7 +8,7 @@ Components that read from the Zustand store (`useAppStore`):
 
 | Component | Store Fields Read | Store Actions Used |
 |-----------|------------------|--------------------|
-| `MainContainer` | `splashScreenVisible`, `contentVisible`, `selectedGroup`, `selectedIcon`, `selectedSource`, `sideMenuVisible`, `sideEditorVisible` | `showSplashScreen`, `selectGroup`, `selectIcon`, `selectSource` |
+| `MainContainer` | `splashScreenVisible`, `selectedGroup`, `selectedIcon`, `selectedSource`, `sideMenuVisible`, `sideEditorVisible` | `selectGroup`, `selectIcon`, `selectSource`, `toggleDarkMode` |
 | `SplashScreen` | — | `showSplashScreen`, `selectGroup`, `syncLeft` |
 | `SideMenu` | `groupData` | `syncLeft`, `selectGroup` |
 | `IconGridLocal` | `groupData` | `syncLeft`, `selectGroup` |

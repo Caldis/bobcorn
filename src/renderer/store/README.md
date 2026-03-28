@@ -11,8 +11,7 @@ Single Zustand store managing all shared UI state. Replaces the legacy `GlobalEv
 ```
 useAppStore
 ├── UI State
-│   ├── splashScreenVisible: boolean     # Welcome dialog visibility
-│   ├── contentVisible: 0 | 1            # Main content opacity (0=hidden, 1=visible)
+│   ├── splashScreenVisible: boolean     # Welcome screen visibility (inline, not dialog)
 │   ├── selectedGroup: string            # Active group ID ("resource-all" default)
 │   ├── selectedIcon: string | null      # Active icon ID
 │   ├── selectedSource: "local" | "cloud"# Data source tab

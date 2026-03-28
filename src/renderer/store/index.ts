@@ -7,7 +7,6 @@ import config, { getOption, setOption } from '../config';
 export interface State {
   // UI State
   splashScreenVisible: boolean;
-  contentVisible: number;
   selectedGroup: string;
   selectedIcon: string | null;
   selectedSource: 'local' | 'cloud';
@@ -53,8 +52,7 @@ export interface Actions {
 
 const useAppStore = create<State & Actions>((set, get) => ({
   // UI State
-  splashScreenVisible: false,
-  contentVisible: 0,
+  splashScreenVisible: true,
   selectedGroup: config.defaultSelectedGroup,
   selectedIcon: null,
   selectedSource: 'local',
@@ -73,11 +71,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
   patchedIcons: {},
 
   // Actions
-  showSplashScreen: (show: boolean) =>
-    set({
-      splashScreenVisible: show,
-      contentVisible: show ? 0 : 1,
-    }),
+  showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
 
   selectGroup: (groupId: string) => {
     set({

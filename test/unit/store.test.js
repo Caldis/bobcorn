@@ -23,7 +23,6 @@ const { default: useAppStore } = await import('../../src/renderer/store/index');
 function resetStore() {
   useAppStore.setState({
     splashScreenVisible: false,
-    contentVisible: 0,
     selectedGroup: 'resource-all',
     selectedIcon: null,
     selectedSource: 'local',
@@ -46,20 +45,17 @@ describe('useAppStore', () => {
 
   // ── showSplashScreen ────────────────────────────────────────────
   describe('showSplashScreen', () => {
-    it('sets splashScreenVisible=true and contentVisible=0 when show=true', () => {
+    it('sets splashScreenVisible=true when show=true', () => {
       useAppStore.getState().showSplashScreen(true);
       const state = useAppStore.getState();
       expect(state.splashScreenVisible).toBe(true);
-      expect(state.contentVisible).toBe(0);
     });
 
-    it('sets splashScreenVisible=false and contentVisible=1 when show=false', () => {
-      // First show, then hide
+    it('sets splashScreenVisible=false when show=false', () => {
       useAppStore.getState().showSplashScreen(true);
       useAppStore.getState().showSplashScreen(false);
       const state = useAppStore.getState();
       expect(state.splashScreenVisible).toBe(false);
-      expect(state.contentVisible).toBe(1);
     });
   });
 
