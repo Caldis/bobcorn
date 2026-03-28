@@ -45,7 +45,6 @@
       "out/renderer/**"
     ],
     "dmg": {
-      "sign": false,
       "contents": [
         {
           "x": 130,
@@ -61,8 +60,10 @@
     },
     "icon": "resources/icon.png",
     "mac": {
-      "identity": null,
       "icon": "resources/icon.icns",
+      "notarize": {
+        "teamId": "N7Z52F27XK"
+      },
       "target": [
         {
           "target": "dmg",
