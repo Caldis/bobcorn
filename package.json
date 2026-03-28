@@ -39,7 +39,8 @@
     "files": [
       "out/**/*",
       "package.json",
-      "!node_modules"
+      "!node_modules",
+      "node_modules/electron-pixel-picker/**"
     ],
     "asarUnpack": [
       "out/renderer/**"
