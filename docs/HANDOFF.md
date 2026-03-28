@@ -1,108 +1,97 @@
-# Session Handoff — 2026-03-16
+# Session Handoff — 2026-03-28
 
 > 前一个 Claude Code session 的完整交接。新 session 请先读此文档 + AGENTS.md。
 
 ## 项目状态
 
-**版本**: v1.1.2 | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn
+**版本**: v1.6.5 | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
 
-全量 TypeScript 迁移完成 (34 files, strict: true)。从 2018 年 Electron 2 + React 16 + Webpack 4 + JS 升级到 Electron 28 + React 18 + antd 5 + electron-vite + TypeScript 5。
+## 本 Session 完成的工作
+
+### 1. 欢迎界面 modal → inline view (v1.6.2)
+- Radix Dialog modal 的 `pointer-events: none` 阻止了窗口关闭按钮
+- 改为条件渲染：splash visible → 全页欢迎界面，否则三栏布局
+- 移除冗余 `contentVisible` 状态
+- 在 `bootstrap.tsx` 中同步应用 dark mode 防止首帧闪白
+
+### 2. macOS 图标白底 + 完整性测试 (v1.6.3)
+- 所有 PNG 图标从 RGBA 转 RGB（白色背景），重新生成 .icns
+- 新增 `test/unit/icon-integrity.test.js` (11 tests) 检查 PNG color type
+
+### 3. macOS 代码签名 + 公证 (v1.6.4)
+- 创建 Developer ID Application 证书 (BIAO CHEN, N7Z52F27XK)
+- 配置 5 个 GitHub Secrets + release.yml CI 签名
+- 详细文档在 Mac mini `~/Docs/ci-signing/github-macos-codesign.md`
+- United Memory: `20260328-gh-macos-codesign`
+
+### 4. 官网 GitHub 按钮颜色修复 (v1.6.5)
+- `.nav-links a` 特异性覆盖了 `.btn-primary` 白色文字
+
+## 🔴 待修复: electron-pixel-picker 打包问题
+
+**状态**: v1.6.5 macOS 打开仍报 `Cannot find module 'electron-pixel-picker'`
+
+**根因分析**:
+1. `electron-pixel-picker` 在 package.json 中是 `"file:../electron-pixel-picker"` 本地路径依赖
+2. `externalizeDepsPlugin` 将它标记为 external，Rollup 生成 `require('electron-pixel-picker')`
+3. CI `npm install` 时 `file:../electron-pixel-picker` 路径不存在，模块未安装
+4. 即使移除了 `!node_modules`，asar 中也没有 EPP
+
+**已尝试的方案及失败原因**:
+
+| 方案 | 结果 |
+|------|------|
+| bundle 进 main (exclude from external) | Rollup 无法处理 CJS named exports (`"registerPixelPicker" is not exported`) |
+| default import (`import epp from`) | Rollup 报 `"default" is not exported` |
+| 添加 `@rollup/plugin-commonjs` | 与 `externalizeDepsPlugin` 冲突，`electron-updater` 也被处理导致构建失败 |
+| `files` 中添加 `node_modules/electron-pixel-picker/**` | electron-builder glob 覆盖无效 |
+| 移除 `!node_modules` | EPP 是 `file:` 依赖，CI 上路径不存在所以没安装 |
+
+**推荐修复方向** (在 macOS 本地操作):
+1. **将 EPP 发布到 npm** — 根本解决 `file:` 本地依赖问题
+2. **或改为 GitHub 仓库依赖** — `"electron-pixel-picker": "github:user/repo"`
+3. **或将 EPP 源码转为项目内 ESM 模块** — `src/main/pixel-picker.ts`（343 行纯 JS，零依赖）
 
 ## 已完成的阶段
 
 | 阶段 | 内容 | 状态 |
 |------|------|------|
-| P0 | Electron 28, DOMPurify, IPC, sass | ✅ |
-| P1 | electron-vite, React 18, antd 5 | ✅ |
-| P2 | Zustand, Hooks, sql.js WASM, contextBridge, dead code | ✅ |
-| P3 | ESLint, Prettier, Vitest, CI/CD, README | ✅ |
-| P4 | Auto-updater, Apple Silicon, E2E test suite | ✅ (市场功能待做) |
-| P5 | Agent docs, visual tests, CSS integrity, release automation | ✅ |
-| Phase 1 | **TypeScript 全量迁移** (34 files, strict: true) | ✅ |
-| v1.1.2 | **导出修复 + 模板性能升级** | ✅ |
-
-### v1.1.2 修复内容
-- 修复导出卡死: punycode ESM/CJS 不兼容 (ucs2.decode undefined)
-- 替换 memory-fs 为 EventEmitter+pipe glyph streams (绕过 TextDecoder 兼容性)
-- safeCallback 模式 + 120s 超时保护 + 顶层 try/catch
-- 生产路径回退 (asar 不存在时回退 dev 路径)
-- 导出加载弹窗可关闭
-- 导出模板 HTML 性能升级: content-visibility 虚拟滚动 + 分批 DOM 插入
-- 新增 E2E 导出测试: Step 8b (5 icons) + Step 13b (2949 icons ICP)
-- 移除 memory-fs 依赖, bundle 减小 ~72KB
-
-## 当前进行中: UI 全面现代化 + 多色图标支持
-
-### 目标 1: UI 现代化
-- 替换 antd 5 → shadcn/ui (Radix + Tailwind)
-- 现代视觉设计 + 暗色模式
-- 重构三栏布局
-- 导出 HTML 演示页面现代化
-
-### 目标 2: 多色图标
-- 多色 SVG 图标保留原始颜色
-- 图标上色编辑功能
-- Symbol 渲染模式天然支持多色
-
-### 不可变约束
-- **导出协议不可变**: .svg, .ttf, .woff, .woff2, .eot, .css, .js 文件格式不能有任何破坏性更改
-- **数据库 schema 不可变**: .icp 项目文件必须保持可加载
-- 字体生成管线 (svgicons2svgfont → svg2ttf → ttf2woff/woff2/eot) 不变
-- contextBridge IPC 模式不变
+| P0-P5 | 基础升级 + 工具链 | ✅ |
+| Phase 1 | TypeScript 全量迁移 | ✅ |
+| v1.1.2 | 导出修复 + 模板性能 | ✅ |
+| UI 现代化 | Radix + Tailwind + 暗色模式 | ✅ 进行中 |
+| v1.6.2 | 欢迎界面 inline view | ✅ |
+| v1.6.3 | 图标白底 + 完整性测试 | ✅ |
+| v1.6.4 | macOS CI 签名 + 公证 | ✅ |
+| v1.6.5 | CI 修复 + 官网按钮颜色 | ✅ (EPP 待修) |
 
 ## 已知问题
 
-1. **electron-builder 本地构建** — winCodeSign symlink 权限错误。workaround: rcedit + unpacked
-2. **ESLint warnings** — 48 个 warning，已降级为 warn
-3. **E2E ICP 导入测试** — dialog mock 时序偶尔不稳定
+1. **🔴 electron-pixel-picker 打包** — macOS/Linux/Windows 分发包中缺失 EPP 模块（见上方详细分析）
+2. **electron-builder 本地构建** — winCodeSign symlink 权限错误
+3. **ESLint warnings** — 48 个 warning，已降级为 warn
 
-## 发版规则 (必须遵守)
+## 发版规则
 
-- 每完成阶段性改造或累计 ≥10 commit → 发版
-- 发版前: build ✓ + vitest ✓ + E2E ✓
-- 流程: `npm version patch` → `git push --follow-tags`
+- `npm version patch` → `git push --follow-tags`
+- CI 自动: test → 3 平台构建 → 签名/公证(mac) → publish release
+- **不要手动 `gh release create`**
 
-## 操作规则
+## macOS 签名信息
 
-- **禁止盲杀全局 electron 进程** — 用户可能同时调试其他 Electron 项目
-- **每次变更后更新**: united-memory + AGENTS.md + roadmap
-- **真实数据测试**: 用 ICP fixture (2949 icons) 验证
+- 证书: `Developer ID Application: BIAO CHEN (N7Z52F27XK)`
+- 文件: Mac mini `~/Docs/ci-signing/keys/`
+- Secrets: `MAC_CERTS`, `MAC_CERTS_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`
 
 ## 测试基础设施
 
 ```bash
-npx vitest run                    # 158 单元测试
-node test/e2e/full-e2e.js         # 16 完整流程 (含导出 + ICP 导入导出)
+npx vitest run                    # 213 单元测试 (含 11 icon integrity)
 node test/e2e/acceptance.js       # 21 E2E checks
-node test/e2e/css-integrity.js    # 23 CSS 完整性检查
-node test/e2e/layout-assertions.js # 10 布局断言
-```
-
-## 关键技术决策记录
-
-| 决策 | 原因 |
-|------|------|
-| electron-vite 而非 Webpack 5 | 开发启动 30s→<1s |
-| antd 3 直接升 5 (跳过 4) | antd 3 与 esbuild 不兼容 |
-| sql.js ASM build (非 WASM) | WASM 需要文件加载，ASM 纯 JS 可 bundle |
-| punycode-shim.ts | Vite ESM 打包丢失 ucs2 对象，shim 重新组装 |
-| EventEmitter glyph streams (非 memory-fs) | stream-browserify TextDecoder 兼容性问题 |
-| content-visibility 虚拟滚动 (非 JS 虚拟列表) | 保留 DOM 文本支持 Ctrl+F，零 JS 依赖 |
-
-## 文件结构
-
-```
-src/main/index.ts        — 主进程
-src/preload/index.ts     — contextBridge
-src/renderer/            — React 应用 (全部 .tsx/.ts)
-  store/index.ts         — Zustand (State + Actions interfaces)
-  database/index.ts      — Database class
-  config/index.ts        — AppConfig + 资源路径解析
-  components/            — 12 个 .tsx 组件
-  utils/                 — sanitize, tools, svg, generators, importers, loaders
-  utils/punycode-shim.ts — punycode CJS 兼容 shim
+node test/e2e/full-e2e.js         # 17 完整流程
 ```
 
 ## United Memory ID
 
-`20260314-bobcorn-project` — 包含完整项目状态和操作规则
+`20260314-bobcorn-project` — 项目状态
+`20260328-gh-macos-codesign` — 签名流程
