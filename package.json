@@ -38,8 +38,7 @@
     },
     "files": [
       "out/**/*",
-      "package.json",
-      "!node_modules"
+      "package.json"
     ],
     "asarUnpack": [
       "out/renderer/**"

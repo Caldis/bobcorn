@@ -10,7 +10,7 @@ import type { OpenDialogOptions, SaveDialogOptions } from 'electron';
 import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
-import { registerPixelPicker } from './pixel-picker';
+import { registerPixelPicker } from 'electron-pixel-picker';
 
 let mainWindow: BrowserWindow | null = null;
 const platform: string = os.platform();
