@@ -22,11 +22,7 @@ import selectedIconHint from '../../resources/imgs/nodata/selectedIconHint.png';
 // Store
 import useAppStore from '../../store';
 
-const radioStyle: React.CSSProperties = {
-  display: 'block',
-  height: '30px',
-  lineHeight: '30px',
-};
+const radioStyle: React.CSSProperties = {};
 
 interface IconDataRecord {
   id: string;
@@ -692,7 +688,7 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
         onClose={handleCancelIconGroupEdit}
         title={iconGroupEditModelTitle}
         footer={[
-          <Button key="cancel" size="large" onClick={handleCancelIconGroupEdit}>
+          <Button key="cancel" onClick={handleCancelIconGroupEdit}>
             取消
           </Button>,
           <Button
@@ -702,16 +698,16 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
               !iconGroupEditModelTarget
             }
             key="ensure"
-            size="large"
+            type="primary"
             onClick={handleEnsureIconGroupEdit}
           >
             确认
           </Button>,
         ]}
       >
-        <div className="max-h-[70vh] overflow-hidden overflow-y-auto">
+        <div className="max-h-[60vh] overflow-y-auto -mx-2 px-2">
           {iconGroupEditModelType === 'duplicate' && (
-            <p className="mb-2.5 text-sm text-foreground-muted dark:text-foreground-muted">
+            <p className="mb-2 text-xs text-foreground-muted dark:text-foreground-muted">
               新生成的图标将会拥有一个不同的图标字码
             </p>
           )}

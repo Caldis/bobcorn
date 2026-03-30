@@ -142,12 +142,17 @@ export function extractSvgColors(svgContent: string): SvgColorInfo[] {
     }
 
     // 检查 fill: 显式属性 > style > 形状元素默认黑色
-    if (fill) {
+    // fill="currentColor" 视为隐式黑色（与无 fill 一样），确保颜色编辑器可用
+    // fill="none"/"transparent" 则是显式不可见，不应视为黑色
+    const fillVal = fill?.trim().toLowerCase();
+    const fillIsCurrentColor = fillVal === 'currentcolor';
+    const fillIsImplicit = !fill || fillIsCurrentColor;
+    if (fill && !fillIsImplicit) {
       addColor(fill, colorMap);
     } else if (styleFill) {
       addColor(styleFill, colorMap);
-    } else if (SHAPE_ELEMENTS.has(tagName) && !fill) {
-      // 没有显式 fill 的形状元素默认渲染为黑色
+    } else if (SHAPE_ELEMENTS.has(tagName) && fillIsImplicit) {
+      // 没有显式 fill 或 fill="currentColor" 的形状元素默认渲染为黑色
       addColor('#000000', colorMap);
     }
 
@@ -191,9 +196,14 @@ export function replaceSvgColor(svgContent: string, oldColor: string, newColor: 
     const stroke = el.getAttribute('stroke');
 
     // 替换 fill 属性
-    if (fill && normalizeColor(fill) === oldNorm) {
+    // fill="currentColor" 视为隐式黑色，与无 fill 一样处理
+    // fill="none"/"transparent" 是显式不可见，不替换
+    const fillVal = fill?.trim().toLowerCase();
+    const fillIsCurrentColor = fillVal === 'currentcolor';
+    const fillIsImplicit = !fill || fillIsCurrentColor;
+    if (fill && !fillIsImplicit && normalizeColor(fill) === oldNorm) {
       el.setAttribute('fill', newColor);
-    } else if (!fill && SHAPE_ELEMENTS.has(tagName) && oldNorm === '#000000') {
+    } else if (fillIsImplicit && SHAPE_ELEMENTS.has(tagName) && oldNorm === '#000000') {
       // 隐式黑色的形状元素 — 添加显式 fill
       el.setAttribute('fill', newColor);
     }

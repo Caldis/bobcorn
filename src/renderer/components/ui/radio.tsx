@@ -86,16 +86,28 @@ interface RadioProps {
 export function Radio({ value, children, style, className, _selected, _onChange }: RadioProps) {
   return (
     <label
-      className={cn('flex items-center gap-2 cursor-pointer text-sm', className)}
+      className={cn(
+        'flex items-center gap-2.5 cursor-pointer text-sm',
+        'px-2.5 py-2 rounded-md transition-colors duration-150',
+        _selected ? 'bg-brand-50 dark:bg-brand-500/10' : 'hover:bg-surface-muted',
+        className
+      )}
       style={style}
     >
       <input
         type="radio"
         checked={_selected}
         onChange={() => _onChange?.(value)}
-        className="accent-brand-500"
+        className="accent-brand-500 shrink-0"
       />
-      <span className="text-foreground">{children}</span>
+      <span
+        className={cn(
+          'text-foreground truncate',
+          _selected && 'font-medium text-brand-600 dark:text-brand-400'
+        )}
+      >
+        {children}
+      </span>
     </label>
   );
 }
