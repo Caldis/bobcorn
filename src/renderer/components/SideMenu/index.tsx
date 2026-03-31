@@ -1,5 +1,3 @@
-// Electron API (via preload contextBridge)
-const { electronAPI } = window;
 // React
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 // UI
@@ -10,8 +8,7 @@ import config from '../../config';
 import style from './index.module.css';
 // Utils
 import { platform } from '../../utils/tools';
-import { cpLoader, icpLoader } from '../../utils/loaders';
-import { iconImporter, projImporter } from '../../utils/importer';
+import { iconImporter } from '../../utils/importer';
 // Database
 import db from '../../database';
 // Store
@@ -31,10 +28,12 @@ interface SideMenuProps {
   selectedGroup: string;
 }
 
-function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: SideMenuProps) {
+const SideMenu = React.memo(function SideMenu({
+  handleGroupSelected,
+  selectedGroup: selectedGroupProp,
+}: SideMenuProps) {
   const groupData: GroupData[] = useAppStore((state: any) => state.groupData);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
-  const selectGroup = useAppStore((state: any) => state.selectGroup);
 
   const [selectedGroup, setSelectedGroup] = useState<string>(config.defaultSelectedGroup);
   // 对话框可见性
@@ -66,84 +65,28 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
     [handleGroupSelected]
   );
 
-  // 导入
-  const handleImportClick = useCallback(
-    (e: { key: string }) => {
-      if (e.key === 'importIcon') {
-        iconImporter({
-          onSelectSVG: (files: any[]) => {
-            db.addIcons(files, selectedGroup, () => {
-              message.success(`已成功导入 ${files.length} 个图标`);
-              syncLeft();
-            });
-          },
+  // 导入图标
+  const handleImportIcons = useCallback(() => {
+    iconImporter({
+      onSelectSVG: (files: any[]) => {
+        db.addIcons(files, selectedGroup, () => {
+          message.success(`已成功导入 ${files.length} 个图标`);
+          syncLeft();
         });
-      }
-      if (e.key === 'importProj') {
-        projImporter({
-          onSelectCP: (project: any) => {
-            setTimeout(() => {
-              confirm({
-                title: '导入项目',
-                content: '导入所选的项目后, 当前正在编辑的项目将会被覆盖, 确认要导入吗 ?',
-                okText: '导入',
-                onOk() {
-                  cpLoader({ data: project.data }, () => {
-                    message.success('项目已导入');
-                    syncLeft();
-                    selectGroup('resource-all');
-                  });
-                },
-              });
-            }, 250);
-          },
-          onSelectICP: (project: any) => {
-            setTimeout(() => {
-              confirm({
-                title: '导入项目',
-                content: '导入所选的项目后, 当前正在编辑的项目将会被覆盖, 确认要导入吗 ?',
-                okText: '导入',
-                onOk() {
-                  icpLoader(project.data, () => {
-                    message.success('项目已导入');
-                    syncLeft();
-                    selectGroup('resource-all');
-                  });
-                },
-              });
-            }, 250);
-          },
-        });
-      }
-    },
-    [selectedGroup, syncLeft, selectGroup]
-  );
+      },
+    });
+  }, [selectedGroup, syncLeft]);
 
   // 导出
-  const handleExportClick = useCallback((e?: { key?: string } | React.MouseEvent) => {
-    const key = e && 'key' in e && e.key ? e.key : 'exportIconfonts';
-    if (key === 'exportProject') {
-      handleExportProjects();
-    } else {
-      setExportVisible(true);
-    }
+  const handleExportClick = useCallback(() => {
+    setExportVisible(true);
   }, []);
 
-  const handleExportProjects = async () => {
-    const result = await electronAPI.showSaveDialog({
-      title: '导出项目文件',
-      defaultPath: `${db.getProjectName()}`,
-    });
-    if (!result.canceled && result.filePath) {
-      db.exportProject((projData: any) => {
-        const buffer = Buffer.from(projData);
-        electronAPI
-          .writeFile(`${result.filePath}.icp`, buffer)
-          .then(() => message.success('项目已导出'))
-          .catch((err: Error) => message.error(`导出错误: ${err.message}`));
-      });
-    }
-  };
+  useEffect(() => {
+    const handler = () => setExportVisible(true);
+    window.addEventListener('bobcorn:open-export', handler);
+    return () => window.removeEventListener('bobcorn:open-export', handler);
+  }, []);
 
   return (
     <div className="relative flex h-full w-full flex-col bg-surface dark:bg-surface">
@@ -184,7 +127,7 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
 
       {/* 底栏 */}
       <ImportExportBar
-        onImportClick={handleImportClick}
+        onImportIcons={handleImportIcons}
         onExportClick={handleExportClick}
         onShowEditPrefix={showPrefix}
       />
@@ -214,6 +157,6 @@ function SideMenu({ handleGroupSelected, selectedGroup: selectedGroupProp }: Sid
       <ExportDialog visible={exportVisible} onClose={() => setExportVisible(false)} />
     </div>
   );
-}
+});
 
 export default SideMenu;
