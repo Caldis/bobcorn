@@ -7,13 +7,20 @@ import SideMenu from '../../components/SideMenu';
 import SideGrid from '../../components/SideGrid';
 import SideEditor from '../../components/SideEditor';
 import BatchPanel from '../../components/BatchPanel';
+import { confirm, message } from '../../components/ui';
 // Utils
 import { cn } from '../../lib/utils';
 import { preventDrop, disableChromeAutoFocus, platform } from '../../utils/tools';
+import { projImporter } from '../../utils/importer';
+import { cpLoader, icpLoader } from '../../utils/loaders';
+// Database
+import db from '../../database';
 // Config
 import { getOption, setOption } from '../../config';
 // Store
 import useAppStore from '../../store';
+
+const { electronAPI } = window;
 
 // ── Resizable divider ───────────────────────────────────────────────
 function ResizeHandle({
@@ -77,6 +84,9 @@ function MainContainer() {
   const sideEditorVisible = useAppStore((state: any) => state.sideEditorVisible);
   const selectedIcons = useAppStore((state: any) => state.selectedIcons);
 
+  const currentFilePath = useAppStore((s: any) => s.currentFilePath);
+  const isDirty = useAppStore((s: any) => s.isDirty);
+
   const selectGroup = useAppStore((state: any) => state.selectGroup);
   const selectIcon = useAppStore((state: any) => state.selectIcon);
   const selectSource = useAppStore((state: any) => state.selectSource);
@@ -105,6 +115,121 @@ function MainContainer() {
     });
   }, []);
 
+  /** Unified project open — used by menu, splash screen, and file association */
+  const handleOpenProject = useCallback(async (filePath?: string) => {
+    const dirty = useAppStore.getState().isDirty;
+    if (dirty) {
+      const proceed = await new Promise<boolean>((resolve) => {
+        confirm({
+          title: '未保存的更改',
+          content: '当前项目有未保存的更改，是否继续？未保存的更改将会丢失。',
+          okText: '继续',
+          okType: 'danger',
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+      if (!proceed) return;
+    }
+
+    projImporter({
+      path: filePath,
+      onSelectCP: (project: any) => {
+        cpLoader({ data: project.data }, () => {
+          useAppStore.getState().showSplashScreen(false);
+          useAppStore.getState().setCurrentFilePath(null);
+          useAppStore.getState().markClean();
+          useAppStore.getState().syncLeft();
+          useAppStore.getState().selectGroup('resource-all');
+          message.success('项目已导入');
+        });
+      },
+      onSelectICP: (project: any) => {
+        icpLoader(project.data, () => {
+          useAppStore.getState().showSplashScreen(false);
+          useAppStore.getState().setCurrentFilePath(project.path || null);
+          useAppStore.getState().markClean();
+          useAppStore.getState().syncLeft();
+          useAppStore.getState().selectGroup('resource-all');
+          message.success('项目已导入');
+        });
+      },
+    });
+  }, []);
+
+  /** Save As — always shows dialog */
+  const handleSaveAs = useCallback(async () => {
+    const result = await electronAPI.showSaveDialog({
+      title: '保存项目文件',
+      defaultPath: db.getProjectName(),
+      filters: [{ name: 'Bobcorn Project', extensions: ['icp'] }],
+    });
+    if (result.canceled || !result.filePath) return;
+    let savePath = result.filePath;
+    if (!savePath.endsWith('.icp')) savePath += '.icp';
+
+    db.exportProject((projData: Uint8Array) => {
+      const buffer = Buffer.from(projData);
+      electronAPI
+        .writeFile(savePath, buffer)
+        .then(() => {
+          useAppStore.getState().setCurrentFilePath(savePath);
+          useAppStore.getState().markClean();
+          const hist: string[] = (getOption('histProj') as string[]) || [];
+          const updated = [savePath, ...hist.filter((p: string) => p !== savePath)].slice(0, 10);
+          setOption({ histProj: updated });
+          message.success('项目已保存');
+        })
+        .catch((err: Error) => message.error(`保存失败: ${err.message}`));
+    });
+  }, []);
+
+  /** Save project to known path, or fall through to Save As */
+  const handleSave = useCallback(async () => {
+    const state = useAppStore.getState();
+    if (state.currentFilePath) {
+      db.exportProject((projData: Uint8Array) => {
+        const buffer = Buffer.from(projData);
+        electronAPI
+          .writeFile(state.currentFilePath!, buffer)
+          .then(() => {
+            useAppStore.getState().markClean();
+            message.success('项目已保存');
+          })
+          .catch((err: Error) => {
+            message.error(`保存失败: ${err.message}`);
+            useAppStore.getState().setCurrentFilePath(null);
+          });
+      });
+    } else {
+      handleSaveAs();
+    }
+  }, [handleSaveAs]);
+
+  /** New project */
+  const handleNewProject = useCallback(async () => {
+    const dirty = useAppStore.getState().isDirty;
+    if (dirty) {
+      const proceed = await new Promise<boolean>((resolve) => {
+        confirm({
+          title: '未保存的更改',
+          content: '当前项目有未保存的更改，是否继续？未保存的更改将会丢失。',
+          okText: '继续',
+          okType: 'danger',
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+      if (!proceed) return;
+    }
+    db.resetProject();
+    useAppStore.getState().setCurrentFilePath(null);
+    useAppStore.getState().markClean();
+    useAppStore.getState().syncLeft();
+    useAppStore.getState().selectGroup('resource-all');
+    useAppStore.getState().showSplashScreen(false);
+  }, []);
+
   useEffect(() => {
     preventDrop();
     disableChromeAutoFocus();
@@ -113,6 +238,63 @@ function MainContainer() {
       useAppStore.getState().toggleDarkMode();
     }
   }, []);
+
+  // ── Menu IPC listeners ───────────────────────────────────────────
+  useEffect(() => {
+    const cleanups = [
+      electronAPI.onMenuNewProject(() => handleNewProject()),
+      electronAPI.onMenuOpenProject(() => handleOpenProject()),
+      electronAPI.onMenuSave(() => handleSave()),
+      electronAPI.onMenuSaveAs(() => handleSaveAs()),
+      electronAPI.onMenuExportFonts(() => {
+        window.dispatchEvent(new CustomEvent('bobcorn:open-export'));
+      }),
+      electronAPI.onOpenFile((filePath: string) => handleOpenProject(filePath)),
+    ];
+    return () => cleanups.forEach((fn) => fn());
+  }, [handleOpenProject, handleSave, handleSaveAs, handleNewProject]);
+
+  // ── Close guard ──────────────────────────────────────────────────
+  useEffect(() => {
+    const cleanup = electronAPI.onConfirmClose(() => {
+      const dirty = useAppStore.getState().isDirty;
+      if (!dirty) {
+        electronAPI.confirmClose();
+        return;
+      }
+      confirm({
+        title: '未保存的更改',
+        content: '是否保存当前项目？',
+        okText: '保存并关闭',
+        cancelText: '不保存',
+        onOk: async () => {
+          await handleSave();
+          electronAPI.confirmClose();
+        },
+        onCancel: () => {
+          electronAPI.confirmClose();
+        },
+      });
+    });
+
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (useAppStore.getState().isDirty) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    return () => {
+      cleanup();
+      window.removeEventListener('beforeunload', onBeforeUnload);
+    };
+  }, [handleSave]);
+
+  // ── Title bar sync ───────────────────────────────────────────────
+  useEffect(() => {
+    const name = currentFilePath ? electronAPI.pathBasename(currentFilePath, '.icp') : 'Untitled';
+    document.title = `${name}${isDirty ? '*' : ''} — Bobcorn`;
+  }, [currentFilePath, isDirty]);
 
   return (
     <div className="flex h-full w-full flex-row flex-nowrap">
