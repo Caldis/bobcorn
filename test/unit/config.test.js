@@ -84,6 +84,7 @@ describe('defOption', () => {
       sideMenuWidth: 250,
       sideEditorWidth: 250,
       darkMode: false,
+      currentFilePath: null,
     });
   });
 });

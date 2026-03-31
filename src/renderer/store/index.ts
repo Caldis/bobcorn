@@ -25,6 +25,10 @@ export interface State {
   iconContentVersion: number;
   // 热更新的图标内容 — IconBlock 优先读这里的内容
   patchedIcons: Record<string, string>;
+
+  // File state
+  currentFilePath: string | null;
+  isDirty: boolean;
 }
 
 export interface Actions {
@@ -48,6 +52,11 @@ export interface Actions {
   syncIconContent: () => void; // 轻：递增版本号，触发 SideEditor 刷新
   patchIconContent: (iconId: string, content: string) => void; // 最轻：热更新单个图标内容
   syncAll: () => void;
+
+  // File state
+  setCurrentFilePath: (path: string | null) => void;
+  markDirty: () => void;
+  markClean: () => void;
 }
 
 const useAppStore = create<State & Actions>((set, get) => ({
@@ -69,6 +78,10 @@ const useAppStore = create<State & Actions>((set, get) => ({
   groupData: [],
   iconContentVersion: 0,
   patchedIcons: {},
+
+  // File state
+  currentFilePath: (getOption('currentFilePath') as string | null) ?? null,
+  isDirty: false,
 
   // Actions
   showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
@@ -179,6 +192,16 @@ const useAppStore = create<State & Actions>((set, get) => ({
   syncAll: () => {
     get().syncLeft();
   },
+
+  // File state
+  setCurrentFilePath: (path: string | null) => {
+    set({ currentFilePath: path });
+    setOption({ currentFilePath: path });
+  },
+  markDirty: () => {
+    if (!get().isDirty) set({ isDirty: true });
+  },
+  markClean: () => set({ isDirty: false }),
 }));
 
 export default useAppStore;

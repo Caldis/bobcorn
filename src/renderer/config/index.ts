@@ -25,6 +25,7 @@ export interface OptionData {
   sideMenuWidth: number;
   sideEditorWidth: number;
   darkMode: boolean;
+  currentFilePath: string | null;
 }
 
 // 全局参数相关
@@ -61,6 +62,7 @@ export const defOption: OptionData = {
   sideMenuWidth: 250,
   sideEditorWidth: 250,
   darkMode: false,
+  currentFilePath: null,
 };
 // 重置设置
 export const resetOption = (): void => {
