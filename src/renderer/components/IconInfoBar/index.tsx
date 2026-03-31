@@ -11,7 +11,7 @@ interface IconInfoBarProps {
   handleSourceSelected: (source: string) => void;
 }
 
-function IconInfoBar({ selectedGroup }: IconInfoBarProps) {
+const IconInfoBar = React.memo(function IconInfoBar({ selectedGroup }: IconInfoBarProps) {
   const groupName = db.getGroupName(selectedGroup);
   return (
     <div
@@ -35,6 +35,6 @@ function IconInfoBar({ selectedGroup }: IconInfoBarProps) {
       </div>
     </div>
   );
-}
+});
 
 export default IconInfoBar;

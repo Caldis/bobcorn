@@ -134,7 +134,7 @@ const GroupList = React.memo(function GroupList({
 
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={sideMenuWrapperRef}>
-      <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
+      <div className="sticky top-0 z-10 flex items-center gap-1.5 px-4 pt-3 pb-1 bg-surface dark:bg-surface">
         <Tags size={14} className="text-foreground-muted" />
         <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           分组

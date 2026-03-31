@@ -42,7 +42,10 @@ interface SideEditorProps {
   selectedIcon: string | null;
 }
 
-function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
+const SideEditor = React.memo(function SideEditor({
+  selectedGroup,
+  selectedIcon,
+}: SideEditorProps) {
   const syncLeft = useAppStore((state: any) => state.syncLeft);
   const syncIconContent = useAppStore((state: any) => state.syncIconContent);
   const patchIconContent = useAppStore((state: any) => state.patchIconContent);
@@ -718,6 +721,6 @@ function SideEditor({ selectedGroup, selectedIcon }: SideEditorProps) {
       </Dialog>
     </div>
   );
-}
+});
 
 export default SideEditor;

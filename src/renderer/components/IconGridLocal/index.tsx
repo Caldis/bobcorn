@@ -29,7 +29,8 @@ interface IconGridLocalProps {
   selectedIcon: string | null;
 }
 
-const HEADER_HEIGHT = 42;
+const HEADER_HEIGHT = 52; // estimate: visible bar (~32) + mt-2.5 (10) + pb-3 (12) ≈ 54, rounded
+const STICKY_HEIGHT = 32; // visible bar only: py-1.5 (12) + content (~20)
 
 function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps) {
   const options = getOption() as OptionData;
@@ -67,12 +68,16 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const widthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollCacheRef = useRef<Map<string, number>>(new Map());
 
-  // ── Column count from container width ───────────────────────────────
-  const colWidth = (typeof iconBlockWidth === 'number' ? iconBlockWidth : 100) + 20;
-  const columns = useMemo(
-    () => Math.max(1, containerWidth > 0 ? Math.floor(containerWidth / colWidth) : 1),
-    [containerWidth, colWidth]
-  );
+  // ── Grid layout constants ──────────────────────────────────────────
+  const GRID_COL_GAP = 4; // px column-gap between cells
+  const GRID_H_PAD = 12; // px horizontal padding (px-3) on each row
+  // Cell = icon content width + p-2 (16px) + border-2 (4px)
+  const cellWidth = (typeof iconBlockWidth === 'number' ? iconBlockWidth : 100) + 20;
+  // Must match CSS repeat(auto-fill, cellWidth) calculation
+  const columns = useMemo(() => {
+    const eff = containerWidth - GRID_H_PAD * 2;
+    return Math.max(1, eff > 0 ? Math.floor((eff + GRID_COL_GAP) / (cellWidth + GRID_COL_GAP)) : 1);
+  }, [containerWidth, cellWidth]);
 
   // ── ResizeObserver for container width ──────────────────────────────
   useEffect(() => {
@@ -172,6 +177,8 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     estimateSize: (index) => (viewModel.rows[index]?.kind === 'header' ? HEADER_HEIGHT : rowHeight),
     getItemKey: (index) => viewModel.rows[index]?.key ?? String(index),
     overscan: 3,
+    paddingStart: GRID_H_PAD,
+    paddingEnd: GRID_H_PAD,
   });
 
   // Restore scroll position on view change
@@ -388,8 +395,90 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
 
   const hasIcons =
     selectedGroup === 'resource-all'
-      ? db.getIconCount() !== 0
+      ? Object.values(iconData).some((arr) => arr.length > 0)
       : iconData[selectedGroup] && iconData[selectedGroup].length !== 0;
+
+  // ── Sticky header for "All" view ─────────────────────────────────────
+  const headerMeta = useMemo(() => {
+    if (selectedGroup !== 'resource-all') return [];
+    const headers: { start: number; groupName: string; count: number; groupId: string }[] = [];
+    let y = GRID_H_PAD; // paddingStart
+    for (let i = 0; i < viewModel.rows.length; i++) {
+      const row = viewModel.rows[i];
+      if (row.kind === 'header') {
+        headers.push({
+          start: y,
+          groupName: row.groupName,
+          count: row.count,
+          groupId: row.groupId,
+        });
+      }
+      y += row.kind === 'header' ? HEADER_HEIGHT : rowHeight;
+    }
+    return headers;
+  }, [viewModel.rows, rowHeight, selectedGroup]);
+
+  const [stickyHeader, setStickyHeader] = useState<(typeof headerMeta)[0] | null>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const stickyGroupIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || headerMeta.length === 0) {
+      if (stickyGroupIdRef.current !== null) {
+        stickyGroupIdRef.current = null;
+        setStickyHeader(null);
+      }
+      return;
+    }
+
+    const onScroll = () => {
+      const st = el.scrollTop;
+
+      // Find current header: last header fully scrolled past viewport top
+      let idx = -1;
+      for (let i = 0; i < headerMeta.length; i++) {
+        if (headerMeta[i].start + HEADER_HEIGHT <= st) idx = i;
+        else break;
+      }
+
+      if (idx < 0) {
+        if (stickyGroupIdRef.current !== null) {
+          stickyGroupIdRef.current = null;
+          setStickyHeader(null);
+        }
+        if (stickyRef.current) stickyRef.current.style.transform = '';
+        return;
+      }
+
+      const current = headerMeta[idx];
+      if (current.groupId !== stickyGroupIdRef.current) {
+        stickyGroupIdRef.current = current.groupId;
+        setStickyHeader(current);
+      }
+
+      // Push-up when next header approaches
+      if (stickyRef.current) {
+        const next = headerMeta[idx + 1];
+        if (next) {
+          const overlap = st + STICKY_HEIGHT - next.start;
+          stickyRef.current.style.transform = overlap > 0 ? `translateY(${-overlap}px)` : '';
+        } else {
+          stickyRef.current.style.transform = '';
+        }
+      }
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [headerMeta]);
+
+  // Reset sticky header on group change
+  useEffect(() => {
+    stickyGroupIdRef.current = null;
+    setStickyHeader(null);
+  }, [selectedGroup]);
 
   // ── Render virtual items ────────────────────────────────────────────
   const virtualItems = virtualizer.getVirtualItems();
@@ -397,6 +486,33 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
 
   return (
     <div className="relative w-full h-full flex flex-col" id="iconGridLocalContainer">
+      {/* Sticky group header overlay (All view only) */}
+      {stickyHeader && (
+        <div
+          ref={stickyRef}
+          className={cn(
+            'absolute top-0 left-0 w-full z-20',
+            'cursor-pointer text-left',
+            'flex items-center py-1.5',
+            'bg-surface-muted/95 dark:bg-surface-muted/95',
+            'backdrop-blur-sm',
+            'shadow-sm'
+          )}
+          onClick={() => selectGroup(stickyHeader.groupId)}
+        >
+          <span className="ml-3 text-brand-500 dark:text-brand-400">{stickyHeader.groupName}</span>
+          <label
+            className={cn(
+              'ml-2 px-1 py-0.5',
+              'bg-brand-500 dark:bg-brand-600',
+              'rounded text-white text-xs'
+            )}
+          >
+            {stickyHeader.count}
+          </label>
+        </div>
+      )}
+
       <div
         {...dropzoneRootProps}
         ref={mergedScrollRef}
@@ -428,13 +544,14 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                     key={row.key}
                     data-index={virtualRow.index}
                     ref={virtualizer.measureElement}
-                    className="absolute left-0 w-full"
+                    className="absolute left-0 w-full pb-3"
                     style={{ transform: `translateY(${virtualRow.start}px)` }}
                   >
                     <div
                       className={cn(
                         'relative z-[1] cursor-pointer text-left',
-                        'w-full h-[30px] mt-2.5',
+                        'w-full flex items-center py-1.5',
+                        virtualRow.index > 0 && 'mt-2.5',
                         'transition-colors duration-300',
                         'bg-surface-muted dark:bg-surface-muted',
                         'hover:bg-brand-50 dark:hover:bg-brand-950/40',
@@ -442,7 +559,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                       )}
                       onClick={() => selectGroup(row.groupId)}
                     >
-                      <span className="leading-[30px] ml-[18px] text-brand-500 dark:text-brand-400">
+                      <span className="ml-3 text-brand-500 dark:text-brand-400">
                         {row.groupName}
                       </span>
                       <label
@@ -464,8 +581,13 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                   key={row.key}
                   data-index={virtualRow.index}
                   ref={virtualizer.measureElement}
-                  className="absolute left-0 w-full flex justify-center gap-1"
-                  style={{ transform: `translateY(${virtualRow.start}px)` }}
+                  className="absolute left-0 w-full px-3"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(auto-fill, minmax(${cellWidth}px, 1fr))`,
+                    columnGap: GRID_COL_GAP,
+                    transform: `translateY(${virtualRow.start}px)`,
+                  }}
                 >
                   {row.icons.map((icon) => (
                     <IconBlock

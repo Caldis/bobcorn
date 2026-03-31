@@ -74,10 +74,16 @@ export const setOption = (userOptions: Partial<OptionData>): void => {
 };
 export const getOption = (optionKey?: string): OptionData | OptionData[keyof OptionData] => {
   // 检测是否有配置项
-  !(localStorage as any)[optionItem] && resetOption();
-  // 检测配置项是否完整
-  Object.keys(defOption).length !==
-    Object.keys(JSON.parse((localStorage as any)[optionItem])).length && resetOption();
+  if (!(localStorage as any)[optionItem]) {
+    resetOption();
+  } else {
+    // 合并缺失的新字段 (避免升级时重置用户配置)
+    const stored = JSON.parse((localStorage as any)[optionItem]);
+    if (Object.keys(defOption).length !== Object.keys(stored).length) {
+      const merged = { ...defOption, ...stored };
+      localStorage.setItem(optionItem, JSON.stringify(merged));
+    }
+  }
   // 返回配置
   const option: OptionData = JSON.parse((localStorage as any)[optionItem]);
   return optionKey && optionKey.constructor === String ? (option as any)[optionKey] : option;

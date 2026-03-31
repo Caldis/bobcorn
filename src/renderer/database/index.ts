@@ -542,8 +542,10 @@ class Database {
     );
     // 然后删除分组
     const targetDataSet: DataSet = { id: sf(id) };
-    this.notifyMutation();
-    this.delDataOfTable(groupData, targetDataSet, { all: false }, callback);
+    this.delDataOfTable(groupData, targetDataSet, { all: false }, () => {
+      this.notifyMutation();
+      callback && callback();
+    });
   };
   getGroupList = (): Record<string, any>[] => {
     dev && console.log('getGroupList');

@@ -80,14 +80,19 @@ export default class MenuBuilder {
             this.mainWindow.webContents.send('menu:export-fonts');
           },
         },
-        { type: 'separator' },
-        {
-          label: isMac ? 'Close' : '&Close',
-          accelerator: `${mod}+W`,
-          click: () => {
-            this.mainWindow.close();
-          },
-        },
+        // Close is in the Window menu on macOS (performClose: selector)
+        ...(isMac
+          ? []
+          : [
+              { type: 'separator' as const },
+              {
+                label: '&Close',
+                accelerator: `${mod}+W`,
+                click: () => {
+                  this.mainWindow.close();
+                },
+              },
+            ]),
       ],
     };
   }

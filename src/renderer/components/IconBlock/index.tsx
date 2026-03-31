@@ -115,7 +115,7 @@ const IconBlock = React.memo(function IconBlock({
         />
       </div>
 
-      <div className="w-full" style={{ width }}>
+      <div className="mx-auto w-full" style={{ width }}>
         <p
           className={cn(
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',

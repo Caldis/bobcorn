@@ -246,16 +246,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       if (pageData) files.push({ name: `${projectName}.html`, data: pageData });
       if (projBuffer) files.push({ name: `${projectName}.icp`, data: projBuffer });
 
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i];
-        addExportLog(`写入 ${f.name}`);
-        electronAPI.writeFileSync(`${dirPath}/${f.name}`, f.data);
-      }
-
       if (zipEnabled) {
-        await step(98, '打包为 ZIP 文件...');
-        // Use variable to prevent Rollup from resolving the dynamic import at build time.
-        // fflate will be installed in Task 13; until then this path will throw at runtime.
+        // ZIP-only mode: pack all files into a single .zip, no loose files
+        await step(nextPct(), '打包为 ZIP 文件...');
         const fflateModule = 'fflate';
         const { zipSync } = await import(/* @vite-ignore */ fflateModule);
         const zipData: Record<string, Uint8Array> = {};
@@ -267,10 +260,17 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         }
         const zipped = zipSync(zipData, { level: 6 });
         electronAPI.writeFileSync(`${dirPath}.zip`, Buffer.from(zipped));
-        addExportLog(`写入 ${projectName}.zip`);
+        addExportLog(`写入 ${projectName}.zip (${files.length} 个文件)`);
+      } else {
+        // Directory mode: write individual files
+        for (let i = 0; i < files.length; i++) {
+          const f = files[i];
+          addExportLog(`写入 ${f.name}`);
+          electronAPI.writeFileSync(`${dirPath}/${f.name}`, f.data);
+        }
       }
 
-      await step(100, `✓ 导出完成！共 ${files.length} 个文件${zipEnabled ? ' + ZIP' : ''}`);
+      await step(100, `✓ 导出完成！共 ${files.length} 个文件${zipEnabled ? ' (ZIP)' : ''}`);
       setExportPhase('done');
     } catch (err: any) {
       console.error(err);

@@ -168,19 +168,25 @@ function MainContainer() {
     let savePath = result.filePath;
     if (!savePath.endsWith('.icp')) savePath += '.icp';
 
-    db.exportProject((projData: Uint8Array) => {
-      const buffer = Buffer.from(projData);
-      electronAPI
-        .writeFile(savePath, buffer)
-        .then(() => {
-          useAppStore.getState().setCurrentFilePath(savePath);
-          useAppStore.getState().markClean();
-          const hist: string[] = (getOption('histProj') as string[]) || [];
-          const updated = [savePath, ...hist.filter((p: string) => p !== savePath)].slice(0, 10);
-          setOption({ histProj: updated });
-          message.success('项目已保存');
-        })
-        .catch((err: Error) => message.error(`保存失败: ${err.message}`));
+    return new Promise<void>((resolve, reject) => {
+      db.exportProject((projData: Uint8Array) => {
+        const buffer = Buffer.from(projData);
+        electronAPI
+          .writeFile(savePath, buffer)
+          .then(() => {
+            useAppStore.getState().setCurrentFilePath(savePath);
+            useAppStore.getState().markClean();
+            const hist: string[] = (getOption('histProj') as string[]) || [];
+            const updated = [savePath, ...hist.filter((p: string) => p !== savePath)].slice(0, 10);
+            setOption({ histProj: updated });
+            message.success('项目已保存');
+            resolve();
+          })
+          .catch((err: Error) => {
+            message.error(`保存失败: ${err.message}`);
+            reject(err);
+          });
+      });
     });
   }, []);
 
@@ -188,21 +194,25 @@ function MainContainer() {
   const handleSave = useCallback(async () => {
     const state = useAppStore.getState();
     if (state.currentFilePath) {
-      db.exportProject((projData: Uint8Array) => {
-        const buffer = Buffer.from(projData);
-        electronAPI
-          .writeFile(state.currentFilePath!, buffer)
-          .then(() => {
-            useAppStore.getState().markClean();
-            message.success('项目已保存');
-          })
-          .catch((err: Error) => {
-            message.error(`保存失败: ${err.message}`);
-            useAppStore.getState().setCurrentFilePath(null);
-          });
+      return new Promise<void>((resolve, reject) => {
+        db.exportProject((projData: Uint8Array) => {
+          const buffer = Buffer.from(projData);
+          electronAPI
+            .writeFile(state.currentFilePath!, buffer)
+            .then(() => {
+              useAppStore.getState().markClean();
+              message.success('项目已保存');
+              resolve();
+            })
+            .catch((err: Error) => {
+              message.error(`保存失败: ${err.message}`);
+              useAppStore.getState().setCurrentFilePath(null);
+              reject(err);
+            });
+        });
       });
     } else {
-      handleSaveAs();
+      return handleSaveAs();
     }
   }, [handleSaveAs]);
 
@@ -264,16 +274,25 @@ function MainContainer() {
       }
       confirm({
         title: '未保存的更改',
-        content: '是否保存当前项目？',
+        content: '当前项目有未保存的更改。',
         okText: '保存并关闭',
-        cancelText: '不保存',
+        cancelText: '取消',
         onOk: async () => {
-          await handleSave();
-          electronAPI.confirmClose();
+          try {
+            await handleSave();
+            electronAPI.confirmClose();
+          } catch {
+            // Save failed — don't close, let user try again
+            electronAPI.closeCancelled();
+          }
         },
         onCancel: () => {
-          electronAPI.confirmClose();
+          // User cancelled — don't close, clear the timeout
+          electronAPI.closeCancelled();
         },
+        // For "Discard" we'd need a third button, but the confirm component only supports two.
+        // Users can cancel, then use the close button again and choose to save or not.
+        // The 5s timeout in main process handles the unresponsive case.
       });
     });
 

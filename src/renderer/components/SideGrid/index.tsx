@@ -15,7 +15,7 @@ interface SideGridProps {
   handleSourceSelected: (source: string) => void;
 }
 
-function SideGrid({ selectedSource, ...props }: SideGridProps) {
+const SideGrid = React.memo(function SideGrid({ selectedSource, ...props }: SideGridProps) {
   return (
     <div className={cn('w-full h-full flex flex-col', 'border-l border-border')}>
       {/*顶部信息栏*/}
@@ -37,6 +37,6 @@ function SideGrid({ selectedSource, ...props }: SideGridProps) {
       </div>
     </div>
   );
-}
+});
 
 export default SideGrid;

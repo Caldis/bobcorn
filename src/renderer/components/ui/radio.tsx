@@ -98,7 +98,7 @@ export function Radio({ value, children, style, className, _selected, _onChange 
         type="radio"
         checked={_selected}
         onChange={() => _onChange?.(value)}
-        className="accent-brand-500 shrink-0"
+        className="accent-brand-500 shrink-0 m-0 w-3.5 h-3.5"
       />
       <span
         className={cn(
