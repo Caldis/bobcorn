@@ -79,4 +79,61 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('update-downloaded', callback);
   },
   installUpdate: (): void => ipcRenderer.send('install-update'),
+
+  // ── Menu commands (main → renderer) ──────────────────────────────
+  onMenuNewProject: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('menu:new-project', handler);
+    return () => {
+      ipcRenderer.removeListener('menu:new-project', handler);
+    };
+  },
+  onMenuOpenProject: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('menu:open-project', handler);
+    return () => {
+      ipcRenderer.removeListener('menu:open-project', handler);
+    };
+  },
+  onMenuSave: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('menu:save', handler);
+    return () => {
+      ipcRenderer.removeListener('menu:save', handler);
+    };
+  },
+  onMenuSaveAs: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('menu:save-as', handler);
+    return () => {
+      ipcRenderer.removeListener('menu:save-as', handler);
+    };
+  },
+  onMenuExportFonts: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('menu:export-fonts', handler);
+    return () => {
+      ipcRenderer.removeListener('menu:export-fonts', handler);
+    };
+  },
+
+  // ── File association (main → renderer) ───────────────────────────
+  onOpenFile: (callback: (filePath: string) => void) => {
+    const handler = (_event: IpcRendererEvent, filePath: string) => callback(filePath);
+    ipcRenderer.on('open-file', handler);
+    return () => {
+      ipcRenderer.removeListener('open-file', handler);
+    };
+  },
+
+  // ── Close guard ──────────────────────────────────────────────────
+  onConfirmClose: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('app:confirm-close', handler);
+    return () => {
+      ipcRenderer.removeListener('app:confirm-close', handler);
+    };
+  },
+  confirmClose: (): void => ipcRenderer.send('app:close-confirmed'),
+  closeCancelled: (): void => ipcRenderer.send('app:close-cancelled'),
 });
