@@ -5,7 +5,7 @@ import { flattenSvgUseRefs } from '../iconfontGenerator';
 // Templates — inlined at build time via Vite ?raw import
 // No runtime file I/O needed, works in both dev and production
 import htmlTemplate from '../../../resources/iconDocs/indexTemplate.html?raw';
-import cssTemplate from '../../../resources/iconDocs/iconfontTemplate(class).css?raw';
+
 import jsHead from '../../../resources/iconDocs/iconfontTemplate(symbol).head.txt?raw';
 import jsTail from '../../../resources/iconDocs/iconfontTemplate(symbol).tail.txt?raw';
 
@@ -37,40 +37,61 @@ interface DemoIconData {
 export const demoHTMLGenerator = (
   groups: DemoGroupData[],
   icons: DemoIconData[],
-  woff2Base64?: string
+  woff2Base64?: string,
+  config?: { hasSymbol: boolean; selectedFormats: Record<string, boolean> }
 ): string => {
   const parser = new DOMParser();
   const pageTemplate = parser.parseFromString(htmlTemplate, 'text/html');
   const iconsContainer = pageTemplate.querySelector('[content=icons]')!;
   const fontLine = woff2Base64 ? `var fontBase64 = "${woff2Base64}";` : '';
   const projectName = db.getProjectName();
+  const exportConfigLine = config
+    ? `var exportConfig = ${JSON.stringify({ hasSymbol: config.hasSymbol, selectedFormats: config.selectedFormats })};`
+    : '';
   iconsContainer.innerHTML = `
 		var projectName = ${JSON.stringify(projectName)}
 		var groups = ${JSON.stringify(groups)};
 		var icons = ${JSON.stringify(icons)};
 		${fontLine}
+		${exportConfigLine}
 	`;
-  // Preload symbol SVG sprite so SVG downloads work from any tab
+  // Preload symbol SVG sprite — only if JS Symbol is exported
   const symbolPreload = pageTemplate.querySelector('[content=symbolPreload]');
   if (symbolPreload) {
-    symbolPreload.setAttribute('src', `./${projectName}.js`);
+    if (config?.hasSymbol !== false) {
+      symbolPreload.setAttribute('src', `./${projectName}.js`);
+    } else {
+      symbolPreload.removeAttribute('src');
+    }
   }
   return pageTemplate.querySelector('html')!.outerHTML;
 };
 
 // 生成模板CSS文件以供界面引用
-// 优化: 单次 replace + array.join 代替 += 循环
-export const iconfontCSSGenerator = (icons: DemoIconData[]): string => {
+// 根据选定的字体格式动态构建 @font-face src
+export const iconfontCSSGenerator = (
+  icons: DemoIconData[],
+  formats?: { woff2?: boolean; ttf?: boolean; woff?: boolean; eot?: boolean }
+): string => {
   const projectName = db.getProjectName();
-  const baseCSS = cssTemplate.replace(/iconfont/g, projectName);
+  const fmt = formats || { woff2: true, ttf: true, woff: true, eot: true };
 
-  // 预分配数组, 一次 join
-  const parts: string[] = [baseCSS];
+  // Build dynamic @font-face src
+  const srcParts: string[] = [];
+  if (fmt.eot) srcParts.push(`url('${projectName}.eot?#iefix') format('embedded-opentype')`);
+  srcParts.push(`url('${projectName}.woff2') format('woff2')`);
+  if (fmt.woff) srcParts.push(`url('${projectName}.woff') format('woff')`);
+  srcParts.push(`url('${projectName}.ttf') format('truetype')`);
+
+  const fontFace = `@font-face {\n  font-family: "${projectName}";\n  src: ${srcParts.join(',\n       ')};\n  font-weight: normal;\n  font-style: normal;\n}\n`;
+  const baseClass = `.${projectName} {\n  font-family: "${projectName}" !important;\n  font-style: normal;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n`;
+
+  const parts: string[] = [fontFace, baseClass];
   for (let i = 0; i < icons.length; i++) {
     const code = icons[i].iconCode.toLowerCase();
     parts.push(`.${projectName}-${code}:before { content: "\\${code}"; }`);
   }
-  return parts.join('');
+  return parts.join('\n');
 };
 
 // viewBox 正则提取 — 避免每个图标都 new DOMParser()

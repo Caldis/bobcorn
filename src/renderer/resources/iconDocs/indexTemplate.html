@@ -920,6 +920,22 @@
         <!-- Toast Notification -->
         <div class="toast" id="toast"></div>
 
+        <!-- Hide tabs based on export config -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          if (typeof exportConfig !== 'undefined') {
+            if (!exportConfig.hasSymbol) {
+              var tabs = document.querySelectorAll('.tabLinks');
+              for (var i = 0; i < tabs.length; i++) {
+                if (tabs[i].getAttribute('onclick') && tabs[i].getAttribute('onclick').indexOf('symbol') !== -1) {
+                  tabs[i].style.display = 'none';
+                }
+              }
+            }
+          }
+        });
+        </script>
+
     </body>
     <script content="userScript">
         // ==============================
