@@ -35,6 +35,8 @@ function resetStore() {
     iconContentVersion: 0,
     patchedIcons: {},
     groupData: [],
+    isDirty: false,
+    currentFilePath: null,
   });
 }
 

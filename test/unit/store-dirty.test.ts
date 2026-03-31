@@ -9,7 +9,7 @@ describe('dirty state tracking', () => {
       isDirty: false,
       currentFilePath: null as string | null,
       markDirty: () => { if (!get().isDirty) set({ isDirty: true }); },
-      markClean: () => set({ isDirty: false }),
+      markClean: () => { if (get().isDirty) set({ isDirty: false }); },
       setCurrentFilePath: (path: string | null) => set({ currentFilePath: path }),
     }));
   });
@@ -37,6 +37,16 @@ describe('dirty state tracking', () => {
     store.getState().markDirty();
     store.getState().markClean();
     expect(store.getState().isDirty).toBe(false);
+  });
+
+  it('markClean is idempotent (no extra state updates)', () => {
+    store.getState().markDirty();
+    let updateCount = 0;
+    store.subscribe(() => { updateCount++; });
+    store.getState().markClean();
+    store.getState().markClean();
+    store.getState().markClean();
+    expect(updateCount).toBe(1);
   });
 
   it('setCurrentFilePath updates path', () => {

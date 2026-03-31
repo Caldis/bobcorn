@@ -201,7 +201,9 @@ const useAppStore = create<State & Actions>((set, get) => ({
   markDirty: () => {
     if (!get().isDirty) set({ isDirty: true });
   },
-  markClean: () => set({ isDirty: false }),
+  markClean: () => {
+    if (get().isDirty) set({ isDirty: false });
+  },
 }));
 
 export default useAppStore;
