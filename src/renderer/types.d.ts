@@ -54,10 +54,31 @@ interface ElectronAPI {
   // OS
   platform: string;
 
+  // Shell
+  openPath: (fullPath: string) => Promise<string>;
+
+  // Screen color picker
+  pickScreenColor: () => Promise<string>;
+
   // Auto-update
   onUpdateAvailable: (callback: (...args: any[]) => void) => void;
   onUpdateDownloaded: (callback: (...args: any[]) => void) => void;
   installUpdate: () => void;
+
+  // Menu IPC (main → renderer)
+  onMenuNewProject: (callback: () => void) => () => void;
+  onMenuOpenProject: (callback: () => void) => () => void;
+  onMenuSave: (callback: () => void) => () => void;
+  onMenuSaveAs: (callback: () => void) => () => void;
+  onMenuExportFonts: (callback: () => void) => () => void;
+
+  // File association (main → renderer)
+  onOpenFile: (callback: (filePath: string) => void) => () => void;
+
+  // Close guard (main → renderer, renderer → main)
+  onConfirmClose: (callback: () => void) => () => void;
+  confirmClose: () => void;
+  closeCancelled: () => void;
 }
 
 declare global {
