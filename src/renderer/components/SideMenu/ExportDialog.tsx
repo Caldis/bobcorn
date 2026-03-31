@@ -41,7 +41,21 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const [exportGroupSelected, setExportGroupSelected] = useState<string[]>([]);
   const [exportGroupCheckAll, setExportGroupCheckAll] = useState<boolean>(true);
   const [exportGroupIndeterminate, setExportGroupIndeterminate] = useState<boolean>(false);
-  const [exportGroupModelVisible, setExportGroupModelVisible] = useState<boolean>(false);
+  const [exportGroupModelVisible, setExportGroupModelVisible] = useState<boolean>(true);
+
+  // Format selection
+  const [selectedFormats, setSelectedFormats] = useState({
+    svg: true,
+    ttf: true,
+    woff2: true,
+    css: true, // required, always true
+    woff: true,
+    eot: true,
+    js: true,
+    html: true, // optional, default ON
+    icp: false, // optional, default OFF
+  });
+  const [zipEnabled, setZipEnabled] = useState(false);
 
   // 导出统计缓存 (避免渲染中反复查 DB)
   const [exportTotalIcons, setExportTotalIcons] = useState<number>(0);
@@ -123,7 +137,19 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       );
 
     try {
-      await step(5, `准备导出 ${icons.length} 个图标...`);
+      // Calculate dynamic total steps for progress
+      let totalSteps = 4; // css, svg, ttf, woff2 (always)
+      if (selectedFormats.woff) totalSteps++;
+      if (selectedFormats.eot) totalSteps++;
+      if (selectedFormats.js) totalSteps++;
+      if (selectedFormats.html) totalSteps++;
+      if (selectedFormats.icp) totalSteps++;
+      totalSteps += 1; // write step
+      if (zipEnabled) totalSteps++;
+      let completedSteps = 0;
+      const nextPct = () => Math.min(98, Math.round((++completedSteps / totalSteps) * 98));
+
+      await step(nextPct(), `准备导出 ${icons.length} 个图标...`);
 
       const groups = db.getGroupList();
       groups.push({
@@ -133,13 +159,16 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         groupColor: '',
       });
 
-      await step(10, '生成 CSS 样式表...');
-      const cssData = iconfontCSSGenerator(icons);
+      await step(nextPct(), '生成 CSS 样式表...');
+      const cssData = iconfontCSSGenerator(icons, selectedFormats);
 
-      await step(15, '生成 JS Symbol 引用...');
-      const jsData = iconfontSymbolGenerator(icons);
+      let jsData: string | null = null;
+      if (selectedFormats.js) {
+        await step(nextPct(), '生成 JS Symbol 引用...');
+        jsData = iconfontSymbolGenerator(icons);
+      }
 
-      await step(20, `生成 SVG 字体 (${icons.length} glyphs)...`);
+      await step(nextPct(), `生成 SVG 字体 (${icons.length} glyphs)...`);
       const svgFont = await new Promise<string>((resolve, reject) => {
         svgFontGenerator(
           {
@@ -156,11 +185,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             },
           },
           (result: string) => (result ? resolve(result) : reject(new Error('SVG 字体生成失败'))),
-          // 进度回调 — SVG 字体生成占 20%→40% 区间
           (processed: number, total: number) => {
-            const pct = 20 + Math.round((processed / total) * 20);
-            setExportProgress(pct);
-            // 只在关键节点记日志，不刷屏
             if (processed === total) {
               addExportLog(`  SVG 字体生成完成 (${total} glyphs)`);
             }
@@ -168,53 +193,84 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         );
       });
 
-      await step(42, '转换 TTF 字体...');
+      await step(nextPct(), '转换 TTF 字体...');
       const ttfFont = ttfFontGenerator({ svgFont });
 
-      await step(50, '转换 WOFF 字体...');
-      const woffFont = woffFontGenerator({ ttfFont });
-
-      await step(58, '转换 WOFF2 字体...');
+      await step(nextPct(), '转换 WOFF2 字体...');
       const woff2Font = woff2FontGenerator({ ttfFont });
 
-      await step(64, '转换 EOT 字体...');
-      const eotFont = eotFontGenerator({ ttfFont });
+      let woffFont: any = null;
+      if (selectedFormats.woff) {
+        await step(nextPct(), '转换 WOFF 字体...');
+        woffFont = woffFontGenerator({ ttfFont });
+      }
 
-      await step(70, '生成 HTML 演示页面...');
-      const woff2Base64 = Buffer.from(woff2Font.buffer).toString('base64');
-      const pageData = demoHTMLGenerator(
-        groups,
-        icons.map((icon: any) => Object.assign({}, icon, { iconContent: '' })),
-        woff2Base64
-      );
+      let eotFont: any = null;
+      if (selectedFormats.eot) {
+        await step(nextPct(), '转换 EOT 字体...');
+        eotFont = eotFontGenerator({ ttfFont });
+      }
 
-      await step(80, '导出项目文件...');
+      let pageData: string | null = null;
+      if (selectedFormats.html) {
+        await step(nextPct(), '生成 HTML 演示页面...');
+        const woff2Base64 = Buffer.from(woff2Font.buffer).toString('base64');
+        pageData = demoHTMLGenerator(
+          groups,
+          icons.map((icon: any) => Object.assign({}, icon, { iconContent: '' })),
+          woff2Base64,
+          { hasSymbol: selectedFormats.js, selectedFormats }
+        );
+      }
+
+      let projBuffer: Buffer | null = null;
+      if (selectedFormats.icp) {
+        await step(nextPct(), '导出项目文件...');
+        const projData = await new Promise<any>((resolve) => db.exportProject(resolve));
+        projBuffer = Buffer.from(projData);
+      }
+
+      await step(nextPct(), '写入文件...');
       if (!electronAPI.accessSync(dirPath)) {
         electronAPI.mkdirSync(dirPath);
       }
 
-      const projData = await new Promise<any>((resolve) => db.exportProject(resolve));
-      const buffer = Buffer.from(projData);
-
-      const files = [
-        { name: `${projectName}.icp`, data: buffer },
-        { name: `${projectName}.html`, data: pageData },
-        { name: `${projectName}.css`, data: cssData },
-        { name: `${projectName}.js`, data: jsData },
-        { name: `${projectName}.svg`, data: svgFont },
-        { name: `${projectName}.ttf`, data: Buffer.from(ttfFont.buffer) },
-        { name: `${projectName}.woff`, data: Buffer.from(woffFont.buffer) },
-        { name: `${projectName}.woff2`, data: Buffer.from(woff2Font.buffer) },
-        { name: `${projectName}.eot`, data: Buffer.from(eotFont.buffer) },
-      ];
+      const files: Array<{ name: string; data: string | Buffer }> = [];
+      files.push({ name: `${projectName}.svg`, data: svgFont });
+      files.push({ name: `${projectName}.ttf`, data: Buffer.from(ttfFont.buffer) });
+      files.push({ name: `${projectName}.woff2`, data: Buffer.from(woff2Font.buffer) });
+      files.push({ name: `${projectName}.css`, data: cssData });
+      if (woffFont) files.push({ name: `${projectName}.woff`, data: Buffer.from(woffFont.buffer) });
+      if (eotFont) files.push({ name: `${projectName}.eot`, data: Buffer.from(eotFont.buffer) });
+      if (jsData) files.push({ name: `${projectName}.js`, data: jsData });
+      if (pageData) files.push({ name: `${projectName}.html`, data: pageData });
+      if (projBuffer) files.push({ name: `${projectName}.icp`, data: projBuffer });
 
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
-        await step(80 + Math.round(((i + 1) / files.length) * 18), `写入 ${f.name}`);
+        addExportLog(`写入 ${f.name}`);
         electronAPI.writeFileSync(`${dirPath}/${f.name}`, f.data);
       }
 
-      await step(100, `✓ 导出完成！共 ${files.length} 个文件`);
+      if (zipEnabled) {
+        await step(98, '打包为 ZIP 文件...');
+        // Use variable to prevent Rollup from resolving the dynamic import at build time.
+        // fflate will be installed in Task 13; until then this path will throw at runtime.
+        const fflateModule = 'fflate';
+        const { zipSync } = await import(/* @vite-ignore */ fflateModule);
+        const zipData: Record<string, Uint8Array> = {};
+        for (const f of files) {
+          zipData[f.name] =
+            typeof f.data === 'string'
+              ? new TextEncoder().encode(f.data)
+              : new Uint8Array(f.data as Buffer);
+        }
+        const zipped = zipSync(zipData, { level: 6 });
+        electronAPI.writeFileSync(`${dirPath}.zip`, Buffer.from(zipped));
+        addExportLog(`写入 ${projectName}.zip`);
+      }
+
+      await step(100, `✓ 导出完成！共 ${files.length} 个文件${zipEnabled ? ' + ZIP' : ''}`);
       setExportPhase('done');
     } catch (err: any) {
       console.error(err);
@@ -329,16 +385,72 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             )}
           </div>
 
-          {/* 导出格式预览 */}
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {['SVG', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'CSS', 'JS', 'HTML', 'ICP'].map((fmt) => (
-              <span
-                key={fmt}
-                className="px-2 py-0.5 rounded bg-surface-muted text-xs text-foreground-muted font-mono"
-              >
-                .{fmt.toLowerCase()}
-              </span>
-            ))}
+          {/* 迁移提示 */}
+          <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-xs leading-relaxed mt-4">
+            <span className="shrink-0 mt-0.5">ℹ</span>
+            <span>
+              项目文件 (.icp) 现在通过「保存」(Ctrl+S) 管理。如仍需在导出中包含，请勾选下方选项。
+            </span>
+          </div>
+
+          {/* 必选格式 */}
+          <div className="mt-3">
+            <div className="text-xs text-foreground-muted mb-1.5">必选格式</div>
+            <div className="flex flex-wrap gap-1.5">
+              {['SVG', 'TTF', 'WOFF2', 'CSS'].map((fmt) => (
+                <span
+                  key={fmt}
+                  className="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-900/40 text-xs text-brand-700 dark:text-brand-300 font-mono"
+                >
+                  .{fmt.toLowerCase()}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* 可选格式 */}
+          <div className="mt-3">
+            <div className="text-xs text-foreground-muted mb-1.5">可选格式</div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {[
+                { key: 'woff' as const, label: '.woff' },
+                { key: 'eot' as const, label: '.eot' },
+                { key: 'js' as const, label: '.js (Symbol)' },
+                { key: 'html' as const, label: '.html (Demo)' },
+                { key: 'icp' as const, label: '.icp (项目文件)' },
+              ].map(({ key, label }) => (
+                <label
+                  key={key}
+                  className="inline-flex items-center gap-1.5 text-xs cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedFormats[key]}
+                    onChange={(e) =>
+                      setSelectedFormats((prev) => ({ ...prev, [key]: e.target.checked }))
+                    }
+                    className="rounded border-border"
+                  />
+                  <span className="font-mono text-foreground-muted">{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* ZIP 选项 */}
+          <div className="mt-3">
+            <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                checked={zipEnabled}
+                onChange={(e) => setZipEnabled(e.target.checked)}
+                className="rounded border-border"
+              />
+              <span className="text-foreground">自动打包 (ZIP)</span>
+            </label>
+            <p className="text-xs text-foreground-muted mt-0.5 ml-5">
+              勾选后导出文件自动压缩为 ZIP 包
+            </p>
           </div>
         </div>
       )}
@@ -369,19 +481,11 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
           {exportPhase === 'done' && exportedDirPath && (
             <div className="mt-3 space-y-2">
               <div className="flex flex-wrap gap-1.5">
-                {[
-                  { name: '预览页面', file: `${exportedProjectName}.html` },
-                  { name: '项目文件', file: `${exportedProjectName}.icp` },
-                  { name: '打开目录', file: '' },
-                ].map((item) => (
+                {selectedFormats.html && (
                   <button
-                    key={item.name}
-                    onClick={() => {
-                      const target = item.file
-                        ? `${exportedDirPath}/${item.file}`
-                        : exportedDirPath;
-                      electronAPI.openPath(target);
-                    }}
+                    onClick={() =>
+                      electronAPI.openPath(`${exportedDirPath}/${exportedProjectName}.html`)
+                    }
                     className={cn(
                       'px-2.5 py-1 rounded text-xs font-medium',
                       'border border-border',
@@ -389,13 +493,41 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                       'transition-colors duration-150 cursor-pointer'
                     )}
                   >
-                    {item.name}
+                    预览页面
                   </button>
-                ))}
+                )}
+                {selectedFormats.icp && (
+                  <button
+                    onClick={() =>
+                      electronAPI.openPath(`${exportedDirPath}/${exportedProjectName}.icp`)
+                    }
+                    className={cn(
+                      'px-2.5 py-1 rounded text-xs font-medium',
+                      'border border-border',
+                      'text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-950/30',
+                      'transition-colors duration-150 cursor-pointer'
+                    )}
+                  >
+                    项目文件
+                  </button>
+                )}
+                <button
+                  onClick={() => electronAPI.openPath(exportedDirPath)}
+                  className={cn(
+                    'px-2.5 py-1 rounded text-xs font-medium',
+                    'border border-border',
+                    'text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-950/30',
+                    'transition-colors duration-150 cursor-pointer'
+                  )}
+                >
+                  打开目录
+                </button>
               </div>
-              <p className="text-xs text-foreground-muted">
-                下次需要继续编辑图标，请打开 .icp 文件
-              </p>
+              {selectedFormats.icp && (
+                <p className="text-xs text-foreground-muted">
+                  下次需要继续编辑图标，请打开 .icp 文件
+                </p>
+              )}
             </div>
           )}
         </div>
