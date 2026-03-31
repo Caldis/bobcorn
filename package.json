@@ -59,6 +59,16 @@
       ]
     },
     "icon": "resources/icon.png",
+    "fileAssociations": [
+      {
+        "ext": "icp",
+        "name": "Bobcorn Project",
+        "description": "Bobcorn Icon Font Project",
+        "mimeType": "application/x-bobcorn-project",
+        "role": "Editor",
+        "icon": "resources/icon"
+      }
+    ],
     "mac": {
       "icon": "resources/icon.icns",
       "notarize": {
@@ -160,6 +170,7 @@
     "electron-pixel-picker": "^1.0.2",
     "electron-titlebar-windows": "^3.0.0",
     "electron-updater": "^6.8.3",
+    "fflate": "^0.8.2",
     "lucide-react": "^0.577.0",
     "memory-fs": "^0.4.1",
     "prop-types": "^15.6.2",
