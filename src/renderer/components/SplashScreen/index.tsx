@@ -17,12 +17,16 @@ function SplashScreen() {
   const showSplashScreen = useAppStore((state: any) => state.showSplashScreen);
   const selectGroup = useAppStore((state: any) => state.selectGroup);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
+  const setCurrentFilePath = useAppStore((state: any) => state.setCurrentFilePath);
+  const markClean = useAppStore((state: any) => state.markClean);
 
   const handleImportProj = (path?: string) => {
     projImporter({
       path,
       onSelectCP: (project: any) => {
         cpLoader({ data: project.data }, () => {
+          setCurrentFilePath(null);
+          markClean();
           showSplashScreen(false);
           message.success(`项目已导入`);
           syncLeft();
@@ -35,6 +39,8 @@ function SplashScreen() {
         p?.mark('import.total');
         icpLoader(project.data, () => {
           p?.mark('import.uiUpdate');
+          setCurrentFilePath(project.path || path || null);
+          markClean();
           showSplashScreen(false);
           message.success(`项目已导入`);
           p?.mark('import.syncLeft');
