@@ -12,156 +12,241 @@ import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 import { registerPixelPicker } from 'electron-pixel-picker';
 
+/** Extract the first .icp file path from an argv array */
+function extractIcpPath(argv: string[]): string | null {
+  for (let i = 1; i < argv.length; i++) {
+    if (argv[i].endsWith('.icp') && !argv[i].startsWith('--')) {
+      return path.resolve(argv[i]);
+    }
+  }
+  return null;
+}
+
 let mainWindow: BrowserWindow | null = null;
 const platform: string = os.platform();
 app.name = 'Bobcorn';
 
-if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-  try {
-    require('electron-debug')();
-  } catch (e) {
-    // electron-debug is optional
-  }
-}
-
-const installExtensions = async (): Promise<void> => {
-  try {
-    const installer = require('electron-devtools-installer');
-    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    const extensions = ['REACT_DEVELOPER_TOOLS'];
-
-    return Promise.all(
-      extensions.map((name: string) => installer.default(installer[name], forceDownload))
-    ).catch(console.log);
-  } catch (e) {
-    // electron-devtools-installer is optional
-  }
-};
-
-/**
- * Add event listeners...
- */
-
-app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('ready', async () => {
+// ── Single-instance lock ──────────────────────────────────────────
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit();
+} else {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    await installExtensions();
-  }
-
-  mainWindow = new BrowserWindow({
-    title: 'Bobcorn',
-    show: false,
-    width: 1200,
-    minWidth: 1080,
-    height: 800,
-    minHeight: 640,
-    icon: path.join(__dirname, '../../resources/icon.png'),
-    hasShadow: true,
-    // 窗口背景透明 (在非启用AERO的Win机器上会有窗口冻结的BUG
-    transparent: false,
-    // 无边框窗口
-    frame: platform === 'darwin',
-    // OSX下, 窗口按钮内置
-    titleBarStyle: platform === 'darwin' ? 'hiddenInset' : 'hidden',
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: false,
-      preload: path.join(__dirname, '../preload/preload.js'),
-    },
-  });
-
-  // Load the renderer
-  if (process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
-  }
-
-  // @TODO: Use 'ready-to-show' event
-  // https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-  mainWindow.webContents.on('did-finish-load', () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
+    try {
+      require('electron-debug')();
+    } catch (e) {
+      // electron-debug is optional
     }
-    mainWindow.show();
-    mainWindow.focus();
-  });
+  }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+  const installExtensions = async (): Promise<void> => {
+    try {
+      const installer = require('electron-devtools-installer');
+      const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+      const extensions = ['REACT_DEVELOPER_TOOLS'];
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+      return Promise.all(
+        extensions.map((name: string) => installer.default(installer[name], forceDownload))
+      ).catch(console.log);
+    } catch (e) {
+      // electron-devtools-installer is optional
+    }
+  };
 
-  // IPC handlers for window controls (replaces electron.remote)
-  ipcMain.on('window-minimize', () => {
-    if (mainWindow) mainWindow.minimize();
-  });
-  ipcMain.on('window-maximize', () => {
+  // Windows/Linux: second instance launched with file arg → forward to existing window
+  app.on('second-instance', (_event, argv) => {
+    const filePath = extractIcpPath(argv);
+    if (filePath && mainWindow) {
+      mainWindow.webContents.send('open-file', filePath);
+    }
     if (mainWindow) {
-      if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize();
-      } else {
-        mainWindow.maximize();
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  // macOS: double-click .icp or drag to dock icon
+  let pendingFilePath: string | null = null;
+  app.on('open-file', (event, filePath) => {
+    event.preventDefault();
+    if (mainWindow) {
+      mainWindow.webContents.send('open-file', filePath);
+    } else {
+      pendingFilePath = filePath;
+    }
+  });
+
+  /**
+   * Add event listeners...
+   */
+
+  app.on('window-all-closed', () => {
+    // Respect the OSX convention of having the application in memory even
+    // after all windows have been closed
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+
+  app.on('ready', async () => {
+    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+      await installExtensions();
+    }
+
+    mainWindow = new BrowserWindow({
+      title: 'Bobcorn',
+      show: false,
+      width: 1200,
+      minWidth: 1080,
+      height: 800,
+      minHeight: 640,
+      icon: path.join(__dirname, '../../resources/icon.png'),
+      hasShadow: true,
+      // 窗口背景透明 (在非启用AERO的Win机器上会有窗口冻结的BUG
+      transparent: false,
+      // 无边框窗口
+      frame: platform === 'darwin',
+      // OSX下, 窗口按钮内置
+      titleBarStyle: platform === 'darwin' ? 'hiddenInset' : 'hidden',
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        sandbox: false,
+        preload: path.join(__dirname, '../preload/preload.js'),
+      },
+    });
+
+    // Load the renderer
+    if (process.env['ELECTRON_RENDERER_URL']) {
+      mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
+    } else {
+      mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+    }
+
+    // @TODO: Use 'ready-to-show' event
+    // https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
+    mainWindow.webContents.on('did-finish-load', () => {
+      if (!mainWindow) {
+        throw new Error('"mainWindow" is not defined');
       }
-    }
-  });
-  ipcMain.on('window-close', () => {
-    if (mainWindow) mainWindow.close();
-  });
-  ipcMain.on('window-is-maximized', (event: Electron.IpcMainEvent) => {
-    event.returnValue = mainWindow ? mainWindow.isMaximized() : false;
-  });
+      mainWindow.show();
+      mainWindow.focus();
 
-  // IPC handlers for dialog operations (replaces electron.remote dialog)
-  ipcMain.handle(
-    'dialog-show-open',
-    async (_event: Electron.IpcMainInvokeEvent, options: OpenDialogOptions) => {
-      return dialog.showOpenDialog(mainWindow!, options);
-    }
-  );
-  ipcMain.handle(
-    'dialog-show-save',
-    async (_event: Electron.IpcMainInvokeEvent, options: SaveDialogOptions) => {
-      return dialog.showSaveDialog(mainWindow!, options);
-    }
-  );
-  ipcMain.on(
-    'get-app-path',
-    (event: Electron.IpcMainEvent, name: Parameters<typeof app.getPath>[0]) => {
-      event.returnValue = app.getPath(name);
-    }
-  );
-  ipcMain.handle(
-    'shell-open-path',
-    async (_event: Electron.IpcMainInvokeEvent, fullPath: string) => {
-      return shell.openPath(fullPath);
-    }
-  );
+      // Send file path from macOS open-file event (fired before ready)
+      if (pendingFilePath) {
+        mainWindow.webContents.send('open-file', pendingFilePath);
+        pendingFilePath = null;
+      }
+      // Send file path from Windows/Linux command-line args
+      const argPath = extractIcpPath(process.argv);
+      if (argPath) {
+        mainWindow.webContents.send('open-file', argPath);
+      }
+    });
 
-  // Auto-update
-  // Screen color picker
-  registerPixelPicker();
+    mainWindow.on('closed', () => {
+      mainWindow = null;
+    });
 
-  ipcMain.on('install-update', () => {
-    autoUpdater.quitAndInstall();
+    // ── Close guard ────────────────────────────────────────────
+    let forceClose = false;
+    let closeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    app.on('before-quit', () => {
+      forceClose = true;
+    });
+
+    mainWindow.on('close', (e) => {
+      if (!forceClose) {
+        e.preventDefault();
+        mainWindow!.webContents.send('app:confirm-close');
+        closeTimeout = setTimeout(() => {
+          forceClose = true;
+          mainWindow?.close();
+        }, 5000);
+      }
+    });
+
+    ipcMain.on('app:close-confirmed', () => {
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+      forceClose = true;
+      mainWindow?.close();
+    });
+
+    ipcMain.on('app:close-cancelled', () => {
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+    });
+
+    const menuBuilder = new MenuBuilder(mainWindow);
+    menuBuilder.buildMenu();
+
+    // IPC handlers for window controls (replaces electron.remote)
+    ipcMain.on('window-minimize', () => {
+      if (mainWindow) mainWindow.minimize();
+    });
+    ipcMain.on('window-maximize', () => {
+      if (mainWindow) {
+        if (mainWindow.isMaximized()) {
+          mainWindow.unmaximize();
+        } else {
+          mainWindow.maximize();
+        }
+      }
+    });
+    ipcMain.on('window-close', () => {
+      if (mainWindow) mainWindow.close();
+    });
+    ipcMain.on('window-is-maximized', (event: Electron.IpcMainEvent) => {
+      event.returnValue = mainWindow ? mainWindow.isMaximized() : false;
+    });
+
+    // IPC handlers for dialog operations (replaces electron.remote dialog)
+    ipcMain.handle(
+      'dialog-show-open',
+      async (_event: Electron.IpcMainInvokeEvent, options: OpenDialogOptions) => {
+        return dialog.showOpenDialog(mainWindow!, options);
+      }
+    );
+    ipcMain.handle(
+      'dialog-show-save',
+      async (_event: Electron.IpcMainInvokeEvent, options: SaveDialogOptions) => {
+        return dialog.showSaveDialog(mainWindow!, options);
+      }
+    );
+    ipcMain.on(
+      'get-app-path',
+      (event: Electron.IpcMainEvent, name: Parameters<typeof app.getPath>[0]) => {
+        event.returnValue = app.getPath(name);
+      }
+    );
+    ipcMain.handle(
+      'shell-open-path',
+      async (_event: Electron.IpcMainInvokeEvent, fullPath: string) => {
+        return shell.openPath(fullPath);
+      }
+    );
+
+    // Auto-update
+    // Screen color picker
+    registerPixelPicker();
+
+    ipcMain.on('install-update', () => {
+      autoUpdater.quitAndInstall();
+    });
+
+    autoUpdater.checkForUpdatesAndNotify();
+
+    autoUpdater.on('update-available', () => {
+      mainWindow?.webContents.send('update-available');
+    });
+    autoUpdater.on('update-downloaded', () => {
+      mainWindow?.webContents.send('update-downloaded');
+    });
   });
-
-  autoUpdater.checkForUpdatesAndNotify();
-
-  autoUpdater.on('update-available', () => {
-    mainWindow?.webContents.send('update-available');
-  });
-  autoUpdater.on('update-downloaded', () => {
-    mainWindow?.webContents.send('update-downloaded');
-  });
-});
+}
