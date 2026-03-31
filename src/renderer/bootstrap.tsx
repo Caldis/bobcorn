@@ -1,7 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import MainContainer from './containers/MainContainer';
-import { dbReady } from './database';
+import db, { dbReady } from './database';
+import useAppStore from './store';
 import { getOption } from './config';
 // Initialize profiler (attaches to window.__BOBCORN_PERF__)
 import './utils/profiler';
@@ -15,6 +16,9 @@ if (opts.darkMode) {
 async function mount() {
   // Wait for sql.js WASM engine to initialize before rendering
   await dbReady;
+
+  // Wire dirty state tracking
+  db.registerOnMutation(() => useAppStore.getState().markDirty());
 
   const container = document.getElementById('root');
   if (container) {
