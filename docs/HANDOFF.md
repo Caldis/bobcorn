@@ -1,94 +1,89 @@
-# Session Handoff — 2026-03-28
+# Session Handoff — 2026-04-01
 
 > 前一个 Claude Code session 的完整交接。新 session 请先读此文档 + AGENTS.md。
 
 ## 项目状态
 
-**版本**: v1.6.5 | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
+**版本**: v1.6.6 | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
+
+**分支**: `feat/file-menu-modernization` (基于 master `2f6ca1f`, 16 commits ahead)
 
 ## 本 Session 完成的工作
 
-### 1. 欢迎界面 modal → inline view (v1.6.2)
-- Radix Dialog modal 的 `pointer-events: none` 阻止了窗口关闭按钮
-- 改为条件渲染：splash visible → 全页欢迎界面，否则三栏布局
-- 移除冗余 `contentVisible` 状态
-- 在 `bootstrap.tsx` 中同步应用 dark mode 防止首帧闪白
+### 文件菜单现代化 (Feature Branch: feat/file-menu-modernization)
 
-### 2. macOS 图标白底 + 完整性测试 (v1.6.3)
-- 所有 PNG 图标从 RGBA 转 RGB（白色背景），重新生成 .icns
-- 新增 `test/unit/icon-integrity.test.js` (11 tests) 检查 PNG color type
+完整实现了 Open/Save/Save As/Export 文件操作模型重设计，经过 2 轮 Architect + CODEX 交叉 review 后实施。
 
-### 3. macOS 代码签名 + 公证 (v1.6.4)
-- 创建 Developer ID Application 证书 (BIAO CHEN, N7Z52F27XK)
-- 配置 5 个 GitHub Secrets + release.yml CI 签名
-- 详细文档在 Mac mini `~/Docs/ci-signing/github-macos-codesign.md`
-- United Memory: `20260328-gh-macos-codesign`
+#### 已完成的 14 个 Task:
 
-### 4. 官网 GitHub 按钮颜色修复 (v1.6.5)
-- `.nav-links a` 特异性覆盖了 `.btn-primary` 白色文字
+1. **Store 脏状态追踪** — `isDirty`, `currentFilePath`, `markDirty`(幂等), `markClean`(幂等), `setCurrentFilePath` (持久化到 localStorage)
+2. **Database 变更回调** — `registerOnMutation` / `notifyMutation()` 在 16 个写方法中调用，bootstrap 中注册
+3. **ElectronAPI 类型扩展** — 8 个新 IPC 方法类型
+4. **Preload IPC API** — 菜单/文件关联/关闭保护，全部返回 cleanup 函数
+5. **主进程重构** — 单实例锁 + `open-file`(macOS) + `second-instance`(Windows) + 关闭保护
+6. **File 菜单** — 双平台 File 子菜单 (New/Open/Save/SaveAs/Export)，修复 macOS 品牌名
+7. **MainContainer 接线** — 菜单 IPC handler、Save/Open/New 流程、关闭保护渲染端、标题栏同步
+8. **底栏简化** — 去掉"导入项目"，只保留"导入图标" + "导出"
+9. **ExportDialog 改造** — 格式选择 (必选 SVG/TTF/WOFF2/CSS + 可选 5 种)、ZIP 打包、分组默认展开、迁移提示
+10. **CSS/HTML 生成器** — format-aware @font-face、条件 Symbol tab、exportConfig 注入
+11. **Windows 标题栏** — 文件名 + 脏状态指示器
+12. **SplashScreen** — 打开项目时设置 currentFilePath
+13. **package.json** — fileAssociations (.icp) + fflate 依赖
+14. **CODEX Review 修复** — handleSave 返回 Promise、关闭对话框增加取消按钮、ZIP-only 模式、delGroup 通知顺序、Config 合并策略
 
-## 🔴 待修复: electron-pixel-picker 打包问题
+#### 性能保证:
+- `markDirty` 幂等: 批量导入 100 个图标只触发 1 次 re-render
+- 导出条件跳过: 不勾选的格式完全不生成
+- fflate 动态 import: 不勾选 ZIP 时不加载
+- 进度条动态权重: 无论选几种格式都不卡顿
 
-**状态**: v1.6.5 macOS 打开仍报 `Cannot find module 'electron-pixel-picker'`
+#### 测试状态:
+- 234 tests passing (11 test files)
+- 45 pre-existing failures (sf-symbols-fixture.test.js — corrupt fixture)
+- Build: electron-vite build clean
 
-**根因分析**:
-1. `electron-pixel-picker` 在 package.json 中是 `"file:../electron-pixel-picker"` 本地路径依赖
-2. `externalizeDepsPlugin` 将它标记为 external，Rollup 生成 `require('electron-pixel-picker')`
-3. CI `npm install` 时 `file:../electron-pixel-picker` 路径不存在，模块未安装
-4. 即使移除了 `!node_modules`，asar 中也没有 EPP
+## 待做 / 待验收
 
-**已尝试的方案及失败原因**:
+1. **手动冒烟测试** — 启动 `npx electron-vite dev` 验证:
+   - File 菜单 (Ctrl+N/O/S/Shift+S/E)
+   - Ctrl+S 新项目 → Save As 对话框
+   - Ctrl+S 已知路径 → 静默保存
+   - 编辑图标 → 标题栏 `*` 出现
+   - 导出对话框格式选择 + ZIP
+   - 关闭窗口 → 未保存提示
+   - 标题栏文件名 (Windows)
 
-| 方案 | 结果 |
-|------|------|
-| bundle 进 main (exclude from external) | Rollup 无法处理 CJS named exports (`"registerPixelPicker" is not exported`) |
-| default import (`import epp from`) | Rollup 报 `"default" is not exported` |
-| 添加 `@rollup/plugin-commonjs` | 与 `externalizeDepsPlugin` 冲突，`electron-updater` 也被处理导致构建失败 |
-| `files` 中添加 `node_modules/electron-pixel-picker/**` | electron-builder glob 覆盖无效 |
-| 移除 `!node_modules` | EPP 是 `file:` 依赖，CI 上路径不存在所以没安装 |
+2. **合并到 master** — 验收通过后:
+   ```bash
+   git checkout master
+   git merge feat/file-menu-modernization
+   ```
 
-**推荐修复方向** (在 macOS 本地操作):
-1. **将 EPP 发布到 npm** — 根本解决 `file:` 本地依赖问题
-2. **或改为 GitHub 仓库依赖** — `"electron-pixel-picker": "github:user/repo"`
-3. **或将 EPP 源码转为项目内 ESM 模块** — `src/main/pixel-picker.ts`（343 行纯 JS，零依赖）
+3. **macOS 测试** — 文件关联双击 .icp、Cmd+S/O/N、原生标题栏文件名
 
-## 已完成的阶段
-
-| 阶段 | 内容 | 状态 |
-|------|------|------|
-| P0-P5 | 基础升级 + 工具链 | ✅ |
-| Phase 1 | TypeScript 全量迁移 | ✅ |
-| v1.1.2 | 导出修复 + 模板性能 | ✅ |
-| UI 现代化 | Radix + Tailwind + 暗色模式 | ✅ 进行中 |
-| v1.6.2 | 欢迎界面 inline view | ✅ |
-| v1.6.3 | 图标白底 + 完整性测试 | ✅ |
-| v1.6.4 | macOS CI 签名 + 公证 | ✅ |
-| v1.6.5 | CI 修复 + 官网按钮颜色 | ✅ (EPP 待修) |
+4. **stash 恢复** — master 上有 stash 的未提交变更 (UI 组件微调)，合并后 `git stash pop`
 
 ## 已知问题
 
-1. **🔴 electron-pixel-picker 打包** — macOS/Linux/Windows 分发包中缺失 EPP 模块（见上方详细分析）
-2. **electron-builder 本地构建** — winCodeSign symlink 权限错误
+1. **sf-symbols-fixture.test.js** — 45 tests 失败 (corrupt SQLite fixture, pre-existing)
+2. **electron-pixel-picker 打包** — macOS/Linux/Windows 分发包缺失 EPP 模块 (pre-existing)
 3. **ESLint warnings** — 48 个 warning，已降级为 warn
+4. **关闭对话框只有两个按钮** — "保存并关闭" + "取消"。没有"不保存直接关闭"（confirm 组件只支持两个按钮）。用户可以取消后再关闭。
 
-## 发版规则
+## 文档
 
-- `npm version patch` → `git push --follow-tags`
-- CI 自动: test → 3 平台构建 → 签名/公证(mac) → publish release
-- **不要手动 `gh release create`**
+- **设计 Spec**: `docs/superpowers/specs/2026-04-01-file-menu-modernization-design.md`
+- **实施计划**: `docs/superpowers/plans/2026-04-01-file-menu-modernization.md`
 
-## macOS 签名信息
-
-- 证书: `Developer ID Application: BIAO CHEN (N7Z52F27XK)`
-- 文件: Mac mini `~/Docs/ci-signing/keys/`
-- Secrets: `MAC_CERTS`, `MAC_CERTS_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`
-
-## 测试基础设施
+## 测试命令
 
 ```bash
-npx vitest run                    # 213 单元测试 (含 11 icon integrity)
-node test/e2e/acceptance.js       # 21 E2E checks
-node test/e2e/full-e2e.js         # 17 完整流程
+FNM="/c/Users/mail/AppData/Local/Microsoft/WinGet/Packages/Schniz.fnm_Microsoft.Winget.Source_8wekyb3d8bbwe/fnm.exe"
+eval "$("$FNM" env --shell bash)" && "$FNM" use 18
+
+npx vitest run                    # 234 passing + 45 pre-existing failures
+npx electron-vite build           # clean build
+npx electron-vite dev             # dev mode with HMR
 ```
 
 ## United Memory ID
