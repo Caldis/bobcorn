@@ -1,11 +1,26 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bobcorn — Icon Font Manager</title>
-    <meta name="description" content="Bobcorn is a modern desktop tool for managing and generating icon fonts. Import SVGs, organize groups, export to SVG/TTF/WOFF/WOFF2/EOT with live preview.">
+    <title>Bobcorn — Icon Manager & Icon Font Generator for Windows, macOS & Linux</title>
+    <meta name="description" content="Free, open-source desktop app to organize, manage, and generate icon fonts. Import SVGs, group and search thousands of icons, edit colors, and export to SVG, TTF, WOFF, WOFF2, EOT — all in one click. Available for Windows, macOS, and Linux.">
+    <meta name="keywords" content="icon manager, icon font generator, SVG icon organizer, icon library management, iconfont builder, SVG to font converter, icon management tool, desktop icon toolkit, WOFF2 generator, icon organizer app, free icon manager, open source icon tool">
     <meta name="theme-color" content="#FAFAF5">
+    <link rel="canonical" href="https://bobcorn.caldis.me/">
+    <link rel="icon" type="image/png" href="icon.png">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bobcorn.caldis.me/">
+    <meta property="og:title" content="Bobcorn — Icon Manager & Icon Font Generator">
+    <meta property="og:description" content="Free desktop app to organize SVG icons and generate production-ready icon fonts. Windows, macOS & Linux.">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta property="og:site_name" content="Bobcorn">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Bobcorn — Icon Manager & Icon Font Generator">
+    <meta name="twitter:description" content="Free desktop app to organize SVG icons and generate production-ready icon fonts. Windows, macOS & Linux.">
+    <meta name="twitter:image" content="https://bobcorn.caldis.me/icon.png">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H1DCS6LF3S"></script>
     <script>
@@ -70,11 +85,19 @@
         }
 
         .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             font-family: 'GT Canon', Georgia, serif;
             font-size: 26px;
             color: var(--text);
             text-decoration: none;
             letter-spacing: -0.01em;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
         }
 
         .nav-right {
@@ -195,6 +218,46 @@
             opacity: 0.6;
         }
 
+        .hero-trusted {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        .hero-trusted span {
+            flex-shrink: 0;
+        }
+
+        .trusted-logos {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .trusted-logo {
+            display: inline-block;
+            height: 20px;
+            background-color: var(--text-secondary);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+        }
+
+        .trusted-logo-zte {
+            width: 72px;
+            -webkit-mask-image: url('logos/zte.png');
+            mask-image: url('logos/zte.png');
+        }
+
         /* ─── Divider ─── */
         .divider {
             height: 1px;
@@ -210,7 +273,7 @@
             margin: 0 auto;
         }
 
-        .section-header {
+        h2.section-header {
             font-family: 'Space Mono', monospace;
             font-size: 11px;
             font-weight: 700;
@@ -389,12 +452,55 @@
             }
         }
     </style>
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Bobcorn",
+        "url": "https://bobcorn.caldis.me/",
+        "description": "Free, open-source desktop app to organize, manage, and generate icon fonts from SVG icons. Export to SVG, TTF, WOFF, WOFF2, EOT and more.",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "softwareVersion": "1.7.0",
+        "license": "https://opensource.org/licenses/MIT",
+        "image": "https://bobcorn.caldis.me/icon.png",
+        "screenshot": "https://bobcorn.caldis.me/icon.png",
+        "downloadUrl": "https://github.com/Caldis/bobcorn/releases",
+        "installUrl": "https://github.com/Caldis/bobcorn/releases",
+        "featureList": [
+            "SVG icon import and management",
+            "Icon font generation (SVG, TTF, WOFF, WOFF2, EOT)",
+            "Inline color editor with hex picker and eyedropper",
+            "Drag-to-reorder icon groups and organization",
+            "Search and filter across icon libraries",
+            "CSS and JS export with HTML demo page",
+            "Dark mode support",
+            "Project file save and reload (.icp)"
+        ],
+        "keywords": "icon manager, icon font generator, SVG organizer, iconfont builder, icon library, SVG to WOFF2, icon management",
+        "audience": {
+            "@type": "Audience",
+            "audienceType": "Designers, Front-end Developers, UI Engineers, Design System Teams"
+        },
+        "author": {
+            "@type": "Person",
+            "name": "Caldis",
+            "url": "https://github.com/Caldis"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
 </head>
 <body>
 
     <!-- ─── Nav ─── -->
     <nav>
-        <a href="/" class="logo">Bobcorn</a>
+        <a href="/" class="logo"><img src="icon.png" alt="Bobcorn" width="32" height="32">Bobcorn</a>
         <div class="nav-right">
             <a href="#features" class="nav-link">Features</a>
             <span class="nav-sep">|</span>
@@ -413,10 +519,10 @@
                 Open source &middot; MIT License
             </div>
 
-            <h1 class="reveal">Build Icon Fonts,<br><em>The Modern Way</em></h1>
+            <h1 class="reveal">Manage Icons,<br><em>Generate Fonts</em></h1>
 
             <p class="hero-desc reveal">
-                Import SVG icons, organize into groups, edit colors inline, and export production-ready icon fonts in every format.
+                The open-source icon manager and font generator for designers and developers. Import SVGs, organize into groups, edit colors, and export production-ready icon fonts in every format.
             </p>
 
             <div class="hero-actions reveal">
@@ -445,13 +551,20 @@
                     Linux
                 </span>
             </div>
+
+            <div class="hero-trusted reveal">
+                <span>Trusted by</span>
+                <div class="trusted-logos">
+                    <div class="trusted-logo trusted-logo-zte" role="img" aria-label="ZTE"></div>
+                </div>
+            </div>
         </section>
 
         <div class="divider"></div>
 
         <!-- ─── Features ─── -->
         <section class="section" id="features">
-            <div class="section-header reveal">Features</div>
+            <h2 class="section-header reveal">Icon Management & Font Generation Features</h2>
             <div class="feature-grid">
                 <div class="feature-item reveal">
                     <div class="feature-icon">
@@ -460,8 +573,8 @@
                             <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.7-.4-1-.3-.3-.4-.6-.4-1 0-.9.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"/>
                         </svg>
                     </div>
-                    <h3>Color Editor</h3>
-                    <p>Pick colors with hex picker, eyedropper, or type any CSS format. Previews update instantly in the grid.</p>
+                    <h3>Inline Color Editor</h3>
+                    <p>Pick colors with hex picker, eyedropper, or type any CSS format. Preview SVG icon changes instantly in the grid.</p>
                 </div>
                 <div class="feature-item reveal">
                     <div class="feature-icon">
@@ -469,8 +582,8 @@
                             <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
                         </svg>
                     </div>
-                    <h3>Built for Scale</h3>
-                    <p>Handles 3,000+ icons smoothly with content-visibility, chunked rendering, and tiered sync.</p>
+                    <h3>Scales to Thousands</h3>
+                    <p>Manage icon libraries with 3,000+ icons smoothly. Content-visibility, chunked rendering, and tiered sync keep everything fast.</p>
                 </div>
                 <div class="feature-item reveal">
                     <div class="feature-icon">
@@ -478,8 +591,8 @@
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
                     </div>
-                    <h3>One-Click Export</h3>
-                    <p>Export to SVG, TTF, WOFF, WOFF2, EOT, CSS, JS, and HTML demo&nbsp;&mdash; all at once with real-time progress.</p>
+                    <h3>One-Click Font Generation</h3>
+                    <p>Generate icon fonts in SVG, TTF, WOFF, WOFF2, EOT plus CSS, JS, and HTML demo&nbsp;&mdash; all at once with real-time progress.</p>
                 </div>
                 <div class="feature-item reveal">
                     <div class="feature-icon">
@@ -487,8 +600,8 @@
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                         </svg>
                     </div>
-                    <h3>Group Management</h3>
-                    <p>Organize icons with drag-to-reorder groups. Copy, move, recycle. Search and filter across everything.</p>
+                    <h3>Icon Organization</h3>
+                    <p>Organize icons into drag-to-reorder groups. Copy, move, recycle. Search and filter across your entire icon library.</p>
                 </div>
                 <div class="feature-item reveal">
                     <div class="feature-icon">
@@ -515,7 +628,7 @@
 
         <!-- ─── Formats ─── -->
         <section class="section" id="formats">
-            <div class="section-header reveal">Export Formats</div>
+            <h2 class="section-header reveal">Export Formats</h2>
             <div class="format-grid">
                 <div class="format-tag reveal">.svg</div>
                 <div class="format-tag reveal">.ttf</div>
