@@ -267,20 +267,16 @@ class Database {
     }
     return dataSTMT;
   };
+  // ── 写入基础方法 — 所有 C/U/D 必须经过这三个方法或 runMutation ──
+  // 自动触发 notifyMutation()，上层方法不需要手动调用
+
   // 添加数据到TABLE, 注意使用时要根据数据格式自行添加单引号
-  // table: 表名
-  // 示例: "projectAttributes"
-  // dataSet: 数据对
-  // 示例: { projectID: 8964, projectName: "'项目名称'" }
   addDataToTable = (tableName: string, dataSet: DataSet, callback?: () => void): void => {
     dev && console.log('addDataToTable');
-    dev &&
-      console.log(
-        `INSERT INTO ${tableName} ${this.buildDataSTMT(dataSet, { needData: false })} VALUES ${this.buildDataSTMT(dataSet, { needName: false })}`
-      );
     this.db!.run(
       `INSERT INTO ${tableName} ${this.buildDataSTMT(dataSet, { needData: false })} VALUES ${this.buildDataSTMT(dataSet, { needName: false })}`
     );
+    this.notifyMutation();
     callback && callback();
   };
   // 更新TABLE某列数据, dataSet的数据也要注意添加引号, rowKeySet用于定位某行
@@ -294,13 +290,10 @@ class Database {
     callback?: () => void
   ): void => {
     dev && console.log('setDataOfTable');
-    dev &&
-      console.log(
-        `UPDATE ${tableName} SET ${this.buildDataSTMT(dataSet)} WHERE ${this.buildDataSTMT(targetDataSet)}`
-      );
     this.db!.run(
       `UPDATE ${tableName} SET ${this.buildDataSTMT(dataSet)} WHERE ${this.buildDataSTMT(targetDataSet)}`
     );
+    this.notifyMutation();
     callback && callback();
   };
   // 获取TABLE某行数据
@@ -381,7 +374,6 @@ class Database {
     callback?: () => void
   ): void => {
     dev && console.log('delDataOfTable');
-    // 设置默认选项
     const defaultOptions: Required<DelDataOptions> = { all: false };
     const opts = Object.assign(defaultOptions, options);
     if (opts.all) {
@@ -389,7 +381,20 @@ class Database {
     } else {
       this.db!.exec(`DELETE FROM ${tableName} WHERE ${this.buildDataSTMT(targetDataSet)}`);
     }
+    this.notifyMutation();
     callback && callback();
+  };
+
+  /** Run a raw SQL write statement with automatic mutation tracking.
+   *  Use this instead of this.db!.run() for any INSERT/UPDATE/DELETE
+   *  that bypasses addDataToTable/setDataOfTable/delDataOfTable. */
+  private runMutation = (sql: string, params?: any[]): void => {
+    if (params) {
+      this.db!.run(sql, params);
+    } else {
+      this.db!.run(sql);
+    }
+    this.notifyMutation();
   };
   // 统计TABLE总行数
   getDataCountsOfTable = (tableName: string, targetDataSet?: DataSet): number => {
@@ -457,7 +462,7 @@ class Database {
     this.destroyDatabase();
     this.initDatabases();
     this.initNewProject(projectName);
-    this.notifyMutation();
+    // notifyMutation auto-fired by initNewProject → addDataToTable
   };
   // 导出项目
   exportProject = (callback?: (data: Uint8Array) => void): void => {
@@ -470,9 +475,7 @@ class Database {
   // 项目配置项相关
   setProjectAttributes = (dataSet: DataSet, callback?: () => void): void => {
     const targetDataSet: DataSet = { id: sf('projectAttributes') };
-    this.setDataOfTable(projectAttributes, targetDataSet, dataSet);
-    this.notifyMutation();
-    callback && callback();
+    this.setDataOfTable(projectAttributes, targetDataSet, dataSet, callback);
   };
   getProjectAttributes = (rowName: string): any => {
     const targetDataSet: DataSet = { id: sf('projectAttributes') };
@@ -495,16 +498,12 @@ class Database {
   // 分组相关
   addGroupData = (dataSet: DataSet, callback?: () => void): void => {
     dev && console.log('addGroupData');
-    this.addDataToTable(groupData, dataSet);
-    this.notifyMutation();
-    callback && callback();
+    this.addDataToTable(groupData, dataSet, callback);
   };
   setGroupData = (id: string, dataSet: DataSet, callback?: () => void): void => {
     dev && console.log('setGroupData');
     const targetDataSet: DataSet = { id: sf(id) };
-    this.setDataOfTable(groupData, targetDataSet, dataSet);
-    this.notifyMutation();
-    callback && callback();
+    this.setDataOfTable(groupData, targetDataSet, dataSet, callback);
   };
   getGroupData = (id: string): Record<string, any> => {
     dev && console.log('getGroupData');
@@ -526,7 +525,7 @@ class Database {
       groupName: sf(name),
       groupOrder,
     });
-    this.notifyMutation();
+    // notifyMutation auto-fired by addGroupData → addDataToTable
     callback &&
       callback({
         id: id,
@@ -537,15 +536,12 @@ class Database {
   delGroup = (id: string, callback?: () => void): void => {
     dev && console.log('delGroup');
     // 将分组下的图标移到未分组（而非删除）
-    this.db!.exec(
+    this.runMutation(
       `UPDATE ${iconData} SET iconGroup = 'resource-uncategorized' WHERE iconGroup = ${sf(id)}`
     );
-    // 然后删除分组
+    // 然后删除分组 — delDataOfTable auto-notifies
     const targetDataSet: DataSet = { id: sf(id) };
-    this.delDataOfTable(groupData, targetDataSet, { all: false }, () => {
-      this.notifyMutation();
-      callback && callback();
-    });
+    this.delDataOfTable(groupData, targetDataSet, { all: false }, callback);
   };
   getGroupList = (): Record<string, any>[] => {
     dev && console.log('getGroupList');
@@ -571,9 +567,8 @@ class Database {
   reorderGroups = (orderedIds: string[], callback?: () => void): void => {
     dev && console.log('reorderGroups');
     orderedIds.forEach((id, index) => {
-      this.db!.run(`UPDATE ${groupData} SET groupOrder = ${index} WHERE id = '${id}'`);
+      this.runMutation(`UPDATE ${groupData} SET groupOrder = ${index} WHERE id = '${id}'`);
     });
-    this.notifyMutation();
     callback && callback();
   };
   setGroupName = (id: string, groupName: string, callback?: () => void): void => {
@@ -597,9 +592,7 @@ class Database {
   setIconData = (id: string, dataSet: DataSet, callback?: () => void): void => {
     dev && console.log('setIconData');
     const targetDataSet: DataSet = { id: sf(id) };
-    this.setDataOfTable(iconData, targetDataSet, dataSet);
-    this.notifyMutation();
-    callback && callback();
+    this.setDataOfTable(iconData, targetDataSet, dataSet, callback);
   };
   getIconData = (id: string): Record<string, any> => {
     dev && console.log('getIconData');
@@ -714,7 +707,7 @@ class Database {
 
     const done = () => {
       if (--pending <= 0) {
-        this.notifyMutation();
+        // notifyMutation auto-fired by each addDataToTable call
         callback && callback();
       }
     };
@@ -761,7 +754,7 @@ class Database {
       );
       this.addDataToTable(iconData, dataSet);
     });
-    this.notifyMutation();
+    // notifyMutation auto-fired by addDataToTable
     callback && callback();
   };
   addIconsFromCpData = (
@@ -778,15 +771,13 @@ class Database {
       );
       this.addDataToTable(iconData, dataSet);
     });
-    this.notifyMutation();
+    // notifyMutation auto-fired by addDataToTable
     callback && callback();
   };
   delIcon = (id: string, callback?: () => void): void => {
     dev && console.log('delIcon');
     const targetDataSet: DataSet = { id: sf(id) };
-    this.delDataOfTable(iconData, targetDataSet, { all: false });
-    this.notifyMutation();
-    callback && callback();
+    this.delDataOfTable(iconData, targetDataSet, { all: false }, callback);
   };
   // 获取所有图标数
   getIconCount = (): number => {
@@ -958,46 +949,40 @@ class Database {
     const dataSet: DataSet = {
       iconGroup: sf(targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup),
     };
-    this.setDataOfTable(iconData, targetDataSet, dataSet);
-    this.notifyMutation();
-    callback && callback();
+    this.setDataOfTable(iconData, targetDataSet, dataSet, callback);
+    // notifyMutation auto-fired by setDataOfTable
   };
   duplicateIconGroup = (id: string, targetGroup: string, callback?: () => void): void => {
     dev && console.log('duplicateIconGroup');
     const sourceIconData = this.getIconData(id);
-    // 重新生成UUID与字码
     const dataSet: DataSet = {
       id: sf(generateUUID()),
       iconCode: sf(this.getNewIconCode() as string),
       iconName: sf(sourceIconData.iconName),
-      // 如果复制到all分组, 则转换为加入未分类分组
       iconGroup: sf(targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup),
       iconSize: sourceIconData.iconSize,
       iconType: sf(sourceIconData.iconType),
       iconContent: sf(sourceIconData.iconContent),
       iconContentOriginal: sf(this.getOriginalContent(sourceIconData)),
     };
-    this.addDataToTable(iconData, dataSet);
-    this.notifyMutation();
-    callback && callback();
+    this.addDataToTable(iconData, dataSet, callback);
+    // notifyMutation auto-fired by addDataToTable
   };
   // ── Batch operations ─────────────────────────────────────────────
   moveIcons = (ids: string[], targetGroup: string, callback?: () => void): void => {
     dev && console.log('moveIcons');
     const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
     const placeholders = ids.map(() => '?').join(',');
-    this.db!.run(`UPDATE ${iconData} SET iconGroup = ? WHERE id IN (${placeholders})`, [
+    this.runMutation(`UPDATE ${iconData} SET iconGroup = ? WHERE id IN (${placeholders})`, [
       group,
       ...ids,
     ]);
-    this.notifyMutation();
     callback && callback();
   };
   delIcons = (ids: string[], callback?: () => void): void => {
     dev && console.log('delIcons');
     const placeholders = ids.map(() => '?').join(',');
-    this.db!.run(`DELETE FROM ${iconData} WHERE id IN (${placeholders})`, ids);
-    this.notifyMutation();
+    this.runMutation(`DELETE FROM ${iconData} WHERE id IN (${placeholders})`, ids);
     callback && callback();
   };
   duplicateIcons = (ids: string[], targetGroup: string, callback?: () => void): void => {
@@ -1017,7 +1002,7 @@ class Database {
       };
       this.addDataToTable(iconData, dataSet);
     });
-    this.notifyMutation();
+    // notifyMutation auto-fired by each addDataToTable call
     callback && callback();
   };
   updateIconsColor = (ids: string[], targetColor: string, callback?: () => void): void => {
