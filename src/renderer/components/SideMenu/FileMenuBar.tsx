@@ -55,6 +55,7 @@ const menuGroups: FileMenuItem[][] = [
       icon: <Import size={15} />,
       label: '导入图标',
       description: '添加 SVG 图标到当前项目',
+      shortcut: `${mod}I`,
     },
     {
       key: 'export-fonts',

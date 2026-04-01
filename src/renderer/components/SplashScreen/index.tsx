@@ -28,7 +28,7 @@ function SplashScreen() {
           setCurrentFilePath(null);
           markClean();
           showSplashScreen(false);
-          message.success(`项目已导入`);
+          message.success('项目已打开');
           syncLeft();
           selectGroup('resource-all');
         });
@@ -42,7 +42,7 @@ function SplashScreen() {
           setCurrentFilePath(project.path || path || null);
           markClean();
           showSplashScreen(false);
-          message.success(`项目已导入`);
+          message.success('项目已打开');
           p?.mark('import.syncLeft');
           syncLeft();
           p?.measure('import.syncLeft');

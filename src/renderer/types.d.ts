@@ -68,6 +68,7 @@ interface ElectronAPI {
   // Menu IPC (main → renderer)
   onMenuNewProject: (callback: () => void) => () => void;
   onMenuOpenProject: (callback: () => void) => () => void;
+  onMenuImportIcons: (callback: () => void) => () => void;
   onMenuSave: (callback: () => void) => () => void;
   onMenuSaveAs: (callback: () => void) => () => void;
   onMenuExportFonts: (callback: () => void) => () => void;

@@ -74,6 +74,13 @@ export default class MenuBuilder {
         },
         { type: 'separator' },
         {
+          label: 'Import Icons...',
+          accelerator: `${mod}+I`,
+          click: () => {
+            this.mainWindow.webContents.send('menu:import-icons');
+          },
+        },
+        {
           label: 'Export Fonts...',
           accelerator: `${mod}+E`,
           click: () => {

@@ -95,6 +95,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.removeListener('menu:open-project', handler);
     };
   },
+  onMenuImportIcons: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('menu:import-icons', handler);
+    return () => {
+      ipcRenderer.removeListener('menu:import-icons', handler);
+    };
+  },
   onMenuSave: (callback: () => void) => {
     const handler = () => callback();
     ipcRenderer.on('menu:save', handler);

@@ -98,10 +98,15 @@ const SideMenu = React.memo(function SideMenu({
   );
 
   useEffect(() => {
-    const handler = () => setExportVisible(true);
-    window.addEventListener('bobcorn:open-export', handler);
-    return () => window.removeEventListener('bobcorn:open-export', handler);
-  }, []);
+    const exportHandler = () => setExportVisible(true);
+    const importHandler = () => handleFileMenuAction('import-icons');
+    window.addEventListener('bobcorn:open-export', exportHandler);
+    window.addEventListener('bobcorn:import-icons', importHandler);
+    return () => {
+      window.removeEventListener('bobcorn:open-export', exportHandler);
+      window.removeEventListener('bobcorn:import-icons', importHandler);
+    };
+  }, [handleFileMenuAction]);
 
   return (
     <div className="relative flex h-full w-full flex-col bg-surface dark:bg-surface">

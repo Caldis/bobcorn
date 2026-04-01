@@ -141,7 +141,7 @@ function MainContainer() {
           useAppStore.getState().markClean();
           useAppStore.getState().syncLeft();
           useAppStore.getState().selectGroup('resource-all');
-          message.success('项目已导入');
+          message.success('项目已打开');
         });
       },
       onSelectICP: (project: any) => {
@@ -151,7 +151,7 @@ function MainContainer() {
           useAppStore.getState().markClean();
           useAppStore.getState().syncLeft();
           useAppStore.getState().selectGroup('resource-all');
-          message.success('项目已导入');
+          message.success('项目已打开');
         });
       },
     });
@@ -281,6 +281,9 @@ function MainContainer() {
     const cleanups = [
       electronAPI.onMenuNewProject(() => handleNewProject()),
       electronAPI.onMenuOpenProject(() => handleOpenProject()),
+      electronAPI.onMenuImportIcons(() => {
+        window.dispatchEvent(new CustomEvent('bobcorn:import-icons'));
+      }),
       electronAPI.onMenuSave(() => handleSave()),
       electronAPI.onMenuSaveAs(() => handleSaveAs()),
       electronAPI.onMenuExportFonts(() => {
