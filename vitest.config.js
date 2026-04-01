@@ -7,6 +7,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 export default defineConfig({
   test: {
     include: ['test/**/*.test.{js,ts}'],
+    exclude: ['test/unit/sf-symbols-fixture.test.js'],
     environment: 'node',
     globals: true,
     coverage: {
