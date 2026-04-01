@@ -8,7 +8,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Tags, Plus, Settings, Pencil, Trash2 } from 'lucide-react';
+import { Tags, Plus, Settings } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Dropdown } from '../ui';
 import db from '../../database';
@@ -56,8 +56,15 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
         isDragging && 'shadow-md ring-1 ring-brand-300 dark:ring-brand-700'
       )}
     >
-      <span className="flex-1 truncate">{group.groupName}</span>
-      <span className="relative shrink-0 w-5 h-5 flex items-center justify-center">
+      <span className="flex-1 min-w-0">
+        <span className="block truncate">{group.groupName}</span>
+        {group.groupDescription && (
+          <span className="block truncate text-[11px] leading-tight mt-0.5 font-normal text-foreground-muted/70">
+            {group.groupDescription}
+          </span>
+        )}
+      </span>
+      <span className="relative shrink-0 w-5 h-5 flex items-center justify-center self-start mt-0.5">
         <span className="text-xs text-foreground-muted group-hover:opacity-0 transition-opacity">
           {iconCount}
         </span>
@@ -68,7 +75,7 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
           <Dropdown
             menu={{
               items: [
-                { key: 'rename', label: '重命名' },
+                { key: 'rename', label: '编辑分组' },
                 { key: 'delete', label: '删除分组' },
               ],
               onClick: (info) => {

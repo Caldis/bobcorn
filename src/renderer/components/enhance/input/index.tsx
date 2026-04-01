@@ -40,7 +40,7 @@ function EnhanceInput({
     if (autoFocus && inputRef.current) {
       inputRef.current.focus();
     }
-  });
+  }, []);
 
   return (
     <div>

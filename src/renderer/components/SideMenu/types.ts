@@ -3,6 +3,7 @@ export interface GroupData {
   groupName: string;
   groupOrder?: number;
   groupColor?: string;
+  groupDescription?: string;
   [key: string]: any;
 }
 

@@ -17,7 +17,14 @@ export interface GroupItem {
 }
 
 export type VirtualRow =
-  | { kind: 'header'; key: string; groupId: string; groupName: string; count: number }
+  | {
+      kind: 'header';
+      key: string;
+      groupId: string;
+      groupName: string;
+      groupDescription?: string;
+      count: number;
+    }
   | { kind: 'row'; key: string; icons: IconItem[]; startIndex: number };
 
 export interface IconGridViewModel {
@@ -112,6 +119,7 @@ export function computeIconGridViewModel(params: {
         key: `hdr-${group.id}`,
         groupId: group.id,
         groupName: group.groupName,
+        groupDescription: group.groupDescription || undefined,
         count: icons.length,
       });
 

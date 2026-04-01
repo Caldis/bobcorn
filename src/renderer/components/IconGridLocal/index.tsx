@@ -29,8 +29,8 @@ interface IconGridLocalProps {
   selectedIcon: string | null;
 }
 
-const HEADER_HEIGHT = 52; // estimate: visible bar (~32) + mt-2.5 (10) + pb-3 (12) ≈ 54, rounded
-const STICKY_HEIGHT = 32; // visible bar only: py-1.5 (12) + content (~20)
+const HEADER_HEIGHT = 52; // estimate: accent bar + py-1.5 (12) + content (~20) + mt-3 (12) + pb-2 (8)
+const STICKY_HEIGHT = 36; // sticky: accent bar + py-2 (16) + content (~20)
 
 function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps) {
   const options = getOption() as OptionData;
@@ -401,7 +401,13 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   // ── Sticky header for "All" view ─────────────────────────────────────
   const headerMeta = useMemo(() => {
     if (selectedGroup !== 'resource-all') return [];
-    const headers: { start: number; groupName: string; count: number; groupId: string }[] = [];
+    const headers: {
+      start: number;
+      groupName: string;
+      groupDescription?: string;
+      count: number;
+      groupId: string;
+    }[] = [];
     let y = GRID_H_PAD; // paddingStart
     for (let i = 0; i < viewModel.rows.length; i++) {
       const row = viewModel.rows[i];
@@ -409,6 +415,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         headers.push({
           start: y,
           groupName: row.groupName,
+          groupDescription: row.groupDescription,
           count: row.count,
           groupId: row.groupId,
         });
@@ -493,23 +500,29 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
           className={cn(
             'absolute top-0 left-0 w-full z-20',
             'cursor-pointer text-left',
-            'flex items-center py-1.5',
-            'bg-surface-muted/95 dark:bg-surface-muted/95',
+            'flex items-stretch',
+            'bg-surface/95 dark:bg-surface/95',
             'backdrop-blur-sm',
-            'shadow-sm'
+            'border-b border-border/50'
           )}
           onClick={() => selectGroup(stickyHeader.groupId)}
         >
-          <span className="ml-3 text-brand-500 dark:text-brand-400">{stickyHeader.groupName}</span>
-          <label
-            className={cn(
-              'ml-2 px-1 py-0.5',
-              'bg-brand-500 dark:bg-brand-600',
-              'rounded text-white text-xs'
+          <div className="w-[3px] shrink-0 bg-brand-500 dark:bg-brand-400" />
+          <div className="flex flex-col justify-center py-2 pl-3 pr-4 min-w-0">
+            <div className="flex items-baseline gap-2">
+              <span className="text-sm font-medium text-foreground truncate">
+                {stickyHeader.groupName}
+              </span>
+              <span className="text-xs tabular-nums text-foreground-muted/50 shrink-0">
+                {stickyHeader.count}
+              </span>
+            </div>
+            {stickyHeader.groupDescription && (
+              <span className="text-[11px] leading-tight mt-0.5 text-foreground-muted/50 truncate">
+                {stickyHeader.groupDescription}
+              </span>
             )}
-          >
-            {stickyHeader.count}
-          </label>
+          </div>
         </div>
       )}
 
@@ -544,33 +557,36 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                     key={row.key}
                     data-index={virtualRow.index}
                     ref={virtualizer.measureElement}
-                    className="absolute left-0 w-full pb-3"
+                    className="absolute left-0 w-full pb-2"
                     style={{ transform: `translateY(${virtualRow.start}px)` }}
                   >
                     <div
                       className={cn(
                         'relative z-[1] cursor-pointer text-left',
-                        'w-full flex items-center py-1.5',
-                        virtualRow.index > 0 && 'mt-2.5',
-                        'transition-colors duration-300',
-                        'bg-surface-muted dark:bg-surface-muted',
-                        'hover:bg-brand-50 dark:hover:bg-brand-950/40',
-                        'active:bg-brand-100 dark:active:bg-brand-900/40'
+                        'w-full flex items-stretch',
+                        virtualRow.index > 0 && 'mt-3',
+                        'transition-colors duration-200',
+                        'hover:bg-surface-muted/60 dark:hover:bg-white/[0.03]',
+                        'active:bg-surface-muted dark:active:bg-white/[0.05]'
                       )}
                       onClick={() => selectGroup(row.groupId)}
                     >
-                      <span className="ml-3 text-brand-500 dark:text-brand-400">
-                        {row.groupName}
-                      </span>
-                      <label
-                        className={cn(
-                          'ml-2 px-1 py-0.5',
-                          'bg-brand-500 dark:bg-brand-600',
-                          'rounded text-white text-xs'
+                      <div className="w-[3px] shrink-0 rounded-full bg-brand-500/80 dark:bg-brand-400/80" />
+                      <div className="flex flex-col justify-center py-1.5 pl-3 pr-4 min-w-0">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-sm font-medium text-foreground truncate">
+                            {row.groupName}
+                          </span>
+                          <span className="text-xs tabular-nums text-foreground-muted/40 shrink-0">
+                            {row.count}
+                          </span>
+                        </div>
+                        {row.groupDescription && (
+                          <span className="text-[11px] leading-tight mt-0.5 text-foreground-muted/50 truncate">
+                            {row.groupDescription}
+                          </span>
                         )}
-                      >
-                        {row.count}
-                      </label>
+                      </div>
                     </div>
                   </div>
                 );

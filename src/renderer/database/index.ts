@@ -66,6 +66,7 @@ export interface GroupData {
   groupName: string;
   groupOrder: number;
   groupColor?: string;
+  groupDescription?: string;
   createTime?: string;
   updateTime?: string;
 }
@@ -196,6 +197,15 @@ class Database {
             dev && console.log('Migration: added iconContentOriginal column (lazy backfill)');
           }
           p?.measure('db.migration_check');
+          // Migration: add groupDescription column for existing projects
+          const groupCols = this.db!.exec(`PRAGMA table_info(${groupData})`);
+          const hasDescCol =
+            groupCols.length > 0 &&
+            groupCols[0].values.some((row: any) => row[1] === 'groupDescription');
+          if (!hasDescCol) {
+            this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupDescription TEXT`);
+            dev && console.log('Migration: added groupDescription column');
+          }
         } catch (e) {
           dev && console.error('Migration error:', e);
         }
@@ -437,7 +447,7 @@ class Database {
     ); // 默认Prefix为iconfont
     // 创建分组数据表, 并配置触发器自动更新时间戳, 再初始化数据
     this.db!.run(
-      `CREATE TABLE ${groupData} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${groupData} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db!.run(
       `CREATE TRIGGER ${groupDataTimeRenewTrigger} AFTER UPDATE ON ${groupData} FOR EACH ROW BEGIN UPDATE ${groupData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -515,16 +525,22 @@ class Database {
   };
   addGroup = (
     name: string,
-    callback?: (group: { id: string; groupName: string; groupOrder: number }) => void
+    callback?: (group: { id: string; groupName: string; groupOrder: number }) => void,
+    description?: string
   ): void => {
     dev && console.log('addGroup');
     const id = generateUUID();
     const groupOrder = this.getDataCountsOfTable(groupData);
-    this.addGroupData({
+    const dataSet: DataSet = {
       id: sf(id),
       groupName: sf(name),
       groupOrder,
-    });
+    };
+    if (description) {
+      this.ensureGroupDescriptionColumn();
+      dataSet.groupDescription = sf(description);
+    }
+    this.addGroupData(dataSet);
     // notifyMutation auto-fired by addGroupData → addDataToTable
     callback &&
       callback({
@@ -575,6 +591,34 @@ class Database {
     dev && console.log('setGroupName');
     const dataSet: DataSet = { groupName: sf(groupName) };
     this.setGroupData(id, dataSet, callback);
+  };
+  setGroupInfo = (
+    id: string,
+    groupName: string,
+    groupDescription: string | null,
+    callback?: () => void
+  ): void => {
+    dev && console.log('setGroupInfo');
+    // 确保 groupDescription 列存在（HMR 热更新时可能还没跑过 migration）
+    this.ensureGroupDescriptionColumn();
+    const dataSet: DataSet = {
+      groupName: sf(groupName),
+      groupDescription: groupDescription ? sf(groupDescription) : 'NULL',
+    };
+    this.setGroupData(id, dataSet, callback);
+  };
+  private ensureGroupDescriptionColumn = (): void => {
+    try {
+      const cols = this.db!.exec(`PRAGMA table_info(${groupData})`);
+      const has =
+        cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'groupDescription');
+      if (!has) {
+        this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupDescription TEXT`);
+        dev && console.log('Lazy migration: added groupDescription column');
+      }
+    } catch (_) {
+      /* column already exists */
+    }
   };
   getGroupName = (id: string): string => {
     dev && console.log('getGroupName');
