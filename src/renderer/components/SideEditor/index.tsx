@@ -2,6 +2,7 @@
 const { electronAPI } = window;
 // React
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 // UI
 import { Dialog, Button, message, confirm } from '../ui';
 import { Radio, RadioGroup } from '../ui/radio';
@@ -46,6 +47,7 @@ const SideEditor = React.memo(function SideEditor({
   selectedGroup,
   selectedIcon,
 }: SideEditorProps) {
+  const { t } = useTranslation();
   const syncLeft = useAppStore((state: any) => state.syncLeft);
   const syncIconContent = useAppStore((state: any) => state.syncIconContent);
   const patchIconContent = useAppStore((state: any) => state.patchIconContent);
@@ -113,19 +115,19 @@ const SideEditor = React.memo(function SideEditor({
   };
   const handleIconNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIconName(e.target.value);
-    setIconNameErrText(!e.target.value ? '图标名称不能为空' : null);
+    setIconNameErrText(!e.target.value ? t('editor.nameEmpty') : null);
   };
   const handleIconNameSave = () => {
     if (iconName) {
       if (iconNameCanSave()) {
         db.setIconName(selectedIcon, iconName, () => {
-          message.success('图标名称已修改');
+          message.success(t('editor.nameChanged'));
           syncIconContent();
           sync(selectedIcon);
         });
       }
     } else {
-      setIconNameErrText('图标名称不能为空');
+      setIconNameErrText(t('editor.nameEmpty'));
     }
   };
   const iconCodeCanSave = (): boolean => {
@@ -140,40 +142,40 @@ const SideEditor = React.memo(function SideEditor({
           ? db.iconCodeInRange(value)
             ? db.iconCodeCanUse(value)
               ? null
-              : '图标字码已被占用'
-            : '图标字码超出 E000-F8FF'
+              : t('editor.codeDuplicate')
+            : t('editor.codeOutOfRange')
           : null
       );
     } else {
       setIconCode(value);
-      setIconCodeErrText(!value ? '图标字码不能为空' : null);
+      setIconCodeErrText(!value ? t('editor.codeEmpty') : null);
     }
   };
   const handleIconCodeSave = () => {
     if (iconCode) {
       if (iconCodeCanSave()) {
         db.setIconCode(selectedIcon, iconCode, () => {
-          message.success('图标字码已修改');
+          message.success(t('editor.codeChanged'));
           syncIconContent();
           sync(selectedIcon);
         });
       }
     } else {
-      setIconCodeErrText('图标字码不能为空');
+      setIconCodeErrText(t('editor.codeEmpty'));
     }
   };
 
   // 替换图标相关
   const handleIconContentUpdate = async () => {
     const result = await electronAPI.showOpenDialog({
-      title: '选择一个SVG图标文件',
-      filters: [{ name: 'SVG图标文件', extensions: ['svg'] }],
+      title: t('editor.selectSvgFile'),
+      filters: [{ name: t('editor.svgFileFilter'), extensions: ['svg'] }],
       properties: ['openFile'],
     });
     if (!result.canceled && result.filePaths.length > 0) {
       const newIconFileData = Object.assign({}, iconData, { path: result.filePaths[0] });
       db.renewIconData(selectedIcon, newIconFileData, () => {
-        message.success(`图标数据已更新`);
+        message.success(t('editor.dataUpdated'));
         syncIconContent();
       });
     }
@@ -182,19 +184,19 @@ const SideEditor = React.memo(function SideEditor({
   // 图标导出相关
   const handleIconExport = async () => {
     const result = await electronAPI.showSaveDialog({
-      title: '导出图标',
+      title: t('editor.exportIcon'),
       defaultPath: `${iconData.iconName}.${iconData.iconType}`,
     });
     if (!result.canceled && result.filePath) {
       electronAPI
         .writeFile(result.filePath, iconData.iconContent)
-        .then(() => message.success(`图标已导出`))
-        .catch((err: Error) => message.error(`导出错误: ${err.message}`));
+        .then(() => message.success(t('editor.exported')))
+        .catch((err: Error) => message.error(t('editor.exportError', { error: err.message })));
     }
   };
   const handleAllIconExport = async () => {
     const result = await electronAPI.showSaveDialog({
-      title: '导出所有图标',
+      title: t('editor.exportAllIcons'),
       defaultPath: `${db.getProjectName()}`,
     });
     if (!result.canceled && result.filePath) {
@@ -210,9 +212,9 @@ const SideEditor = React.memo(function SideEditor({
             icon.iconContent
           );
         });
-        message.success(`${icons.length} 个图标已导出`);
+        message.success(t('editor.allExported', { count: icons.length }));
       } catch (err: any) {
-        message.error(`导出错误: ${err.message}`);
+        message.error(t('editor.exportError', { error: err.message }));
       }
     }
   };
@@ -220,12 +222,11 @@ const SideEditor = React.memo(function SideEditor({
   // 删除图标相关
   const handleIconRecycle = () => {
     confirm({
-      title: '回收图标',
-      content:
-        '图标将会被移动到回收站, 并在导出后的预览页面内不可见, 但仍可被使用. 请在确保图标没有被引用后将其从回收站内删除',
+      title: t('editor.recycleTitle'),
+      content: t('editor.recycleContent'),
       onOk() {
         db.moveIconGroup(selectedIcon, 'resource-recycleBin', () => {
-          message.success(`所选的图标已回收`);
+          message.success(t('editor.recycled'));
           syncLeft();
           selectIcon(null);
         });
@@ -234,11 +235,11 @@ const SideEditor = React.memo(function SideEditor({
   };
   const handleIconDelete = () => {
     confirm({
-      title: '删除图标',
-      content: '当图标没有在项目中被引用时, 将其删除以释放图标字码',
+      title: t('editor.deleteTitle'),
+      content: t('editor.deleteContent'),
       onOk() {
         db.delIcon(selectedIcon, () => {
-          message.success(`所选的图标已被删除`);
+          message.success(t('editor.deleted'));
           syncLeft();
           selectIcon(null);
         });
@@ -250,7 +251,7 @@ const SideEditor = React.memo(function SideEditor({
   const handleShowIconGroupEdit = (type: string) => {
     if (type === 'duplicate') {
       setIconGroupEditModelType('duplicate');
-      setIconGroupEditModelTitle('选择要复制到的目标分组');
+      setIconGroupEditModelTitle(t('editor.copyToGroup'));
       setIconGroupEditModelVisible(true);
       setIconGroupEditModelTarget(
         selectedGroup === 'resource-uncategorized' ? null : iconGroupEditModelTarget
@@ -258,7 +259,7 @@ const SideEditor = React.memo(function SideEditor({
     }
     if (type === 'move') {
       setIconGroupEditModelType('move');
-      setIconGroupEditModelTitle('选择要移动到的目标分组');
+      setIconGroupEditModelTitle(t('editor.moveToGroup'));
       setIconGroupEditModelVisible(true);
       setIconGroupEditModelTarget(
         selectedGroup === 'resource-uncategorized' ? null : iconGroupEditModelTarget
@@ -268,14 +269,14 @@ const SideEditor = React.memo(function SideEditor({
   const handleEnsureIconGroupEdit = () => {
     if (iconGroupEditModelType === 'duplicate') {
       db.duplicateIconGroup(selectedIcon, iconGroupEditModelTarget, () => {
-        message.success(`所选的图标已复制到目标分组`);
+        message.success(t('editor.copiedToGroup'));
         syncLeft();
         selectIcon(null);
       });
     }
     if (iconGroupEditModelType === 'move') {
       db.moveIconGroup(selectedIcon, iconGroupEditModelTarget, () => {
-        message.success(`所选的图标已移动到目标分组`);
+        message.success(t('editor.movedToGroup'));
         syncLeft();
         selectIcon(null);
       });
@@ -435,11 +436,11 @@ const SideEditor = React.memo(function SideEditor({
             {/* 图标名称输入框 */}
             <EnhanceInput
               autoFocus={false}
-              placeholder="在界面上显示的名称"
+              placeholder={t('editor.namePlaceholder')}
               value={iconName}
               onChange={handleIconNameChange}
               onPressEnter={handleIconNameSave}
-              inputTitle="名称"
+              inputTitle={t('editor.name')}
               inputHintText={iconNameErrText}
               inputHintBadgeType="error"
               inputSave={iconNameCanSave()}
@@ -449,11 +450,11 @@ const SideEditor = React.memo(function SideEditor({
             {/* 图标字码输入框 */}
             <EnhanceInput
               autoFocus={false}
-              placeholder="十六进制, 从E000到F8FF"
+              placeholder={t('editor.codePlaceholder')}
               value={iconCode}
               onChange={handleIconCodeChange}
               onPressEnter={handleIconCodeSave}
-              inputTitle="字码"
+              inputTitle={t('editor.code')}
               inputHintText={iconCodeErrText}
               inputHintBadgeType="error"
               inputSave={iconCodeCanSave()}
@@ -471,15 +472,15 @@ const SideEditor = React.memo(function SideEditor({
                 'border-b border-border'
               )}
             >
-              基本信息
+              {t('editor.basicInfo')}
             </h4>
             <div className="space-y-1">
               {[
-                ['所属分组', db.getGroupName(iconData.iconGroup)],
-                ['原始大小', `${(iconData.iconSize / 512).toFixed(2)} KB`],
-                ['文件格式', iconData.iconType && iconData.iconType.toUpperCase()],
-                ['添加日期', iconData.createTime],
-                ['修改日期', iconData.updateTime],
+                [t('editor.group'), db.getGroupName(iconData.iconGroup)],
+                [t('editor.originalSize'), `${(iconData.iconSize / 512).toFixed(2)} KB`],
+                [t('editor.fileFormat'), iconData.iconType && iconData.iconType.toUpperCase()],
+                [t('editor.createDate'), iconData.createTime],
+                [t('editor.updateDate'), iconData.updateTime],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -505,7 +506,7 @@ const SideEditor = React.memo(function SideEditor({
                   'border-b border-border'
                 )}
               >
-                颜色
+                {t('editor.color')}
               </h4>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {svgColors.map((c, i) => (
@@ -567,7 +568,7 @@ const SideEditor = React.memo(function SideEditor({
                     />
                     {/* 取色器按钮 */}
                     <button
-                      title="从屏幕取色"
+                      title={t('editor.eyeDropper')}
                       onClick={handleEyeDropper}
                       className={cn(
                         'w-7 h-7 rounded border border-border shrink-0',
@@ -612,7 +613,7 @@ const SideEditor = React.memo(function SideEditor({
                     'transition-colors duration-150 cursor-pointer'
                   )}
                 >
-                  恢复初始颜色
+                  {t('editor.resetColors')}
                 </button>
               )}
             </div>
@@ -628,10 +629,10 @@ const SideEditor = React.memo(function SideEditor({
                 'border-b border-border'
               )}
             >
-              高级操作
+              {t('editor.advancedOps')}
             </h4>
             <Button className="!w-full" icon={<Download size={14} />} onClick={handleIconExport}>
-              导出
+              {t('editor.export')}
             </Button>
             <div className="grid grid-cols-2 gap-1.5 mt-1.5">
               <Button
@@ -639,7 +640,7 @@ const SideEditor = React.memo(function SideEditor({
                 icon={<RefreshCw size={14} />}
                 onClick={handleIconContentUpdate}
               >
-                替换
+                {t('editor.replace')}
               </Button>
               <Button
                 className="!w-full"
@@ -648,7 +649,7 @@ const SideEditor = React.memo(function SideEditor({
                   selectedGroup === 'resource-recycleBin' ? handleIconDelete : handleIconRecycle
                 }
               >
-                {selectedGroup === 'resource-recycleBin' ? '删除' : '回收'}
+                {selectedGroup === 'resource-recycleBin' ? t('editor.delete') : t('editor.recycle')}
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-1.5 mt-1.5">
@@ -658,7 +659,7 @@ const SideEditor = React.memo(function SideEditor({
                 icon={<Copy size={14} />}
                 onClick={() => handleShowIconGroupEdit('duplicate')}
               >
-                复制
+                {t('editor.copy')}
               </Button>
               <Button
                 disabled={groupNum === 0}
@@ -666,7 +667,7 @@ const SideEditor = React.memo(function SideEditor({
                 icon={<ArrowRightLeft size={14} />}
                 onClick={() => handleShowIconGroupEdit('move')}
               >
-                移动
+                {t('editor.move')}
               </Button>
             </div>
           </div>
@@ -680,8 +681,8 @@ const SideEditor = React.memo(function SideEditor({
           )}
         >
           <img className="w-[120px] mb-3 opacity-60" src={selectedIconHint} alt="" />
-          <p className="text-sm mb-1">请选择一个图标</p>
-          <p className="text-xs">可在此编辑其属性</p>
+          <p className="text-sm mb-1">{t('editor.selectIconHint')}</p>
+          <p className="text-xs">{t('editor.editPropsHint')}</p>
         </div>
       )}
 
@@ -692,7 +693,7 @@ const SideEditor = React.memo(function SideEditor({
         title={iconGroupEditModelTitle}
         footer={[
           <Button key="cancel" onClick={handleCancelIconGroupEdit}>
-            取消
+            {t('common.cancel')}
           </Button>,
           <Button
             disabled={
@@ -704,14 +705,14 @@ const SideEditor = React.memo(function SideEditor({
             type="primary"
             onClick={handleEnsureIconGroupEdit}
           >
-            确认
+            {t('common.confirm')}
           </Button>,
         ]}
       >
         <div className="max-h-[60vh] overflow-y-auto -mx-2 px-2">
           {iconGroupEditModelType === 'duplicate' && (
             <p className="mb-2 text-xs text-foreground-muted dark:text-foreground-muted">
-              新生成的图标将会拥有一个不同的图标字码
+              {t('editor.duplicateHint')}
             </p>
           )}
           <RadioGroup onChange={onTargetGroupChange} value={iconGroupEditModelTarget}>
