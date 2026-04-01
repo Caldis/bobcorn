@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Trash2, FolderInput, Copy, Download, Palette } from 'lucide-react';
+import { Trash2, FolderInput, Copy, Download, Palette, Star, StarOff } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
 import { parseCssColor } from '../../utils/svg/colors';
@@ -22,6 +22,14 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
     return selectedIds.slice(0, 9).map((id: string) => {
       const data = db.getIconData(id);
       return { id, content: data?.iconContent || '' };
+    });
+  }, [selectedIds]);
+
+  const allFavorited = useMemo(() => {
+    if (selectedIds.length === 0) return false;
+    return selectedIds.every((id: string) => {
+      const data = db.getIconData(id);
+      return data?.isFavorite === 1;
     });
   }, [selectedIds]);
 
@@ -86,6 +94,17 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
     });
     message.success(`已导出 ${selectedIds.length} 个图标`);
   }, [selectedIds]);
+
+  const handleToggleFavorite = useCallback(() => {
+    const newValue = allFavorited ? 0 : 1;
+    db.setIconsFavorite(selectedIds, newValue);
+    syncLeft();
+    message.success(
+      newValue === 1
+        ? `已收藏 ${selectedIds.length} 个图标`
+        : `已取消收藏 ${selectedIds.length} 个图标`
+    );
+  }, [selectedIds, allFavorited]);
 
   const handleApplyColor = useCallback(() => {
     db.updateIconsColor(selectedIds, batchColor);
@@ -304,6 +323,14 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
             </button>
             <button className={btnClass} onClick={() => setGroupAction('copy')}>
               <Copy size={18} className="text-foreground-muted" /> 复制到分组
+            </button>
+            <button className={btnClass} onClick={handleToggleFavorite}>
+              {allFavorited ? (
+                <StarOff size={18} className="text-foreground-muted" />
+              ) : (
+                <Star size={18} className="text-amber-400" />
+              )}
+              {allFavorited ? '取消收藏' : '收藏'}
             </button>
             <button className={btnClass} onClick={handleDelete}>
               <Trash2 size={18} className="text-foreground-muted" /> 删除
