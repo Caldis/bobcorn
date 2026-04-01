@@ -14,13 +14,13 @@
     <meta property="og:url" content="https://bobcorn.caldis.me/">
     <meta property="og:title" content="Bobcorn — Icon Manager & Icon Font Generator">
     <meta property="og:description" content="Free desktop app to organize SVG icons and generate production-ready icon fonts. Windows & macOS.">
-    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta property="og:image" content="https://bobcorn.caldis.me/screenshots/main.png">
     <meta property="og:site_name" content="Bobcorn">
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Bobcorn — Icon Manager & Icon Font Generator">
     <meta name="twitter:description" content="Free desktop app to organize SVG icons and generate production-ready icon fonts. Windows & macOS.">
-    <meta name="twitter:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:image" content="https://bobcorn.caldis.me/screenshots/main.png">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H1DCS6LF3S"></script>
     <script>
@@ -266,6 +266,49 @@
             mask-image: url('logos/shopee.svg');
         }
 
+        /* ─── Hero Screenshot ─── */
+        .hero-screenshot {
+            max-width: 980px;
+            margin: 64px auto 0;
+            padding: 0 48px;
+        }
+
+        .hero-screenshot img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow:
+                0 1px 2px rgba(0,0,0,0.06),
+                0 4px 8px rgba(0,0,0,0.06),
+                0 16px 32px rgba(0,0,0,0.08);
+        }
+
+        /* ─── Showcase ─── */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .showcase-item {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .showcase-item img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow:
+                0 1px 2px rgba(0,0,0,0.05),
+                0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .showcase-item span {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
         /* ─── Divider ─── */
         .divider {
             height: 1px;
@@ -427,10 +470,14 @@
             .hero { padding: 128px 24px 80px; }
             .hero h1 { font-size: clamp(38px, 11vw, 56px); }
             .hero-desc { font-size: 16px; }
+            .hero-screenshot { padding: 0 20px; margin-top: 48px; }
             .section { padding: 64px 24px; }
             .feature-grid {
                 grid-template-columns: 1fr;
                 gap: 40px;
+            }
+            .showcase-grid {
+                grid-template-columns: 1fr;
             }
             footer {
                 padding: 32px 24px 40px;
@@ -473,7 +520,7 @@
         "softwareVersion": "1.7.0",
         "license": "https://opensource.org/licenses/MIT",
         "image": "https://bobcorn.caldis.me/icon.png",
-        "screenshot": "https://bobcorn.caldis.me/icon.png",
+        "screenshot": "https://bobcorn.caldis.me/screenshots/main.png",
         "downloadUrl": "https://github.com/Caldis/bobcorn/releases",
         "installUrl": "https://github.com/Caldis/bobcorn/releases",
         "featureList": [
@@ -562,6 +609,10 @@
                     <div class="trusted-logo trusted-logo-shopee" role="img" aria-label="Shopee"></div>
                 </div>
             </div>
+
+            <div class="hero-screenshot reveal">
+                <img src="screenshots/main.png" alt="Bobcorn icon management interface — organize, browse, and manage SVG icons" width="960" height="640" loading="eager">
+            </div>
         </section>
 
         <div class="divider"></div>
@@ -624,6 +675,27 @@
                     </div>
                     <h3>Project Files</h3>
                     <p>Save and reload .icp project files. Pick up where you left off. Exports include the project file automatically.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ─── Showcase ─── -->
+        <section class="section">
+            <h2 class="section-header reveal">See It in Action</h2>
+            <div class="showcase-grid">
+                <div class="showcase-item reveal">
+                    <img src="screenshots/select.png" alt="Batch select icons with multi-select mode and bulk operations" width="960" height="640" loading="lazy">
+                    <span>Batch select &amp; bulk operations</span>
+                </div>
+                <div class="showcase-item reveal">
+                    <img src="screenshots/export.png" alt="Export icon font dialog — choose formats and output path" width="960" height="640" loading="lazy">
+                    <span>One-click font generation</span>
+                </div>
+                <div class="showcase-item reveal">
+                    <img src="screenshots/move.png" alt="Move icons between groups with drag or dialog" width="960" height="640" loading="lazy">
+                    <span>Organize into groups</span>
                 </div>
             </div>
         </section>
