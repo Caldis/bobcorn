@@ -2,8 +2,6 @@
 import React, { useRef } from 'react';
 // Utils
 import { cn } from '../../../lib/utils';
-// Store
-import useAppStore from '../../../store';
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 // ButtonIcon
@@ -16,11 +14,6 @@ function TitleBarButtonGroup() {
   const paddingOfBodyRef = useRef<string>('');
   const borderRadiusOfRootRef = useRef<string>('');
   const topOfTitleBarButtonGroupRef = useRef<string>('');
-
-  const currentFilePath = useAppStore((s: any) => s.currentFilePath);
-  const isDirty = useAppStore((s: any) => s.isDirty);
-  const fileName = currentFilePath ? electronAPI.pathBasename(currentFilePath, '.icp') : 'Untitled';
-  const titleText = `${fileName}${isDirty ? '*' : ''} — Bobcorn`;
 
   // 最小化
   const handleWindowMinimum = () => {
@@ -69,40 +62,30 @@ function TitleBarButtonGroup() {
   return (
     <div
       className={cn(
-        'fixed top-0 left-0 right-0',
+        'fixed top-0 right-0',
         'z-[10000]',
-        'flex flex-row items-start',
-        '[-webkit-app-region:drag]'
+        'inline-flex flex-row items-start',
+        '[-webkit-app-region:no-drag]'
       )}
       id="titleBarButtonGroup"
       style={{ gap: 0 }}
     >
-      <span
+      <button className={cn(buttonBase)} onClick={handleWindowMinimum}>
+        <img src={minimize} />
+      </button>
+      <button className={cn(buttonBase)} onClick={handleWindowMaximum}>
+        <img src={maximize} />
+      </button>
+      <button
         className={cn(
-          'leading-[30px] px-3 text-xs text-foreground-muted truncate flex-1 select-none',
-          '[-webkit-app-region:drag]'
+          buttonBase,
+          'hover:!bg-[#e81123] dark:hover:!bg-[#e81123]',
+          'active:!bg-[#dc5c66] dark:active:!bg-[#dc5c66]'
         )}
+        onClick={handleWindowClose}
       >
-        {titleText}
-      </span>
-      <div className="flex [-webkit-app-region:no-drag]">
-        <button className={cn(buttonBase)} onClick={handleWindowMinimum}>
-          <img src={minimize} />
-        </button>
-        <button className={cn(buttonBase)} onClick={handleWindowMaximum}>
-          <img src={maximize} />
-        </button>
-        <button
-          className={cn(
-            buttonBase,
-            'hover:!bg-[#e81123] dark:hover:!bg-[#e81123]',
-            'active:!bg-[#dc5c66] dark:active:!bg-[#dc5c66]'
-          )}
-          onClick={handleWindowClose}
-        >
-          <img src={close} />
-        </button>
-      </div>
+        <img src={close} />
+      </button>
     </div>
   );
 }
