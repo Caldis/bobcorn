@@ -16,6 +16,7 @@ import {
   iconfontCSSGenerator,
   iconfontSymbolGenerator,
 } from '../../utils/generators/demopageGenerator';
+import { zipSync } from 'fflate';
 import { cn } from '../../lib/utils';
 import db from '../../database';
 import type { ExportGroupOption } from './types';
@@ -249,8 +250,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       if (zipEnabled) {
         // ZIP-only mode: pack all files into a single .zip, no loose files
         await step(nextPct(), '打包为 ZIP 文件...');
-        const fflateModule = 'fflate';
-        const { zipSync } = await import(/* @vite-ignore */ fflateModule);
+        // zipSync imported at top level from 'fflate'
         const zipData: Record<string, Uint8Array> = {};
         for (const f of files) {
           zipData[f.name] =
@@ -412,13 +412,14 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
           <div className="mt-3">
             <div className="text-xs text-foreground-muted mb-1.5">可选格式</div>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
-              {[
-                { key: 'woff' as const, label: '.woff' },
-                { key: 'eot' as const, label: '.eot' },
-                { key: 'js' as const, label: '.js (Symbol)' },
-                { key: 'html' as const, label: '.html (Demo)' },
-                { key: 'icp' as const, label: '.icp (项目文件)' },
-              ].map(({ key, label }) => (
+              {(
+                [
+                  { key: 'woff' as const, label: '.woff' },
+                  { key: 'eot' as const, label: '.eot' },
+                  { key: 'js' as const, label: '.js (Symbol)' },
+                  { key: 'html' as const, label: '.html (Demo)' },
+                ] as const
+              ).map(({ key, label }) => (
                 <label
                   key={key}
                   className="inline-flex items-center gap-1.5 text-xs cursor-pointer"
@@ -437,7 +438,23 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             </div>
           </div>
 
-          {/* ZIP 选项 */}
+          {/* 包含 .icp 项目文件 */}
+          <div className="mt-3">
+            <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedFormats.icp}
+                onChange={(e) => setSelectedFormats((prev) => ({ ...prev, icp: e.target.checked }))}
+                className="rounded border-border"
+              />
+              <span className="text-foreground">包含 .icp 项目文件</span>
+            </label>
+            <p className="text-xs text-foreground-muted mt-0.5 ml-5">
+              在导出数据中附带项目文件，方便后续编辑
+            </p>
+          </div>
+
+          {/* 自动打包 ZIP */}
           <div className="mt-3">
             <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
               <input
