@@ -5,7 +5,7 @@
 <h1 align="center">Bobcorn</h1>
 
 <p align="center">
-  <strong>Open-source icon manager and icon font generator for Windows, macOS & Linux.</strong><br>
+  <strong>Open-source icon manager and icon font generator for Windows & macOS.</strong><br>
   Import SVGs, organize icon libraries, edit colors, and generate production-ready icon fonts (SVG, TTF, WOFF, WOFF2, EOT) — all in one app.
 </p>
 
@@ -20,15 +20,19 @@
   <a href="https://bobcorn.caldis.me"><strong>Website</strong></a> · <a href="https://github.com/Caldis/bobcorn/releases/latest"><strong>Download</strong></a> · <a href="https://github.com/Caldis/bobcorn/releases"><strong>Changelog</strong></a>
 </p>
 
+<p align="center">
+  <img src="resources/screenshot/main.png" alt="Bobcorn — browse and manage thousands of SVG icons" width="720">
+</p>
+
 ---
 
 ## What is Bobcorn?
 
 Bobcorn is a free, open-source desktop application for **icon management** and **icon font generation**. It helps designers and front-end developers organize large SVG icon libraries and generate production-ready icon fonts in every major format.
 
-**Who uses it:** Individual designers, front-end developers, and enterprise teams (including ZTE) who need to build and maintain custom icon font systems.
+**Who uses it:** Individual designers, front-end developers, and enterprise teams (including ZTE and Shopee) who need to build and maintain custom icon font systems.
 
-**How it compares:** Unlike browser-based tools like IcoMoon, Bobcorn is a native desktop app that handles large libraries (3,000+ icons) with fast local processing. Unlike macOS-only tools like IconJar, Bobcorn runs on Windows, macOS, and Linux, and generates icon fonts — not just icon organization.
+**How it compares:** Unlike browser-based tools like IcoMoon, Bobcorn is a native desktop app that handles large libraries (3,000+ icons) with fast local processing. Unlike macOS-only tools like IconJar, Bobcorn runs on Windows and macOS, and generates icon fonts — not just icon organization.
 
 ## Features
 
@@ -39,14 +43,22 @@ Bobcorn is a free, open-source desktop application for **icon management** and *
 - **Inline color editor** — Hex picker, eyedropper, or any CSS color format with live preview
 - **Scales to thousands** — Handles 3,000+ icons smoothly
 
+<p align="center">
+  <img src="resources/screenshot/select.png" alt="Batch select icons with multi-select mode and bulk operations" width="720">
+</p>
+
 ### Icon Font Generation
 - **One-click export** — Generate all font formats at once with real-time progress
 - **Output formats** — SVG, TTF, WOFF, WOFF2, EOT font files
 - **Web assets** — CSS (class & symbol), JS, and HTML demo page
 - **Project files** — Save/reload `.icp` projects; exports include the project file automatically
 
+<p align="center">
+  <img src="resources/screenshot/export.png" alt="Export icon font dialog — choose formats and output path" width="720">
+</p>
+
 ### General
-- **Cross-platform** — Windows, macOS (Intel & Apple Silicon), Linux
+- **Cross-platform** — Windows, macOS (Intel & Apple Silicon)
 - **Dark mode** — One-click toggle, persisted across sessions
 - **Open source** — MIT licensed, free forever
 
@@ -57,7 +69,6 @@ Bobcorn is a free, open-source desktop application for **icon management** and *
 | Windows | `.exe` installer | [Download](https://github.com/Caldis/bobcorn/releases/latest) |
 | macOS (Apple Silicon) | `.dmg` arm64 | [Download](https://github.com/Caldis/bobcorn/releases/latest) |
 | macOS (Intel) | `.dmg` x64 | [Download](https://github.com/Caldis/bobcorn/releases/latest) |
-| Linux | `.AppImage` | [Download](https://github.com/Caldis/bobcorn/releases/latest) |
 
 ## Export Formats
 
@@ -120,7 +131,6 @@ node test/e2e/full-e2e.js       # Full E2E flow (15 steps)
 ```bash
 npm run package        # Current platform
 npm run package-win    # Windows
-npm run package-linux  # Linux
 npm run package-all    # All platforms
 ```
 
