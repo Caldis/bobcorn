@@ -1092,6 +1092,71 @@ describe('favorites', () => {
     expect(db.getFavoriteCount()).toBe(0);
   });
 
+  test('getFavoriteIcons excludes resource-deleted icons', () => {
+    const { id } = insertIcon({ id: 'fav-del-2', iconName: 'Del2' });
+    db.setIconFavorite(id, 1);
+    expect(db.getFavoriteCount()).toBe(1);
+    db.setIconData(id, { iconGroup: sf('resource-deleted') });
+    expect(db.getFavoriteCount()).toBe(0);
+    expect(db.getFavoriteIcons().length).toBe(0);
+  });
+
+  test('setIconsFavorite batch-unfavorites icons', () => {
+    const i1 = insertIcon({ id: 'fav-unbatch-1', iconName: 'U1' });
+    const i2 = insertIcon({ id: 'fav-unbatch-2', iconName: 'U2' });
+    db.setIconsFavorite([i1.id, i2.id], 1);
+    expect(db.getFavoriteCount()).toBe(2);
+    db.setIconsFavorite([i1.id, i2.id], 0);
+    expect(db.getFavoriteCount()).toBe(0);
+  });
+
+  test('setIconFavorite is idempotent', () => {
+    const { id } = insertIcon({ id: 'fav-idem-1', iconName: 'Idem' });
+    db.setIconFavorite(id, 1);
+    db.setIconFavorite(id, 1);
+    expect(db.getFavoriteCount()).toBe(1);
+  });
+
+  test('delIcon removes icon from favorites', () => {
+    const { id } = insertIcon({ id: 'fav-delicon-1', iconName: 'DelIcon' });
+    db.setIconFavorite(id, 1);
+    expect(db.getFavoriteCount()).toBe(1);
+    db.delIcon(id);
+    expect(db.getFavoriteCount()).toBe(0);
+  });
+
+  test('duplicateIconGroup does not inherit isFavorite', () => {
+    const { id } = insertIcon({ id: 'fav-dup-1', iconName: 'DupSrc' });
+    db.setIconFavorite(id, 1);
+    db.duplicateIconGroup(id, 'resource-uncategorized');
+    // Original is favorited, duplicate is not
+    expect(db.getFavoriteCount()).toBe(1);
+  });
+
+  test('getFavoriteIcons returns objects with isFavorite field', () => {
+    const { id } = insertIcon({ id: 'fav-shape-1', iconName: 'Shape' });
+    db.setIconFavorite(id, 1);
+    const favs = db.getFavoriteIcons();
+    expect(favs.length).toBe(1);
+    expect(favs[0].isFavorite).toBe(1);
+    expect(favs[0].id).toBe(id);
+    expect(favs[0].iconName).toBe('Shape');
+  });
+
+  test('isFavorite survives export/import round trip', () => {
+    const { id } = insertIcon({ id: 'fav-rt-1', iconName: 'RoundTrip' });
+    db.setIconFavorite(id, 1);
+    expect(db.getFavoriteCount()).toBe(1);
+    // Export and reimport
+    let exported;
+    db.exportProject((data) => { exported = data; });
+    const newDb = new TestDatabase(SQL);
+    newDb.initDatabases(exported);
+    expect(newDb.getFavoriteCount()).toBe(1);
+    const icon = newDb.getIconData(id);
+    expect(icon.isFavorite).toBe(1);
+  });
+
   test('migration adds isFavorite column to existing database', () => {
     const oldDb = new TestDatabase(SQL);
     oldDb.initDatabases();
