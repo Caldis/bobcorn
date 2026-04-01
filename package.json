@@ -73,6 +73,20 @@
     "mac": {
       "icon": "resources/icon.icns",
       "notarize": true,
+      "extendInfo": {
+        "UTExportedTypeDeclarations": [
+          {
+            "UTTypeIdentifier": "me.caldis.bobcorn.icp",
+            "UTTypeDescription": "Bobcorn Icon Font Project",
+            "UTTypeConformsTo": ["public.data"],
+            "UTTypeIconFile": "icon",
+            "UTTypeTagSpecification": {
+              "public.filename-extension": ["icp"],
+              "public.mime-type": "application/x-bobcorn-project"
+            }
+          }
+        ]
+      },
       "target": [
         {
           "target": "dmg",
