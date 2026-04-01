@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { BookOpen, Clock, FileWarning, Trash2, LayoutGrid } from 'lucide-react';
+import { BookOpen, Clock, FileWarning, Trash2, LayoutGrid, Star } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import db from '../../database';
 import useAppStore from '../../store';
@@ -18,6 +18,7 @@ const ResourceNav = React.memo(function ResourceNav({
   const counts = useMemo(
     () => ({
       all: db.getIconCount(),
+      favorite: db.getFavoriteCount(),
       uncategorized:
         db.getIconCountFromGroup('resource-uncategorized') + db.getIconCountFromGroup('null'),
       recycleBin: db.getIconCountFromGroup('resource-recycleBin'),
@@ -27,6 +28,7 @@ const ResourceNav = React.memo(function ResourceNav({
 
   const items = [
     { key: 'resource-all', icon: BookOpen, label: '全部', count: counts.all },
+    { key: 'resource-favorite', icon: Star, label: '收藏', count: counts.favorite },
     { key: 'resource-recent', icon: Clock, label: '最近更新', count: Math.min(50, counts.all) },
     {
       key: 'resource-uncategorized',
