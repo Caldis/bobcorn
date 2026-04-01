@@ -143,4 +143,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   confirmClose: (): void => ipcRenderer.send('app:close-confirmed'),
   closeCancelled: (): void => ipcRenderer.send('app:close-cancelled'),
+
+  // ── Language (i18n) ─────────────────────────────────────────────
+  languageChanged: (lng: string): void => ipcRenderer.send('language-changed', lng),
+  onLanguageRequest: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('request-language', handler);
+    return () => {
+      ipcRenderer.removeListener('request-language', handler);
+    };
+  },
 });

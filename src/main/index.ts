@@ -10,6 +10,7 @@ import type { OpenDialogOptions, SaveDialogOptions } from 'electron';
 import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
+import mainI18n from './i18n';
 import { registerPixelPicker } from 'electron-pixel-picker';
 
 /** Extract the first .icp file path from an argv array */
@@ -132,6 +133,9 @@ if (!gotLock) {
       mainWindow.show();
       mainWindow.focus();
 
+      // Request language from renderer to sync main process i18n
+      mainWindow.webContents.send('request-language');
+
       // Send file path from macOS open-file event (fired before ready)
       if (pendingFilePath) {
         mainWindow.webContents.send('open-file', pendingFilePath);
@@ -185,6 +189,14 @@ if (!gotLock) {
 
     const menuBuilder = new MenuBuilder(mainWindow);
     menuBuilder.buildMenu();
+
+    // ── Language (i18n) ──────────────────────────────────────────────
+    ipcMain.on('language-changed', (_event: Electron.IpcMainEvent, lng: string) => {
+      mainI18n.changeLanguage(lng);
+      // Rebuild menu with new language
+      const menuBuilder = new MenuBuilder(mainWindow!);
+      menuBuilder.buildMenu();
+    });
 
     // IPC handlers for window controls (replaces electron.remote)
     ipcMain.on('window-minimize', () => {
