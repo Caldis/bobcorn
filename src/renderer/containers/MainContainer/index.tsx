@@ -1,5 +1,7 @@
 // React
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 // Components
 import TitleBarButtonGroup from '../../components/TitleBar/button';
 import SplashScreen from '../../components/SplashScreen';
@@ -76,6 +78,7 @@ function ResizeHandle({
 
 // ── Main Container ──────────────────────────────────────────────────
 function MainContainer() {
+  const { t } = useTranslation();
   const splashScreenVisible = useAppStore((state: any) => state.splashScreenVisible);
   const selectedGroup = useAppStore((state: any) => state.selectedGroup);
   const selectedIcon = useAppStore((state: any) => state.selectedIcon);
@@ -116,51 +119,54 @@ function MainContainer() {
   }, []);
 
   /** Unified project open — used by menu, splash screen, and file association */
-  const handleOpenProject = useCallback(async (filePath?: string) => {
-    const dirty = useAppStore.getState().isDirty;
-    if (dirty) {
-      const proceed = await new Promise<boolean>((resolve) => {
-        confirm({
-          title: '未保存的更改',
-          content: '当前项目有未保存的更改，是否继续？未保存的更改将会丢失。',
-          okText: '继续',
-          okType: 'danger',
-          onOk: () => resolve(true),
-          onCancel: () => resolve(false),
+  const handleOpenProject = useCallback(
+    async (filePath?: string) => {
+      const dirty = useAppStore.getState().isDirty;
+      if (dirty) {
+        const proceed = await new Promise<boolean>((resolve) => {
+          confirm({
+            title: t('file.unsavedTitle'),
+            content: t('file.unsavedContent'),
+            okText: t('file.continue'),
+            okType: 'danger',
+            onOk: () => resolve(true),
+            onCancel: () => resolve(false),
+          });
         });
-      });
-      if (!proceed) return;
-    }
+        if (!proceed) return;
+      }
 
-    projImporter({
-      path: filePath,
-      onSelectCP: (project: any) => {
-        cpLoader({ data: project.data }, () => {
-          useAppStore.getState().showSplashScreen(false);
-          useAppStore.getState().setCurrentFilePath(null);
-          useAppStore.getState().markClean();
-          useAppStore.getState().syncLeft();
-          useAppStore.getState().selectGroup('resource-all');
-          message.success('项目已打开');
-        });
-      },
-      onSelectICP: (project: any) => {
-        icpLoader(project.data, () => {
-          useAppStore.getState().showSplashScreen(false);
-          useAppStore.getState().setCurrentFilePath(project.path || null);
-          useAppStore.getState().markClean();
-          useAppStore.getState().syncLeft();
-          useAppStore.getState().selectGroup('resource-all');
-          message.success('项目已打开');
-        });
-      },
-    });
-  }, []);
+      projImporter({
+        path: filePath,
+        onSelectCP: (project: any) => {
+          cpLoader({ data: project.data }, () => {
+            useAppStore.getState().showSplashScreen(false);
+            useAppStore.getState().setCurrentFilePath(null);
+            useAppStore.getState().markClean();
+            useAppStore.getState().syncLeft();
+            useAppStore.getState().selectGroup('resource-all');
+            message.success(t('file.opened'));
+          });
+        },
+        onSelectICP: (project: any) => {
+          icpLoader(project.data, () => {
+            useAppStore.getState().showSplashScreen(false);
+            useAppStore.getState().setCurrentFilePath(project.path || null);
+            useAppStore.getState().markClean();
+            useAppStore.getState().syncLeft();
+            useAppStore.getState().selectGroup('resource-all');
+            message.success(t('file.opened'));
+          });
+        },
+      });
+    },
+    [t]
+  );
 
   /** Save As — always shows dialog */
   const handleSaveAs = useCallback(async () => {
     const result = await electronAPI.showSaveDialog({
-      title: '保存项目文件',
+      title: t('file.saveDialogTitle'),
       defaultPath: db.getProjectName(),
       filters: [{ name: 'Bobcorn Project', extensions: ['icp'] }],
     });
@@ -179,22 +185,22 @@ function MainContainer() {
             const hist: string[] = (getOption('histProj') as string[]) || [];
             const updated = [savePath, ...hist.filter((p: string) => p !== savePath)].slice(0, 10);
             setOption({ histProj: updated });
-            message.success('项目已保存');
+            message.success(t('file.saved'));
             resolve();
           })
           .catch((err: Error) => {
-            message.error(`保存失败: ${err.message}`);
+            message.error(t('file.saveFailed', { error: err.message }));
             reject(err);
           });
       });
     });
-  }, []);
+  }, [t]);
 
   /** Save project to known path, or fall through to Save As */
   const handleSave = useCallback(async () => {
     const state = useAppStore.getState();
     if (!state.isDirty && state.currentFilePath) {
-      message.info('没有需要保存的更改', 1500);
+      message.info(t('file.noChanges'), 1500);
       return;
     }
     if (state.currentFilePath) {
@@ -205,11 +211,11 @@ function MainContainer() {
             .writeFile(state.currentFilePath!, buffer)
             .then(() => {
               useAppStore.getState().markClean();
-              message.success('项目已保存');
+              message.success(t('file.saved'));
               resolve();
             })
             .catch((err: Error) => {
-              message.error(`保存失败: ${err.message}`);
+              message.error(t('file.saveFailed', { error: err.message }));
               useAppStore.getState().setCurrentFilePath(null);
               reject(err);
             });
@@ -218,7 +224,7 @@ function MainContainer() {
     } else {
       return handleSaveAs();
     }
-  }, [handleSaveAs]);
+  }, [handleSaveAs, t]);
 
   /** New project */
   const handleNewProject = useCallback(async () => {
@@ -226,9 +232,9 @@ function MainContainer() {
     if (dirty) {
       const proceed = await new Promise<boolean>((resolve) => {
         confirm({
-          title: '未保存的更改',
-          content: '当前项目有未保存的更改，是否继续？未保存的更改将会丢失。',
-          okText: '继续',
+          title: t('file.unsavedTitle'),
+          content: t('file.unsavedContent'),
+          okText: t('file.continue'),
           okType: 'danger',
           onOk: () => resolve(true),
           onCancel: () => resolve(false),
@@ -242,7 +248,7 @@ function MainContainer() {
     useAppStore.getState().syncLeft();
     useAppStore.getState().selectGroup('resource-all');
     useAppStore.getState().showSplashScreen(false);
-  }, []);
+  }, [t]);
 
   /** Close project — return to welcome screen */
   const handleCloseProject = useCallback(async () => {
@@ -250,9 +256,9 @@ function MainContainer() {
     if (dirty) {
       const proceed = await new Promise<boolean>((resolve) => {
         confirm({
-          title: '未保存的更改',
-          content: '当前项目有未保存的更改，是否继续？未保存的更改将会丢失。',
-          okText: '继续',
+          title: t('file.unsavedTitle'),
+          content: t('file.unsavedContent'),
+          okText: t('file.continue'),
           okType: 'danger',
           onOk: () => resolve(true),
           onCancel: () => resolve(false),
@@ -265,7 +271,7 @@ function MainContainer() {
     useAppStore.getState().markClean();
     useAppStore.getState().syncLeft();
     useAppStore.getState().showSplashScreen(true);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     preventDrop();
@@ -332,10 +338,10 @@ function MainContainer() {
         return;
       }
       confirm({
-        title: '未保存的更改',
-        content: '当前项目有未保存的更改。',
-        okText: '保存并关闭',
-        cancelText: '取消',
+        title: t('file.unsavedTitle'),
+        content: t('file.unsavedCloseContent'),
+        okText: t('file.saveAndClose'),
+        cancelText: t('common.cancel'),
         onOk: async () => {
           try {
             await handleSave();
@@ -367,6 +373,14 @@ function MainContainer() {
       window.removeEventListener('beforeunload', onBeforeUnload);
     };
   }, [handleSave]);
+
+  // ── Language sync (i18n) ────────────────────────────────────────
+  useEffect(() => {
+    const cleanup = electronAPI.onLanguageRequest(() => {
+      electronAPI.languageChanged(i18n.language);
+    });
+    return cleanup;
+  }, []);
 
   // ── Title bar sync ───────────────────────────────────────────────
   useEffect(() => {

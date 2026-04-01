@@ -1,5 +1,6 @@
 // React
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 // Virtual rendering
 import { useVirtualizer } from '@tanstack/react-virtual';
 // React Dropzone
@@ -33,6 +34,7 @@ const HEADER_HEIGHT = 52; // estimate: accent bar + py-1.5 (12) + content (~20) 
 const STICKY_HEIGHT = 36; // sticky: accent bar + py-2 (16) + content (~20)
 
 function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps) {
+  const { t } = useTranslation();
   const options = getOption() as OptionData;
   const syncLeft = useAppStore((state: any) => state.syncLeft);
   const selectGroup = useAppStore((state: any) => state.selectGroup);
@@ -244,43 +246,45 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         }
         if (acceptableIcons.length > 0) {
           db.addIcons(acceptableIcons, selectedGroup, () => {
-            message.success(`已成功导入 ${acceptableIcons.length} 个图标`);
+            message.success(t('import.success', { count: acceptableIcons.length }));
             syncLeft();
             sync();
           });
         } else {
-          message.error(`图标格式不相符, 仅支持导入 SVG 格式图标`);
+          message.error(t('import.formatError'));
         }
       } else {
         if (acceptableIcons.length !== acceptedFiles.length) {
           confirm({
-            title: '发现了准备导入的图标中存在不相容的格式',
-            content:
-              '所选的图片中包含了非 SVG 格式的图标, 是否仅导入所选文件中的 SVG 格式图标? 非 SVG 格式的文件将不会被导入。',
-            okText: '仅导入相容的文件',
+            title: t('import.incompatibleTitle'),
+            content: t('import.incompatibleContent'),
+            okText: t('import.importCompatible'),
             onOk() {
               db.addIcons(acceptableIcons, selectedGroup, () => {
                 message.success(
-                  `已导入了 ${acceptedFiles.length} 个图标中的 ${acceptableIcons.length} 个`
+                  t('import.partialSuccess', {
+                    total: acceptedFiles.length,
+                    count: acceptableIcons.length,
+                  })
                 );
                 syncLeft();
                 sync();
               });
             },
             onCancel() {
-              message.warning(`导入已取消`);
+              message.warning(t('import.cancelled'));
             },
           });
         } else {
           db.addIcons(acceptableIcons, selectedGroup, () => {
-            message.success(`已成功导入 ${acceptableIcons.length} 个图标`);
+            message.success(t('import.success', { count: acceptableIcons.length }));
             syncLeft();
             sync();
           });
         }
       }
     },
-    [selectedGroup, syncLeft, sync]
+    [selectedGroup, syncLeft, sync, t]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -360,26 +364,26 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     const hints: Record<string, { img: string; lines: string[] }> = {
       'resource-all': {
         img: noIconHintSad,
-        lines: ['还没有图标', '直接拖拽图标到此处可添加图标'],
+        lines: [t('emptyState.noIcons'), t('emptyState.dragToAdd')],
       },
       'resource-uncategorized': {
         img: noIconHintHappy,
-        lines: ['图标都已经妥善分类了', '当新加入的图标未分类时, 将出现在此处'],
+        lines: [t('emptyState.allCategorized'), t('emptyState.uncategorizedHint')],
       },
       'resource-recent': {
         img: noIconHintSad,
-        lines: ['还没有更新过的图标'],
+        lines: [t('emptyState.noUpdates')],
       },
       'resource-favorite': {
         img: noIconHintSad,
-        lines: ['还没有收藏的图标', '将鼠标悬停在图标上, 点击星标即可收藏'],
+        lines: [t('emptyState.noFavorites'), t('emptyState.favoriteHint')],
       },
       'resource-recycleBin': {
         img: noIconHintHappy,
-        lines: ['回收站很干净', '当图标被回收后, 将会出现在此处'],
+        lines: [t('emptyState.trashEmpty'), t('emptyState.trashHint')],
       },
     };
-    const h = hints[selectedGroup] || { img: noIconHintSad, lines: ['这个分组没有图标'] };
+    const h = hints[selectedGroup] || { img: noIconHintSad, lines: [t('emptyState.emptyGroup')] };
     return (
       <div
         className={cn(
@@ -653,7 +657,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       >
         <div className="w-full h-full flex justify-center items-center">
           <div className="font-bold text-base text-foreground dark:text-foreground">
-            拖拽到此处将图标添加到该分组
+            {t('emptyState.dragToGroup')}
           </div>
         </div>
       </div>
