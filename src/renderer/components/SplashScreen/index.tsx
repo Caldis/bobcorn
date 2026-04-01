@@ -1,5 +1,5 @@
 // React
-import React from 'react';
+import React, { useState } from 'react';
 // UI
 import { message } from '../ui/toast';
 // Utils
@@ -7,7 +7,7 @@ import { cn } from '../../lib/utils';
 import { projImporter } from '../../utils/importer';
 import { cpLoader, icpLoader } from '../../utils/loaders';
 // Config
-import { getOption } from '../../config';
+import { getOption, setOption } from '../../config';
 // Store
 import useAppStore from '../../store';
 // Assets
@@ -57,6 +57,20 @@ function SplashScreen() {
     });
   };
 
+  // 历史记录状态 (用 state 驱动 re-render)
+  const [histProj, setHistProj] = useState<string[]>(() => getOption('histProj') as string[]);
+
+  const removeHistItem = (pathToRemove: string) => {
+    const updated = histProj.filter((p) => p !== pathToRemove);
+    setOption({ histProj: updated });
+    setHistProj(updated);
+  };
+
+  const clearAllHist = () => {
+    setOption({ histProj: [] });
+    setHistProj([]);
+  };
+
   /** Extract the filename from a full path for display */
   const getFileName = (filePath: string): string => {
     const parts = filePath.replace(/\\/g, '/').split('/');
@@ -65,46 +79,75 @@ function SplashScreen() {
 
   // 历史项目列表
   const buildHistProj = () => {
-    const histProj: string[] = getOption('histProj');
     if (histProj.length > 0) {
       return histProj.map((path: string, index: number) => (
-        <button
+        <div
           key={index}
-          title={path}
-          onClick={() => handleImportProj(path)}
           className={cn(
             'group flex items-center gap-2.5 w-full px-3 py-2 rounded-md',
-            'text-sm text-left truncate',
+            'text-sm text-left',
             'text-foreground-muted',
             'transition-all duration-200',
             'hover:bg-brand-50 hover:text-brand-700',
-            'dark:hover:bg-brand-900/30 dark:hover:text-brand-300',
-            'focus:outline-none focus:ring-2 focus:ring-ring/40'
+            'dark:hover:bg-brand-900/30 dark:hover:text-brand-300'
           )}
         >
-          {/* file icon */}
-          <svg
-            className={cn(
-              'w-4 h-4 shrink-0 text-foreground-muted/50',
-              'group-hover:text-brand-500 dark:group-hover:text-brand-400',
-              'transition-colors duration-200'
-            )}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <button
+            title={path}
+            onClick={() => handleImportProj(path)}
+            className="flex items-center gap-2.5 min-w-0 flex-1 truncate focus:outline-none"
           >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-            <polyline points="14 2 14 8 20 8" />
-          </svg>
+            {/* file icon */}
+            <svg
+              className={cn(
+                'w-4 h-4 shrink-0 text-foreground-muted/50',
+                'group-hover:text-brand-500 dark:group-hover:text-brand-400',
+                'transition-colors duration-200'
+              )}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
 
-          <span className="truncate font-medium">{getFileName(path)}</span>
-          <span className="hidden group-hover:inline-block ml-auto text-xs text-foreground-muted/60 truncate max-w-[180px]">
-            {path}
-          </span>
-        </button>
+            <span className="truncate font-medium">{getFileName(path)}</span>
+            <span className="hidden group-hover:inline-block ml-auto text-xs text-foreground-muted/60 truncate max-w-[180px]">
+              {path}
+            </span>
+          </button>
+          {/* delete button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              removeHistItem(path);
+            }}
+            title="移除记录"
+            className={cn(
+              'shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100',
+              'text-foreground-muted/40 hover:text-red-500',
+              'transition-all duration-150',
+              'focus:outline-none focus:opacity-100'
+            )}
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
       ));
     } else {
       return (
@@ -244,6 +287,18 @@ function SplashScreen() {
             <span className="text-xs font-medium uppercase tracking-wider text-foreground-muted/60">
               历史记录
             </span>
+            {histProj.length > 0 && (
+              <button
+                onClick={clearAllHist}
+                className={cn(
+                  'ml-auto text-xs text-foreground-muted/50',
+                  'hover:text-red-500 transition-colors duration-150',
+                  'focus:outline-none'
+                )}
+              >
+                清除全部
+              </button>
+            )}
           </div>
           <div
             className={cn(

@@ -278,6 +278,13 @@ function MainContainer() {
 
   // ── Menu IPC listeners (Electron menu) ────────────────────────────
   useEffect(() => {
+    // Remove the early bootstrap listener now that React is mounted
+    const earlyCleanup = (window as any).__BOBCORN_EARLY_OPEN_FILE_CLEANUP__;
+    if (earlyCleanup) {
+      earlyCleanup();
+      delete (window as any).__BOBCORN_EARLY_OPEN_FILE_CLEANUP__;
+    }
+
     const cleanups = [
       electronAPI.onMenuNewProject(() => handleNewProject()),
       electronAPI.onMenuOpenProject(() => handleOpenProject()),
@@ -291,6 +298,14 @@ function MainContainer() {
       }),
       electronAPI.onOpenFile((filePath: string) => handleOpenProject(filePath)),
     ];
+
+    // Consume any file path buffered before React mounted
+    const pendingFile = (window as any).__BOBCORN_PENDING_FILE__;
+    if (pendingFile) {
+      delete (window as any).__BOBCORN_PENDING_FILE__;
+      handleOpenProject(pendingFile);
+    }
+
     return () => cleanups.forEach((fn) => fn());
   }, [handleOpenProject, handleSave, handleSaveAs, handleNewProject]);
 
