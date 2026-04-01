@@ -17,7 +17,7 @@
     <meta property="og:image" content="https://bobcorn.caldis.me/screenshots/main.png">
     <meta property="og:site_name" content="Bobcorn">
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Bobcorn — Icon Manager & Icon Font Generator">
     <meta name="twitter:description" content="Free desktop app to organize SVG icons and generate production-ready icon fonts. Windows & macOS.">
     <meta name="twitter:image" content="https://bobcorn.caldis.me/screenshots/main.png">
@@ -33,7 +33,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* GT Canon VF — self-hosted, place .woff2 in docs/fonts/ */
         @font-face {
             font-family: 'GT Canon VF Variable L Black';
             src: url('fonts/GT-Canon-VF-Variable-L-Black.woff2') format('woff2');
@@ -48,6 +47,7 @@
             font-style: italic;
             font-display: swap;
         }
+
         :root {
             --bg: #FAFAF5;
             --text: #1A1917;
@@ -57,12 +57,15 @@
             --divider: #E0DED2;
             --pill-bg: rgba(160, 158, 148, 0.12);
             --pill-hover: rgba(160, 158, 148, 0.24);
+            --serif: 'GT Canon VF Variable L Black', Georgia, serif;
+            --sans: 'Outfit', system-ui, sans-serif;
+            --mono: 'Space Mono', monospace;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Outfit', system-ui, sans-serif;
+            font-family: var(--sans);
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
@@ -72,6 +75,7 @@
         }
 
         a { color: inherit; }
+        img { display: block; }
 
         /* ─── Nav ─── */
         nav {
@@ -85,27 +89,20 @@
         }
 
         .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-family: 'GT Canon VF Variable L Black', Georgia, serif;
+            display: inline-flex; align-items: center; gap: 10px;
+            font-family: var(--serif);
             font-size: 26px;
             color: var(--text);
             text-decoration: none;
             letter-spacing: -0.01em;
         }
 
-        .logo img {
-            width: 32px;
-            height: 32px;
-        }
+        .logo img { width: 32px; height: 32px; }
 
-        .nav-right {
-            display: flex; align-items: center; gap: 28px;
-        }
+        .nav-right { display: flex; align-items: center; gap: 28px; }
 
         .nav-link {
-            font-family: 'Space Mono', monospace;
+            font-family: var(--mono);
             font-size: 13px;
             color: var(--text-secondary);
             text-decoration: none;
@@ -113,15 +110,11 @@
         }
         .nav-link:hover { color: var(--text); }
 
-        .nav-sep {
-            color: var(--divider);
-            font-size: 14px;
-            user-select: none;
-        }
+        .nav-sep { color: var(--divider); font-size: 14px; user-select: none; }
 
         /* ─── Hero ─── */
         .hero {
-            padding: 168px 48px 104px;
+            padding: 156px 48px 0;
             max-width: 860px;
             margin: 0 auto;
             text-align: center;
@@ -129,8 +122,8 @@
 
         .hero-version {
             display: inline-flex; align-items: center; gap: 12px;
-            margin-bottom: 36px;
-            font-family: 'Space Mono', monospace;
+            margin-bottom: 32px;
+            font-family: var(--mono);
             font-size: 13px;
             color: var(--text-secondary);
         }
@@ -145,31 +138,28 @@
         }
 
         .hero h1 {
-            font-family: 'GT Canon VF Variable L Black', Georgia, serif;
+            font-family: var(--serif);
             font-size: clamp(46px, 7vw, 78px);
             font-weight: 900;
             letter-spacing: -0.02em;
             line-height: 1.06;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
-        .hero h1 em {
-            font-style: italic;
-            /* Instrument Serif italic has beautiful swash characters */
-        }
+        .hero h1 em { font-style: italic; }
 
         .hero-desc {
             font-size: 17px;
             color: var(--text-secondary);
             line-height: 1.75;
             max-width: 480px;
-            margin: 0 auto 48px;
+            margin: 0 auto 40px;
             letter-spacing: -0.01em;
         }
 
         .hero-actions {
             display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-            margin-bottom: 36px;
+            margin-bottom: 32px;
         }
 
         .btn-download {
@@ -178,7 +168,7 @@
             background: var(--accent);
             color: #FFFAF7;
             border-radius: 40px;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--sans);
             font-size: 15px; font-weight: 600;
             text-decoration: none;
             letter-spacing: -0.02em;
@@ -193,7 +183,7 @@
             background: var(--pill-bg);
             color: var(--text);
             border-radius: 40px;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--sans);
             font-size: 15px; font-weight: 500;
             text-decoration: none;
             letter-spacing: -0.02em;
@@ -201,197 +191,161 @@
         }
         .btn-ghost:hover { background: var(--pill-hover); }
 
-        .hero-platforms {
+        .hero-meta {
             display: flex; gap: 24px; justify-content: center; align-items: center;
-            font-family: 'Space Mono', monospace;
+            font-family: var(--mono);
             font-size: 12px;
             color: var(--text-secondary);
-            opacity: 0.7;
-        }
-
-        .hero-platforms span {
-            display: inline-flex; align-items: center; gap: 6px;
-        }
-
-        .hero-platforms svg {
-            width: 14px; height: 14px;
             opacity: 0.6;
         }
 
+        .hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+        .hero-meta svg { width: 14px; height: 14px; opacity: 0.6; }
+
         .hero-trusted {
-            margin-top: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            font-family: 'Space Mono', monospace;
+            margin-top: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            font-family: var(--mono);
             font-size: 11px;
             color: var(--text-secondary);
             opacity: 0.5;
         }
 
-        .hero-trusted span {
-            flex-shrink: 0;
-        }
-
-        .trusted-logos {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
+        .trusted-logos { display: flex; align-items: center; gap: 24px; }
 
         .trusted-logo {
             display: inline-block;
             height: 20px;
             background-color: var(--text-secondary);
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
+            -webkit-mask-size: contain; mask-size: contain;
+            -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+            -webkit-mask-position: center; mask-position: center;
         }
 
         .trusted-logo-zte {
-            width: 36px;
-            height: 16px;
-            -webkit-mask-image: url('logos/zte.png');
-            mask-image: url('logos/zte.png');
+            width: 36px; height: 16px;
+            -webkit-mask-image: url('logos/zte.png'); mask-image: url('logos/zte.png');
         }
 
         .trusted-logo-shopee {
-            width: 80px;
-            height: 22px;
-            -webkit-mask-image: url('logos/shopee.svg');
-            mask-image: url('logos/shopee.svg');
+            width: 80px; height: 22px;
+            -webkit-mask-image: url('logos/shopee.svg'); mask-image: url('logos/shopee.svg');
         }
 
-        /* ─── Hero Screenshot ─── */
-        .hero-screenshot {
-            max-width: 980px;
-            margin: 64px auto 0;
-            padding: 0 48px;
+        /* ─── Hero Visual ─── */
+        .hero-visual {
+            max-width: 1080px;
+            margin: 72px auto 0;
+            padding: 0 24px;
         }
 
-        .hero-screenshot img {
+        .hero-visual img {
             width: 100%;
-            border-radius: 12px;
+            border-radius: 16px;
             box-shadow:
-                0 1px 2px rgba(0,0,0,0.06),
-                0 4px 8px rgba(0,0,0,0.06),
-                0 16px 32px rgba(0,0,0,0.08);
+                0 2px 4px rgba(26,25,23,0.03),
+                0 8px 16px rgba(26,25,23,0.05),
+                0 24px 48px rgba(26,25,23,0.07),
+                0 48px 80px rgba(26,25,23,0.04);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* ─── Showcase ─── */
-        .showcase-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        .showcase-item {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .showcase-item img {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow:
-                0 1px 2px rgba(0,0,0,0.05),
-                0 4px 12px rgba(0,0,0,0.06);
-        }
-
-        .showcase-item span {
-            font-family: 'Space Mono', monospace;
-            font-size: 12px;
-            color: var(--text-secondary);
+        .hero-visual img:hover {
+            transform: translateY(-6px) scale(1.004);
         }
 
         /* ─── Divider ─── */
         .divider {
             height: 1px;
             background: var(--divider);
-            max-width: 1080px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* ─── Sections ─── */
-        .section {
-            padding: 88px 48px;
-            max-width: 1080px;
+        /* ─── Story Sections ─── */
+        .story {
+            display: grid;
+            grid-template-columns: 5fr 7fr;
+            gap: clamp(40px, 6vw, 80px);
+            align-items: center;
+            padding: 104px 48px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        h2.section-header {
-            font-family: 'Space Mono', monospace;
+        .story--reverse {
+            grid-template-columns: 7fr 5fr;
+        }
+
+        .story--reverse .story-visual {
+            order: -1;
+        }
+
+        .story-label {
+            font-family: var(--mono);
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: var(--text-secondary);
-            margin-bottom: 52px;
-        }
-
-        /* ─── Features ─── */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 56px 48px;
-        }
-
-        .feature-icon {
-            width: 28px; height: 28px;
-            margin-bottom: 18px;
             color: var(--accent);
+            margin-bottom: 20px;
         }
 
-        .feature-icon svg {
-            width: 28px; height: 28px;
-        }
-
-        .feature-item h3 {
-            font-family: 'GT Canon VF Variable L Black', Georgia, serif;
-            font-size: 21px;
+        .story-content h2 {
+            font-family: var(--serif);
+            font-size: clamp(28px, 3.5vw, 40px);
             font-weight: 900;
-            margin-bottom: 10px;
-            letter-spacing: -0.015em;
+            line-height: 1.12;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
         }
 
-        .feature-item p {
-            font-size: 14px;
+        .story-content p {
+            font-size: 16px;
             color: var(--text-secondary);
-            line-height: 1.75;
+            line-height: 1.8;
             letter-spacing: -0.005em;
         }
 
-        /* ─── Formats ─── */
-        .format-grid {
-            display: flex; gap: 10px; flex-wrap: wrap;
+        .story-visual img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow:
+                0 2px 4px rgba(26,25,23,0.03),
+                0 8px 20px rgba(26,25,23,0.06),
+                0 24px 48px rgba(26,25,23,0.05);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .format-tag {
-            padding: 12px 28px;
+        .story-visual img:hover {
+            transform: translateY(-4px) scale(1.006);
+        }
+
+        /* ─── Format Tags (inline in story) ─── */
+        .story-formats {
+            display: flex; gap: 6px; flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .story-formats span {
+            padding: 5px 14px;
             background: var(--pill-bg);
-            border-radius: 8px;
-            font-family: 'Space Mono', monospace;
-            font-size: 15px;
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-size: 12px;
             font-weight: 700;
             color: var(--text);
             letter-spacing: -0.03em;
-            transition: background 0.2s, color 0.2s;
-            cursor: default;
+            transition: color 0.2s;
         }
 
-        .format-tag:hover {
-            background: var(--pill-hover);
+        .story-formats span:hover {
             color: var(--accent);
         }
 
         /* ─── Footer ─── */
         footer {
-            max-width: 1080px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 36px 48px 48px;
             border-top: 1px solid var(--divider);
@@ -401,18 +355,16 @@
         }
 
         .footer-brand {
-            font-family: 'GT Canon VF Variable L Black', Georgia, serif;
+            font-family: var(--serif);
             font-size: 18px;
             color: var(--text);
             letter-spacing: -0.01em;
         }
 
-        .footer-links {
-            display: flex; gap: 24px;
-        }
+        .footer-links { display: flex; gap: 24px; }
 
         .footer-links a {
-            font-family: 'Space Mono', monospace;
+            font-family: var(--mono);
             font-size: 12px;
             color: var(--text-secondary);
             text-decoration: none;
@@ -421,10 +373,10 @@
 
         .footer-links a:hover { color: var(--text); }
 
-        /* ─── Entrance Animations ─── */
+        /* ─── Reveal Animations ─── */
         .reveal {
             opacity: 0;
-            transform: translateY(24px);
+            transform: translateY(28px);
             transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
                         transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -434,58 +386,31 @@
             transform: translateY(0);
         }
 
-        .hero .reveal {
-            /* Hero elements animate on page load with stagger */
-        }
-
-        /* Stagger children in grids */
-        .feature-item.reveal:nth-child(1) { transition-delay: 0s; }
-        .feature-item.reveal:nth-child(2) { transition-delay: 0.06s; }
-        .feature-item.reveal:nth-child(3) { transition-delay: 0.12s; }
-        .feature-item.reveal:nth-child(4) { transition-delay: 0.18s; }
-        .feature-item.reveal:nth-child(5) { transition-delay: 0.24s; }
-        .feature-item.reveal:nth-child(6) { transition-delay: 0.30s; }
-
-        .format-tag.reveal:nth-child(1) { transition-delay: 0s; }
-        .format-tag.reveal:nth-child(2) { transition-delay: 0.03s; }
-        .format-tag.reveal:nth-child(3) { transition-delay: 0.06s; }
-        .format-tag.reveal:nth-child(4) { transition-delay: 0.09s; }
-        .format-tag.reveal:nth-child(5) { transition-delay: 0.12s; }
-        .format-tag.reveal:nth-child(6) { transition-delay: 0.15s; }
-        .format-tag.reveal:nth-child(7) { transition-delay: 0.18s; }
-        .format-tag.reveal:nth-child(8) { transition-delay: 0.21s; }
-        .format-tag.reveal:nth-child(9) { transition-delay: 0.24s; }
-
         /* ─── Responsive ─── */
         @media (max-width: 900px) {
-            .feature-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 44px 36px;
+            .story,
+            .story--reverse {
+                grid-template-columns: 1fr;
+                gap: 36px;
+                padding: 72px 24px;
             }
+            .story--reverse .story-visual { order: 0; }
+            .story-content h2 { font-size: clamp(26px, 6vw, 34px); }
         }
 
         @media (max-width: 680px) {
             nav { padding: 0 20px; }
             .nav-link, .nav-sep { display: none; }
-            .hero { padding: 128px 24px 80px; }
-            .hero h1 { font-size: clamp(38px, 11vw, 56px); }
+            .hero { padding: 120px 24px 0; }
+            .hero h1 { font-size: clamp(36px, 10vw, 52px); }
             .hero-desc { font-size: 16px; }
-            .hero-screenshot { padding: 0 20px; margin-top: 48px; }
-            .section { padding: 64px 24px; }
-            .feature-grid {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-            .showcase-grid {
-                grid-template-columns: 1fr;
-            }
+            .hero-visual { padding: 0 16px; margin-top: 48px; }
             footer {
-                padding: 32px 24px 40px;
-                flex-direction: column;
-                gap: 20px;
+                padding: 28px 24px 36px;
+                flex-direction: column; gap: 16px;
                 text-align: center;
             }
-            .hero-platforms { flex-wrap: wrap; gap: 16px; }
+            .hero-meta { flex-wrap: wrap; gap: 16px; }
         }
 
         @media (max-width: 480px) {
@@ -493,18 +418,13 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            .btn-download, .btn-ghost {
-                justify-content: center;
-            }
+            .btn-download, .btn-ghost { justify-content: center; }
         }
 
-        /* Reduced motion */
         @media (prefers-reduced-motion: reduce) {
-            .reveal {
-                opacity: 1;
-                transform: none;
-                transition: none;
-            }
+            .reveal { opacity: 1; transform: none; transition: none; }
+            .hero-visual img, .story-visual img { transition: none; }
+            .hero-visual img:hover, .story-visual img:hover { transform: none; }
         }
     </style>
     <!-- Structured Data -->
@@ -553,7 +473,6 @@
 </head>
 <body>
 
-    <!-- ─── Nav ─── -->
     <nav>
         <a href="/" class="logo"><img src="icon.png" alt="Bobcorn" width="32" height="32">Bobcorn</a>
         <div class="nav-right">
@@ -577,7 +496,7 @@
             <h1 class="reveal">Manage Icons,<br><em>Generate Fonts</em></h1>
 
             <p class="hero-desc reveal">
-                The open-source icon manager and font generator for designers and developers. Import SVGs, organize into groups, edit colors, and export production-ready icon fonts in every format.
+                The open-source icon manager and font generator for designers and developers. Import SVGs, organize into groups, edit colors, and export production-ready icon fonts.
             </p>
 
             <div class="hero-actions reveal">
@@ -589,14 +508,12 @@
                 <a href="https://github.com/Caldis/bobcorn" class="btn-ghost">Source Code</a>
             </div>
 
-            <div class="hero-platforms reveal">
+            <div class="hero-meta reveal">
                 <span>
-                    <!-- Windows -->
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
                     Windows
                 </span>
                 <span>
-                    <!-- macOS -->
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
                     macOS
                 </span>
@@ -609,118 +526,60 @@
                     <div class="trusted-logo trusted-logo-shopee" role="img" aria-label="Shopee"></div>
                 </div>
             </div>
+        </section>
 
-            <div class="hero-screenshot reveal">
-                <img src="screenshots/main.png" alt="Bobcorn icon management interface — organize, browse, and manage SVG icons" width="960" height="640" loading="eager">
+        <!-- ─── Hero Product Image ─── -->
+        <div class="hero-visual reveal">
+            <img src="screenshots/main.png" alt="Bobcorn — browse and manage thousands of SVG icons with groups, search, and detail panel" loading="eager">
+        </div>
+
+        <div class="divider" style="margin-top: 104px;"></div>
+
+        <!-- ─── Story 1: Organize ─── -->
+        <section class="story" id="features">
+            <div class="story-content reveal">
+                <div class="story-label">Icon Management</div>
+                <h2>Select, search, and organize at scale</h2>
+                <p>Import thousands of SVG icons in one drag. Multi-select for batch operations&nbsp;&mdash; move to groups, copy, favorite, delete, or export as SVG. Search and filter instantly across your entire library. Dark mode included.</p>
+            </div>
+            <div class="story-visual reveal">
+                <img src="screenshots/select.png" alt="Batch select 13 icons with multi-select mode — move, copy, favorite, delete, and export operations" loading="lazy">
             </div>
         </section>
 
         <div class="divider"></div>
 
-        <!-- ─── Features ─── -->
-        <section class="section" id="features">
-            <h2 class="section-header reveal">Icon Management & Font Generation Features</h2>
-            <div class="feature-grid">
-                <div class="feature-item reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="13.5" cy="6.5" r="2"/><circle cx="17.5" cy="10.5" r="2"/><circle cx="8.5" cy="7.5" r="2"/><circle cx="6.5" cy="12" r="2"/>
-                            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.7-.4-1-.3-.3-.4-.6-.4-1 0-.9.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"/>
-                        </svg>
-                    </div>
-                    <h3>Inline Color Editor</h3>
-                    <p>Pick colors with hex picker, eyedropper, or type any CSS format. Preview SVG icon changes instantly in the grid.</p>
+        <!-- ─── Story 2: Export ─── -->
+        <section class="story story--reverse" id="formats">
+            <div class="story-content reveal">
+                <div class="story-label">Font Generation</div>
+                <h2>Every format, one click</h2>
+                <p>Generate production-ready icon fonts from your library. Choose groups, pick formats, set an output path&nbsp;&mdash; Bobcorn handles the rest. CSS, JavaScript, and HTML demo pages are generated alongside your fonts.</p>
+                <div class="story-formats">
+                    <span>.svg</span><span>.ttf</span><span>.woff</span><span>.woff2</span><span>.eot</span><span>.css</span><span>.js</span><span>.html</span><span>.icp</span>
                 </div>
-                <div class="feature-item reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                        </svg>
-                    </div>
-                    <h3>Scales to Thousands</h3>
-                    <p>Manage icon libraries with 3,000+ icons smoothly. Content-visibility, chunked rendering, and tiered sync keep everything fast.</p>
-                </div>
-                <div class="feature-item reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                        </svg>
-                    </div>
-                    <h3>One-Click Font Generation</h3>
-                    <p>Generate icon fonts in SVG, TTF, WOFF, WOFF2, EOT plus CSS, JS, and HTML demo&nbsp;&mdash; all at once with real-time progress.</p>
-                </div>
-                <div class="feature-item reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                        </svg>
-                    </div>
-                    <h3>Icon Organization</h3>
-                    <p>Organize icons into drag-to-reorder groups. Copy, move, recycle. Search and filter across your entire icon library.</p>
-                </div>
-                <div class="feature-item reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                        </svg>
-                    </div>
-                    <h3>Dark Mode</h3>
-                    <p>Full dark mode with one-click toggle. Every component adapts seamlessly, persisted across sessions.</p>
-                </div>
-                <div class="feature-item reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                        </svg>
-                    </div>
-                    <h3>Project Files</h3>
-                    <p>Save and reload .icp project files. Pick up where you left off. Exports include the project file automatically.</p>
-                </div>
+            </div>
+            <div class="story-visual reveal">
+                <img src="screenshots/export.png" alt="Export dialog — select groups, choose font formats (SVG, TTF, WOFF, WOFF2, EOT), set output path" loading="lazy">
             </div>
         </section>
 
         <div class="divider"></div>
 
-        <!-- ─── Showcase ─── -->
-        <section class="section">
-            <h2 class="section-header reveal">See It in Action</h2>
-            <div class="showcase-grid">
-                <div class="showcase-item reveal">
-                    <img src="screenshots/select.png" alt="Batch select icons with multi-select mode and bulk operations" width="960" height="640" loading="lazy">
-                    <span>Batch select &amp; bulk operations</span>
-                </div>
-                <div class="showcase-item reveal">
-                    <img src="screenshots/export.png" alt="Export icon font dialog — choose formats and output path" width="960" height="640" loading="lazy">
-                    <span>One-click font generation</span>
-                </div>
-                <div class="showcase-item reveal">
-                    <img src="screenshots/move.png" alt="Move icons between groups with drag or dialog" width="960" height="640" loading="lazy">
-                    <span>Organize into groups</span>
-                </div>
+        <!-- ─── Story 3: Groups ─── -->
+        <section class="story">
+            <div class="story-content reveal">
+                <div class="story-label">Organization</div>
+                <h2>Groups that keep icons in order</h2>
+                <p>Move icons between groups in seconds. Create, reorder, and nest groups to match your project structure. Save everything as a .icp project file and pick up exactly where you left off.</p>
             </div>
-        </section>
-
-        <div class="divider"></div>
-
-        <!-- ─── Formats ─── -->
-        <section class="section" id="formats">
-            <h2 class="section-header reveal">Export Formats</h2>
-            <div class="format-grid">
-                <div class="format-tag reveal">.svg</div>
-                <div class="format-tag reveal">.ttf</div>
-                <div class="format-tag reveal">.woff</div>
-                <div class="format-tag reveal">.woff2</div>
-                <div class="format-tag reveal">.eot</div>
-                <div class="format-tag reveal">.css</div>
-                <div class="format-tag reveal">.js</div>
-                <div class="format-tag reveal">.html</div>
-                <div class="format-tag reveal">.icp</div>
+            <div class="story-visual reveal">
+                <img src="screenshots/move.png" alt="Move icons to target group — select from accessibility, arrows, automotive, cameraAndPhotos, and more" loading="lazy">
             </div>
         </section>
 
     </main>
 
-    <!-- ─── Footer ─── -->
     <footer>
         <div class="footer-brand">Bobcorn</div>
         <div class="footer-links">
@@ -789,15 +648,14 @@
                     document.getElementById('downloadBtn').href = assetUrl;
                 }
             })
-            .catch(function() { /* fallback: links to releases page */ });
+            .catch(function() {});
     })();
 
-    /* ─── Scroll reveal animations ─── */
+    /* ─── Reveal animations ─── */
     (function() {
-        // Hero: staggered entrance on load
-        var heroEls = document.querySelectorAll('.hero .reveal');
+        var heroEls = document.querySelectorAll('.hero .reveal, .hero-visual.reveal');
         heroEls.forEach(function(el, i) {
-            el.style.transitionDelay = (i * 0.1 + 0.15) + 's';
+            el.style.transitionDelay = (i * 0.08 + 0.12) + 's';
         });
         requestAnimationFrame(function() {
             requestAnimationFrame(function() {
@@ -805,21 +663,30 @@
             });
         });
 
-        // Sections: reveal on scroll
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
+                    // Stagger content and visual within each story
+                    var parent = entry.target.closest('.story');
+                    if (parent) {
+                        var siblings = parent.querySelectorAll('.reveal:not(.visible)');
+                        siblings.forEach(function(sib, i) {
+                            sib.style.transitionDelay = (i * 0.12) + 's';
+                            sib.classList.add('visible');
+                        });
+                        siblings.forEach(function(sib) { observer.unobserve(sib); });
+                    } else {
+                        entry.target.classList.add('visible');
+                    }
                     observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+        }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
 
-        document.querySelectorAll('.section .reveal').forEach(function(el) {
+        document.querySelectorAll('.story .reveal').forEach(function(el) {
             observer.observe(el);
         });
 
-        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(function(a) {
             a.addEventListener('click', function(e) {
                 var target = document.querySelector(this.getAttribute('href'));
