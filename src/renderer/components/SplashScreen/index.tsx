@@ -1,5 +1,6 @@
 // React
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 // UI
 import { message } from '../ui/toast';
 // Utils
@@ -14,6 +15,7 @@ import useAppStore from '../../store';
 import appIcon from '../../resources/imgs/icon.png';
 
 function SplashScreen() {
+  const { t } = useTranslation();
   const showSplashScreen = useAppStore((state: any) => state.showSplashScreen);
   const selectGroup = useAppStore((state: any) => state.selectGroup);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
@@ -28,7 +30,7 @@ function SplashScreen() {
           setCurrentFilePath(null);
           markClean();
           showSplashScreen(false);
-          message.success('项目已打开');
+          message.success(t('file.opened'));
           syncLeft();
           selectGroup('resource-all');
         });
@@ -42,7 +44,7 @@ function SplashScreen() {
           setCurrentFilePath(project.path || path || null);
           markClean();
           showSplashScreen(false);
-          message.success('项目已打开');
+          message.success(t('file.opened'));
           p?.mark('import.syncLeft');
           syncLeft();
           p?.measure('import.syncLeft');
@@ -126,7 +128,7 @@ function SplashScreen() {
               e.stopPropagation();
               removeHistItem(path);
             }}
-            title="移除记录"
+            title={t('splash.removeRecord')}
             className={cn(
               'shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100',
               'text-foreground-muted/40 hover:text-red-500',
@@ -164,7 +166,7 @@ function SplashScreen() {
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2v11Z" />
             <line x1="9" y1="14" x2="15" y2="14" />
           </svg>
-          <span className="text-sm">没有历史记录</span>
+          <span className="text-sm">{t('splash.noHistory')}</span>
         </div>
       );
     }
@@ -182,7 +184,7 @@ function SplashScreen() {
             draggable={false}
           />
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Bobcorn</h1>
-          <p className="mt-1 text-sm text-foreground-muted">欢迎使用</p>
+          <p className="mt-1 text-sm text-foreground-muted">{t('splash.welcome')}</p>
         </div>
 
         {/* ── Action Cards ─────────────────────────── */}
@@ -225,7 +227,7 @@ function SplashScreen() {
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
             </div>
-            <span className="text-sm font-semibold text-foreground">启动新项目</span>
+            <span className="text-sm font-semibold text-foreground">{t('splash.newProject')}</span>
           </button>
 
           {/* 打开项目文件 */}
@@ -265,7 +267,7 @@ function SplashScreen() {
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2v11Z" />
               </svg>
             </div>
-            <span className="text-sm font-semibold text-foreground">打开项目文件</span>
+            <span className="text-sm font-semibold text-foreground">{t('splash.openProject')}</span>
           </button>
         </div>
 
@@ -285,7 +287,7 @@ function SplashScreen() {
               <polyline points="12 6 12 12 16 14" />
             </svg>
             <span className="text-xs font-medium uppercase tracking-wider text-foreground-muted/60">
-              历史记录
+              {t('splash.history')}
             </span>
             {histProj.length > 0 && (
               <button
@@ -296,7 +298,7 @@ function SplashScreen() {
                   'focus:outline-none'
                 )}
               >
-                清除全部
+                {t('splash.clearAll')}
               </button>
             )}
           </div>

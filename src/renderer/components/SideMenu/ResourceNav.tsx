@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BookOpen, Clock, FileWarning, Trash2, LayoutGrid, Star } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import db from '../../database';
@@ -13,6 +14,7 @@ const ResourceNav = React.memo(function ResourceNav({
   selectedGroup,
   onMenuItemSelected,
 }: ResourceNavProps) {
+  const { t } = useTranslation();
   // 只在 groupData 变化时重新计算计数（syncLeft 触发）
   const groupData = useAppStore((state: any) => state.groupData);
   const counts = useMemo(
@@ -27,16 +29,21 @@ const ResourceNav = React.memo(function ResourceNav({
   );
 
   const items = [
-    { key: 'resource-all', icon: BookOpen, label: '全部', count: counts.all },
-    { key: 'resource-favorite', icon: Star, label: '收藏', count: counts.favorite },
-    { key: 'resource-recent', icon: Clock, label: '最近更新', count: Math.min(50, counts.all) },
+    { key: 'resource-all', icon: BookOpen, label: t('nav.all'), count: counts.all },
+    { key: 'resource-favorite', icon: Star, label: t('nav.favorites'), count: counts.favorite },
+    {
+      key: 'resource-recent',
+      icon: Clock,
+      label: t('nav.recentlyUpdated'),
+      count: Math.min(50, counts.all),
+    },
     {
       key: 'resource-uncategorized',
       icon: FileWarning,
-      label: '未分组',
+      label: t('nav.ungrouped'),
       count: counts.uncategorized,
     },
-    { key: 'resource-recycleBin', icon: Trash2, label: '回收站', count: counts.recycleBin },
+    { key: 'resource-recycleBin', icon: Trash2, label: t('nav.trash'), count: counts.recycleBin },
   ];
 
   return (
@@ -44,7 +51,7 @@ const ResourceNav = React.memo(function ResourceNav({
       <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
         <LayoutGrid size={14} className="text-foreground-muted" />
         <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
-          资源
+          {t('nav.resource')}
         </span>
       </div>
       <nav className="px-1 py-1">
