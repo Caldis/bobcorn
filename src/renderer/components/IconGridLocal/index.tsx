@@ -101,6 +101,8 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         setIconData(db.getAllIconsGrouped() as Record<string, IconItem[]>);
       } else if (targetGroup === 'resource-recent') {
         setIconData({ 'resource-recent': db.getRecentlyUpdatedIcons(50) as IconItem[] });
+      } else if (targetGroup === 'resource-favorite') {
+        setIconData({ 'resource-favorite': db.getFavoriteIcons() as IconItem[] });
       } else if (targetGroup === 'resource-uncategorized') {
         setIconData({
           'resource-uncategorized': db
@@ -367,6 +369,10 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       'resource-recent': {
         img: noIconHintSad,
         lines: ['还没有更新过的图标'],
+      },
+      'resource-favorite': {
+        img: noIconHintSad,
+        lines: ['还没有收藏的图标', '将鼠标悬停在图标上, 点击星标即可收藏'],
       },
       'resource-recycleBin': {
         img: noIconHintHappy,
