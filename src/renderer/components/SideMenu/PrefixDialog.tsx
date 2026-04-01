@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, Alert, Button } from '../ui';
 import { message } from '../ui/toast';
 import { confirm } from '../ui/dialog';
@@ -6,6 +7,8 @@ import EnhanceInput from '../enhance/input';
 import { isnContainSpace } from '../../utils/tools';
 import db from '../../database';
 import useAppStore from '../../store';
+import i18n from '../../i18n';
+import { supportedLanguages } from '../../../locales';
 
 interface PrefixDialogProps {
   visible: boolean;
@@ -13,6 +16,7 @@ interface PrefixDialogProps {
 }
 
 function PrefixDialog({ visible, onClose }: PrefixDialogProps) {
+  const { t } = useTranslation();
   const syncLeft = useAppStore((state: any) => state.syncLeft);
 
   const [editingPrefixText, setEditingPrefixText] = useState<string | null>(null);
@@ -29,21 +33,21 @@ function PrefixDialog({ visible, onClose }: PrefixDialogProps) {
   const handleEnsureEditPrefix = () => {
     if (isnContainSpace(editingPrefixText)) {
       confirm({
-        title: '确认修改图标字体前缀？',
-        content: '此操作将影响所有已引用的图标前缀，修改后需要同步更新代码中的相关引用。',
-        okText: '确认修改',
+        title: t('prefix.confirmTitle'),
+        content: t('prefix.confirmContent'),
+        okText: t('prefix.confirmOk'),
         okType: 'danger',
-        cancelText: '取消',
+        cancelText: t('common.cancel'),
         onOk() {
           db.setProjectName(editingPrefixText, () => {
-            message.success('图标字体前缀已修改');
+            message.success(t('prefix.success'));
             syncLeft();
             onClose();
           });
         },
       });
     } else {
-      setEditingPrefixErrText('图标字体前缀不能为空或包含空格');
+      setEditingPrefixErrText(t('prefix.emptyError'));
     }
   };
 
@@ -59,38 +63,73 @@ function PrefixDialog({ visible, onClose }: PrefixDialogProps) {
     <Dialog
       open={visible}
       onClose={handleCancelEditPrefix}
-      title="修改图标字体前缀"
+      title={t('prefix.title')}
       footer={
         <>
-          <Button onClick={handleCancelEditPrefix}>取消</Button>
+          <Button onClick={handleCancelEditPrefix}>{t('common.cancel')}</Button>
           <Button type="primary" onClick={handleEnsureEditPrefix}>
-            确认修改
+            {t('prefix.confirmOk')}
           </Button>
         </>
       }
     >
       <div className="py-2">
         <Alert
-          message="请务必当心"
+          message={t('prefix.warningTitle')}
           description={
             <>
-              <div>一旦你修改了图标字体前缀，被引用的所有图标的相应前缀都会被变更</div>
-              <div>与此同时，您必须同步修改代码中所有引用到该图标的相关代码</div>
+              <div>{t('prefix.warningLine1')}</div>
+              <div>{t('prefix.warningLine2')}</div>
             </>
           }
           type="warning"
         />
         <div className="mt-4">
           <EnhanceInput
-            placeholder="前缀名称"
+            placeholder={t('prefix.placeholder')}
             value={editingPrefixText}
             onChange={onEditingPrefixChange}
             onPressEnter={handleEnsureEditPrefix}
-            inputTitle="请输入新的前缀"
+            inputTitle={t('prefix.inputTitle')}
             inputHintText={editingPrefixErrText}
             inputHintBadgeType="error"
           />
         </div>
+      </div>
+
+      {/* 分隔线 */}
+      <div className="border-t border-border my-3" />
+
+      {/* 语言设置 */}
+      <div>
+        <h4 className="text-xs font-semibold text-foreground-muted mb-2">
+          {t('settings.language')}
+        </h4>
+        <select
+          value={localStorage.getItem('language') === null ? '__system__' : i18n.language}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === '__system__') {
+              localStorage.removeItem('language');
+              const sysLng = navigator.language.startsWith('zh') ? 'zh-CN' : navigator.language;
+              i18n.changeLanguage(sysLng);
+              (window as any).electronAPI.languageChanged(sysLng);
+            } else {
+              localStorage.setItem('language', val);
+              i18n.changeLanguage(val);
+              (window as any).electronAPI.languageChanged(val);
+            }
+          }}
+          className="w-full px-2 py-1.5 rounded-md border border-border bg-surface text-sm text-foreground focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30"
+        >
+          <option value="__system__">{t('settings.followSystem')}</option>
+          {supportedLanguages.map((lng) => (
+            <option key={lng.code} value={lng.code}>
+              {lng.label}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-foreground-muted mt-1">{t('settings.languageDesc')}</p>
       </div>
     </Dialog>
   );

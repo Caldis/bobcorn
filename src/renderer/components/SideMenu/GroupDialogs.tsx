@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, Button } from '../ui';
 import { message } from '../ui/toast';
 import EnhanceInput from '../enhance/input';
@@ -27,6 +28,7 @@ function GroupDialogs({
   onCloseRenameGroup,
   onGroupRenamed,
 }: GroupDialogsProps) {
+  const { t } = useTranslation();
   const syncLeft = useAppStore((state: any) => state.syncLeft);
 
   // 添加分组
@@ -62,7 +64,7 @@ function GroupDialogs({
       db.addGroup(
         newGroupName,
         (group: GroupData) => {
-          message.success('添加分组成功');
+          message.success(t('group.addSuccess'));
           syncLeft();
           onCloseAddGroup();
           onGroupAdded(group.id);
@@ -73,20 +75,20 @@ function GroupDialogs({
         newGroupDesc.trim() || undefined
       );
     } else {
-      setNewGroupErr('请输入一个分组名称');
+      setNewGroupErr(t('group.nameRequired'));
     }
   };
 
   const handleRenameGroup = () => {
     if (renameName) {
       db.setGroupInfo(renameGroupData!.id, renameName, renameDesc.trim() || null, () => {
-        message.success('分组已更新');
+        message.success(t('group.updateSuccess'));
         syncLeft();
         onCloseRenameGroup();
         onGroupRenamed(renameGroupData!.id);
       });
     } else {
-      setRenameErr('分组名称不能为空');
+      setRenameErr(t('group.nameEmpty'));
     }
   };
 
@@ -95,31 +97,33 @@ function GroupDialogs({
       <Dialog
         open={addGroupVisible}
         onClose={onCloseAddGroup}
-        title="添加分组"
+        title={t('group.add')}
         footer={
           <>
-            <Button onClick={onCloseAddGroup}>取消</Button>
+            <Button onClick={onCloseAddGroup}>{t('common.cancel')}</Button>
             <Button type="primary" onClick={handleAddGroup}>
-              确认
+              {t('common.confirm')}
             </Button>
           </>
         }
       >
         <div className="py-2 space-y-3">
           <EnhanceInput
-            placeholder="分组名称"
+            placeholder={t('group.name')}
             value={newGroupName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewGroupName(e.target.value)}
             onPressEnter={handleAddGroup}
-            inputTitle="请输入要创建的分组名"
+            inputTitle={t('group.addInputTitle')}
             inputHintText={newGroupErr}
             inputHintBadgeType="error"
           />
           <div>
-            <label className="block text-xs text-foreground-muted mb-1">描述（可选）</label>
+            <label className="block text-xs text-foreground-muted mb-1">
+              {t('group.descriptionOptional')}
+            </label>
             <textarea
               className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted/50 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30 resize-none dark:bg-surface-muted dark:border-border"
-              placeholder="为分组添加一段描述..."
+              placeholder={t('group.descriptionPlaceholder')}
               value={newGroupDesc}
               onChange={(e) => setNewGroupDesc(e.target.value)}
               rows={2}
@@ -132,31 +136,33 @@ function GroupDialogs({
       <Dialog
         open={renameGroupVisible}
         onClose={onCloseRenameGroup}
-        title="编辑分组"
+        title={t('group.edit')}
         footer={
           <>
-            <Button onClick={onCloseRenameGroup}>取消</Button>
+            <Button onClick={onCloseRenameGroup}>{t('common.cancel')}</Button>
             <Button type="primary" onClick={handleRenameGroup}>
-              保存
+              {t('common.save')}
             </Button>
           </>
         }
       >
         <div className="py-2 space-y-3">
           <EnhanceInput
-            placeholder="分组名称"
+            placeholder={t('group.name')}
             value={renameName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRenameName(e.target.value)}
             onPressEnter={handleRenameGroup}
-            inputTitle="分组名称"
+            inputTitle={t('group.editInputTitle')}
             inputHintText={renameErr}
             inputHintBadgeType="error"
           />
           <div>
-            <label className="block text-xs text-foreground-muted mb-1">描述（可选）</label>
+            <label className="block text-xs text-foreground-muted mb-1">
+              {t('group.descriptionOptional')}
+            </label>
             <textarea
               className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted/50 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30 resize-none dark:bg-surface-muted dark:border-border"
-              placeholder="为分组添加一段描述..."
+              placeholder={t('group.descriptionPlaceholder')}
               value={renameDesc}
               onChange={(e) => setRenameDesc(e.target.value)}
               rows={2}
