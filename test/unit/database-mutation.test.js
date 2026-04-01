@@ -111,7 +111,7 @@ class MutationTrackingDatabase {
   initNewProject(projectName) {
     this.db.run(`CREATE TABLE ${T_PROJECT} (id varchar(255), projectName varchar(255), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`);
     this.db.run(`CREATE TABLE ${T_GROUP} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`);
-    this.db.run(`CREATE TABLE ${T_ICON} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, iconContentOriginal TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`);
+    this.db.run(`CREATE TABLE ${T_ICON} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, iconContentOriginal TEXT, isFavorite INTEGER DEFAULT 0, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`);
     // Insert default project row
     this.db.run(`INSERT INTO ${T_PROJECT} (id, projectName) VALUES ('projectAttributes', ${projectName ? sf(projectName) : sf('iconfont')})`);
   }
@@ -270,6 +270,22 @@ class MutationTrackingDatabase {
       });
     });
     callback && callback();
+  }
+
+  setIconFavorite(id, isFavorite) {
+    this.runMutation(
+      `UPDATE ${T_ICON} SET isFavorite = ? WHERE id = ?`,
+      [isFavorite, id]
+    );
+  }
+
+  setIconsFavorite(ids, isFavorite) {
+    if (ids.length === 0) return;
+    const placeholders = ids.map(() => '?').join(',');
+    this.runMutation(
+      `UPDATE ${T_ICON} SET isFavorite = ? WHERE id IN (${placeholders})`,
+      [isFavorite, ...ids]
+    );
   }
 }
 
@@ -500,6 +516,29 @@ describe('mutation tracking: all high-level write methods trigger callback', () 
     spy.mockClear();
     db.duplicateIcons(['icon1'], 'resource-uncategorized');
     expect(spy).toHaveBeenCalled();
+  });
+
+  // -- Favorites --
+
+  test('setIconFavorite', () => {
+    addTestIcon(db, 'fav1');
+    spy.mockClear();
+    db.setIconFavorite('fav1', 1);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  test('setIconsFavorite', () => {
+    addTestIcon(db, 'fav2');
+    addTestIcon(db, 'fav3');
+    spy.mockClear();
+    db.setIconsFavorite(['fav2', 'fav3'], 1);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  test('setIconsFavorite with empty array does not notify', () => {
+    spy.mockClear();
+    db.setIconsFavorite([], 1);
+    expect(spy).not.toHaveBeenCalled();
   });
 });
 
