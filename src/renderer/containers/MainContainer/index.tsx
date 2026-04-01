@@ -244,6 +244,29 @@ function MainContainer() {
     useAppStore.getState().showSplashScreen(false);
   }, []);
 
+  /** Close project — return to welcome screen */
+  const handleCloseProject = useCallback(async () => {
+    const dirty = useAppStore.getState().isDirty;
+    if (dirty) {
+      const proceed = await new Promise<boolean>((resolve) => {
+        confirm({
+          title: '未保存的更改',
+          content: '当前项目有未保存的更改，是否继续？未保存的更改将会丢失。',
+          okText: '继续',
+          okType: 'danger',
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+      if (!proceed) return;
+    }
+    db.resetProject();
+    useAppStore.getState().setCurrentFilePath(null);
+    useAppStore.getState().markClean();
+    useAppStore.getState().syncLeft();
+    useAppStore.getState().showSplashScreen(true);
+  }, []);
+
   useEffect(() => {
     preventDrop();
     disableChromeAutoFocus();
@@ -275,11 +298,12 @@ function MainContainer() {
       'bobcorn:open-project': () => handleOpenProject(),
       'bobcorn:save': () => handleSave(),
       'bobcorn:save-as': () => handleSaveAs(),
+      'bobcorn:close-project': () => handleCloseProject(),
     };
     const entries = Object.entries(handlers);
     entries.forEach(([event, handler]) => window.addEventListener(event, handler));
     return () => entries.forEach(([event, handler]) => window.removeEventListener(event, handler));
-  }, [handleOpenProject, handleSave, handleSaveAs, handleNewProject]);
+  }, [handleOpenProject, handleSave, handleSaveAs, handleNewProject, handleCloseProject]);
 
   // ── Close guard ──────────────────────────────────────────────────
   useEffect(() => {

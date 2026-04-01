@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { FilePlus2, FolderOpen, Save, SaveAll, Import, Upload, Settings } from 'lucide-react';
+import { FilePlus2, FolderOpen, Save, SaveAll, Import, Upload, Settings, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { platform } from '../../utils/tools';
 
@@ -62,6 +62,14 @@ const menuGroups: FileMenuItem[][] = [
       label: '导出字体',
       description: '导出图标字体文件供网页使用',
       shortcut: `${mod}E`,
+    },
+  ],
+  [
+    {
+      key: 'close-project',
+      icon: <X size={15} />,
+      label: '关闭项目',
+      description: '返回欢迎页',
     },
   ],
   [

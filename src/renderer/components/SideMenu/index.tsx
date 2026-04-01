@@ -89,6 +89,7 @@ const SideMenu = React.memo(function SideMenu({
         case 'open-project':
         case 'save':
         case 'save-as':
+        case 'close-project':
           window.dispatchEvent(new CustomEvent(`bobcorn:${key}`));
           break;
       }
