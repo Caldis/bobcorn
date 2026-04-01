@@ -4,6 +4,7 @@ import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import style from './index.module.css';
 // UI
 import { Checkbox } from '../ui';
+import { Star } from 'lucide-react';
 import { sanitizeSVG } from '../../utils/sanitize';
 import { cn } from '../../lib/utils';
 // Store
@@ -29,6 +30,7 @@ interface IconBlockProps {
   selected?: boolean;
   batchSelected?: boolean;
   showCheckbox?: boolean;
+  isFavorite?: boolean;
 }
 
 const IconBlock = React.memo(function IconBlock({
@@ -43,6 +45,7 @@ const IconBlock = React.memo(function IconBlock({
   selected = false,
   batchSelected = false,
   showCheckbox = false,
+  isFavorite = false,
 }: IconBlockProps) {
   // Only 1 store subscription — hot-patch content for color editing
   const patchedContent = useAppStore((state: any) => state.patchedIcons?.[data.id]);
@@ -67,10 +70,20 @@ const IconBlock = React.memo(function IconBlock({
     [data, handleIconSelected]
   );
 
+  const handleFavoriteToggle = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      db.setIconFavorite(data.id, isFavorite ? 0 : 1);
+      useAppStore.getState().syncLeft();
+    },
+    [data.id, isFavorite]
+  );
+
   return (
     <div
       data-testid="icon-block"
       className={cn(
+        'group/icon',
         'relative text-center z-[1]',
         'p-2',
         'rounded-lg',
@@ -101,6 +114,27 @@ const IconBlock = React.memo(function IconBlock({
           }}
         >
           <Checkbox className="pointer-events-none" checked={batchSelected} />
+        </div>
+      )}
+
+      {/* Favorite star — left-top corner, hidden in batch mode */}
+      {!showCheckbox && (
+        <div
+          className={cn(
+            'absolute top-1 left-1 z-10',
+            'w-5 h-5 flex items-center justify-center',
+            'rounded-full cursor-pointer',
+            'transition-opacity duration-150',
+            isFavorite ? 'opacity-100' : 'opacity-0 group-hover/icon:opacity-50 hover:!opacity-80'
+          )}
+          onClick={handleFavoriteToggle}
+        >
+          <Star
+            size={14}
+            className={cn(
+              isFavorite ? 'fill-amber-400 stroke-amber-400' : 'fill-none stroke-foreground-muted'
+            )}
+          />
         </div>
       )}
 

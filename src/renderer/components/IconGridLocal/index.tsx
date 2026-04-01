@@ -625,6 +625,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                       selected={selectedIconStore === icon.id}
                       batchSelected={selectedIcons.has(icon.id)}
                       showCheckbox={showCheckbox}
+                      isFavorite={!!icon.isFavorite}
                     />
                   ))}
                 </div>
