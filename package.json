@@ -72,9 +72,7 @@
     ],
     "mac": {
       "icon": "resources/icon.icns",
-      "notarize": {
-        "teamId": "N7Z52F27XK"
-      },
+      "notarize": true,
       "target": [
         {
           "target": "dmg",
