@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { HexColorPicker } from 'react-colorful';
 import { Trash2, FolderInput, Copy, Download, Palette, Star, StarOff } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -11,6 +12,7 @@ import useAppStore from '../../store';
 const { electronAPI } = window;
 
 function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
+  const { t } = useTranslation();
   const selectedIcons = useAppStore((state: any) => state.selectedIcons);
   const clearBatchSelection = useAppStore((state: any) => state.clearBatchSelection);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
@@ -48,7 +50,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
       db.moveIcons(selectedIds, targetGroup);
       syncLeft();
       clearBatchSelection();
-      message.success(`已移动 ${selectedIds.length} 个图标`);
+      message.success(t('batch.moved', { count: selectedIds.length }));
     },
     [selectedIds]
   );
@@ -58,28 +60,28 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
       db.duplicateIcons(selectedIds, targetGroup);
       syncLeft();
       clearBatchSelection();
-      message.success(`已复制 ${selectedIds.length} 个图标`);
+      message.success(t('batch.copied', { count: selectedIds.length }));
     },
     [selectedIds]
   );
 
   const handleDelete = useCallback(() => {
     confirm({
-      title: '批量删除',
-      content: `确定要将 ${selectedIds.length} 个图标移入回收站吗？`,
-      okText: '删除',
+      title: t('batch.deleteTitle'),
+      content: t('batch.deleteConfirm', { count: selectedIds.length }),
+      okText: t('batch.deleteOk'),
       onOk() {
         db.moveIcons(selectedIds, 'resource-recycleBin');
         syncLeft();
         clearBatchSelection();
-        message.success(`已删除 ${selectedIds.length} 个图标`);
+        message.success(t('batch.deleted', { count: selectedIds.length }));
       },
     });
   }, [selectedIds]);
 
   const handleExport = useCallback(async () => {
     const result = await electronAPI.showSaveDialog({
-      title: '选择导出目录',
+      title: t('batch.selectExportDir'),
       properties: ['openDirectory'],
     });
     if (!result || result.canceled) return;
@@ -92,7 +94,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         electronAPI.writeFileSync(`${dirPath}/${data.iconName}.svg`, data.iconContent);
       }
     });
-    message.success(`已导出 ${selectedIds.length} 个图标`);
+    message.success(t('batch.exportedSvg', { count: selectedIds.length }));
   }, [selectedIds]);
 
   const handleToggleFavorite = useCallback(() => {
@@ -101,8 +103,8 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
     syncLeft();
     message.success(
       newValue === 1
-        ? `已收藏 ${selectedIds.length} 个图标`
-        : `已取消收藏 ${selectedIds.length} 个图标`
+        ? t('batch.favorited', { count: selectedIds.length })
+        : t('batch.unfavorited', { count: selectedIds.length })
     );
   }, [selectedIds, allFavorited]);
 
@@ -110,7 +112,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
     db.updateIconsColor(selectedIds, batchColor);
     syncLeft();
     syncIconContent();
-    message.success(`已统一 ${selectedIds.length} 个图标颜色`);
+    message.success(t('batch.colorApplied', { count: selectedIds.length }));
     setShowColorPicker(false);
   }, [selectedIds, batchColor]);
 
@@ -168,7 +170,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         {/* Header */}
         <div className="text-center py-4">
           <div className="text-lg font-semibold text-foreground">
-            已选中 {selectedIds.length} 个图标
+            {t('batch.selected', { count: selectedIds.length })}
           </div>
         </div>
 
@@ -204,7 +206,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         {groupAction && (
           <div className="mb-4 p-3 rounded-lg border border-border bg-surface-muted dark:bg-surface-muted">
             <div className="text-sm font-medium mb-2">
-              {groupAction === 'move' ? '移动到' : '复制到'}:
+              {groupAction === 'move' ? t('batch.moveToLabel') : t('batch.copyToLabel')}:
             </div>
             <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
               {groupList.map((g: any) => (
@@ -225,7 +227,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               className="mt-2 text-xs text-foreground-muted hover:text-foreground"
               onClick={() => setGroupAction(null)}
             >
-              取消
+              {t('common.cancel')}
             </button>
           </div>
         )}
@@ -233,7 +235,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         {/* Color picker sub-panel — matches SideEditor's color editor */}
         {showColorPicker && (
           <div className="mb-4 p-3 rounded-lg border border-border bg-surface-muted dark:bg-surface-muted">
-            <div className="text-sm font-medium mb-2">统一颜色</div>
+            <div className="text-sm font-medium mb-2">{t('batch.unifyColor')}</div>
             <HexColorPicker
               color={batchColor}
               onChange={handlePickerChange}
@@ -303,13 +305,13 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
                 className="flex-1 px-3 py-1.5 rounded bg-brand-500 text-white text-xs font-medium hover:bg-brand-600 transition-colors"
                 onClick={handleApplyColor}
               >
-                应用到全部
+                {t('batch.applyToAll')}
               </button>
               <button
                 className="px-3 py-1.5 rounded border border-border text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent transition-colors"
                 onClick={() => setShowColorPicker(false)}
               >
-                取消
+                {t('common.cancel')}
               </button>
             </div>
           </div>
@@ -319,10 +321,10 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         {!groupAction && !showColorPicker && (
           <div className="flex flex-col gap-2">
             <button className={btnClass} onClick={() => setGroupAction('move')}>
-              <FolderInput size={18} className="text-foreground-muted" /> 移动到分组
+              <FolderInput size={18} className="text-foreground-muted" /> {t('batch.moveTo')}
             </button>
             <button className={btnClass} onClick={() => setGroupAction('copy')}>
-              <Copy size={18} className="text-foreground-muted" /> 复制到分组
+              <Copy size={18} className="text-foreground-muted" /> {t('batch.copyTo')}
             </button>
             <button className={btnClass} onClick={handleToggleFavorite}>
               {allFavorited ? (
@@ -330,16 +332,16 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               ) : (
                 <Star size={18} className="text-amber-400" />
               )}
-              {allFavorited ? '取消收藏' : '收藏'}
+              {allFavorited ? t('batch.unfavorite') : t('batch.favorite')}
             </button>
             <button className={btnClass} onClick={handleDelete}>
-              <Trash2 size={18} className="text-foreground-muted" /> 删除
+              <Trash2 size={18} className="text-foreground-muted" /> {t('batch.delete')}
             </button>
             <button className={btnClass} onClick={handleExport}>
-              <Download size={18} className="text-foreground-muted" /> 导出 SVG
+              <Download size={18} className="text-foreground-muted" /> {t('batch.exportSvg')}
             </button>
             <button className={btnClass} onClick={() => setShowColorPicker(true)}>
-              <Palette size={18} className="text-foreground-muted" /> 统一颜色
+              <Palette size={18} className="text-foreground-muted" /> {t('batch.unifyColor')}
             </button>
           </div>
         )}
@@ -351,7 +353,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
           className="w-full py-2 rounded-lg text-sm font-medium text-foreground-muted hover:text-foreground hover:bg-surface-accent transition-colors"
           onClick={clearBatchSelection}
         >
-          取消选择
+          {t('batch.cancelSelection')}
         </button>
       </div>
     </div>

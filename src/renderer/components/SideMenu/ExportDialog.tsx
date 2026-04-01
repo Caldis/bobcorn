@@ -2,8 +2,10 @@
 const { electronAPI } = window;
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, Button, Checkbox, CheckboxGroup, Progress } from '../ui';
 import { message } from '../ui/toast';
+import { platform } from '../../utils/tools';
 import {
   svgFontGenerator,
   ttfFontGenerator,
@@ -27,6 +29,7 @@ interface ExportDialogProps {
 }
 
 function ExportDialog({ visible, onClose }: ExportDialogProps) {
+  const { t } = useTranslation();
   // 导出进度
   const [exportPhase, setExportPhase] = useState<'config' | 'exporting' | 'done' | 'error'>(
     'config'
@@ -102,7 +105,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   // 选择导出目录
   const handleBrowseDir = async () => {
     const result = await electronAPI.showOpenDialog({
-      title: '选择导出位置',
+      title: t('export.selectLocationTitle'),
       defaultPath: exportParentDir || electronAPI.getAppPath('desktop'),
       properties: ['openDirectory', 'createDirectory'],
     });
@@ -122,7 +125,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
   const handleEnsureExportIconfonts = async () => {
     if (!exportParentDir) {
-      message.warning('请先选择导出位置');
+      message.warning(t('export.selectLocationWarning'));
       return;
     }
 
@@ -132,7 +135,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       ? db.getIconList()
       : db.getIconListFromGroup(exportGroupSelected);
     if (!icons.length) {
-      message.warning('当前项目没有任何图标可供导出');
+      message.warning(t('export.noIconsWarning'));
       return;
     }
 
@@ -169,26 +172,26 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       let completedSteps = 0;
       const nextPct = () => Math.min(98, Math.round((++completedSteps / totalSteps) * 98));
 
-      await step(nextPct(), `准备导出 ${icons.length} 个图标...`);
+      await step(nextPct(), t('export.progress.preparing', { count: icons.length }));
 
       const groups = db.getGroupList();
       groups.push({
         id: 'resource-uncategorized',
-        groupName: '未分组',
+        groupName: t('nav.ungrouped'),
         groupOrder: -1,
         groupColor: '',
       });
 
-      await step(nextPct(), '生成 CSS 样式表...');
+      await step(nextPct(), t('export.progress.css'));
       const cssData = iconfontCSSGenerator(icons, selectedFormats);
 
       let jsData: string | null = null;
       if (selectedFormats.js) {
-        await step(nextPct(), '生成 JS Symbol 引用...');
+        await step(nextPct(), t('export.progress.jsSymbol'));
         jsData = iconfontSymbolGenerator(icons);
       }
 
-      await step(nextPct(), `生成 SVG 字体 (${icons.length} glyphs)...`);
+      await step(nextPct(), t('export.progress.svg', { count: icons.length }));
       const svgFont = await new Promise<string>((resolve, reject) => {
         svgFontGenerator(
           {
@@ -204,36 +207,37 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               log: () => {},
             },
           },
-          (result: string) => (result ? resolve(result) : reject(new Error('SVG 字体生成失败'))),
+          (result: string) =>
+            result ? resolve(result) : reject(new Error(t('export.progress.svgFailed'))),
           (processed: number, total: number) => {
             if (processed === total) {
-              addExportLog(`  SVG 字体生成完成 (${total} glyphs)`);
+              addExportLog(t('export.progress.svgDone', { count: total }));
             }
           }
         );
       });
 
-      await step(nextPct(), '转换 TTF 字体...');
+      await step(nextPct(), t('export.progress.ttf'));
       const ttfFont = ttfFontGenerator({ svgFont });
 
-      await step(nextPct(), '转换 WOFF2 字体...');
+      await step(nextPct(), t('export.progress.woff2'));
       const woff2Font = woff2FontGenerator({ ttfFont });
 
       let woffFont: any = null;
       if (selectedFormats.woff) {
-        await step(nextPct(), '转换 WOFF 字体...');
+        await step(nextPct(), t('export.progress.woff'));
         woffFont = woffFontGenerator({ ttfFont });
       }
 
       let eotFont: any = null;
       if (selectedFormats.eot) {
-        await step(nextPct(), '转换 EOT 字体...');
+        await step(nextPct(), t('export.progress.eot'));
         eotFont = eotFontGenerator({ ttfFont });
       }
 
       let pageData: string | null = null;
       if (selectedFormats.html) {
-        await step(nextPct(), '生成 HTML 演示页面...');
+        await step(nextPct(), t('export.progress.html'));
         const woff2Base64 = Buffer.from(woff2Font.buffer).toString('base64');
         pageData = demoHTMLGenerator(
           groups,
@@ -245,12 +249,12 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
       let projBuffer: Buffer | null = null;
       if (selectedFormats.icp) {
-        await step(nextPct(), '导出项目文件...');
+        await step(nextPct(), t('export.progress.icp'));
         const projData = await new Promise<any>((resolve) => db.exportProject(resolve));
         projBuffer = Buffer.from(projData);
       }
 
-      await step(nextPct(), '写入文件...');
+      await step(nextPct(), t('export.progress.writing'));
       if (!electronAPI.accessSync(dirPath)) {
         electronAPI.mkdirSync(dirPath);
       }
@@ -268,7 +272,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
       if (zipEnabled) {
         // ZIP-only mode: pack all files into a single .zip, no loose files
-        await step(nextPct(), '打包为 ZIP 文件...');
+        await step(nextPct(), t('export.progress.zipping'));
         // zipSync imported at top level from 'fflate'
         const zipData: Record<string, Uint8Array> = {};
         for (const f of files) {
@@ -279,23 +283,26 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         }
         const zipped = zipSync(zipData, { level: 6 });
         electronAPI.writeFileSync(`${dirPath}.zip`, Buffer.from(zipped));
-        addExportLog(`写入 ${projectName}.zip (${files.length} 个文件)`);
+        addExportLog(t('export.progress.writeZip', { name: projectName, count: files.length }));
       } else {
         // Directory mode: write individual files
         for (let i = 0; i < files.length; i++) {
           const f = files[i];
-          addExportLog(`写入 ${f.name}`);
+          addExportLog(t('export.progress.writeFile', { name: f.name }));
           electronAPI.writeFileSync(`${dirPath}/${f.name}`, f.data);
         }
       }
 
-      await step(100, `✓ 导出完成！共 ${files.length} 个文件${zipEnabled ? ' (ZIP)' : ''}`);
+      await step(
+        100,
+        t('export.progress.success', { count: files.length, zip: zipEnabled ? ' (ZIP)' : '' })
+      );
       setExportPhase('done');
     } catch (err: any) {
       console.error(err);
       const errMsg =
-        err === 'Checksum error in glyf' ? '请确保路径已全部转换为轮廓' : err.message || err;
-      addExportLog(`✗ 导出失败: ${errMsg}`);
+        err === 'Checksum error in glyf' ? t('export.progress.checkOutline') : err.message || err;
+      addExportLog(t('export.progress.failed', { error: errMsg }));
       setExportPhase('error');
     }
   };
@@ -333,26 +340,26 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
   const dialogTitle =
     exportPhase === 'config'
-      ? '导出图标字体'
+      ? t('export.title')
       : exportPhase === 'done'
-        ? '导出完成'
+        ? t('export.done')
         : exportPhase === 'error'
-          ? '导出失败'
-          : '正在导出...';
+          ? t('export.failed')
+          : t('export.exporting');
 
   const dialogFooter =
     exportPhase === 'config' ? (
       <>
         <Button key="cancel" onClick={handleCancel}>
-          取消
+          {t('common.cancel')}
         </Button>
         <Button key="export" type="primary" onClick={handleEnsureExportIconfonts}>
-          导出图标字体
+          {t('export.exportBtn')}
         </Button>
       </>
     ) : exportPhase === 'done' || exportPhase === 'error' ? (
       <Button key="close" type="primary" onClick={handleCancel}>
-        关闭
+        {t('common.close')}
       </Button>
     ) : null;
 
@@ -369,7 +376,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       {exportPhase === 'config' && (
         <div className="py-2">
           <p className="text-sm text-foreground-muted leading-relaxed mb-4">
-            导出图标字体能让您在网页中以图标字码或关联类名的方式直接引用图标。
+            {t('export.description')}
           </p>
 
           {/* 分组选择 — 内联折叠 */}
@@ -378,11 +385,14 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               className="flex items-center justify-between px-3 py-2 bg-surface-muted cursor-pointer hover:bg-surface-accent transition-colors"
               onClick={() => setExportGroupModelVisible(!exportGroupModelVisible)}
             >
-              <span className="text-sm font-medium text-foreground">导出分组</span>
+              <span className="text-sm font-medium text-foreground">{t('export.groups')}</span>
               <span className="text-xs text-foreground-muted">
                 {exportGroupCheckAll
-                  ? `全部 (${exportTotalGroups} 个分组，${exportTotalIcons} 个图标)`
-                  : `${exportGroupSelected.length} 个分组，${exportSelectedIconCount} 个图标`}
+                  ? t('export.groupsAll', { groups: exportTotalGroups, icons: exportTotalIcons })
+                  : t('export.groupsPartial', {
+                      groups: exportGroupSelected.length,
+                      icons: exportSelectedIconCount,
+                    })}
               </span>
             </div>
             {exportGroupModelVisible && (
@@ -393,7 +403,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     onChange={onTargetGroupCheckAllChange}
                     checked={exportGroupCheckAll}
                   >
-                    全选
+                    {t('export.selectAll')}
                   </Checkbox>
                 </div>
                 <CheckboxGroup
@@ -409,13 +419,17 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
           <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-xs leading-relaxed mt-4">
             <span className="shrink-0 mt-0.5">ℹ</span>
             <span>
-              项目文件 (.icp) 现在通过「保存」(Ctrl+S) 管理。如仍需在导出中包含，请勾选下方选项。
+              {t('export.icpMigrationHint', {
+                shortcut: platform() === 'darwin' ? '⌘S' : 'Ctrl+S',
+              })}
             </span>
           </div>
 
           {/* 必选格式 */}
           <div className="mt-3">
-            <div className="text-xs text-foreground-muted mb-1.5">必选格式</div>
+            <div className="text-xs text-foreground-muted mb-1.5">
+              {t('export.requiredFormats')}
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {['SVG', 'TTF', 'WOFF2', 'CSS'].map((fmt) => (
                 <span
@@ -430,7 +444,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
           {/* 可选格式 */}
           <div className="mt-3">
-            <div className="text-xs text-foreground-muted mb-1.5">可选格式</div>
+            <div className="text-xs text-foreground-muted mb-1.5">
+              {t('export.optionalFormats')}
+            </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               {(
                 [
@@ -467,10 +483,10 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                 onChange={(e) => setSelectedFormats((prev) => ({ ...prev, icp: e.target.checked }))}
                 className="rounded border-border"
               />
-              <span className="text-foreground">包含 .icp 项目文件</span>
+              <span className="text-foreground">{t('export.includeIcp')}</span>
             </label>
             <p className="text-xs text-foreground-muted mt-0.5 ml-5">
-              在导出数据中附带项目文件，方便后续编辑
+              {t('export.includeIcpDesc')}
             </p>
           </div>
 
@@ -483,31 +499,30 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                 onChange={(e) => setZipEnabled(e.target.checked)}
                 className="rounded border-border"
               />
-              <span className="text-foreground">自动打包 (ZIP)</span>
+              <span className="text-foreground">{t('export.zip')}</span>
             </label>
-            <p className="text-xs text-foreground-muted mt-0.5 ml-5">
-              勾选后导出文件自动压缩为 ZIP 包
-            </p>
+            <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t('export.zipDesc')}</p>
           </div>
 
           {/* 导出位置 */}
           <div className="mt-4 pt-3 border-t border-border">
-            <div className="text-xs text-foreground-muted mb-1.5">导出位置</div>
+            <div className="text-xs text-foreground-muted mb-1.5">{t('export.location')}</div>
             <div className="flex items-center gap-2">
               <div
                 className="flex-1 min-w-0 px-2.5 py-1.5 rounded border border-border bg-surface-muted text-xs text-foreground truncate font-mono cursor-pointer hover:border-brand-300 transition-colors"
                 onClick={handleBrowseDir}
-                title={exportParentDir || '点击选择目录'}
+                title={exportParentDir || t('export.noDir')}
               >
-                {exportParentDir || '未选择目录'}
+                {exportParentDir || t('export.noDir')}
               </div>
               <Button onClick={handleBrowseDir} className="shrink-0 text-xs">
-                选择…
+                {t('export.browse')}
               </Button>
             </div>
             {exportTargetDir && (
               <p className="text-xs text-foreground-muted mt-1 truncate" title={exportTargetDir}>
-                文件将导出至：{exportTargetDir}
+                {t('export.targetPath')}
+                {exportTargetDir}
                 {zipEnabled ? '.zip' : '/'}
               </p>
             )}
@@ -553,7 +568,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                       'transition-colors duration-150 cursor-pointer'
                     )}
                   >
-                    预览页面
+                    {t('export.previewPage')}
                   </button>
                 )}
                 {selectedFormats.icp && (
@@ -568,7 +583,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                       'transition-colors duration-150 cursor-pointer'
                     )}
                   >
-                    项目文件
+                    {t('export.projectFile')}
                   </button>
                 )}
                 <button
@@ -580,13 +595,11 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     'transition-colors duration-150 cursor-pointer'
                   )}
                 >
-                  打开目录
+                  {t('export.openDir')}
                 </button>
               </div>
               {selectedFormats.icp && (
-                <p className="text-xs text-foreground-muted">
-                  下次需要继续编辑图标，请打开 .icp 文件
-                </p>
+                <p className="text-xs text-foreground-muted">{t('export.icpEditHint')}</p>
               )}
             </div>
           )}
