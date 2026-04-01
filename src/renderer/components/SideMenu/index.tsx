@@ -16,7 +16,7 @@ import useAppStore from '../../store';
 // Sub-components
 import ResourceNav from './ResourceNav';
 import GroupList from './GroupList';
-import ImportExportBar from './ImportExportBar';
+import FileMenuBar from './FileMenuBar';
 import ExportDialog from './ExportDialog';
 import GroupDialogs from './GroupDialogs';
 import PrefixDialog from './PrefixDialog';
@@ -44,7 +44,6 @@ const SideMenu = React.memo(function SideMenu({
   const [exportVisible, setExportVisible] = useState(false);
 
   const sideMenuWrapperRef = useRef<HTMLDivElement>(null);
-  const showPrefix = useCallback(() => setPrefixVisible(true), []);
 
   useEffect(() => {
     syncLeft();
@@ -65,22 +64,37 @@ const SideMenu = React.memo(function SideMenu({
     [handleGroupSelected]
   );
 
-  // 导入图标
-  const handleImportIcons = useCallback(() => {
-    iconImporter({
-      onSelectSVG: (files: any[]) => {
-        db.addIcons(files, selectedGroup, () => {
-          message.success(`已成功导入 ${files.length} 个图标`);
-          syncLeft();
-        });
-      },
-    });
-  }, [selectedGroup, syncLeft]);
-
-  // 导出
-  const handleExportClick = useCallback(() => {
-    setExportVisible(true);
-  }, []);
+  // 文件菜单统一处理
+  const handleFileMenuAction = useCallback(
+    (key: string) => {
+      switch (key) {
+        case 'import-icons':
+          iconImporter({
+            onSelectSVG: (files: any[]) => {
+              db.addIcons(files, selectedGroup, () => {
+                message.success(`已成功导入 ${files.length} 个图标`);
+                syncLeft();
+              });
+            },
+          });
+          break;
+        case 'export-fonts':
+          setExportVisible(true);
+          break;
+        case 'settings':
+          setPrefixVisible(true);
+          break;
+        // Project-level operations → dispatch to MainContainer via custom events
+        case 'new-project':
+        case 'open-project':
+        case 'save':
+        case 'save-as':
+          window.dispatchEvent(new CustomEvent(`bobcorn:${key}`));
+          break;
+      }
+    },
+    [selectedGroup, syncLeft]
+  );
 
   useEffect(() => {
     const handler = () => setExportVisible(true);
@@ -125,12 +139,8 @@ const SideMenu = React.memo(function SideMenu({
         }}
       />
 
-      {/* 底栏 */}
-      <ImportExportBar
-        onImportIcons={handleImportIcons}
-        onExportClick={handleExportClick}
-        onShowEditPrefix={showPrefix}
-      />
+      {/* 底栏 — 文件菜单 */}
+      <FileMenuBar onMenuAction={handleFileMenuAction} />
 
       {/* 分组管理对话框（添加 + 重命名） */}
       <GroupDialogs

@@ -249,7 +249,7 @@ function MainContainer() {
     }
   }, []);
 
-  // ── Menu IPC listeners ───────────────────────────────────────────
+  // ── Menu IPC listeners (Electron menu) ────────────────────────────
   useEffect(() => {
     const cleanups = [
       electronAPI.onMenuNewProject(() => handleNewProject()),
@@ -262,6 +262,19 @@ function MainContainer() {
       electronAPI.onOpenFile((filePath: string) => handleOpenProject(filePath)),
     ];
     return () => cleanups.forEach((fn) => fn());
+  }, [handleOpenProject, handleSave, handleSaveAs, handleNewProject]);
+
+  // ── FileMenuBar custom events (renderer-side file menu) ──────────
+  useEffect(() => {
+    const handlers: Record<string, () => void> = {
+      'bobcorn:new-project': () => handleNewProject(),
+      'bobcorn:open-project': () => handleOpenProject(),
+      'bobcorn:save': () => handleSave(),
+      'bobcorn:save-as': () => handleSaveAs(),
+    };
+    const entries = Object.entries(handlers);
+    entries.forEach(([event, handler]) => window.addEventListener(event, handler));
+    return () => entries.forEach(([event, handler]) => window.removeEventListener(event, handler));
   }, [handleOpenProject, handleSave, handleSaveAs, handleNewProject]);
 
   // ── Close guard ──────────────────────────────────────────────────
