@@ -1,6 +1,6 @@
 {
   "name": "bobcorn",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "productName": "Bobcorn",
   "description": "A tool for build iconfonts.",
   "main": "out/main/index.js",
@@ -78,10 +78,14 @@
           {
             "UTTypeIdentifier": "me.caldis.bobcorn.icp",
             "UTTypeDescription": "Bobcorn Icon Font Project",
-            "UTTypeConformsTo": ["public.data"],
+            "UTTypeConformsTo": [
+              "public.data"
+            ],
             "UTTypeIconFile": "icon",
             "UTTypeTagSpecification": {
-              "public.filename-extension": ["icp"],
+              "public.filename-extension": [
+                "icp"
+              ],
               "public.mime-type": "application/x-bobcorn-project"
             }
           }
