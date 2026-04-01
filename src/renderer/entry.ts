@@ -4,6 +4,9 @@ globalThis.process = process;
 import { Buffer } from 'buffer';
 globalThis.Buffer = Buffer;
 
+// i18n (must initialize before React mounts)
+import './i18n';
+
 // Styles
 import './styles/globals.css';
 import './index.global.css';
