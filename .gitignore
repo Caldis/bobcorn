@@ -5,6 +5,6 @@ out/
 release/
 *.log
 npm-debug.log*
-test/fixtures/iconfont/
+test/fixtures/
 docs/locks/*.lock
 .claude/
