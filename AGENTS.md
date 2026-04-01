@@ -142,3 +142,4 @@ CI 失败时：查看日志 → 修复 → 删 tag 重打 → 重新 push。
 - sql.js 异步初始化：bootstrap.jsx 中 `await dbReady` 确保 WASM 加载
 - electron-vite CJS renderer: 自定义 `electronCjsHtmlPlugin` 处理 HTML
 - 不要手动编辑 `out/` 目录 — 它们是构建产物
+- **i18n 必须遵守**: 所有用户可见字符串必须使用 `t()` 函数（`react-i18next`），不允许硬编码中文或英文。新增功能时必须同时在 `src/locales/zh-CN.json` 和 `src/locales/en.json` 中添加翻译 key。详见 `docs/CONVENTIONS.md` 的 i18n 章节。

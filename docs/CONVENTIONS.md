@@ -117,3 +117,50 @@ Gradual migration in progress. New files should prefer `.ts`/`.tsx` when possibl
 - `release/` — packaged installers
 - Build command: `npx electron-vite build`
 - Three bundles: main (`out/main/`), preload (`out/preload/`), renderer (`out/renderer/`)
+
+## Internationalization (i18n)
+
+### All User-Facing Strings Must Use i18n
+
+Every user-visible string (UI labels, messages, dialog titles, error text, tooltips, placeholders) **must** use `t()` from `react-i18next`. No hardcoded Chinese or English strings in components.
+
+```jsx
+// CORRECT
+import { useTranslation } from 'react-i18next';
+const { t } = useTranslation();
+<Button>{t('common.cancel')}</Button>
+message.success(t('batch.moved', { count: ids.length }));
+
+// WRONG — do not hardcode strings
+<Button>取消</Button>
+message.success(`已移动 ${ids.length} 个图标`);
+```
+
+### Translation Key Conventions
+
+- Flat dot-separated namespace keys: `export.progress.css`, `editor.nameEmpty`
+- Namespaces match component areas: `menu.*`, `nav.*`, `editor.*`, `batch.*`, `export.*`, `file.*`, `splash.*`, `group.*`, `toolbar.*`, `settings.*`, `common.*`, `import.*`, `emptyState.*`, `prefix.*`
+- Interpolation uses `{{variable}}` syntax: `t('batch.moved', { count: 5 })`
+- Shared strings use `common.*` namespace: `common.cancel`, `common.confirm`, `common.save`
+
+### Adding New Strings
+
+When adding a new feature or UI element:
+
+1. Add the key + Chinese value to `src/locales/zh-CN.json`
+2. Add the key + English value to `src/locales/en.json`
+3. Use `t('namespace.key')` in the component
+
+### Main Process Strings
+
+Menu items and main process dialogs use `src/main/i18n.ts`:
+
+```typescript
+import i18n from './i18n';
+const t = i18n.t.bind(i18n);
+label: t('menu.file.save')
+```
+
+### Adding a New Language
+
+See Contributing Translations section in README.md.

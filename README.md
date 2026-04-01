@@ -134,6 +134,20 @@ npm run package-win    # Windows
 npm run package-all    # All platforms
 ```
 
+## Contributing Translations
+
+Bobcorn supports internationalization (i18n). To add a new language:
+
+1. Copy `src/locales/zh-CN.json` to `src/locales/<language-code>.json`
+2. Translate all values (do not change the keys)
+3. Register the language in `src/locales/index.ts`:
+   - Import the new JSON file
+   - Add it to the `resources` object
+   - Add an entry to `supportedLanguages`
+4. Submit a pull request
+
+Missing translations will fall back to Chinese (zh-CN).
+
 ## License
 
 MIT — see [LICENSE](LICENSE) for details.
