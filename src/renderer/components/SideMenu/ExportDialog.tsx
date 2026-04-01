@@ -37,6 +37,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const [exportedDirPath, setExportedDirPath] = useState<string>('');
   const [exportedProjectName, setExportedProjectName] = useState<string>('');
 
+  // 导出目录选择
+  const [exportParentDir, setExportParentDir] = useState<string>('');
+
   // 分组选择
   const [exportGroupFullList, setExportGroupFullList] = useState<ExportGroupOption[]>([]);
   const [exportGroupSelected, setExportGroupSelected] = useState<string[]>([]);
@@ -91,8 +94,26 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const prevVisibleRef = useRef(false);
   if (visible && !prevVisibleRef.current) {
     initGroupList();
+    // 默认导出到桌面
+    setExportParentDir(electronAPI.getAppPath('desktop'));
   }
   prevVisibleRef.current = visible;
+
+  // 选择导出目录
+  const handleBrowseDir = async () => {
+    const result = await electronAPI.showOpenDialog({
+      title: '选择导出位置',
+      defaultPath: exportParentDir || electronAPI.getAppPath('desktop'),
+      properties: ['openDirectory', 'createDirectory'],
+    });
+    if (!result.canceled && result.filePaths?.length) {
+      setExportParentDir(result.filePaths[0]);
+    }
+  };
+
+  const exportTargetDir = exportParentDir
+    ? `${exportParentDir}${electronAPI.platform === 'win32' ? '\\' : '/'}${db.getProjectName()}`
+    : '';
 
   const addExportLog = (msg: string) => {
     setExportLogs((prev) => [...prev, msg]);
@@ -100,6 +121,11 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   };
 
   const handleEnsureExportIconfonts = async () => {
+    if (!exportParentDir) {
+      message.warning('请先选择导出位置');
+      return;
+    }
+
     const allGroupSelected =
       exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
     const icons = allGroupSelected
@@ -110,15 +136,8 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       return;
     }
 
-    // 先选目录
-    const result = await electronAPI.showSaveDialog({
-      title: '导出图标字体',
-      defaultPath: `${db.getProjectName()}`,
-    });
-    if (result.canceled || !result.filePath) return;
-
-    const dirPath = result.filePath;
     const projectName = db.getProjectName();
+    const dirPath = `${exportParentDir}${electronAPI.platform === 'win32' ? '\\' : '/'}${projectName}`;
 
     // 切换到导出进度视图
     setExportPhase('exporting');
@@ -288,6 +307,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       setExportPhase('config');
       setExportProgress(0);
       setExportLogs([]);
+      setExportParentDir('');
     }, 300);
   };
 
@@ -468,6 +488,29 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             <p className="text-xs text-foreground-muted mt-0.5 ml-5">
               勾选后导出文件自动压缩为 ZIP 包
             </p>
+          </div>
+
+          {/* 导出位置 */}
+          <div className="mt-4 pt-3 border-t border-border">
+            <div className="text-xs text-foreground-muted mb-1.5">导出位置</div>
+            <div className="flex items-center gap-2">
+              <div
+                className="flex-1 min-w-0 px-2.5 py-1.5 rounded border border-border bg-surface-muted text-xs text-foreground truncate font-mono cursor-pointer hover:border-brand-300 transition-colors"
+                onClick={handleBrowseDir}
+                title={exportParentDir || '点击选择目录'}
+              >
+                {exportParentDir || '未选择目录'}
+              </div>
+              <Button onClick={handleBrowseDir} className="shrink-0 text-xs">
+                选择…
+              </Button>
+            </div>
+            {exportTargetDir && (
+              <p className="text-xs text-foreground-muted mt-1 truncate" title={exportTargetDir}>
+                文件将导出至：{exportTargetDir}
+                {zipEnabled ? '.zip' : '/'}
+              </p>
+            )}
           </div>
         </div>
       )}
