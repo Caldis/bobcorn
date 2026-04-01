@@ -193,6 +193,10 @@ function MainContainer() {
   /** Save project to known path, or fall through to Save As */
   const handleSave = useCallback(async () => {
     const state = useAppStore.getState();
+    if (!state.isDirty && state.currentFilePath) {
+      message.info('没有需要保存的更改', 1500);
+      return;
+    }
     if (state.currentFilePath) {
       return new Promise<void>((resolve, reject) => {
         db.exportProject((projData: Uint8Array) => {
