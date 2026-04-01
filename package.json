@@ -32,6 +32,7 @@
     "productName": "Bobcorn",
     "appId": "me.caldis.bobcorn",
     "asar": true,
+    "npmRebuild": false,
     "directories": {
       "buildResources": "resources",
       "output": "release"
