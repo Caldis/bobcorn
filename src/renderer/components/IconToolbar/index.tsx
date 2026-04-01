@@ -1,5 +1,7 @@
 // React
 import React, { useState } from 'react';
+// i18n
+import { useTranslation } from 'react-i18next';
 // UI
 import { Button, Slider, Switch } from '../ui';
 import { RadioGroup, RadioButton } from '../ui/radio';
@@ -39,6 +41,7 @@ function IconToolbar({
   updateSearchKeyword = () => {},
   visibleIconIds = [],
 }: IconToolbarProps) {
+  const { t } = useTranslation();
   const batchMode = useAppStore((state: any) => state.batchMode);
   const selectedIcons = useAppStore((state: any) => state.selectedIcons);
   const toggleBatchMode = useAppStore((state: any) => state.toggleBatchMode);
@@ -113,7 +116,7 @@ function IconToolbar({
         {actionBarType === 'visual' && (
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-1.5 text-sm text-foreground">
-              <span>图标名称</span>
+              <span>{t('toolbar.iconName')}</span>
               <Switch
                 size="small"
                 checked={showName}
@@ -124,7 +127,7 @@ function IconToolbar({
               />
             </label>
             <label className="flex items-center gap-1.5 text-sm text-foreground">
-              <span>图标字码</span>
+              <span>{t('toolbar.iconCode')}</span>
               <Switch
                 size="small"
                 checked={showCode}
@@ -139,15 +142,15 @@ function IconToolbar({
         {actionBarType === 'order' && (
           <div className="flex items-center gap-2">
             <RadioGroup value={orderType} onChange={handleOrderTypeChange}>
-              <RadioButton value="addTime">按添加时间</RadioButton>
-              <RadioButton value="editTime">按修改时间</RadioButton>
-              <RadioButton value="name">按名称</RadioButton>
-              <RadioButton value="code">按字码</RadioButton>
-              <RadioButton value="size">按大小</RadioButton>
+              <RadioButton value="addTime">{t('toolbar.sortByAddTime')}</RadioButton>
+              <RadioButton value="editTime">{t('toolbar.sortByEditTime')}</RadioButton>
+              <RadioButton value="name">{t('toolbar.sortByName')}</RadioButton>
+              <RadioButton value="code">{t('toolbar.sortByCode')}</RadioButton>
+              <RadioButton value="size">{t('toolbar.sortBySize')}</RadioButton>
             </RadioGroup>
             <RadioGroup value={orderDirection} onChange={handleOrderDirectionChange}>
-              <RadioButton value="forward">升序</RadioButton>
-              <RadioButton value="reverse">降序</RadioButton>
+              <RadioButton value="forward">{t('toolbar.ascending')}</RadioButton>
+              <RadioButton value="reverse">{t('toolbar.descending')}</RadioButton>
             </RadioGroup>
           </div>
         )}
@@ -195,10 +198,10 @@ function IconToolbar({
                 : 'text-foreground-muted hover:text-foreground hover:bg-surface-accent'
             )}
             onClick={toggleBatchMode}
-            title="批量选择模式"
+            title={t('toolbar.batchMode')}
           >
             {batchMode ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
-            批量
+            {t('toolbar.batch')}
           </button>
 
           {showBatchControls && (
@@ -206,24 +209,24 @@ function IconToolbar({
               <button
                 className="inline-flex items-center gap-0.5 px-1.5 py-1 rounded text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent"
                 onClick={() => selectAllIcons(visibleIconIds)}
-                title="全选"
+                title={t('toolbar.selectAll')}
               >
-                <CheckSquare size={12} /> 全选
+                <CheckSquare size={12} /> {t('toolbar.selectAll')}
               </button>
               <button
                 className="inline-flex items-center gap-0.5 px-1.5 py-1 rounded text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent"
                 onClick={() => invertSelection(visibleIconIds)}
-                title="反选"
+                title={t('toolbar.invertSelection')}
               >
-                <CheckCircle size={12} /> 反选
+                <CheckCircle size={12} /> {t('toolbar.invertSelection')}
               </button>
               {selectedIcons.size > 0 && (
                 <button
                   className="inline-flex items-center gap-0.5 px-1.5 py-1 rounded text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent"
                   onClick={clearBatchSelection}
-                  title="取消全选"
+                  title={t('toolbar.cancelAll')}
                 >
-                  <XCircle size={12} /> 取消
+                  <XCircle size={12} /> {t('toolbar.cancel')}
                 </button>
               )}
             </>
@@ -243,7 +246,7 @@ function IconToolbar({
             />
             <input
               type="text"
-              placeholder="搜索图标名称或字码"
+              placeholder={t('toolbar.search')}
               onChange={(e) => updateSearchKeyword(e.target.value)}
               className={cn(
                 'w-48 h-8 pl-7 pr-3 py-1',

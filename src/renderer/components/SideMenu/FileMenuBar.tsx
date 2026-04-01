@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { FilePlus2, FolderOpen, Save, SaveAll, Import, Upload, Settings, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { platform } from '../../utils/tools';
@@ -18,72 +19,8 @@ interface FileMenuBarProps {
   onMenuAction: (key: string) => void;
 }
 
-const menuGroups: FileMenuItem[][] = [
-  [
-    {
-      key: 'new-project',
-      icon: <FilePlus2 size={15} />,
-      label: '新建项目',
-      description: '创建空白项目',
-      shortcut: `${mod}N`,
-    },
-    {
-      key: 'open-project',
-      icon: <FolderOpen size={15} />,
-      label: '打开',
-      description: '打开 .icp 项目文件',
-      shortcut: `${mod}O`,
-    },
-    {
-      key: 'save',
-      icon: <Save size={15} />,
-      label: '保存',
-      description: '保存当前项目',
-      shortcut: `${mod}S`,
-    },
-    {
-      key: 'save-as',
-      icon: <SaveAll size={15} />,
-      label: '另存为',
-      description: '保存到新路径',
-      shortcut: `${mod}⇧S`,
-    },
-  ],
-  [
-    {
-      key: 'import-icons',
-      icon: <Import size={15} />,
-      label: '导入图标',
-      description: '添加 SVG 图标到当前项目',
-      shortcut: `${mod}I`,
-    },
-    {
-      key: 'export-fonts',
-      icon: <Upload size={15} />,
-      label: '导出字体',
-      description: '导出图标字体文件供网页使用',
-      shortcut: `${mod}E`,
-    },
-  ],
-  [
-    {
-      key: 'close-project',
-      icon: <X size={15} />,
-      label: '关闭项目',
-      description: '返回欢迎页',
-    },
-  ],
-  [
-    {
-      key: 'settings',
-      icon: <Settings size={15} />,
-      label: '设置',
-      description: '字体前缀与项目配置',
-    },
-  ],
-];
-
 const FileMenuBar = React.memo(function FileMenuBar({ onMenuAction }: FileMenuBarProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [posReady, setPosReady] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -133,6 +70,74 @@ const FileMenuBar = React.memo(function FileMenuBar({ onMenuAction }: FileMenuBa
     [onMenuAction]
   );
 
+  const menuGroups: FileMenuItem[][] = useMemo(
+    () => [
+      [
+        {
+          key: 'new-project',
+          icon: <FilePlus2 size={15} />,
+          label: t('menu.file.new'),
+          description: t('menu.file.newDesc'),
+          shortcut: `${mod}N`,
+        },
+        {
+          key: 'open-project',
+          icon: <FolderOpen size={15} />,
+          label: t('menu.file.open'),
+          description: t('menu.file.openDesc'),
+          shortcut: `${mod}O`,
+        },
+        {
+          key: 'save',
+          icon: <Save size={15} />,
+          label: t('menu.file.save'),
+          description: t('menu.file.saveDesc'),
+          shortcut: `${mod}S`,
+        },
+        {
+          key: 'save-as',
+          icon: <SaveAll size={15} />,
+          label: t('menu.file.saveAs'),
+          description: t('menu.file.saveAsDesc'),
+          shortcut: `${mod}⇧S`,
+        },
+      ],
+      [
+        {
+          key: 'import-icons',
+          icon: <Import size={15} />,
+          label: t('menu.file.importIcons'),
+          description: t('menu.file.importIconsDesc'),
+          shortcut: `${mod}I`,
+        },
+        {
+          key: 'export-fonts',
+          icon: <Upload size={15} />,
+          label: t('menu.file.exportFonts'),
+          description: t('menu.file.exportFontsDesc'),
+          shortcut: `${mod}E`,
+        },
+      ],
+      [
+        {
+          key: 'close-project',
+          icon: <X size={15} />,
+          label: t('menu.file.closeProject'),
+          description: t('menu.file.closeProjectDesc'),
+        },
+      ],
+      [
+        {
+          key: 'settings',
+          icon: <Settings size={15} />,
+          label: t('menu.file.settings'),
+          description: t('menu.file.settingsDesc'),
+        },
+      ],
+    ],
+    [t]
+  );
+
   return (
     <>
       <div className="flex shrink-0 items-center border-t border-border px-2.5 h-[42px]">
@@ -161,7 +166,7 @@ const FileMenuBar = React.memo(function FileMenuBar({ onMenuAction }: FileMenuBa
             <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
             <path d="M14 2v4a2 2 0 0 0 2 2h4" />
           </svg>
-          文件
+          {t('menu.file')}
           <svg
             width="10"
             height="10"
