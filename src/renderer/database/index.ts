@@ -206,6 +206,13 @@ class Database {
             this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupDescription TEXT`);
             dev && console.log('Migration: added groupDescription column');
           }
+          // Migration: add isFavorite column for existing projects
+          const hasFavCol =
+            cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'isFavorite');
+          if (!hasFavCol) {
+            this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN isFavorite INTEGER DEFAULT 0`);
+            dev && console.log('Migration: added isFavorite column');
+          }
         } catch (e) {
           dev && console.error('Migration error:', e);
         }
@@ -454,7 +461,7 @@ class Database {
     );
     // 创建图标数据表, 并配置触发器自动更新时间戳
     this.db!.run(
-      `CREATE TABLE ${iconData} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, iconContentOriginal TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${iconData} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, iconContentOriginal TEXT, isFavorite INTEGER DEFAULT 0, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db!.run(
       `CREATE TRIGGER ${iconDataTimeRenewTrigger} AFTER UPDATE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${iconData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -860,7 +867,7 @@ class Database {
   // ── Metadata-only columns (excludes heavy iconContent/iconContentOriginal TEXT) ──
   // Used for grid listing — content loaded lazily per-icon when visible
   static ICON_META_COLS =
-    'id, iconCode, iconName, iconGroup, iconSize, iconType, createTime, updateTime';
+    'id, iconCode, iconName, iconGroup, iconSize, iconType, isFavorite, createTime, updateTime';
 
   // 单次查询所有图标并按 group 分组（resource-all 视图用）— 仅元数据，不含 SVG 内容
   getAllIconsGrouped = (): Record<string, Record<string, any>[]> => {
@@ -1063,6 +1070,47 @@ class Database {
       this.setIconData(id, { iconContent: `'${escaped}'` });
     });
     callback && callback();
+  };
+
+  // ── Favorites ─────────────────────────────────────────────────────
+  setIconFavorite = (id: string, isFavorite: number): void => {
+    dev && console.log('setIconFavorite');
+    this.runMutation(`UPDATE ${iconData} SET isFavorite = ? WHERE id = ?`, [isFavorite, id]);
+  };
+
+  setIconsFavorite = (ids: string[], isFavorite: number): void => {
+    dev && console.log('setIconsFavorite');
+    if (ids.length === 0) return;
+    const placeholders = ids.map(() => '?').join(',');
+    this.runMutation(`UPDATE ${iconData} SET isFavorite = ? WHERE id IN (${placeholders})`, [
+      isFavorite,
+      ...ids,
+    ]);
+  };
+
+  getFavoriteIcons = (): Record<string, any>[] => {
+    dev && console.log('getFavoriteIcons');
+    const rawData = this.db!.exec(
+      `SELECT ${Database.ICON_META_COLS} FROM ${iconData} WHERE isFavorite = 1 AND iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
+    );
+    if (rawData.length === 0) return [];
+    const colNameList = rawData[0].columns;
+    return rawData[0].values.map((row) => {
+      const rowData: Record<string, any> = {};
+      row.forEach((colData: any, index: number) => {
+        rowData[colNameList[index]] = colData;
+      });
+      return rowData;
+    });
+  };
+
+  getFavoriteCount = (): number => {
+    dev && console.log('getFavoriteCount');
+    const stmt = this.db!.prepare(
+      `SELECT COUNT(*) FROM ${iconData} WHERE isFavorite = 1 AND iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
+    );
+    stmt.step();
+    return stmt.getAsObject()['COUNT(*)'] as number;
   };
 
   renewIconData = (id: string, newIconFileData: RenewIconFileData, callback?: () => void): void => {

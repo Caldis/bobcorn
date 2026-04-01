@@ -125,6 +125,13 @@ class TestDatabase {
     if (!this.dbInited) {
       this.dbInited = true;
       this.db = new this.SQL.Database(data);
+      if (data) {
+        const cols = this.db.exec(`PRAGMA table_info(${T_ICON})`);
+        const hasFavCol = cols.length > 0 && cols[0].values.some((row) => row[1] === 'isFavorite');
+        if (!hasFavCol) {
+          this.db.run(`ALTER TABLE ${T_ICON} ADD COLUMN isFavorite INTEGER DEFAULT 0`);
+        }
+      }
     }
   }
 
@@ -225,7 +232,7 @@ class TestDatabase {
     );
 
     this.db.run(
-      `CREATE TABLE ${T_ICON} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`,
+      `CREATE TABLE ${T_ICON} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, isFavorite INTEGER DEFAULT 0, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`,
     );
     this.db.run(
       `CREATE TRIGGER iconDataTimeRenewTrigger AFTER UPDATE ON ${T_ICON} FOR EACH ROW BEGIN UPDATE ${T_ICON} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`,
@@ -428,6 +435,40 @@ class TestDatabase {
   iconCodeCanUse(iconCode) {
     const targetDataSet = { iconCode: sf(iconCode).toUpperCase() };
     return !this.getDataOfTable(T_ICON, targetDataSet, { where: true }) && this.iconCodeInRange(iconCode);
+  }
+
+  setIconFavorite(id, isFavorite) {
+    this.db.run(`UPDATE ${T_ICON} SET isFavorite = ? WHERE id = ?`, [isFavorite, id]);
+  }
+
+  setIconsFavorite(ids, isFavorite) {
+    if (ids.length === 0) return;
+    const placeholders = ids.map(() => '?').join(',');
+    this.db.run(
+      `UPDATE ${T_ICON} SET isFavorite = ? WHERE id IN (${placeholders})`,
+      [isFavorite, ...ids]
+    );
+  }
+
+  getFavoriteIcons() {
+    const rawData = this.db.exec(
+      `SELECT * FROM ${T_ICON} WHERE isFavorite = 1 AND iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
+    );
+    if (rawData.length === 0) return [];
+    const colNameList = rawData[0].columns;
+    return rawData[0].values.map((row) => {
+      const rowData = {};
+      row.forEach((colData, index) => { rowData[colNameList[index]] = colData; });
+      return rowData;
+    });
+  }
+
+  getFavoriteCount() {
+    const stmt = this.db.prepare(
+      `SELECT COUNT(*) FROM ${T_ICON} WHERE isFavorite = 1 AND iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
+    );
+    stmt.step();
+    return stmt.getAsObject()['COUNT(*)'];
   }
 }
 
@@ -1001,5 +1042,67 @@ describe('edge cases', () => {
     const list = db.getIconList();
     expect(list.length).toBe(1);
     expect(list[0].iconName).toBe('visible');
+  });
+});
+
+// ===========================================================================
+// favorites
+// ===========================================================================
+describe('favorites', () => {
+  test('new icons have isFavorite = 0 by default', () => {
+    const { id } = insertIcon({ id: 'fav-test-1', iconName: 'TestIcon' });
+    const icon = db.getIconData(id);
+    expect(icon.isFavorite).toBe(0);
+  });
+
+  test('setIconFavorite sets isFavorite to 1', () => {
+    const { id } = insertIcon({ id: 'fav-test-2', iconName: 'TestIcon2' });
+    db.setIconFavorite(id, 1);
+    const icon = db.getIconData(id);
+    expect(icon.isFavorite).toBe(1);
+  });
+
+  test('setIconFavorite sets isFavorite back to 0', () => {
+    const { id } = insertIcon({ id: 'fav-test-3', iconName: 'TestIcon3' });
+    db.setIconFavorite(id, 1);
+    db.setIconFavorite(id, 0);
+    const icon = db.getIconData(id);
+    expect(icon.isFavorite).toBe(0);
+  });
+
+  test('setIconsFavorite batch-sets multiple icons', () => {
+    const i1 = insertIcon({ id: 'fav-batch-1', iconName: 'B1' });
+    const i2 = insertIcon({ id: 'fav-batch-2', iconName: 'B2' });
+    insertIcon({ id: 'fav-batch-3', iconName: 'B3' });
+    db.setIconsFavorite([i1.id, i2.id], 1);
+    expect(db.getFavoriteCount()).toBe(2);
+    expect(db.getFavoriteIcons().length).toBe(2);
+  });
+
+  test('getFavoriteIcons excludes recycleBin icons', () => {
+    const { id } = insertIcon({ id: 'fav-del-1', iconName: 'Del1' });
+    db.setIconFavorite(id, 1);
+    expect(db.getFavoriteCount()).toBe(1);
+    db.setIconData(id, { iconGroup: sf('resource-recycleBin') });
+    expect(db.getFavoriteCount()).toBe(0);
+    expect(db.getFavoriteIcons().length).toBe(0);
+  });
+
+  test('getFavoriteCount returns 0 on empty project', () => {
+    expect(db.getFavoriteCount()).toBe(0);
+  });
+
+  test('migration adds isFavorite column to existing database', () => {
+    const oldDb = new TestDatabase(SQL);
+    oldDb.initDatabases();
+    oldDb.db.run(
+      `CREATE TABLE ${T_ICON} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+    );
+    oldDb.db.run(`INSERT INTO ${T_ICON} (id, iconName) VALUES ('old-icon', 'OldIcon')`);
+    const data = oldDb.db.export();
+    const newDb = new TestDatabase(SQL);
+    newDb.initDatabases(data);
+    const icon = newDb.getDataOfTable(T_ICON, { id: sf('old-icon') }, { single: true, where: true });
+    expect(icon.isFavorite).toBe(0);
   });
 });
