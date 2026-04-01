@@ -268,7 +268,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               />
               {/* 取色器按钮 */}
               <button
-                title="从屏幕取色"
+                title={t('editor.eyeDropper')}
                 onClick={handleEyeDropper}
                 className={cn(
                   'w-7 h-7 rounded border border-border shrink-0',
