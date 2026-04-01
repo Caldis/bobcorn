@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { FilePlus2, FolderOpen, Save, SaveAll, Import, Upload, Settings, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -84,17 +84,27 @@ const menuGroups: FileMenuItem[][] = [
 
 const FileMenuBar = React.memo(function FileMenuBar({ onMenuAction }: FileMenuBarProps) {
   const [open, setOpen] = useState(false);
+  const [posReady, setPosReady] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const posRef = useRef({ top: 0, left: 0 });
 
-  useEffect(() => {
-    if (!open) return;
+  // Compute position synchronously before paint to avoid flash at (0,0)
+  useLayoutEffect(() => {
+    if (!open) {
+      setPosReady(false);
+      return;
+    }
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      // Always open above the trigger (bottom bar)
-      setPos({ top: rect.top - 6, left: rect.left });
+      posRef.current = { top: rect.top - 6, left: rect.left };
+      setPosReady(true);
     }
+  }, [open]);
+
+  // Outside click listener
+  useEffect(() => {
+    if (!open) return;
     const handleClose = (e: MouseEvent) => {
       if (menuRef.current?.contains(e.target as Node)) return;
       if (triggerRef.current?.contains(e.target as Node)) return;
@@ -168,13 +178,14 @@ const FileMenuBar = React.memo(function FileMenuBar({ onMenuAction }: FileMenuBa
       </div>
 
       {open &&
+        posReady &&
         createPortal(
           <div
             ref={menuRef}
             style={{
               position: 'fixed',
-              top: pos.top,
-              left: pos.left,
+              top: posRef.current.top,
+              left: posRef.current.left,
               transform: 'translateY(-100%)',
             }}
             className={cn(
