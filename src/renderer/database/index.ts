@@ -990,12 +990,14 @@ class Database {
       group,
       ...ids,
     ]);
+    this.notifyMutation();
     callback && callback();
   };
   delIcons = (ids: string[], callback?: () => void): void => {
     dev && console.log('delIcons');
     const placeholders = ids.map(() => '?').join(',');
     this.db!.run(`DELETE FROM ${iconData} WHERE id IN (${placeholders})`, ids);
+    this.notifyMutation();
     callback && callback();
   };
   duplicateIcons = (ids: string[], targetGroup: string, callback?: () => void): void => {
@@ -1015,6 +1017,7 @@ class Database {
       };
       this.addDataToTable(iconData, dataSet);
     });
+    this.notifyMutation();
     callback && callback();
   };
   updateIconsColor = (ids: string[], targetColor: string, callback?: () => void): void => {
