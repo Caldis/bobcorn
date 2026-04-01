@@ -5,278 +5,544 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bobcorn — Icon Font Manager</title>
     <meta name="description" content="Bobcorn is a modern desktop tool for managing and generating icon fonts. Import SVGs, organize groups, export to SVG/TTF/WOFF/WOFF2/EOT with live preview.">
+    <meta name="theme-color" content="#FAFAF5">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H1DCS6LF3S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-H1DCS6LF3S');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* GT Canon VF — self-hosted, place .woff2 in docs/fonts/ */
+        @font-face {
+            font-family: 'GT Canon';
+            src: url('fonts/GT-Canon-VF-Variable-L-Black.woff2') format('woff2');
+            font-weight: 900;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'GT Canon';
+            src: url('fonts/GT-Canon-VF-Variable-L-Black-Italic.woff2') format('woff2');
+            font-weight: 900;
+            font-style: italic;
+            font-display: swap;
+        }
         :root {
-            --bg: #0a0a0f;
-            --surface: #12121a;
-            --surface-2: #1a1a26;
-            --border: rgba(255,255,255,0.08);
-            --text: #e8e8ed;
-            --text-muted: #8b8b9e;
-            --accent: #f97316;
-            --accent-glow: rgba(249,115,22,0.12);
-            --gradient-1: #f97316;
-            --gradient-2: #ef4444;
+            --bg: #FAFAF5;
+            --text: #1A1917;
+            --text-secondary: #82817A;
+            --accent: #F06830;
+            --accent-hover: #DD5B25;
+            --divider: #E0DED2;
+            --pill-bg: rgba(160, 158, 148, 0.12);
+            --pill-hover: rgba(160, 158, 148, 0.24);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Outfit', system-ui, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* ── Nav ── */
+        a { color: inherit; }
+
+        /* ─── Nav ─── */
         nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            padding: 16px 32px;
+            padding: 0 48px;
+            height: 64px;
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(10,10,15,0.8);
+            background: rgba(250, 250, 245, 0.88);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
+            -webkit-backdrop-filter: blur(20px);
         }
 
         .logo {
-            font-size: 20px; font-weight: 700;
-            background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-family: 'GT Canon', Georgia, serif;
+            font-size: 26px;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.01em;
         }
 
-        .nav-links { display: flex; gap: 24px; align-items: center; }
-        .nav-links a {
-            color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500;
+        .nav-right {
+            display: flex; align-items: center; gap: 28px;
+        }
+
+        .nav-link {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
             transition: color 0.2s;
         }
-        .nav-links a:hover { color: var(--text); }
+        .nav-link:hover { color: var(--text); }
 
-        .btn-primary {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 24px;
-            background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
-            color: #fff; border: none; border-radius: 8px;
-            font-size: 14px; font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.2s;
+        .nav-sep {
+            color: var(--divider);
+            font-size: 14px;
+            user-select: none;
         }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-        .nav-links a.btn-primary { color: #fff; }
 
-        .btn-secondary {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 24px;
-            background: transparent;
-            color: var(--text); border: 1px solid var(--border); border-radius: 8px;
-            font-size: 14px; font-weight: 500;
-            text-decoration: none;
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .btn-secondary:hover { border-color: var(--accent); background: var(--accent-glow); }
-
-        /* ── Hero ── */
+        /* ─── Hero ─── */
         .hero {
-            padding: 160px 32px 80px;
+            padding: 168px 48px 104px;
+            max-width: 860px;
+            margin: 0 auto;
             text-align: center;
-            position: relative;
         }
 
-        .hero::before {
-            content: '';
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 800px; height: 600px;
-            background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
-            pointer-events: none;
+        .hero-version {
+            display: inline-flex; align-items: center; gap: 12px;
+            margin-bottom: 36px;
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .hero-version .tag {
+            padding: 4px 14px;
+            background: var(--pill-bg);
+            border-radius: 20px;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
         .hero h1 {
-            font-size: clamp(40px, 6vw, 72px);
-            font-weight: 800;
+            font-family: 'GT Canon', Georgia, serif;
+            font-size: clamp(46px, 7vw, 78px);
+            font-weight: 900;
             letter-spacing: -0.02em;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            position: relative;
+            line-height: 1.06;
+            margin-bottom: 28px;
         }
 
-        .hero h1 span {
-            background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        .hero h1 em {
+            font-style: italic;
+            /* Instrument Serif italic has beautiful swash characters */
         }
 
-        .hero p {
-            font-size: 18px;
-            color: var(--text-muted);
-            max-width: 560px;
-            margin: 0 auto 40px;
+        .hero-desc {
+            font-size: 17px;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            max-width: 480px;
+            margin: 0 auto 48px;
+            letter-spacing: -0.01em;
         }
 
-        .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .hero-actions {
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 36px;
+        }
 
-        .hero-badge {
+        .btn-download {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 15px 38px;
+            background: var(--accent);
+            color: #FFFAF7;
+            border-radius: 40px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px; font-weight: 600;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            transition: background 0.2s, transform 0.15s ease-out;
+        }
+        .btn-download:hover { background: var(--accent-hover); transform: translateY(-1px); }
+        .btn-download svg { width: 16px; height: 16px; opacity: 0.85; }
+
+        .btn-ghost {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 6px 16px;
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            font-size: 13px; color: var(--text-muted);
-            margin-bottom: 24px;
+            padding: 15px 30px;
+            background: var(--pill-bg);
+            color: var(--text);
+            border-radius: 40px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px; font-weight: 500;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            transition: background 0.2s;
+        }
+        .btn-ghost:hover { background: var(--pill-hover); }
+
+        .hero-platforms {
+            display: flex; gap: 24px; justify-content: center; align-items: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0.7;
         }
 
-        .hero-badge span { color: var(--accent); font-weight: 600; }
-
-        /* ── Features ── */
-        .features {
-            padding: 80px 32px;
-            max-width: 1100px; margin: 0 auto;
+        .hero-platforms span {
+            display: inline-flex; align-items: center; gap: 6px;
         }
 
-        .features h2 {
-            text-align: center;
-            font-size: 32px; font-weight: 700;
-            margin-bottom: 56px;
+        .hero-platforms svg {
+            width: 14px; height: 14px;
+            opacity: 0.6;
         }
 
+        /* ─── Divider ─── */
+        .divider {
+            height: 1px;
+            background: var(--divider);
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        /* ─── Sections ─── */
+        .section {
+            padding: 88px 48px;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 52px;
+        }
+
+        /* ─── Features ─── */
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-        }
-
-        .feature-card {
-            padding: 32px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            transition: border-color 0.3s, transform 0.3s;
-        }
-
-        .feature-card:hover {
-            border-color: rgba(59,130,246,0.3);
-            transform: translateY(-4px);
+            grid-template-columns: repeat(3, 1fr);
+            gap: 56px 48px;
         }
 
         .feature-icon {
-            width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
-            background: var(--accent-glow);
-            border-radius: 10px;
-            margin-bottom: 16px;
+            width: 28px; height: 28px;
+            margin-bottom: 18px;
             color: var(--accent);
-            font-size: 20px;
         }
 
-        .feature-card h3 {
-            font-size: 18px; font-weight: 600;
-            margin-bottom: 8px;
+        .feature-icon svg {
+            width: 28px; height: 28px;
         }
 
-        .feature-card p {
-            font-size: 14px; color: var(--text-muted);
-            line-height: 1.7;
+        .feature-item h3 {
+            font-family: 'GT Canon', Georgia, serif;
+            font-size: 21px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            letter-spacing: -0.015em;
         }
 
-        /* ── Formats ── */
-        .formats {
-            padding: 80px 32px;
-            text-align: center;
+        .feature-item p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            letter-spacing: -0.005em;
         }
 
-        .formats h2 { font-size: 32px; font-weight: 700; margin-bottom: 16px; }
-        .formats > p { color: var(--text-muted); margin-bottom: 40px; font-size: 16px; }
-
-        .format-tags {
-            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-            max-width: 600px; margin: 0 auto;
+        /* ─── Formats ─── */
+        .format-grid {
+            display: flex; gap: 10px; flex-wrap: wrap;
         }
 
         .format-tag {
-            padding: 10px 24px;
-            background: var(--surface);
-            border: 1px solid var(--border);
+            padding: 12px 28px;
+            background: var(--pill-bg);
             border-radius: 8px;
-            font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 15px; font-weight: 600;
+            font-family: 'Space Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
             color: var(--text);
-            transition: border-color 0.2s, background 0.2s;
+            letter-spacing: -0.03em;
+            transition: background 0.2s, color 0.2s;
+            cursor: default;
         }
 
         .format-tag:hover {
-            border-color: var(--accent);
-            background: var(--accent-glow);
+            background: var(--pill-hover);
+            color: var(--accent);
         }
 
-        /* ── Tech ── */
-        .tech {
-            padding: 60px 32px 80px;
-            text-align: center;
-        }
-
-        .tech-pills {
-            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
-            max-width: 700px; margin: 0 auto;
-        }
-
-        .tech-pill {
-            padding: 6px 16px;
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            font-size: 13px; color: var(--text-muted);
-        }
-
-        /* ── Footer ── */
+        /* ─── Footer ─── */
         footer {
-            padding: 40px 32px;
-            text-align: center;
-            border-top: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 13px;
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 36px 48px 48px;
+            border-top: 1px solid var(--divider);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        footer a { color: var(--accent); text-decoration: none; }
+        .footer-brand {
+            font-family: 'GT Canon', Georgia, serif;
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
 
-        @media (max-width: 640px) {
-            nav { padding: 12px 16px; }
-            .hero { padding: 120px 16px 60px; }
-            .features, .formats, .tech { padding: 60px 16px; }
-            .feature-grid { grid-template-columns: 1fr; }
+        .footer-links {
+            display: flex; gap: 24px;
+        }
+
+        .footer-links a {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--text); }
+
+        /* ─── Entrance Animations ─── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero .reveal {
+            /* Hero elements animate on page load with stagger */
+        }
+
+        /* Stagger children in grids */
+        .feature-item.reveal:nth-child(1) { transition-delay: 0s; }
+        .feature-item.reveal:nth-child(2) { transition-delay: 0.06s; }
+        .feature-item.reveal:nth-child(3) { transition-delay: 0.12s; }
+        .feature-item.reveal:nth-child(4) { transition-delay: 0.18s; }
+        .feature-item.reveal:nth-child(5) { transition-delay: 0.24s; }
+        .feature-item.reveal:nth-child(6) { transition-delay: 0.30s; }
+
+        .format-tag.reveal:nth-child(1) { transition-delay: 0s; }
+        .format-tag.reveal:nth-child(2) { transition-delay: 0.03s; }
+        .format-tag.reveal:nth-child(3) { transition-delay: 0.06s; }
+        .format-tag.reveal:nth-child(4) { transition-delay: 0.09s; }
+        .format-tag.reveal:nth-child(5) { transition-delay: 0.12s; }
+        .format-tag.reveal:nth-child(6) { transition-delay: 0.15s; }
+        .format-tag.reveal:nth-child(7) { transition-delay: 0.18s; }
+        .format-tag.reveal:nth-child(8) { transition-delay: 0.21s; }
+        .format-tag.reveal:nth-child(9) { transition-delay: 0.24s; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 900px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 44px 36px;
+            }
+        }
+
+        @media (max-width: 680px) {
+            nav { padding: 0 20px; }
+            .nav-link, .nav-sep { display: none; }
+            .hero { padding: 128px 24px 80px; }
+            .hero h1 { font-size: clamp(38px, 11vw, 56px); }
+            .hero-desc { font-size: 16px; }
+            .section { padding: 64px 24px; }
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            footer {
+                padding: 32px 24px 40px;
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            .hero-platforms { flex-wrap: wrap; gap: 16px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn-download, .btn-ghost {
+                justify-content: center;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- ─── Nav ─── -->
     <nav>
-        <div class="logo">Bobcorn</div>
-        <div class="nav-links">
-            <a href="#features">Features</a>
-            <a href="#formats">Formats</a>
-            <a href="https://github.com/Caldis/bobcorn" class="btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                GitHub
-            </a>
+        <a href="/" class="logo">Bobcorn</a>
+        <div class="nav-right">
+            <a href="#features" class="nav-link">Features</a>
+            <span class="nav-sep">|</span>
+            <a href="#formats" class="nav-link">Formats</a>
+            <span class="nav-sep">|</span>
+            <a href="https://github.com/Caldis/bobcorn" class="nav-link">GitHub</a>
         </div>
     </nav>
 
-    <section class="hero">
-        <div class="hero-badge">
-            <span id="versionBadge">v1.5</span>
-            Now with color editing & dark mode
+    <main>
+
+        <!-- ─── Hero ─── -->
+        <section class="hero">
+            <div class="hero-version reveal">
+                <span class="tag" id="versionBadge">v1.7.0</span>
+                Open source &middot; MIT License
+            </div>
+
+            <h1 class="reveal">Build Icon Fonts,<br><em>The Modern Way</em></h1>
+
+            <p class="hero-desc reveal">
+                Import SVG icons, organize into groups, edit colors inline, and export production-ready icon fonts in every format.
+            </p>
+
+            <div class="hero-actions reveal">
+                <a id="downloadBtn" href="https://github.com/Caldis/bobcorn/releases" class="btn-download">
+                    <span id="downloadLabel">Download</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </a>
+                <a href="https://github.com/Caldis/bobcorn/releases" class="btn-ghost" id="allDownloads">All Releases</a>
+                <a href="https://github.com/Caldis/bobcorn" class="btn-ghost">Source Code</a>
+            </div>
+
+            <div class="hero-platforms reveal">
+                <span>
+                    <!-- Windows -->
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+                    Windows
+                </span>
+                <span>
+                    <!-- macOS -->
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                    macOS
+                </span>
+                <span>
+                    <!-- Linux -->
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.368 1.884 1.43.39.03.8-.066 1.109-.199.69-.268 1.225-.76 1.823-1.2.662-.397 1.296-.564 1.783-.8.507-.215.876-.46 1.048-.87.088-.182.07-.494-.037-.648-.154-.229-.36-.48-.617-.636-.258-.135-.588-.19-.873-.316-.574-.252-.69-.506-.793-.84-.163-.497-.073-1.065.057-1.627.5-1.765.652-4.132-.063-5.934-.32-.825-.907-1.637-1.626-2.356a11.678 11.678 0 01-1.27-1.537c-.591-.89-.963-1.756-1.028-2.692-.073-1.14.167-2.436-.2-3.52-.533-1.543-1.94-2.586-3.55-2.66-.165-.005-.33-.003-.495.004z"/></svg>
+                    Linux
+                </span>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ─── Features ─── -->
+        <section class="section" id="features">
+            <div class="section-header reveal">Features</div>
+            <div class="feature-grid">
+                <div class="feature-item reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="13.5" cy="6.5" r="2"/><circle cx="17.5" cy="10.5" r="2"/><circle cx="8.5" cy="7.5" r="2"/><circle cx="6.5" cy="12" r="2"/>
+                            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.7-.4-1-.3-.3-.4-.6-.4-1 0-.9.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"/>
+                        </svg>
+                    </div>
+                    <h3>Color Editor</h3>
+                    <p>Pick colors with hex picker, eyedropper, or type any CSS format. Previews update instantly in the grid.</p>
+                </div>
+                <div class="feature-item reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h3>Built for Scale</h3>
+                    <p>Handles 3,000+ icons smoothly with content-visibility, chunked rendering, and tiered sync.</p>
+                </div>
+                <div class="feature-item reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </div>
+                    <h3>One-Click Export</h3>
+                    <p>Export to SVG, TTF, WOFF, WOFF2, EOT, CSS, JS, and HTML demo&nbsp;&mdash; all at once with real-time progress.</p>
+                </div>
+                <div class="feature-item reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3>Group Management</h3>
+                    <p>Organize icons with drag-to-reorder groups. Copy, move, recycle. Search and filter across everything.</p>
+                </div>
+                <div class="feature-item reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </div>
+                    <h3>Dark Mode</h3>
+                    <p>Full dark mode with one-click toggle. Every component adapts seamlessly, persisted across sessions.</p>
+                </div>
+                <div class="feature-item reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                    </div>
+                    <h3>Project Files</h3>
+                    <p>Save and reload .icp project files. Pick up where you left off. Exports include the project file automatically.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ─── Formats ─── -->
+        <section class="section" id="formats">
+            <div class="section-header reveal">Export Formats</div>
+            <div class="format-grid">
+                <div class="format-tag reveal">.svg</div>
+                <div class="format-tag reveal">.ttf</div>
+                <div class="format-tag reveal">.woff</div>
+                <div class="format-tag reveal">.woff2</div>
+                <div class="format-tag reveal">.eot</div>
+                <div class="format-tag reveal">.css</div>
+                <div class="format-tag reveal">.js</div>
+                <div class="format-tag reveal">.html</div>
+                <div class="format-tag reveal">.icp</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ─── Footer ─── -->
+    <footer>
+        <div class="footer-brand">Bobcorn</div>
+        <div class="footer-links">
+            <a href="https://github.com/Caldis/bobcorn/releases">Releases</a>
+            <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+            <a href="https://github.com/Caldis">Caldis</a>
         </div>
-        <h1>Build <span>Icon Fonts</span><br>The Modern Way</h1>
-        <p>Import SVG icons, organize into groups, edit colors inline, and export production-ready icon fonts in every format.</p>
-        <div class="hero-buttons">
-            <a id="downloadBtn" href="https://github.com/Caldis/bobcorn/releases" class="btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span id="downloadLabel">Download</span>
-            </a>
-            <a href="https://github.com/Caldis/bobcorn/releases" class="btn-secondary" id="allDownloads">All Downloads</a>
-            <a href="https://github.com/Caldis/bobcorn" class="btn-secondary">View Source</a>
-        </div>
-    </section>
+    </footer>
 
     <script>
-    // Detect platform + arch and set download link to latest release asset
+    /* ─── Platform detection + GitHub release fetch ─── */
     (function() {
         var REPO = 'Caldis/bobcorn';
         var ua = navigator.userAgent.toLowerCase();
@@ -287,14 +553,11 @@
             platform = 'windows';
             label = 'Download for Windows';
         } else if (ua.indexOf('mac') !== -1) {
-            // Check Apple Silicon vs Intel
             var isArm = false;
             try {
                 isArm = navigator.userAgentData && navigator.userAgentData.architecture === 'arm';
             } catch(e) {}
-            // Fallback: check platform
             if (!isArm && (navigator.platform === 'MacIntel' || ua.indexOf('arm') !== -1)) {
-                // Modern Macs report MacIntel even on ARM, use GPU detection
                 try {
                     var canvas = document.createElement('canvas');
                     var gl = canvas.getContext('webgl');
@@ -312,14 +575,12 @@
 
         document.getElementById('downloadLabel').textContent = label;
 
-        // Fetch latest release from GitHub API
         fetch('https://api.github.com/repos/' + REPO + '/releases/latest')
             .then(function(r) { return r.json(); })
             .then(function(release) {
                 var version = release.tag_name.replace('v', '');
                 document.getElementById('versionBadge').textContent = 'v' + version;
 
-                // Find matching asset
                 var assets = release.assets || [];
                 var assetUrl = null;
 
@@ -345,79 +606,48 @@
                     document.getElementById('downloadBtn').href = assetUrl;
                 }
             })
-            .catch(function() {
-                // Fallback: link to releases page
+            .catch(function() { /* fallback: links to releases page */ });
+    })();
+
+    /* ─── Scroll reveal animations ─── */
+    (function() {
+        // Hero: staggered entrance on load
+        var heroEls = document.querySelectorAll('.hero .reveal');
+        heroEls.forEach(function(el, i) {
+            el.style.transitionDelay = (i * 0.1 + 0.15) + 's';
+        });
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                heroEls.forEach(function(el) { el.classList.add('visible'); });
             });
+        });
+
+        // Sections: reveal on scroll
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.section .reveal').forEach(function(el) {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+            a.addEventListener('click', function(e) {
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
     })();
     </script>
 
-    <section class="features" id="features">
-        <h2>Everything you need</h2>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="feature-icon">&#x1F3A8;</div>
-                <h3>Inline Color Editor</h3>
-                <p>Pick colors with HexColorPicker, eyedropper, or type any CSS color format. Changes preview instantly in the grid.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#x26A1;</div>
-                <h3>Built for Scale</h3>
-                <p>Handles 3,000+ icons smoothly with content-visibility, chunked rendering, and tiered sync architecture.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#x1F4E6;</div>
-                <h3>One-Click Export</h3>
-                <p>Export to SVG, TTF, WOFF, WOFF2, EOT, CSS, JS, and HTML demo page — all at once, with real-time progress.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#x1F4C1;</div>
-                <h3>Group Management</h3>
-                <p>Organize icons into drag-to-reorder groups. Copy, move, recycle. Search and filter across all groups instantly.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#x1F319;</div>
-                <h3>Dark Mode</h3>
-                <p>Full dark mode support with one-click toggle. All UI components adapt seamlessly.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#x1F4C4;</div>
-                <h3>Project Files</h3>
-                <p>Save and reload .icp project files. Pick up where you left off. Export includes the project file automatically.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="formats" id="formats">
-        <h2>Export Formats</h2>
-        <p>Generate every format your project needs</p>
-        <div class="format-tags">
-            <div class="format-tag">.svg</div>
-            <div class="format-tag">.ttf</div>
-            <div class="format-tag">.woff</div>
-            <div class="format-tag">.woff2</div>
-            <div class="format-tag">.eot</div>
-            <div class="format-tag">.css</div>
-            <div class="format-tag">.js</div>
-            <div class="format-tag">.html</div>
-            <div class="format-tag">.icp</div>
-        </div>
-    </section>
-
-    <section class="tech">
-        <div class="tech-pills">
-            <div class="tech-pill">Electron 28</div>
-            <div class="tech-pill">React 18</div>
-            <div class="tech-pill">TypeScript</div>
-            <div class="tech-pill">Tailwind CSS</div>
-            <div class="tech-pill">Radix UI</div>
-            <div class="tech-pill">Zustand</div>
-            <div class="tech-pill">Vite</div>
-            <div class="tech-pill">sql.js</div>
-        </div>
-    </section>
-
-    <footer>
-        <p>Built by <a href="https://github.com/Caldis">Caldis</a> &middot; <a href="https://github.com/Caldis/bobcorn">GitHub</a></p>
-    </footer>
 </body>
 </html>
