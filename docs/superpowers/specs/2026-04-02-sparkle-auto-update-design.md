@@ -65,17 +65,15 @@ export async function guardDirtyState(): Promise<boolean>
 
 `MainContainer` 的 close handler 和更新安装都调用同一个函数，消除重复逻辑。
 
-## 2. 偏好设置对话框 (PreferencesDialog)
+## 2. 偏好设置 (SettingsDialog 扩展)
 
 ### 入口
 
-FileMenuBar 菜单项拆分：
-- **项目设置** (`menu.file.projectSettings`) — 打开现有 PrefixDialog
-- **偏好设置** (`menu.file.preferences`) — 打开新的 PreferencesDialog
+复用现有 `SettingsDialog`（已包含 Language + Font Prefix 两个 section），在其下方新增 Appearance、Update、Version 三个 section。FileMenuBar 菜单保持单个"设置"入口不变。
 
 ### 布局
 
-单页纵向分区，无 tab（内容不多）。复用 `ui/dialog.tsx`，宽度 `w-[400px]`。
+单页纵向分区，无 tab。复用现有 `ui/dialog.tsx` + `SettingsDialog`。
 
 ```
 ┌─ 偏好设置 ────────────────────────── ✕ ─┐
@@ -259,29 +257,19 @@ git push origin master --follow-tags
 | `update.downloadTooltip` | 点击下载 | Click to download |
 | `update.retryTooltip` | 点击重试 | Click to retry |
 
-### 偏好设置
+### 设置对话框新增 section
 
 | Key | zh-CN | en |
 |-----|-------|----|
-| `prefs.title` | 偏好设置 | Preferences |
-| `prefs.appearance` | 外观 | Appearance |
-| `prefs.darkMode` | 深色模式 | Dark Mode |
-| `prefs.update` | 更新 | Updates |
-| `prefs.autoCheck` | 自动检查更新 | Auto-check for updates |
-| `prefs.autoDownload` | 发现新版本时自动下载 | Auto-download when available |
-| `prefs.channel` | 更新通道 | Update channel |
-| `prefs.channelStable` | 稳定版 | Stable |
-| `prefs.channelBeta` | 测试版 | Beta |
-| `prefs.version` | 版本 | Version |
-
-### 菜单项
-
-| Key | zh-CN | en |
-|-----|-------|----|
-| `menu.file.projectSettings` | 项目设置 | Project Settings |
-| `menu.file.projectSettingsDesc` | 字体前缀与项目配置 | Font prefix & project config |
-| `menu.file.preferences` | 偏好设置 | Preferences |
-| `menu.file.preferencesDesc` | 外观、更新等应用设置 | Appearance, updates & app settings |
+| `settings.appearance` | 外观 | Appearance |
+| `settings.darkMode` | 深色模式 | Dark Mode |
+| `settings.update` | 更新 | Updates |
+| `settings.autoCheck` | 自动检查更新 | Auto-check for updates |
+| `settings.autoDownload` | 发现新版本时自动下载 | Auto-download when available |
+| `settings.channel` | 更新通道 | Update channel |
+| `settings.channelStable` | 稳定版 | Stable |
+| `settings.channelBeta` | 测试版 | Beta |
+| `settings.version` | 版本 | Version |
 
 ## 8. 文件变更清单
 
@@ -291,8 +279,8 @@ git push origin master --follow-tags
 | `src/main/update-preferences.ts` | 新建 | main 进程读写 `userData/update-preferences.json` |
 | `src/preload/index.ts` | 改 | 新增 6 个 bridge 方法 |
 | `src/renderer/components/SideMenu/UpdateIndicator.tsx` | 新建 | 底栏更新指示器组件 |
-| `src/renderer/components/SideMenu/PreferencesDialog.tsx` | 新建 | 偏好设置对话框 |
-| `src/renderer/components/SideMenu/FileMenuBar.tsx` | 改 | 拆分菜单项、集成 UpdateIndicator |
+| `src/renderer/components/ui/dialog.tsx` | 改 | `confirm()` 支持 async `onOk` |
+| `src/renderer/components/SideMenu/FileMenuBar.tsx` | 改 | 集成 UpdateIndicator |
 | `src/renderer/store/index.ts` | 改 | 新增 update 状态 slice |
 | `src/renderer/config/index.ts` | 改 | 新增 3 个偏好字段 |
 | `src/renderer/utils/dirtyGuard.ts` | 新建 | 脏检测共享逻辑 |

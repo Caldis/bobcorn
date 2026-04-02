@@ -23,9 +23,11 @@
 | `src/renderer/config/index.ts` | Modify | Add 3 update preference fields to OptionData |
 | `src/renderer/store/index.ts` | Modify | Add update state slice |
 | `src/renderer/utils/dirtyGuard.ts` | Create | Shared dirty-state check + save prompt |
+| `src/renderer/components/ui/dialog.tsx` | Modify | Support async `onOk` in `confirm()` |
 | `src/renderer/components/SideMenu/UpdateIndicator.tsx` | Create | Bottom-bar update status component |
 | `src/renderer/components/SideMenu/SettingsDialog.tsx` | Modify | Add Appearance + Update + Version sections |
 | `src/renderer/components/SideMenu/FileMenuBar.tsx` | Modify | Integrate UpdateIndicator in the bar |
+| `src/renderer/components/SideMenu/index.tsx` | Modify | Pass onInstallUpdate prop to FileMenuBar |
 | `src/renderer/containers/MainContainer/index.tsx` | Modify | Register update IPC listeners, refactor close-guard to use dirtyGuard |
 | `src/locales/zh-CN.json` | Modify | Add ~18 i18n keys |
 | `src/locales/en.json` | Modify | Add ~18 i18n keys |
@@ -651,12 +653,129 @@ git commit -m "feat(main): rework autoUpdater with preferences, IPC handlers, an
 
 ---
 
-### Task 6: dirtyGuard Utility
+### Task 6: Fix `confirm()` to Support Async `onOk`
+
+The existing `confirm()` in `ui/dialog.tsx` calls `onClose()` immediately after `onOk?.()`, which doesn't wait for async operations (like saving). `guardDirtyState` needs async `onOk` to save before resolving.
+
+**Files:**
+- Modify: `src/renderer/components/ui/dialog.tsx:152-229`
+
+- [ ] **Step 1: Fix ConfirmDialog.handleOk to await onOk**
+
+In `src/renderer/components/ui/dialog.tsx`, change `ConfirmOptions` and `ConfirmDialog`:
+
+Change the `onOk` type in `ConfirmOptions` (line 158):
+
+```ts
+  onOk?: () => void | Promise<void>;
+```
+
+Change `handleOk` in `ConfirmDialog` (lines 175-178):
+
+```ts
+  const [loading, setLoading] = React.useState(false);
+  const handleOk = async () => {
+    try {
+      setLoading(true);
+      await onOk?.();
+    } finally {
+      setLoading(false);
+    }
+    onClose();
+  };
+```
+
+- [ ] **Step 2: Build to verify**
+
+Run: `npx electron-vite build`
+Expected: Clean build
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add src/renderer/components/ui/dialog.tsx
+git commit -m "fix(dialog): support async onOk in confirm() — await before closing"
+```
+
+---
+
+### Task 7: dirtyGuard Utility
 
 **Files:**
 - Create: `src/renderer/utils/dirtyGuard.ts`
+- Create: `test/unit/dirtyGuard.test.ts`
 
-- [ ] **Step 1: Create dirtyGuard.ts**
+- [ ] **Step 1: Write the failing test**
+
+Create `test/unit/dirtyGuard.test.ts`:
+
+```ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Mock the store
+const mockGetState = vi.fn();
+vi.mock('../../src/renderer/store', () => ({
+  default: { getState: () => mockGetState() },
+}));
+
+// Mock confirm dialog
+const mockConfirm = vi.fn();
+vi.mock('../../src/renderer/components/ui/dialog', () => ({
+  confirm: (opts: any) => mockConfirm(opts),
+}));
+
+// Mock i18n
+vi.mock('../../src/renderer/i18n', () => ({
+  default: { t: (key: string) => key },
+}));
+
+const { guardDirtyState } = await import('../../src/renderer/utils/dirtyGuard');
+
+describe('guardDirtyState', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns true immediately when not dirty', async () => {
+    mockGetState.mockReturnValue({ isDirty: false });
+    const result = await guardDirtyState({ saveHandler: vi.fn() });
+    expect(result).toBe(true);
+    expect(mockConfirm).not.toHaveBeenCalled();
+  });
+
+  it('shows confirm dialog when dirty', async () => {
+    mockGetState.mockReturnValue({ isDirty: true });
+    mockConfirm.mockImplementation((opts: any) => { opts.onOk(); });
+    const saveHandler = vi.fn().mockResolvedValue(undefined);
+    const result = await guardDirtyState({ saveHandler });
+    expect(mockConfirm).toHaveBeenCalledTimes(1);
+    expect(saveHandler).toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
+
+  it('returns false when user cancels', async () => {
+    mockGetState.mockReturnValue({ isDirty: true });
+    mockConfirm.mockImplementation((opts: any) => { opts.onCancel(); });
+    const result = await guardDirtyState({ saveHandler: vi.fn() });
+    expect(result).toBe(false);
+  });
+
+  it('returns false when save throws', async () => {
+    mockGetState.mockReturnValue({ isDirty: true });
+    mockConfirm.mockImplementation((opts: any) => { opts.onOk(); });
+    const saveHandler = vi.fn().mockRejectedValue(new Error('save failed'));
+    const result = await guardDirtyState({ saveHandler });
+    expect(result).toBe(false);
+  });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `npx vitest run test/unit/dirtyGuard.test.ts`
+Expected: FAIL — module not found
+
+- [ ] **Step 3: Create dirtyGuard.ts**
 
 ```ts
 import useAppStore from '../store';
@@ -666,11 +785,6 @@ import i18n from '../i18n';
 /**
  * Check if the project has unsaved changes. If dirty, prompt the user
  * to save before proceeding. Returns true if safe to continue.
- *
- * @param opts.saveHandler — the save function (returns Promise, rejects on failure)
- * @param opts.title — dialog title override (default: update.unsavedTitle)
- * @param opts.content — dialog content override (default: update.unsavedContent)
- * @param opts.okText — OK button text override (default: update.saveAndUpdate)
  */
 export async function guardDirtyState(opts: {
   saveHandler: () => Promise<void>;
@@ -702,21 +816,21 @@ export async function guardDirtyState(opts: {
 }
 ```
 
-- [ ] **Step 2: Build to verify**
+- [ ] **Step 4: Run test to verify it passes**
 
-Run: `npx electron-vite build`
-Expected: Clean build
+Run: `npx vitest run test/unit/dirtyGuard.test.ts`
+Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/renderer/utils/dirtyGuard.ts
-git commit -m "feat(utils): add guardDirtyState shared utility"
+git add src/renderer/utils/dirtyGuard.ts test/unit/dirtyGuard.test.ts
+git commit -m "feat(utils): add guardDirtyState shared utility with tests"
 ```
 
 ---
 
-### Task 7: UpdateIndicator Component
+### Task 8: UpdateIndicator Component
 
 **Files:**
 - Create: `src/renderer/components/SideMenu/UpdateIndicator.tsx`
@@ -837,20 +951,21 @@ git commit -m "feat(ui): add UpdateIndicator component for bottom bar"
 
 ---
 
-### Task 8: FileMenuBar — Integrate UpdateIndicator
+### Task 9: FileMenuBar + SideMenu — Integrate UpdateIndicator
 
 **Files:**
-- Modify: `src/renderer/components/SideMenu/FileMenuBar.tsx:136-179` (the bar's JSX)
+- Modify: `src/renderer/components/SideMenu/FileMenuBar.tsx:136-179`
+- Modify: `src/renderer/components/SideMenu/index.tsx:151`
 
-- [ ] **Step 1: Add import and onInstall prop**
+- [ ] **Step 1: Add import and onInstall prop to FileMenuBar**
 
-At the top of `FileMenuBar.tsx`, add imports:
+At the top of `FileMenuBar.tsx`, add import:
 
 ```ts
 import UpdateIndicator from './UpdateIndicator';
 ```
 
-Add to `FileMenuBarProps`:
+Extend props:
 
 ```ts
 interface FileMenuBarProps {
@@ -859,28 +974,15 @@ interface FileMenuBarProps {
 }
 ```
 
-Update the component signature:
+Update signature:
 
 ```ts
 const FileMenuBar = React.memo(function FileMenuBar({ onMenuAction, onInstallUpdate }: FileMenuBarProps) {
 ```
 
-- [ ] **Step 2: Add UpdateIndicator to the bar**
+- [ ] **Step 2: Add UpdateIndicator to the bar JSX**
 
-In the JSX, inside the `<div className="flex shrink-0 items-center border-t ...">`, after the `<button>` for `[文件]`, add the indicator:
-
-```tsx
-      <div className="flex shrink-0 items-center border-t border-border px-2.5 h-[42px]">
-        <button
-          ref={triggerRef}
-          onClick={() => setOpen(!open)}
-          {/* ... existing button content ... */}
-        </button>
-        <UpdateIndicator onInstall={onInstallUpdate} />
-      </div>
-```
-
-Note: `UpdateIndicator` uses `ml-auto` internally... actually it doesn't. We need to add a spacer. Wrap the indicator with a div:
+Inside the `<div className="flex shrink-0 items-center border-t ...">`, after the `[文件]` button, add:
 
 ```tsx
         <div className="ml-auto">
@@ -888,21 +990,32 @@ Note: `UpdateIndicator` uses `ml-auto` internally... actually it doesn't. We nee
         </div>
 ```
 
-- [ ] **Step 3: Build to verify**
+- [ ] **Step 3: Wire SideMenu to pass the prop**
+
+In `src/renderer/components/SideMenu/index.tsx`, update the FileMenuBar usage (line 151):
+
+```tsx
+      <FileMenuBar
+        onMenuAction={handleFileMenuAction}
+        onInstallUpdate={() => window.dispatchEvent(new CustomEvent('bobcorn:install-update'))}
+      />
+```
+
+- [ ] **Step 4: Build to verify**
 
 Run: `npx electron-vite build`
-Expected: Build will fail because `SideMenu/index.tsx` doesn't pass `onInstallUpdate` yet — that's expected. Fix in Task 10.
+Expected: Clean build (both files updated together, no broken intermediate state)
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/renderer/components/SideMenu/FileMenuBar.tsx
-git commit -m "feat(ui): integrate UpdateIndicator into FileMenuBar"
+git add src/renderer/components/SideMenu/FileMenuBar.tsx src/renderer/components/SideMenu/index.tsx
+git commit -m "feat(ui): integrate UpdateIndicator into FileMenuBar with SideMenu wiring"
 ```
 
 ---
 
-### Task 9: SettingsDialog — Add Update Preferences
+### Task 10: SettingsDialog — Add Update Preferences
 
 **Files:**
 - Modify: `src/renderer/components/SideMenu/SettingsDialog.tsx`
@@ -1077,18 +1190,19 @@ git commit -m "feat(settings): add appearance, update preferences, and version s
 
 ---
 
-### Task 10: MainContainer + SideMenu Wiring
+### Task 11: MainContainer — Update IPC + Close-Guard Refactor
 
 **Files:**
 - Modify: `src/renderer/containers/MainContainer/index.tsx`
-- Modify: `src/renderer/components/SideMenu/index.tsx`
 
-- [ ] **Step 1: Register update IPC listeners in MainContainer**
+- [ ] **Step 1: Register update IPC listeners**
 
 In `MainContainer/index.tsx`, add import:
 
 ```ts
 import { guardDirtyState } from '../../utils/dirtyGuard';
+import { getOption } from '../../config';
+import type { OptionData } from '../../config';
 ```
 
 Add a new `useEffect` for update IPC (after the language sync effect, around line 383):
@@ -1101,10 +1215,21 @@ Add a new `useEffect` for update IPC (after the language sync effect, around lin
         useAppStore.getState().setUpdateStatus('checking');
       }),
       electronAPI.onUpdateAvailable((info) => {
-        useAppStore.getState().setUpdateStatus('available', info.version);
+        const opts = getOption() as OptionData;
+        if (opts.autoDownloadUpdate) {
+          // Auto-download is on — skip 'available' state, will transition to 'downloading' on progress
+          useAppStore.getState().setUpdateStatus('downloading');
+          useAppStore.getState().setUpdateStatus('available', info.version);
+          // Version is stored but status will be overwritten by first progress event
+        } else {
+          useAppStore.getState().setUpdateStatus('available', info.version);
+        }
       }),
       electronAPI.onUpdateProgress((info) => {
-        useAppStore.getState().setUpdateStatus('downloading');
+        const { updateStatus } = useAppStore.getState();
+        if (updateStatus !== 'downloading') {
+          useAppStore.getState().setUpdateStatus('downloading');
+        }
         useAppStore.getState().setUpdateProgress(info.percent);
       }),
       electronAPI.onUpdateDownloaded(() => {
@@ -1119,7 +1244,11 @@ Add a new `useEffect` for update IPC (after the language sync effect, around lin
   }, []);
 ```
 
-Create the install handler that uses `guardDirtyState`:
+**Key fixes from review:**
+- `onUpdateProgress` only sets status to `downloading` if not already there (avoids redundant Zustand updates)
+- `onUpdateAvailable` stores version even when auto-download is on, so UpdateIndicator shows the version during download
+
+- [ ] **Step 2: Create install handler with guardDirtyState**
 
 ```ts
   const handleInstallUpdate = useCallback(async () => {
@@ -1132,10 +1261,9 @@ Create the install handler that uses `guardDirtyState`:
   }, [handleSave]);
 ```
 
-Expose the handler via a custom event (so SideMenu can receive it without prop drilling):
+Expose via custom event (follows existing `bobcorn:*` pattern used by file operations):
 
 ```ts
-  // Expose install-update handler as a custom event for SideMenu
   useEffect(() => {
     const handler = () => handleInstallUpdate();
     window.addEventListener('bobcorn:install-update', handler);
@@ -1143,29 +1271,13 @@ Expose the handler via a custom event (so SideMenu can receive it without prop d
   }, [handleInstallUpdate]);
 ```
 
-- [ ] **Step 2: Wire SideMenu → FileMenuBar**
-
-In `src/renderer/components/SideMenu/index.tsx`, update the `FileMenuBar` usage (line 151):
-
-```tsx
-      <FileMenuBar
-        onMenuAction={handleFileMenuAction}
-        onInstallUpdate={() => window.dispatchEvent(new CustomEvent('bobcorn:install-update'))}
-      />
-```
-
 - [ ] **Step 3: Refactor close-guard to use guardDirtyState**
 
-In `MainContainer/index.tsx`, refactor the close guard `useEffect` (lines 333-375) to reuse `guardDirtyState`. Replace the `onConfirmClose` callback body:
+Replace the close guard `useEffect` (lines 333-375). The `guardDirtyState` handles the `isDirty` check internally — no need for a separate pre-check:
 
 ```ts
   useEffect(() => {
     const cleanup = electronAPI.onConfirmClose(async () => {
-      const dirty = useAppStore.getState().isDirty;
-      if (!dirty) {
-        electronAPI.confirmClose();
-        return;
-      }
       const canProceed = await guardDirtyState({
         saveHandler: handleSave,
         title: t('file.unsavedTitle'),
@@ -1193,26 +1305,21 @@ In `MainContainer/index.tsx`, refactor the close guard `useEffect` (lines 333-37
   }, [handleSave, t]);
 ```
 
-- [ ] **Step 4: Build to verify everything compiles**
+- [ ] **Step 4: Build and test**
 
-Run: `npx electron-vite build`
-Expected: Clean build
+Run: `npx electron-vite build && npx vitest run`
+Expected: Clean build, all tests pass
 
-- [ ] **Step 5: Run all unit tests**
-
-Run: `npx vitest run`
-Expected: All existing + new tests pass
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/renderer/containers/MainContainer/index.tsx src/renderer/components/SideMenu/index.tsx
+git add src/renderer/containers/MainContainer/index.tsx
 git commit -m "feat: wire update IPC listeners, dirtyGuard, and install handler"
 ```
 
 ---
 
-### Task 11: CI — Beta Pre-release Flag
+### Task 12: CI — Beta Pre-release Flag
 
 **Files:**
 - Modify: `.github/workflows/release.yml:186`
@@ -1241,7 +1348,7 @@ git commit -m "ci: mark beta/alpha tags as pre-release on GitHub"
 
 ---
 
-### Task 12: Integration Smoke Test
+### Task 13: Integration Smoke Test
 
 - [ ] **Step 1: Build**
 
