@@ -12,6 +12,7 @@ import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 import mainI18n from './i18n';
 import { registerPixelPicker } from 'electron-pixel-picker';
+import { readUpdatePreferences, writeUpdatePreferences } from './update-preferences';
 
 /** Extract the first .icp file path from an argv array */
 function extractIcpPath(argv: string[]): string | null {
@@ -244,21 +245,61 @@ if (!gotLock) {
       }
     );
 
-    // Auto-update
     // Screen color picker
     registerPixelPicker();
 
-    ipcMain.on('install-update', () => {
-      autoUpdater.quitAndInstall();
+    // ── Auto-update ───────────────────────────────────────────────
+    const prefs = readUpdatePreferences();
+    autoUpdater.autoDownload = prefs.autoDownloadUpdate;
+    autoUpdater.allowPrerelease = prefs.updateChannel === 'beta';
+    autoUpdater.autoInstallOnAppQuit = true;
+
+    // Forward autoUpdater events to renderer
+    autoUpdater.on('checking-for-update', () => {
+      mainWindow?.webContents.send('update-checking');
     });
-
-    autoUpdater.checkForUpdatesAndNotify();
-
-    autoUpdater.on('update-available', () => {
-      mainWindow?.webContents.send('update-available');
+    autoUpdater.on('update-available', (info) => {
+      mainWindow?.webContents.send('update-available', { version: info.version });
+    });
+    autoUpdater.on('download-progress', (progress) => {
+      mainWindow?.webContents.send('update-progress', { percent: Math.round(progress.percent) });
     });
     autoUpdater.on('update-downloaded', () => {
       mainWindow?.webContents.send('update-downloaded');
     });
+    autoUpdater.on('error', (err) => {
+      mainWindow?.webContents.send('update-error', { message: err?.message || 'Unknown error' });
+    });
+
+    // IPC handlers from renderer
+    ipcMain.on('check-for-update', () => {
+      autoUpdater.checkForUpdates().catch(() => {});
+    });
+    ipcMain.on('download-update', () => {
+      autoUpdater.downloadUpdate().catch(() => {});
+    });
+    ipcMain.on('install-update', () => {
+      autoUpdater.quitAndInstall();
+    });
+    ipcMain.on(
+      'set-update-channel',
+      (_event: Electron.IpcMainEvent, { channel }: { channel: 'stable' | 'beta' }) => {
+        autoUpdater.allowPrerelease = channel === 'beta';
+        writeUpdatePreferences({ updateChannel: channel });
+        autoUpdater.checkForUpdates().catch(() => {});
+      }
+    );
+    ipcMain.on('sync-update-preferences', (_event: Electron.IpcMainEvent, incoming: any) => {
+      writeUpdatePreferences(incoming);
+      autoUpdater.autoDownload = incoming.autoDownloadUpdate ?? autoUpdater.autoDownload;
+      if (incoming.updateChannel) {
+        autoUpdater.allowPrerelease = incoming.updateChannel === 'beta';
+      }
+    });
+
+    // Only auto-check in production
+    if (process.env.NODE_ENV !== 'development' && prefs.autoCheckUpdate) {
+      autoUpdater.checkForUpdates().catch(() => {});
+    }
   });
 }
