@@ -10,6 +10,7 @@ import { getOption, setOption } from '../../config';
 import type { OptionData } from '../../config';
 import db from '../../database';
 import useAppStore from '../../store';
+import appIcon from '../../resources/imgs/icon.png';
 import i18n from '../../i18n';
 import { supportedLanguages } from '../../../locales';
 
@@ -124,53 +125,6 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
         {/* ── Divider ───────────────────────────────────── */}
         <div className="border-t border-border" />
 
-        {/* ── Font Prefix ──────────────────────────────── */}
-        <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.prefix')}
-          </h4>
-          <div className="flex items-center gap-2">
-            <Input
-              className="flex-1"
-              placeholder={t('prefix.placeholder')}
-              value={editingPrefixText}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setEditingPrefixText(e.target.value);
-                setEditingPrefixErrText(null);
-              }}
-              onPressEnter={prefixChanged ? handleApplyPrefix : undefined}
-            />
-            <button
-              disabled={!prefixChanged}
-              onClick={handleApplyPrefix}
-              className={cn(
-                'shrink-0 h-8 px-3 rounded-md text-sm font-medium',
-                'transition-colors duration-150',
-                'disabled:opacity-40 disabled:cursor-not-allowed',
-                prefixChanged
-                  ? 'bg-red-500 text-white hover:bg-red-600 border border-red-500'
-                  : 'bg-surface-muted text-foreground-muted border border-border'
-              )}
-            >
-              {t('settings.prefixApply')}
-            </button>
-          </div>
-          {editingPrefixErrText && (
-            <p className="text-[11px] text-red-500 mt-1">{editingPrefixErrText}</p>
-          )}
-          <p className="text-[11px] text-foreground-muted/50 mt-1.5 leading-relaxed">
-            {t('settings.prefixDesc')}
-          </p>
-        </section>
-
-        {/* ── Divider ───────────────────────────────────── */}
-        <div className="border-t border-border" />
-
         {/* ── Appearance ──────────────────────────────── */}
         <section>
           <h4
@@ -249,6 +203,56 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
         {/* ── Divider ───────────────────────────────────── */}
         <div className="border-t border-border" />
 
+        {/* ── Advanced ───────────────────────────────── */}
+        <section>
+          <h4
+            className={cn(
+              'text-[11px] font-semibold uppercase tracking-widest',
+              'text-red-500/70 mb-2.5'
+            )}
+          >
+            {t('settings.advanced')}
+          </h4>
+          <div className="rounded-md border border-red-500/20 bg-red-500/5 p-3">
+            <label className="block text-sm text-red-400 mb-1.5">{t('settings.prefix')}</label>
+            <div className="flex items-center gap-2">
+              <Input
+                className="flex-1"
+                placeholder={t('prefix.placeholder')}
+                value={editingPrefixText}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setEditingPrefixText(e.target.value);
+                  setEditingPrefixErrText(null);
+                }}
+                onPressEnter={prefixChanged ? handleApplyPrefix : undefined}
+              />
+              <button
+                disabled={!prefixChanged}
+                onClick={handleApplyPrefix}
+                className={cn(
+                  'shrink-0 h-8 px-3 rounded-md text-sm font-medium',
+                  'transition-colors duration-150',
+                  'disabled:opacity-40 disabled:cursor-not-allowed',
+                  prefixChanged
+                    ? 'bg-red-500 text-white hover:bg-red-600 border border-red-500'
+                    : 'bg-surface-muted text-foreground-muted border border-border'
+                )}
+              >
+                {t('settings.prefixApply')}
+              </button>
+            </div>
+            {editingPrefixErrText && (
+              <p className="text-[11px] text-red-500 mt-1">{editingPrefixErrText}</p>
+            )}
+            <p className="text-[11px] text-red-400/50 mt-1.5 leading-relaxed">
+              {t('settings.prefixDesc')}
+            </p>
+          </div>
+        </section>
+
+        {/* ── Divider ───────────────────────────────────── */}
+        <div className="border-t border-border" />
+
         {/* ── Version ────────────────────────────────── */}
         <section>
           <h4
@@ -259,16 +263,19 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
           >
             {t('settings.version')}
           </h4>
-          <p className="text-sm text-foreground-muted">
-            Bobcorn v{__APP_VERSION__}
-            <span className="mx-1.5 text-foreground-muted/30">·</span>
-            <a
-              href="https://bobcorn.caldis.me/"
-              className="text-brand-500 hover:text-brand-600 transition-colors duration-150"
-            >
-              {t('settings.website')}
-            </a>
-          </p>
+          <div className="flex items-center gap-2 text-sm text-foreground-muted">
+            <img src={appIcon} alt="" className="h-4 w-4" />
+            <span>
+              Bobcorn v{__APP_VERSION__}
+              <span className="mx-1.5 text-foreground-muted/30">·</span>
+              <a
+                href="https://bobcorn.caldis.me/"
+                className="text-brand-500 hover:text-brand-600 transition-colors duration-150"
+              >
+                {t('settings.website')}
+              </a>
+            </span>
+          </div>
         </section>
       </div>
     </Dialog>
