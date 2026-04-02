@@ -30,8 +30,8 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const [autoCheck, setAutoCheck] = useState(opts.autoCheckUpdate);
   const [autoDownload, setAutoDownload] = useState(opts.autoDownloadUpdate);
   const [channel, setChannel] = useState<'stable' | 'beta'>(opts.updateChannel);
-  const darkMode = useAppStore((s: any) => s.darkMode);
-  const toggleDarkMode = useAppStore((s: any) => s.toggleDarkMode);
+  const themeMode = useAppStore((s: any) => s.themeMode);
+  const setThemeMode = useAppStore((s: any) => s.setThemeMode);
 
   const syncPrefsToMain = (updates: Partial<OptionData>) => {
     setOption(updates);
@@ -136,8 +136,76 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
             {t('settings.appearance')}
           </h4>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground">{t('settings.darkMode')}</span>
-            <Switch checked={darkMode} onChange={() => toggleDarkMode()} />
+            <span className="text-sm text-foreground">{t('settings.theme')}</span>
+            <div className="inline-flex rounded-md border border-border overflow-hidden">
+              {(['light', 'system', 'dark'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setThemeMode(mode)}
+                  className={cn(
+                    'px-2.5 py-1 text-[11px] font-medium transition-colors duration-100',
+                    'flex items-center gap-1',
+                    themeMode === mode
+                      ? 'bg-brand-500 text-white'
+                      : 'text-foreground-muted hover:bg-surface-accent'
+                  )}
+                >
+                  {mode === 'light' && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="4" />
+                      <path d="M12 2v2" />
+                      <path d="M12 20v2" />
+                      <path d="m4.93 4.93 1.41 1.41" />
+                      <path d="m17.66 17.66 1.41 1.41" />
+                      <path d="M2 12h2" />
+                      <path d="M20 12h2" />
+                      <path d="m6.34 17.66-1.41 1.41" />
+                      <path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
+                  )}
+                  {mode === 'dark' && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                    </svg>
+                  )}
+                  {mode === 'system' && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect width="20" height="14" x="2" y="3" rx="2" />
+                      <line x1="8" x2="16" y1="21" y2="21" />
+                      <line x1="12" x2="12" y1="17" y2="21" />
+                    </svg>
+                  )}
+                  {t(`settings.theme.${mode}`)}
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 

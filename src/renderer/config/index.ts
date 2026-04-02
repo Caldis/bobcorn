@@ -25,6 +25,7 @@ export interface OptionData {
   sideMenuWidth: number;
   sideEditorWidth: number;
   darkMode: boolean;
+  themeMode: 'light' | 'dark' | 'system';
   currentFilePath: string | null;
   // Update preferences
   autoCheckUpdate: boolean;
@@ -66,6 +67,7 @@ export const defOption: OptionData = {
   sideMenuWidth: 250,
   sideEditorWidth: 250,
   darkMode: false,
+  themeMode: 'system',
   currentFilePath: null,
   // Update preferences
   autoCheckUpdate: true,

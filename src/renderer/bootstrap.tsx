@@ -7,9 +7,13 @@ import { getOption } from './config';
 // Initialize profiler (attaches to window.__BOBCORN_PERF__)
 import './utils/profiler';
 
-// Apply dark mode synchronously before first render to avoid flash
-const opts = getOption() as { darkMode?: boolean };
-if (opts.darkMode) {
+// Apply theme synchronously before first render to avoid flash
+const opts = getOption() as { themeMode?: 'light' | 'dark' | 'system'; darkMode?: boolean };
+const themeMode = opts.themeMode ?? (opts.darkMode ? 'dark' : 'light'); // migrate old boolean
+const isDark =
+  themeMode === 'dark' ||
+  (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+if (isDark) {
   document.documentElement.classList.add('dark');
 }
 

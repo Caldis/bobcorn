@@ -13,6 +13,7 @@ export interface State {
   sideMenuVisible: boolean;
   sideEditorVisible: boolean;
   darkMode: boolean;
+  themeMode: 'light' | 'dark' | 'system';
 
   // Batch selection
   selectedIcons: Set<string>;
@@ -44,7 +45,7 @@ export interface Actions {
   selectSource: (source: 'local' | 'cloud') => void;
   setSideMenuVisible: (visible: boolean) => void;
   setSideEditorVisible: (visible: boolean) => void;
-  toggleDarkMode: () => void;
+  setThemeMode: (mode: State['themeMode']) => void;
   // Batch selection
   toggleBatchMode: () => void;
   toggleIconSelection: (id: string) => void;
@@ -79,6 +80,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
   sideMenuVisible: true,
   sideEditorVisible: true,
   darkMode: false,
+  themeMode: 'system' as const,
 
   // Batch selection
   selectedIcons: new Set<string>(),
@@ -128,11 +130,13 @@ const useAppStore = create<State & Actions>((set, get) => ({
   setSideMenuVisible: (visible: boolean) => set({ sideMenuVisible: visible }),
   setSideEditorVisible: (visible: boolean) => set({ sideEditorVisible: visible }),
 
-  toggleDarkMode: () => {
-    const next = !get().darkMode;
-    set({ darkMode: next });
-    setOption({ darkMode: next });
-    document.documentElement.classList.toggle('dark', next);
+  setThemeMode: (mode) => {
+    const isDark =
+      mode === 'dark' ||
+      (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    set({ themeMode: mode, darkMode: isDark });
+    setOption({ themeMode: mode, darkMode: isDark });
+    document.documentElement.classList.toggle('dark', isDark);
   },
 
   // Batch selection actions

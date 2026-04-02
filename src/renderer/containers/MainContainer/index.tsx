@@ -289,10 +289,19 @@ function MainContainer() {
   useEffect(() => {
     preventDrop();
     disableChromeAutoFocus();
-    // Sync dark mode store state (DOM class already applied in bootstrap.tsx)
-    if (opts.darkMode) {
-      useAppStore.getState().toggleDarkMode();
-    }
+    // Sync theme store state (DOM class already applied in bootstrap.tsx)
+    const themeMode = (opts as any).themeMode ?? (opts.darkMode ? 'dark' : 'light');
+    useAppStore.getState().setThemeMode(themeMode);
+
+    // Listen for OS theme changes when in 'system' mode
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemChange = () => {
+      if (useAppStore.getState().themeMode === 'system') {
+        useAppStore.getState().setThemeMode('system');
+      }
+    };
+    mq.addEventListener('change', handleSystemChange);
+    return () => mq.removeEventListener('change', handleSystemChange);
   }, []);
 
   // ── Menu IPC listeners (Electron menu) ────────────────────────────

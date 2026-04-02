@@ -84,6 +84,7 @@ describe('defOption', () => {
       sideMenuWidth: 250,
       sideEditorWidth: 250,
       darkMode: false,
+      themeMode: 'system',
       currentFilePath: null,
       autoCheckUpdate: true,
       autoDownloadUpdate: false,
