@@ -85,6 +85,9 @@ describe('defOption', () => {
       sideEditorWidth: 250,
       darkMode: false,
       currentFilePath: null,
+      autoCheckUpdate: true,
+      autoDownloadUpdate: false,
+      updateChannel: 'stable',
     });
   });
 });
