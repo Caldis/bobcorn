@@ -29,6 +29,12 @@ export interface State {
   // File state
   currentFilePath: string | null;
   isDirty: boolean;
+
+  // Update state (UI only, not persisted)
+  updateStatus: 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error';
+  updateVersion: string | null;
+  updateProgress: number;
+  updateError: string | null;
 }
 
 export interface Actions {
@@ -57,6 +63,11 @@ export interface Actions {
   setCurrentFilePath: (path: string | null) => void;
   markDirty: () => void;
   markClean: () => void;
+
+  // Update actions
+  setUpdateStatus: (status: State['updateStatus'], version?: string) => void;
+  setUpdateProgress: (percent: number) => void;
+  setUpdateError: (error: string | null) => void;
 }
 
 const useAppStore = create<State & Actions>((set, get) => ({
@@ -82,6 +93,12 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // File state
   currentFilePath: (getOption('currentFilePath') as string | null) ?? null,
   isDirty: false,
+
+  // Update state
+  updateStatus: 'idle',
+  updateVersion: null,
+  updateProgress: 0,
+  updateError: null,
 
   // Actions
   showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
@@ -204,6 +221,17 @@ const useAppStore = create<State & Actions>((set, get) => ({
   markClean: () => {
     if (get().isDirty) set({ isDirty: false });
   },
+
+  // Update actions
+  setUpdateStatus: (status, version?) => {
+    set({
+      updateStatus: status,
+      ...(version !== undefined ? { updateVersion: version } : {}),
+      ...(status === 'idle' ? { updateVersion: null, updateProgress: 0, updateError: null } : {}),
+    });
+  },
+  setUpdateProgress: (percent) => set({ updateProgress: percent }),
+  setUpdateError: (error) => set({ updateError: error }),
 }));
 
 export default useAppStore;
