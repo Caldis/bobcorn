@@ -26,6 +26,10 @@ export interface OptionData {
   sideEditorWidth: number;
   darkMode: boolean;
   currentFilePath: string | null;
+  // Update preferences
+  autoCheckUpdate: boolean;
+  autoDownloadUpdate: boolean;
+  updateChannel: 'stable' | 'beta';
 }
 
 // 全局参数相关
@@ -63,6 +67,10 @@ export const defOption: OptionData = {
   sideEditorWidth: 250,
   darkMode: false,
   currentFilePath: null,
+  // Update preferences
+  autoCheckUpdate: true,
+  autoDownloadUpdate: false,
+  updateChannel: 'stable',
 };
 // 重置设置
 export const resetOption = (): void => {

@@ -148,7 +148,10 @@ const SideMenu = React.memo(function SideMenu({
       />
 
       {/* 底栏 — 文件菜单 */}
-      <FileMenuBar onMenuAction={handleFileMenuAction} />
+      <FileMenuBar
+        onMenuAction={handleFileMenuAction}
+        onInstallUpdate={() => window.dispatchEvent(new CustomEvent('bobcorn:install-update'))}
+      />
 
       {/* 分组管理对话框（添加 + 重命名） */}
       <GroupDialogs

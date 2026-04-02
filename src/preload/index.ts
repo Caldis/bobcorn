@@ -72,13 +72,51 @@ contextBridge.exposeInMainWorld('electronAPI', {
   platform: os.platform(),
 
   // Auto-update
-  onUpdateAvailable: (callback: (event: IpcRendererEvent, ...args: unknown[]) => void): void => {
-    ipcRenderer.on('update-available', callback);
+  onUpdateChecking: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('update-checking', handler);
+    return () => {
+      ipcRenderer.removeListener('update-checking', handler);
+    };
   },
-  onUpdateDownloaded: (callback: (event: IpcRendererEvent, ...args: unknown[]) => void): void => {
-    ipcRenderer.on('update-downloaded', callback);
+  onUpdateAvailable: (callback: (info: { version: string }) => void) => {
+    const handler = (_event: IpcRendererEvent, info: { version: string }) => callback(info);
+    ipcRenderer.on('update-available', handler);
+    return () => {
+      ipcRenderer.removeListener('update-available', handler);
+    };
+  },
+  onUpdateProgress: (callback: (info: { percent: number }) => void) => {
+    const handler = (_event: IpcRendererEvent, info: { percent: number }) => callback(info);
+    ipcRenderer.on('update-progress', handler);
+    return () => {
+      ipcRenderer.removeListener('update-progress', handler);
+    };
+  },
+  onUpdateDownloaded: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on('update-downloaded', handler);
+    return () => {
+      ipcRenderer.removeListener('update-downloaded', handler);
+    };
+  },
+  onUpdateError: (callback: (info: { message: string }) => void) => {
+    const handler = (_event: IpcRendererEvent, info: { message: string }) => callback(info);
+    ipcRenderer.on('update-error', handler);
+    return () => {
+      ipcRenderer.removeListener('update-error', handler);
+    };
   },
   installUpdate: (): void => ipcRenderer.send('install-update'),
+  checkForUpdate: (): void => ipcRenderer.send('check-for-update'),
+  downloadUpdate: (): void => ipcRenderer.send('download-update'),
+  setUpdateChannel: (channel: 'stable' | 'beta'): void =>
+    ipcRenderer.send('set-update-channel', { channel }),
+  syncUpdatePreferences: (prefs: {
+    autoCheckUpdate: boolean;
+    autoDownloadUpdate: boolean;
+    updateChannel: 'stable' | 'beta';
+  }): void => ipcRenderer.send('sync-update-preferences', prefs),
 
   // ── Menu commands (main → renderer) ──────────────────────────────
   onMenuNewProject: (callback: () => void) => {

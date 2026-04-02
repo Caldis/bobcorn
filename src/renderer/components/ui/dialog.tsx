@@ -155,7 +155,7 @@ interface ConfirmOptions {
   okText?: string;
   okType?: 'default' | 'primary' | 'danger';
   cancelText?: string;
-  onOk?: () => void;
+  onOk?: () => void | Promise<void>;
   onCancel?: () => void;
 }
 
@@ -172,9 +172,15 @@ function ConfirmDialog({
   const { t } = useTranslation();
   const resolvedOkText = okText ?? t('common.confirm');
   const resolvedCancelText = cancelText ?? t('common.cancel');
-  const handleOk = () => {
-    onOk?.();
-    onClose();
+  const [loading, setLoading] = React.useState(false);
+  const handleOk = async () => {
+    try {
+      setLoading(true);
+      await onOk?.();
+    } finally {
+      setLoading(false);
+      onClose();
+    }
   };
   const handleCancel = () => {
     onCancel?.();
@@ -197,11 +203,12 @@ function ConfirmDialog({
         <button
           key="cancel"
           onClick={handleCancel}
+          disabled={loading}
           className="px-4 py-1.5 rounded-md text-sm font-medium border border-border text-foreground hover:bg-surface-muted transition-colors"
         >
           {resolvedCancelText}
         </button>,
-        <button key="ok" onClick={handleOk} className={okBtnClass}>
+        <button key="ok" onClick={handleOk} disabled={loading} className={okBtnClass}>
           {resolvedOkText}
         </button>,
       ]}

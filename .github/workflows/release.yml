@@ -182,8 +182,14 @@ jobs:
           # Delete existing published release for this tag (re-run scenario)
           gh release delete "${TAG}" --yes 2>/dev/null || true
 
+          # Detect beta/alpha tags and mark as pre-release
+          PRERELEASE_FLAG=""
+          if [[ "${TAG}" == *"-beta"* || "${TAG}" == *"-alpha"* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+
           # Create fresh release
-          gh release create "${TAG}" --title "${TAG#v}" --notes-file changelog.md
+          gh release create "${TAG}" ${PRERELEASE_FLAG} --title "${TAG#v}" --notes-file changelog.md
 
           # Upload all release assets (handle filenames with spaces)
           find artifacts/ -type f \( \
