@@ -62,6 +62,7 @@ export default defineConfig({
     define: {
       // Provide Buffer global via the buffer package
       'global': 'globalThis',
+      '__APP_VERSION__': JSON.stringify(require('./package.json').version),
     },
     css: {
       modules: {
