@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FilePlus2, FolderOpen, Save, SaveAll, Import, Upload, Settings, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { platform } from '../../utils/tools';
+import UpdateIndicator from './UpdateIndicator';
 
 const mod = platform() === 'darwin' ? '⌘' : 'Ctrl+';
 
@@ -17,9 +18,13 @@ interface FileMenuItem {
 
 interface FileMenuBarProps {
   onMenuAction: (key: string) => void;
+  onInstallUpdate: () => void;
 }
 
-const FileMenuBar = React.memo(function FileMenuBar({ onMenuAction }: FileMenuBarProps) {
+const FileMenuBar = React.memo(function FileMenuBar({
+  onMenuAction,
+  onInstallUpdate,
+}: FileMenuBarProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [posReady, setPosReady] = useState(false);
@@ -181,6 +186,9 @@ const FileMenuBar = React.memo(function FileMenuBar({ onMenuAction }: FileMenuBa
             <polyline points="18 15 12 9 6 15" />
           </svg>
         </button>
+        <div className="ml-auto">
+          <UpdateIndicator onInstall={onInstallUpdate} />
+        </div>
       </div>
 
       {open &&
