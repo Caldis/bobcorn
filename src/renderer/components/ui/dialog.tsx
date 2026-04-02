@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { createRoot } from 'react-dom/client';
 import { cn } from '../../lib/utils';
@@ -161,13 +162,16 @@ interface ConfirmOptions {
 function ConfirmDialog({
   title,
   content,
-  okText = '确定',
+  okText,
   okType = 'primary',
-  cancelText = '取消',
+  cancelText,
   onOk,
   onCancel,
   onClose,
 }: ConfirmOptions & { onClose: () => void }) {
+  const { t } = useTranslation();
+  const resolvedOkText = okText ?? t('common.confirm');
+  const resolvedCancelText = cancelText ?? t('common.cancel');
   const handleOk = () => {
     onOk?.();
     onClose();
@@ -195,10 +199,10 @@ function ConfirmDialog({
           onClick={handleCancel}
           className="px-4 py-1.5 rounded-md text-sm font-medium border border-border text-foreground hover:bg-surface-muted transition-colors"
         >
-          {cancelText}
+          {resolvedCancelText}
         </button>,
         <button key="ok" onClick={handleOk} className={okBtnClass}>
-          {okText}
+          {resolvedOkText}
         </button>,
       ]}
     >

@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
@@ -32,6 +33,7 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
   onRename: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: group.id,
   });
@@ -75,8 +77,8 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
           <Dropdown
             menu={{
               items: [
-                { key: 'rename', label: '编辑分组' },
-                { key: 'delete', label: '删除分组' },
+                { key: 'rename', label: t('group.edit') },
+                { key: 'delete', label: t('group.delete') },
               ],
               onClick: (info) => {
                 if (info.key === 'rename') onRename();
@@ -113,6 +115,7 @@ const GroupList = React.memo(function GroupList({
   onRenameGroup,
   onDeleteGroup,
 }: GroupListProps) {
+  const { t } = useTranslation();
   const syncLeft = useAppStore((state: any) => state.syncLeft);
 
   // 批量缓存所有分组的图标计数 — 只在 groupData 变化时重算
@@ -144,7 +147,7 @@ const GroupList = React.memo(function GroupList({
       <div className="sticky top-0 z-10 flex items-center gap-1.5 px-4 pt-3 pb-1 bg-surface dark:bg-surface">
         <Tags size={14} className="text-foreground-muted" />
         <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
-          分组
+          {t('group.groups')}
         </span>
         <button
           className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-brand-50 hover:text-brand-500 dark:hover:bg-brand-950/40"
@@ -182,9 +185,13 @@ const GroupList = React.memo(function GroupList({
           className="absolute left-0 z-10 flex w-full flex-col items-center justify-center text-center text-foreground-muted"
           style={{ top: 'calc(44vh)' }}
         >
-          <img className="mx-auto w-[120px] opacity-60" src={addGroupHint} alt="添加分组" />
-          <p className="mb-1 mt-3 text-sm">还没有分组</p>
-          <p className="text-xs text-foreground-muted">点击上方的 &quot;+&quot;可以创建分组</p>
+          <img
+            className="mx-auto w-[120px] opacity-60"
+            src={addGroupHint}
+            alt={t('group.addHint')}
+          />
+          <p className="mb-1 mt-3 text-sm">{t('group.noGroups')}</p>
+          <p className="text-xs text-foreground-muted">{t('group.noGroupsHint')}</p>
         </div>
       )}
     </div>

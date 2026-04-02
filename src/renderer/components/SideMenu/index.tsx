@@ -1,5 +1,6 @@
 // React
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 // UI
 import { confirm, message } from '../ui';
 // Config
@@ -19,7 +20,7 @@ import GroupList from './GroupList';
 import FileMenuBar from './FileMenuBar';
 import ExportDialog from './ExportDialog';
 import GroupDialogs from './GroupDialogs';
-import PrefixDialog from './PrefixDialog';
+import SettingsDialog from './SettingsDialog';
 // Types
 import type { GroupData } from './types';
 
@@ -32,6 +33,7 @@ const SideMenu = React.memo(function SideMenu({
   handleGroupSelected,
   selectedGroup: selectedGroupProp,
 }: SideMenuProps) {
+  const { t } = useTranslation();
   const groupData: GroupData[] = useAppStore((state: any) => state.groupData);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
 
@@ -72,7 +74,7 @@ const SideMenu = React.memo(function SideMenu({
           iconImporter({
             onSelectSVG: (files: any[]) => {
               db.addIcons(files, selectedGroup, () => {
-                message.success(`已成功导入 ${files.length} 个图标`);
+                message.success(t('import.success', { count: files.length }));
                 syncLeft();
               });
             },
@@ -129,13 +131,13 @@ const SideMenu = React.memo(function SideMenu({
         }}
         onDeleteGroup={(group: GroupData) => {
           confirm({
-            title: '删除分组',
-            content: `确定要删除分组「${group.groupName}」吗？该分组内的图标将移入未分组。`,
-            okText: '删除',
+            title: t('group.deleteConfirmTitle'),
+            content: t('group.deleteConfirm', { name: group.groupName }),
+            okText: t('group.deleteOk'),
             okType: 'danger',
             onOk() {
               db.delGroup(group.id, () => {
-                message.success('分组已删除');
+                message.success(t('group.deleteSuccess'));
                 syncLeft();
                 setSelectedGroup('resource-all');
                 handleGroupSelected('resource-all');
@@ -166,8 +168,8 @@ const SideMenu = React.memo(function SideMenu({
         }}
       />
 
-      {/* 前缀编辑对话框 */}
-      <PrefixDialog visible={prefixVisible} onClose={() => setPrefixVisible(false)} />
+      {/* 设置对话框 */}
+      <SettingsDialog visible={prefixVisible} onClose={() => setPrefixVisible(false)} />
 
       {/* 导出对话框 */}
       <ExportDialog visible={exportVisible} onClose={() => setExportVisible(false)} />
