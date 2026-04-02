@@ -670,6 +670,13 @@ Change the `onOk` type in `ConfirmOptions` (line 158):
   onOk?: () => void | Promise<void>;
 ```
 
+Add `disabled={loading}` to both buttons in ConfirmDialog's `footer` to prevent double-click during async save:
+
+```tsx
+        <button key="cancel" onClick={handleCancel} disabled={loading} ...>
+        <button key="ok" onClick={handleOk} disabled={loading} ...>
+```
+
 Change `handleOk` in `ConfirmDialog` (lines 175-178):
 
 ```ts
@@ -680,8 +687,8 @@ Change `handleOk` in `ConfirmDialog` (lines 175-178):
       await onOk?.();
     } finally {
       setLoading(false);
+      onClose();
     }
-    onClose();
   };
 ```
 
@@ -1146,14 +1153,12 @@ After the existing Font Prefix `</section>` and before the closing `</div>`, add
             {t('settings.version')}
           </h4>
           <p className="text-sm text-foreground-muted">
-            Bobcorn v{(window as any).electronAPI?.getAppPath ? __APP_VERSION__ : '—'}
+            Bobcorn v{__APP_VERSION__}
           </p>
         </section>
 ```
 
-**Note:** For the version display, we need to inject the app version at build time. The simplest approach: use `import.meta.env.PACKAGE_VERSION` or define it in `electron.vite.config.js`. A simpler option: just read it from `require('../../../package.json').version` — but in the renderer (bundled), the cleanest way is a Vite `define`:
-
-In `electron.vite.config.js`, in the `renderer` config, add to the existing `define`:
+**Version injection:** Add `__APP_VERSION__` as a Vite define in `electron.vite.config.js`, in the `renderer.define` block:
 
 ```js
     define: {
@@ -1162,15 +1167,7 @@ In `electron.vite.config.js`, in the `renderer` config, add to the existing `def
     },
 ```
 
-And in the component, replace the version line with:
-
-```tsx
-          <p className="text-sm text-foreground-muted">
-            Bobcorn v{__APP_VERSION__}
-          </p>
-```
-
-Add a type declaration in `types.d.ts`:
+Add a type declaration in `types.d.ts` (same file modified in Task 4):
 
 ```ts
 declare const __APP_VERSION__: string;
@@ -1217,10 +1214,10 @@ Add a new `useEffect` for update IPC (after the language sync effect, around lin
       electronAPI.onUpdateAvailable((info) => {
         const opts = getOption() as OptionData;
         if (opts.autoDownloadUpdate) {
-          // Auto-download is on — skip 'available' state, will transition to 'downloading' on progress
+          // Auto-download is on — skip 'available', go straight to 'downloading'
+          // Use setState directly to store version while setting downloading status
           useAppStore.getState().setUpdateStatus('downloading');
-          useAppStore.getState().setUpdateStatus('available', info.version);
-          // Version is stored but status will be overwritten by first progress event
+          useAppStore.setState({ updateVersion: info.version });
         } else {
           useAppStore.getState().setUpdateStatus('available', info.version);
         }
