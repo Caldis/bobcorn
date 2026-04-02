@@ -245,25 +245,26 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-foreground">{t('settings.channel')}</span>
-              <select
-                value={channel}
-                onChange={(e) => {
-                  const val = e.target.value as 'stable' | 'beta';
-                  setChannel(val);
-                  syncPrefsToMain({ updateChannel: val });
-                  (window as any).electronAPI.setUpdateChannel(val);
-                }}
-                className={cn(
-                  'px-2 py-1 rounded-md text-sm',
-                  'border border-border bg-surface text-foreground',
-                  'focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30',
-                  'transition-colors duration-150',
-                  'cursor-pointer'
-                )}
-              >
-                <option value="stable">{t('settings.channelStable')}</option>
-                <option value="beta">{t('settings.channelBeta')}</option>
-              </select>
+              <div className="inline-flex rounded-md border border-border overflow-hidden">
+                {(['stable', 'beta'] as const).map((ch) => (
+                  <button
+                    key={ch}
+                    onClick={() => {
+                      setChannel(ch);
+                      syncPrefsToMain({ updateChannel: ch });
+                      (window as any).electronAPI.setUpdateChannel(ch);
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 text-[11px] font-medium transition-colors duration-100',
+                      channel === ch
+                        ? 'bg-brand-500 text-white'
+                        : 'text-foreground-muted hover:bg-surface-accent'
+                    )}
+                  >
+                    {t(`settings.channel${ch.charAt(0).toUpperCase() + ch.slice(1)}`)}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </section>
