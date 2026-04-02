@@ -301,5 +301,23 @@ if (!gotLock) {
     if (process.env.NODE_ENV !== 'development' && prefs.autoCheckUpdate) {
       autoUpdater.checkForUpdates().catch(() => {});
     }
+
+    // ── Dev-only: simulate update lifecycle (Ctrl+Shift+U) ────────
+    if (process.env.NODE_ENV === 'development') {
+      const { globalShortcut } = require('electron');
+      globalShortcut.register('CommandOrControl+Shift+U', () => {
+        if (!mainWindow) return;
+        const wc = mainWindow.webContents;
+        // checking → available → downloading (0→100) → downloaded
+        wc.send('update-checking');
+        setTimeout(() => wc.send('update-available', { version: '99.0.0' }), 1000);
+        setTimeout(() => wc.send('update-progress', { percent: 0 }), 2000);
+        setTimeout(() => wc.send('update-progress', { percent: 25 }), 2500);
+        setTimeout(() => wc.send('update-progress', { percent: 50 }), 3000);
+        setTimeout(() => wc.send('update-progress', { percent: 75 }), 3500);
+        setTimeout(() => wc.send('update-progress', { percent: 100 }), 4000);
+        setTimeout(() => wc.send('update-downloaded'), 4500);
+      });
+    }
   });
 }

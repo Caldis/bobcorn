@@ -186,7 +186,7 @@ const FileMenuBar = React.memo(function FileMenuBar({
             <polyline points="18 15 12 9 6 15" />
           </svg>
         </button>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center">
           <UpdateIndicator onInstall={onInstallUpdate} />
         </div>
       </div>
