@@ -19,6 +19,9 @@ import { cpLoader, icpLoader } from '../../utils/loaders';
 import db from '../../database';
 // Config
 import { getOption, setOption } from '../../config';
+import type { OptionData } from '../../config';
+// Utils – dirty guard
+import { guardDirtyState } from '../../utils/dirtyGuard';
 // Store
 import useAppStore from '../../store';
 
@@ -273,6 +276,16 @@ function MainContainer() {
     useAppStore.getState().showSplashScreen(true);
   }, [t]);
 
+  /** Install update with dirty-state protection */
+  const handleInstallUpdate = useCallback(async () => {
+    const canProceed = await guardDirtyState({
+      saveHandler: handleSave,
+    });
+    if (canProceed) {
+      electronAPI.installUpdate();
+    }
+  }, [handleSave]);
+
   useEffect(() => {
     preventDrop();
     disableChromeAutoFocus();
@@ -331,34 +344,18 @@ function MainContainer() {
 
   // ── Close guard ──────────────────────────────────────────────────
   useEffect(() => {
-    const cleanup = electronAPI.onConfirmClose(() => {
-      const dirty = useAppStore.getState().isDirty;
-      if (!dirty) {
-        electronAPI.confirmClose();
-        return;
-      }
-      confirm({
+    const cleanup = electronAPI.onConfirmClose(async () => {
+      const canProceed = await guardDirtyState({
+        saveHandler: handleSave,
         title: t('file.unsavedTitle'),
         content: t('file.unsavedCloseContent'),
         okText: t('file.saveAndClose'),
-        cancelText: t('common.cancel'),
-        onOk: async () => {
-          try {
-            await handleSave();
-            electronAPI.confirmClose();
-          } catch {
-            // Save failed — don't close, let user try again
-            electronAPI.closeCancelled();
-          }
-        },
-        onCancel: () => {
-          // User cancelled — don't close, clear the timeout
-          electronAPI.closeCancelled();
-        },
-        // For "Discard" we'd need a third button, but the confirm component only supports two.
-        // Users can cancel, then use the close button again and choose to save or not.
-        // The 5s timeout in main process handles the unresponsive case.
       });
+      if (canProceed) {
+        electronAPI.confirmClose();
+      } else {
+        electronAPI.closeCancelled();
+      }
     });
 
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -372,7 +369,7 @@ function MainContainer() {
       cleanup();
       window.removeEventListener('beforeunload', onBeforeUnload);
     };
-  }, [handleSave]);
+  }, [handleSave, t]);
 
   // ── Language sync (i18n) ────────────────────────────────────────
   useEffect(() => {
@@ -381,6 +378,47 @@ function MainContainer() {
     });
     return cleanup;
   }, []);
+
+  // ── Auto-update IPC ──────────────────────────────────────────
+  useEffect(() => {
+    const cleanups = [
+      electronAPI.onUpdateChecking(() => {
+        useAppStore.getState().setUpdateStatus('checking');
+      }),
+      electronAPI.onUpdateAvailable((info) => {
+        const opts = getOption() as OptionData;
+        if (opts.autoDownloadUpdate) {
+          // Auto-download is on — skip 'available', go straight to 'downloading'
+          useAppStore.getState().setUpdateStatus('downloading');
+          useAppStore.setState({ updateVersion: info.version });
+        } else {
+          useAppStore.getState().setUpdateStatus('available', info.version);
+        }
+      }),
+      electronAPI.onUpdateProgress((info) => {
+        const { updateStatus } = useAppStore.getState();
+        if (updateStatus !== 'downloading') {
+          useAppStore.getState().setUpdateStatus('downloading');
+        }
+        useAppStore.getState().setUpdateProgress(info.percent);
+      }),
+      electronAPI.onUpdateDownloaded(() => {
+        useAppStore.getState().setUpdateStatus('downloaded');
+      }),
+      electronAPI.onUpdateError((info) => {
+        useAppStore.getState().setUpdateStatus('error');
+        useAppStore.getState().setUpdateError(info.message);
+      }),
+    ];
+    return () => cleanups.forEach((fn) => fn());
+  }, []);
+
+  // Expose install-update handler for SideMenu's UpdateIndicator
+  useEffect(() => {
+    const handler = () => handleInstallUpdate();
+    window.addEventListener('bobcorn:install-update', handler);
+    return () => window.removeEventListener('bobcorn:install-update', handler);
+  }, [handleInstallUpdate]);
 
   // ── Title bar sync ───────────────────────────────────────────────
   useEffect(() => {
