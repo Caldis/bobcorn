@@ -145,7 +145,7 @@ const FileMenuBar = React.memo(function FileMenuBar({
 
   return (
     <>
-      <div className="flex shrink-0 items-center border-t border-border px-2.5 h-[42px]">
+      <div className="flex shrink-0 items-center border-t border-border px-2.5 h-[49px] pb-1">
         <button
           ref={triggerRef}
           onClick={() => setOpen(!open)}
