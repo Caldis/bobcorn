@@ -138,7 +138,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
           <div className="flex items-center justify-between">
             <span className="text-sm text-foreground">{t('settings.theme')}</span>
             <div className="inline-flex rounded-md border border-border overflow-hidden">
-              {(['light', 'system', 'dark'] as const).map((mode) => (
+              {(['system', 'light', 'dark'] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setThemeMode(mode)}
