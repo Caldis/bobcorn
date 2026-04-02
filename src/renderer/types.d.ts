@@ -1,3 +1,5 @@
+declare const __APP_VERSION__: string;
+
 declare module '*.module.css' {
   const classes: { readonly [key: string]: string };
   export default classes;
@@ -61,9 +63,20 @@ interface ElectronAPI {
   pickScreenColor: () => Promise<string>;
 
   // Auto-update
-  onUpdateAvailable: (callback: (...args: any[]) => void) => void;
-  onUpdateDownloaded: (callback: (...args: any[]) => void) => void;
+  onUpdateChecking: (callback: () => void) => () => void;
+  onUpdateAvailable: (callback: (info: { version: string }) => void) => () => void;
+  onUpdateProgress: (callback: (info: { percent: number }) => void) => () => void;
+  onUpdateDownloaded: (callback: () => void) => () => void;
+  onUpdateError: (callback: (info: { message: string }) => void) => () => void;
   installUpdate: () => void;
+  checkForUpdate: () => void;
+  downloadUpdate: () => void;
+  setUpdateChannel: (channel: 'stable' | 'beta') => void;
+  syncUpdatePreferences: (prefs: {
+    autoCheckUpdate: boolean;
+    autoDownloadUpdate: boolean;
+    updateChannel: 'stable' | 'beta';
+  }) => void;
 
   // Menu IPC (main → renderer)
   onMenuNewProject: (callback: () => void) => () => void;
