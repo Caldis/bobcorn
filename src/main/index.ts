@@ -254,12 +254,18 @@ if (!gotLock) {
     autoUpdater.allowPrerelease = prefs.updateChannel === 'beta';
     autoUpdater.autoInstallOnAppQuit = true;
 
+    // Track whether the current check was user-initiated
+    let userInitiatedCheck = false;
+
     // Forward autoUpdater events to renderer
     autoUpdater.on('checking-for-update', () => {
       mainWindow?.webContents.send('update-checking');
     });
     autoUpdater.on('update-available', (info) => {
       mainWindow?.webContents.send('update-available', { version: info.version });
+    });
+    autoUpdater.on('update-not-available', () => {
+      mainWindow?.webContents.send('update-not-available');
     });
     autoUpdater.on('download-progress', (progress) => {
       mainWindow?.webContents.send('update-progress', { percent: Math.round(progress.percent) });
@@ -268,11 +274,18 @@ if (!gotLock) {
       mainWindow?.webContents.send('update-downloaded');
     });
     autoUpdater.on('error', (err) => {
-      mainWindow?.webContents.send('update-error', { message: err?.message || 'Unknown error' });
+      if (userInitiatedCheck) {
+        mainWindow?.webContents.send('update-error', { message: err?.message || 'Unknown error' });
+      } else {
+        // Auto-check errors are silent — just reset to idle
+        mainWindow?.webContents.send('update-not-available');
+      }
+      userInitiatedCheck = false;
     });
 
     // IPC handlers from renderer
     ipcMain.on('check-for-update', () => {
+      userInitiatedCheck = true;
       autoUpdater.checkForUpdates().catch(() => {});
     });
     ipcMain.on('download-update', () => {

@@ -394,6 +394,9 @@ function MainContainer() {
       electronAPI.onUpdateChecking(() => {
         useAppStore.getState().setUpdateStatus('checking');
       }),
+      electronAPI.onUpdateNotAvailable(() => {
+        useAppStore.getState().setUpdateStatus('idle');
+      }),
       electronAPI.onUpdateAvailable((info) => {
         const opts = getOption() as OptionData;
         if (opts.autoDownloadUpdate) {
