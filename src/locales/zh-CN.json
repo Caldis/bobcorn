@@ -277,6 +277,7 @@
   "settings.channelStable": "稳定版",
   "settings.channelBeta": "测试版",
   "settings.version": "版本",
+  "settings.website": "官网",
 
   "update.checking": "检查更新…",
   "update.available": "{{version}} 可用",

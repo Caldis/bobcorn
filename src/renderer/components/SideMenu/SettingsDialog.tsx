@@ -259,7 +259,16 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
           >
             {t('settings.version')}
           </h4>
-          <p className="text-sm text-foreground-muted">Bobcorn v{__APP_VERSION__}</p>
+          <p className="text-sm text-foreground-muted">
+            Bobcorn v{__APP_VERSION__}
+            <span className="mx-1.5 text-foreground-muted/30">·</span>
+            <a
+              href="https://bobcorn.caldis.me/"
+              className="text-brand-500 hover:text-brand-600 transition-colors duration-150"
+            >
+              {t('settings.website')}
+            </a>
+          </p>
         </section>
       </div>
     </Dialog>
