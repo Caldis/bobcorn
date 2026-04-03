@@ -354,17 +354,32 @@ function MainContainer() {
   // ── Close guard ──────────────────────────────────────────────────
   useEffect(() => {
     const cleanup = electronAPI.onConfirmClose(async () => {
-      const canProceed = await guardDirtyState({
-        saveHandler: handleSave,
+      const dirty = useAppStore.getState().isDirty;
+      if (!dirty) {
+        electronAPI.confirmClose();
+        return;
+      }
+      confirm({
         title: t('file.unsavedTitle'),
         content: t('file.unsavedCloseContent'),
         okText: t('file.saveAndClose'),
+        cancelText: t('common.cancel'),
+        dangerText: t('file.discardAndClose'),
+        onOk: async () => {
+          try {
+            await handleSave();
+            electronAPI.confirmClose();
+          } catch {
+            electronAPI.closeCancelled();
+          }
+        },
+        onDanger: () => {
+          electronAPI.confirmClose();
+        },
+        onCancel: () => {
+          electronAPI.closeCancelled();
+        },
       });
-      if (canProceed) {
-        electronAPI.confirmClose();
-      } else {
-        electronAPI.closeCancelled();
-      }
     });
 
     const onBeforeUnload = (e: BeforeUnloadEvent) => {

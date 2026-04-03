@@ -223,6 +223,7 @@
   "file.unsavedCloseContent": "The current project has unsaved changes.",
   "file.continue": "Continue",
   "file.saveAndClose": "Save & Close",
+  "file.discardAndClose": "Don't Save",
   "file.saveDialogTitle": "Save Project File",
   "file.opened": "Project opened",
   "file.saved": "Project saved",

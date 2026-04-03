@@ -155,8 +155,10 @@ interface ConfirmOptions {
   okText?: string;
   okType?: 'default' | 'primary' | 'danger';
   cancelText?: string;
+  dangerText?: string;
   onOk?: () => void | Promise<void>;
   onCancel?: () => void;
+  onDanger?: () => void;
 }
 
 function ConfirmDialog({
@@ -165,8 +167,10 @@ function ConfirmDialog({
   okText,
   okType = 'primary',
   cancelText,
+  dangerText,
   onOk,
   onCancel,
+  onDanger,
   onClose,
 }: ConfirmOptions & { onClose: () => void }) {
   const { t } = useTranslation();
@@ -186,6 +190,10 @@ function ConfirmDialog({
     onCancel?.();
     onClose();
   };
+  const handleDanger = () => {
+    onDanger?.();
+    onClose();
+  };
 
   const okBtnClass = cn(
     'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
@@ -194,25 +202,36 @@ function ConfirmDialog({
     okType === 'default' && 'border border-border text-foreground hover:bg-surface-muted'
   );
 
-  return (
-    <Dialog
-      open={true}
-      onClose={handleCancel}
-      title={title}
-      footer={[
-        <button
-          key="cancel"
-          onClick={handleCancel}
-          disabled={loading}
-          className="px-4 py-1.5 rounded-md text-sm font-medium border border-border text-foreground hover:bg-surface-muted transition-colors"
-        >
-          {resolvedCancelText}
-        </button>,
-        <button key="ok" onClick={handleOk} disabled={loading} className={okBtnClass}>
-          {resolvedOkText}
-        </button>,
-      ]}
+  const buttons = [
+    <button
+      key="cancel"
+      onClick={handleCancel}
+      disabled={loading}
+      className="px-4 py-1.5 rounded-md text-sm font-medium border border-border text-foreground hover:bg-surface-muted transition-colors"
     >
+      {resolvedCancelText}
+    </button>,
+  ];
+  if (dangerText) {
+    buttons.push(
+      <button
+        key="danger"
+        onClick={handleDanger}
+        disabled={loading}
+        className="px-4 py-1.5 rounded-md text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+      >
+        {dangerText}
+      </button>
+    );
+  }
+  buttons.push(
+    <button key="ok" onClick={handleOk} disabled={loading} className={okBtnClass}>
+      {resolvedOkText}
+    </button>
+  );
+
+  return (
+    <Dialog open={true} onClose={handleCancel} title={title} footer={buttons}>
       <div className="text-sm text-foreground-muted">{content}</div>
     </Dialog>
   );

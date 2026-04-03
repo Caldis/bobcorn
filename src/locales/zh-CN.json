@@ -223,6 +223,7 @@
   "file.unsavedCloseContent": "当前项目有未保存的更改。",
   "file.continue": "继续",
   "file.saveAndClose": "保存并关闭",
+  "file.discardAndClose": "不保存",
   "file.saveDialogTitle": "保存项目文件",
   "file.opened": "项目已打开",
   "file.saved": "项目已保存",
