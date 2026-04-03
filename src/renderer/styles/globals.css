@@ -48,24 +48,24 @@
     --foreground: 220 9% 93%;
     --foreground-muted: 220 7% 56%;
     --foreground-subtle: 220 5% 40%;
-    /* Accent */
-    --accent: 213 94% 68%;
+    /* Accent — deep royal blue, rich but not blinding */
+    --accent: 217 72% 50%;
     --accent-foreground: 0 0% 100%;
-    --accent-subtle: 215 50% 13%;
-    --accent-muted: 215 25% 20%;
+    --accent-subtle: 217 40% 15%;
+    --accent-muted: 217 30% 20%;
     /* Status */
-    --danger: 0 72% 63%;
-    --danger-subtle: 0 40% 15%;
-    --success: 142 60% 50%;
-    --success-subtle: 142 30% 14%;
-    --warning: 38 80% 55%;
-    --warning-subtle: 38 40% 14%;
-    --info: 213 94% 68%;
-    --info-subtle: 213 40% 14%;
+    --danger: 0 65% 52%;
+    --danger-subtle: 0 35% 15%;
+    --success: 142 50% 42%;
+    --success-subtle: 142 25% 14%;
+    --warning: 38 65% 48%;
+    --warning-subtle: 38 35% 14%;
+    --info: 217 72% 50%;
+    --info-subtle: 217 30% 14%;
     /* Border */
     --border: 220 5% 22%;
     --border-muted: 220 5% 18%;
-    --ring: 213 94% 68%;
+    --ring: 217 72% 50%;
   }
 }
 
