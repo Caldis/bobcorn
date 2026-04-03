@@ -145,24 +145,36 @@ jobs:
           echo "" >> changelog.md
 
           if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
-            echo "### Features" >> changelog.md
-            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^feat" >> changelog.md || true
-            echo "" >> changelog.md
+            FEATS=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^feat" 2>/dev/null || true)
+            FIXES=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^fix" 2>/dev/null || true)
+            OTHER=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^refactor\|^build\|^test\|^docs\|^ci\|^chore\|^security" 2>/dev/null || true)
 
-            echo "### Bug Fixes" >> changelog.md
-            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^fix" >> changelog.md || true
-            echo "" >> changelog.md
+            if [ -n "$FEATS" ]; then
+              echo "### Features" >> changelog.md
+              echo "$FEATS" >> changelog.md
+              echo "" >> changelog.md
+            fi
 
-            echo "### Other Changes" >> changelog.md
-            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^refactor\|^build\|^test\|^docs\|^ci\|^chore\|^security" >> changelog.md || true
-            echo "" >> changelog.md
+            if [ -n "$FIXES" ]; then
+              echo "### Bug Fixes" >> changelog.md
+              echo "$FIXES" >> changelog.md
+              echo "" >> changelog.md
+            fi
+
+            if [ -n "$OTHER" ]; then
+              echo "### Other Changes" >> changelog.md
+              echo "$OTHER" >> changelog.md
+              echo "" >> changelog.md
+            fi
+
+            # Fallback if no conventional commits matched
+            if [ -z "$FEATS" ] && [ -z "$FIXES" ] && [ -z "$OTHER" ]; then
+              git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" >> changelog.md || true
+              echo "" >> changelog.md
+            fi
           else
             echo "Initial release." >> changelog.md
           fi
-
-          echo "" >> changelog.md
-          echo "---" >> changelog.md
-          echo "*Built by AI Agent teams using Claude Code.*" >> changelog.md
 
       - name: Create release and upload all assets
         env:
