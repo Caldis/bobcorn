@@ -70,10 +70,13 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
     hoverTimeout.current = setTimeout(() => setHoverCard(false), 200);
   };
 
-  // Strip HTML tags from release notes for plain text display
+  // Clean release notes: strip HTML, remove empty markdown headings, trim
   const plainNotes = releaseNotes
     ? releaseNotes
         .replace(/<[^>]*>/g, '')
+        .replace(/^#{1,3}\s+.*\n?(?=\n*#{1,3}\s|\n*$)/gm, '') // remove headings with no content after them
+        .replace(/^---.*$/gm, '') // remove horizontal rules
+        .replace(/\*Built by.*$/gm, '') // remove CI footer
         .replace(/\n{3,}/g, '\n\n')
         .trim()
     : null;
@@ -195,7 +198,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
               <div className="text-[10px] text-foreground-muted/60 uppercase tracking-wide font-medium mb-1">
                 {t('update.changelog')}
               </div>
-              <p className="text-[11px] text-foreground-muted leading-relaxed line-clamp-4 whitespace-pre-line">
+              <p className="text-[11px] text-foreground-muted leading-relaxed whitespace-pre-line max-h-[120px] overflow-y-auto">
                 {plainNotes}
               </p>
             </div>
