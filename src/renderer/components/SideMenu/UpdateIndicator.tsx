@@ -160,7 +160,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
       {hoverCard && showHoverCard && (
         <div
           className={cn(
-            'absolute bottom-full left-0 mb-2',
+            'absolute bottom-full left-0 mb-2 z-50',
             'w-[240px] rounded-lg',
             'border border-border bg-surface shadow-lg',
             'overflow-hidden',
