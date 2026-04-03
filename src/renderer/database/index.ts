@@ -56,6 +56,8 @@ export interface IconData {
   iconSize: number;
   iconType: string;
   iconContent: string;
+  variantOf?: string | null;
+  variantMeta?: string | null;
   createTime?: string;
   updateTime?: string;
 }
@@ -461,7 +463,7 @@ class Database {
     );
     // 创建图标数据表, 并配置触发器自动更新时间戳
     this.db!.run(
-      `CREATE TABLE ${iconData} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, iconContentOriginal TEXT, isFavorite INTEGER DEFAULT 0, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${iconData} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, iconContentOriginal TEXT, isFavorite INTEGER DEFAULT 0, variantOf varchar(255) DEFAULT NULL, variantMeta TEXT DEFAULT NULL, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db!.run(
       `CREATE TRIGGER ${iconDataTimeRenewTrigger} AFTER UPDATE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${iconData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -472,6 +474,26 @@ class Database {
     dev && console.log('initNewProjectFromFile');
     this.destroyDatabase();
     this.initDatabases(data);
+    // Migrate: add variant columns if missing (backward compat with old .icp files)
+    this.migrateVariantColumns();
+  };
+
+  private migrateVariantColumns = (): void => {
+    try {
+      const cols = this.db!.exec(`PRAGMA table_info(${iconData})`);
+      if (!cols.length) return;
+      const colNames = cols[0].values.map((r: any[]) => r[1] as string);
+      if (!colNames.includes('variantOf')) {
+        this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN variantOf varchar(255) DEFAULT NULL`);
+        dev && console.log('Migration: added variantOf column');
+      }
+      if (!colNames.includes('variantMeta')) {
+        this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN variantMeta TEXT DEFAULT NULL`);
+        dev && console.log('Migration: added variantMeta column');
+      }
+    } catch (e) {
+      dev && console.warn('migrateVariantColumns failed:', e);
+    }
   };
   // 重置项目
   resetProject = (projectName?: string): void => {
@@ -1111,6 +1133,104 @@ class Database {
     );
     stmt.step();
     return stmt.getAsObject()['COUNT(*)'] as number;
+  };
+
+  // ── Variant methods ─────────────────────────────────────────────────
+
+  /** Add a variant icon linked to a parent. Throws if PUA codes exhausted. */
+  addVariant = (
+    parentId: string,
+    svgContent: string,
+    iconName: string,
+    meta: Record<string, any>,
+    callback?: () => void
+  ): string => {
+    dev && console.log('addVariant');
+    const newCode = this.getNewIconCode();
+    if (!newCode) throw new Error('PUA_EXHAUSTED');
+    const parentData = this.getIconData(parentId);
+    const id = generateUUID();
+    const dataSet: DataSet = {
+      id: sf(id),
+      iconCode: sf(newCode as string),
+      iconName: sf(iconName),
+      iconGroup: sf(parentData.iconGroup),
+      iconSize: sizeOfString(svgContent),
+      iconType: sf('svg'),
+      iconContent: sf(svgContent),
+      iconContentOriginal: sf(svgContent),
+      variantOf: sf(parentId),
+      variantMeta: sf(JSON.stringify(meta)),
+    };
+    this.addDataToTable(iconData, dataSet, callback);
+    return id;
+  };
+
+  /** Get all variants of a parent icon */
+  getVariants = (parentId: string): any[] => {
+    const rawData = this.db!.exec(
+      `SELECT * FROM ${iconData} WHERE variantOf = ${sf(parentId)} ORDER BY iconName ASC`
+    );
+    if (!rawData.length) return [];
+    return rawData[0].values.map((row: any[]) => {
+      const cols = rawData[0].columns;
+      const obj: Record<string, any> = {};
+      cols.forEach((col: string, i: number) => {
+        obj[col] = row[i];
+      });
+      return obj;
+    });
+  };
+
+  /** Get count of variants for a parent icon */
+  getVariantCount = (parentId: string): number => {
+    const result = this.db!.exec(
+      `SELECT COUNT(*) FROM ${iconData} WHERE variantOf = ${sf(parentId)}`
+    );
+    return result.length ? (result[0].values[0][0] as number) : 0;
+  };
+
+  /** Check if a variant with given weight+scale already exists */
+  hasVariant = (parentId: string, weight: string, scale: string): boolean => {
+    const variants = this.getVariants(parentId);
+    return variants.some((v: any) => {
+      try {
+        const meta = JSON.parse(v.variantMeta || '{}');
+        return meta.weight === weight && meta.scale === scale;
+      } catch {
+        return false;
+      }
+    });
+  };
+
+  /** Delete all variants of a parent icon */
+  deleteVariants = (parentId: string, callback?: () => void): void => {
+    dev && console.log('deleteVariants');
+    this.runMutation(`DELETE FROM ${iconData} WHERE variantOf = ${sf(parentId)}`);
+    callback && callback();
+  };
+
+  /** Move parent icon AND its variants to a new group */
+  moveIconWithVariants = (id: string, targetGroup: string, callback?: () => void): void => {
+    dev && console.log('moveIconWithVariants');
+    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
+    this.runMutation(
+      `UPDATE ${iconData} SET iconGroup = ${sf(group)} WHERE id = ${sf(id)} OR variantOf = ${sf(id)}`
+    );
+    callback && callback();
+  };
+
+  /** Delete parent icon AND all its variants */
+  deleteIconWithVariants = (id: string, callback?: () => void): void => {
+    dev && console.log('deleteIconWithVariants');
+    this.runMutation(`DELETE FROM ${iconData} WHERE id = ${sf(id)} OR variantOf = ${sf(id)}`);
+    callback && callback();
+  };
+
+  /** Check if an icon is a variant (has variantOf set) */
+  isVariant = (id: string): boolean => {
+    const result = this.db!.exec(`SELECT variantOf FROM ${iconData} WHERE id = ${sf(id)}`);
+    return result.length > 0 && result[0].values.length > 0 && result[0].values[0][0] !== null;
   };
 
   renewIconData = (id: string, newIconFileData: RenewIconFileData, callback?: () => void): void => {
