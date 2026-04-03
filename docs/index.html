@@ -9,6 +9,24 @@
     <meta name="theme-color" content="#FAFAF5">
     <link rel="canonical" href="https://bobcorn.caldis.me/">
     <link rel="icon" type="image/png" href="icon.png">
+    <!-- Hreflang -->
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/?lang=zh-CN">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/?lang=ja">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/?lang=ko">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/?lang=fr">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/?lang=de">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/?lang=es">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/?lang=pt-BR">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/?lang=it">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/?lang=nl">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/?lang=ru">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/?lang=tr">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/?lang=ar">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/?lang=th">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/?lang=vi">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/?lang=id">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bobcorn.caldis.me/">
@@ -350,7 +368,7 @@
             letter-spacing: -0.01em;
         }
 
-        .footer-links { display: flex; gap: 24px; }
+        .footer-links { display: flex; align-items: center; gap: 24px; }
 
         .footer-links a {
             font-family: var(--mono);
@@ -361,6 +379,75 @@
         }
 
         .footer-links a:hover { color: var(--text); }
+
+        /* ─── Language Picker ─── */
+        .lang-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: none;
+            background: none;
+            transition: color 0.2s, background 0.2s;
+            position: relative;
+        }
+
+        .lang-trigger:hover { color: var(--text); background: var(--pill-bg); }
+        .lang-trigger svg { width: 15px; height: 15px; opacity: 0.55; }
+
+        .lang-popover {
+            position: absolute;
+            bottom: calc(100% + 12px);
+            right: 0;
+            background: var(--bg);
+            border: 1px solid var(--divider);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px 28px;
+            opacity: 0;
+            transform: translateY(6px);
+            pointer-events: none;
+            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 32px rgba(26, 25, 23, 0.08),
+                        0 1px 3px rgba(26, 25, 23, 0.06);
+            z-index: 200;
+            min-width: 300px;
+        }
+
+        .lang-popover.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .lang-popover a {
+            font-family: var(--sans);
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 7px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: color 0.15s, background 0.15s;
+            white-space: nowrap;
+        }
+
+        .lang-popover a:hover {
+            color: var(--text);
+            background: var(--pill-bg);
+        }
+
+        .lang-popover a.active {
+            color: var(--accent);
+        }
 
         /* ─── Reveal Animations ─── */
         .reveal {
@@ -400,6 +487,14 @@
                 text-align: center;
             }
             .hero-meta { flex-wrap: wrap; gap: 16px; }
+            .lang-popover {
+                right: 50%;
+                transform: translateX(50%) translateY(6px);
+                min-width: 280px;
+            }
+            .lang-popover.open {
+                transform: translateX(50%) translateY(0);
+            }
         }
 
         @media (max-width: 480px) {
@@ -465,9 +560,9 @@
     <nav>
         <a href="/" class="logo"><img src="icon.png" alt="Bobcorn" width="32" height="32">Bobcorn</a>
         <div class="nav-right">
-            <a href="#features" class="nav-link">Features</a>
+            <a href="#features" class="nav-link" data-i18n="nav.features">Features</a>
             <span class="nav-sep">|</span>
-            <a href="#formats" class="nav-link">Formats</a>
+            <a href="#formats" class="nav-link" data-i18n="nav.formats">Formats</a>
             <span class="nav-sep">|</span>
             <a href="https://github.com/Caldis/bobcorn" class="nav-link">GitHub</a>
         </div>
@@ -479,12 +574,12 @@
         <section class="hero">
             <div class="hero-version reveal">
                 <span class="tag" id="versionBadge">v1.7.0</span>
-                Open source &middot; MIT License
+                <span data-i18n="hero.badge">Open source &middot; MIT License</span>
             </div>
 
-            <h1 class="reveal">Manage Icons,<br><em>Generate Fonts</em></h1>
+            <h1 class="reveal" data-i18n="hero.title" data-i18n-html>Manage Icons,<br><em>Generate Fonts</em></h1>
 
-            <p class="hero-desc reveal">
+            <p class="hero-desc reveal" data-i18n="hero.desc">
                 The open-source icon manager and font generator for designers and developers. Import SVGs, organize into groups, edit colors, and export production-ready icon fonts.
             </p>
 
@@ -493,8 +588,8 @@
                     <span id="downloadLabel">Download</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </a>
-                <a href="https://github.com/Caldis/bobcorn/releases" class="btn-ghost" id="allDownloads">All Releases</a>
-                <a href="https://github.com/Caldis/bobcorn" class="btn-ghost">Source Code</a>
+                <a href="https://github.com/Caldis/bobcorn/releases" class="btn-ghost" id="allDownloads" data-i18n="hero.allReleases">All Releases</a>
+                <a href="https://github.com/Caldis/bobcorn" class="btn-ghost" data-i18n="hero.sourceCode">Source Code</a>
             </div>
 
             <div class="hero-meta reveal">
@@ -509,7 +604,7 @@
             </div>
 
             <div class="hero-trusted reveal">
-                <span>Trusted by</span>
+                <span data-i18n="hero.trustedBy">Trusted by</span>
                 <div class="trusted-logos">
                     <div class="trusted-logo trusted-logo-zte" role="img" aria-label="ZTE"></div>
                     <div class="trusted-logo trusted-logo-shopee" role="img" aria-label="Shopee"></div>
@@ -527,9 +622,9 @@
         <!-- ─── Story 1: Organize ─── -->
         <section class="story" id="features">
             <div class="story-content reveal">
-                <div class="story-label">Icon Management</div>
-                <h2>Select, search, and organize at scale</h2>
-                <p>Import thousands of SVG icons in one drag. Multi-select for batch operations&nbsp;&mdash; move to groups, copy, favorite, delete, or export as SVG. Search and filter instantly across your entire library. Dark mode included.</p>
+                <div class="story-label" data-i18n="story1.label">Icon Management</div>
+                <h2 data-i18n="story1.title">Select, search, and organize at scale</h2>
+                <p data-i18n="story1.desc">Import thousands of SVG icons in one drag. Multi-select for batch operations&nbsp;&mdash; move to groups, copy, favorite, delete, or export as SVG. Search and filter instantly across your entire library. Dark mode included.</p>
             </div>
             <div class="story-visual reveal">
                 <img src="screenshots/select.png" alt="Batch select 13 icons with multi-select mode — move, copy, favorite, delete, and export operations" loading="lazy">
@@ -541,9 +636,9 @@
         <!-- ─── Story 2: Export ─── -->
         <section class="story story--reverse" id="formats">
             <div class="story-content reveal">
-                <div class="story-label">Font Generation</div>
-                <h2>Every format, one click</h2>
-                <p>Generate production-ready icon fonts from your library. Choose groups, pick formats, set an output path&nbsp;&mdash; Bobcorn handles the rest. CSS, JavaScript, and HTML demo pages are generated alongside your fonts.</p>
+                <div class="story-label" data-i18n="story2.label">Font Generation</div>
+                <h2 data-i18n="story2.title">Every format, one click</h2>
+                <p data-i18n="story2.desc">Generate production-ready icon fonts from your library. Choose groups, pick formats, set an output path&nbsp;&mdash; Bobcorn handles the rest. CSS, JavaScript, and HTML demo pages are generated alongside your fonts.</p>
                 <div class="story-formats">
                     <span>.svg</span><span>.ttf</span><span>.woff</span><span>.woff2</span><span>.eot</span><span>.css</span><span>.js</span><span>.html</span><span>.icp</span>
                 </div>
@@ -558,9 +653,9 @@
         <!-- ─── Story 3: Groups ─── -->
         <section class="story">
             <div class="story-content reveal">
-                <div class="story-label">Organization</div>
-                <h2>Groups that keep icons in order</h2>
-                <p>Move icons between groups in seconds. Create, reorder, and nest groups to match your project structure. Save everything as a .icp project file and pick up exactly where you left off.</p>
+                <div class="story-label" data-i18n="story3.label">Organization</div>
+                <h2 data-i18n="story3.title">Groups that keep icons in order</h2>
+                <p data-i18n="story3.desc">Move icons between groups in seconds. Create, reorder, and nest groups to match your project structure. Save everything as a .icp project file and pick up exactly where you left off.</p>
             </div>
             <div class="story-visual reveal">
                 <img src="screenshots/move.png" alt="Move icons to target group — select from accessibility, arrows, automotive, cameraAndPhotos, and more" loading="lazy">
@@ -572,23 +667,155 @@
     <footer>
         <div class="footer-brand">Bobcorn</div>
         <div class="footer-links">
-            <a href="https://github.com/Caldis/bobcorn/releases">Releases</a>
+            <a href="https://github.com/Caldis/bobcorn/releases" data-i18n="footer.releases">Releases</a>
             <a href="https://github.com/Caldis/bobcorn">GitHub</a>
             <a href="https://github.com/Caldis">Caldis</a>
+            <button class="lang-trigger" id="langTrigger" aria-expanded="false" aria-haspopup="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span id="langLabel">EN</span>
+                <div class="lang-popover" id="langPopover"></div>
+            </button>
         </div>
     </footer>
 
     <script>
+    /* ─── i18n: language registry ─── */
+    var LANGS = [
+        { code: 'en',    label: 'English' },
+        { code: 'zh-CN', label: '简体中文' },
+        { code: 'ja',    label: '日本語' },
+        { code: 'ko',    label: '한국어' },
+        { code: 'fr',    label: 'Français' },
+        { code: 'de',    label: 'Deutsch' },
+        { code: 'es',    label: 'Español' },
+        { code: 'pt-BR', label: 'Português' },
+        { code: 'it',    label: 'Italiano' },
+        { code: 'nl',    label: 'Nederlands' },
+        { code: 'ru',    label: 'Русский' },
+        { code: 'tr',    label: 'Türkçe' },
+        { code: 'ar',    label: 'العربية' },
+        { code: 'th',    label: 'ไทย' },
+        { code: 'vi',    label: 'Tiếng Việt' },
+        { code: 'id',    label: 'Bahasa Indonesia' }
+    ];
+
+    var LANG_CODES = LANGS.map(function(l) { return l.code; });
+    var currentLang = 'en';
+    var detectedPlatform = 'unknown';
+    var loadedStrings = {};
+
+    function detectLang() {
+        var url = new URL(location.href);
+        var param = url.searchParams.get('lang');
+        if (param && LANG_CODES.indexOf(param) !== -1) return param;
+        var saved = localStorage.getItem('site-language');
+        if (saved && LANG_CODES.indexOf(saved) !== -1) return saved;
+        var nav = (navigator.language || '').toLowerCase();
+        if (nav.startsWith('zh')) return 'zh-CN';
+        if (nav.startsWith('pt') && nav.indexOf('br') !== -1) return 'pt-BR';
+        var prefix = nav.split('-')[0];
+        for (var i = 0; i < LANG_CODES.length; i++) {
+            if (LANG_CODES[i] === prefix) return LANG_CODES[i];
+        }
+        return 'en';
+    }
+
+    function loadLang(lang) {
+        if (loadedStrings[lang]) return Promise.resolve(loadedStrings[lang]);
+        var cached = sessionStorage.getItem('i18n-' + lang);
+        if (cached) {
+            try {
+                loadedStrings[lang] = JSON.parse(cached);
+                return Promise.resolve(loadedStrings[lang]);
+            } catch(e) {}
+        }
+        return fetch('locales/' + lang + '.json')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                loadedStrings[lang] = data;
+                try { sessionStorage.setItem('i18n-' + lang, JSON.stringify(data)); } catch(e) {}
+                return data;
+            });
+    }
+
+    function applyLang(lang) {
+        return loadLang(lang).then(function(strings) {
+            currentLang = lang;
+            localStorage.setItem('site-language', lang);
+            document.documentElement.lang = lang;
+
+            var url = new URL(location.href);
+            if (lang === 'en') url.searchParams.delete('lang');
+            else url.searchParams.set('lang', lang);
+            history.replaceState(null, '', url);
+
+            document.querySelectorAll('[data-i18n]').forEach(function(el) {
+                var key = el.getAttribute('data-i18n');
+                if (!strings[key]) return;
+                if (el.hasAttribute('data-i18n-html')) {
+                    el.innerHTML = strings[key];
+                } else {
+                    el.textContent = strings[key];
+                }
+            });
+
+            var dlKey = 'hero.download';
+            if (detectedPlatform === 'windows') dlKey = 'hero.downloadWin';
+            else if (detectedPlatform === 'mac-arm64') dlKey = 'hero.downloadMacArm';
+            else if (detectedPlatform === 'mac') dlKey = 'hero.downloadMac';
+            var dlLabel = document.getElementById('downloadLabel');
+            if (dlLabel && strings[dlKey]) dlLabel.textContent = strings[dlKey];
+
+            if (strings['meta.title']) document.title = strings['meta.title'];
+            var metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc && strings['meta.desc']) metaDesc.setAttribute('content', strings['meta.desc']);
+
+            var entry = LANGS.find(function(l) { return l.code === lang; });
+            var triggerLabel = document.getElementById('langLabel');
+            if (triggerLabel && entry) triggerLabel.textContent = entry.label;
+
+            document.querySelectorAll('.lang-popover a[data-lang]').forEach(function(a) {
+                a.classList.toggle('active', a.getAttribute('data-lang') === lang);
+            });
+        }).catch(function() {});
+    }
+
+    function buildPopover() {
+        var popover = document.getElementById('langPopover');
+        LANGS.forEach(function(l) {
+            var a = document.createElement('a');
+            a.setAttribute('data-lang', l.code);
+            a.textContent = l.label;
+            a.addEventListener('click', function(e) {
+                e.stopPropagation();
+                applyLang(l.code);
+                closePopover();
+            });
+            popover.appendChild(a);
+        });
+    }
+
+    function togglePopover() {
+        var popover = document.getElementById('langPopover');
+        var trigger = document.getElementById('langTrigger');
+        var isOpen = popover.classList.toggle('open');
+        trigger.setAttribute('aria-expanded', isOpen);
+    }
+
+    function closePopover() {
+        var popover = document.getElementById('langPopover');
+        var trigger = document.getElementById('langTrigger');
+        popover.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+    }
+
     /* ─── Platform detection + GitHub release fetch ─── */
     (function() {
         var REPO = 'Caldis/bobcorn';
         var ua = navigator.userAgent.toLowerCase();
-        var platform = 'unknown';
-        var label = 'Download';
 
         if (ua.indexOf('win') !== -1) {
-            platform = 'windows';
-            label = 'Download for Windows';
+            detectedPlatform = 'windows';
         } else if (ua.indexOf('mac') !== -1) {
             var isArm = false;
             try {
@@ -603,11 +830,20 @@
                     if (renderer && renderer.indexOf('Apple') !== -1) isArm = true;
                 } catch(e) {}
             }
-            platform = isArm ? 'mac-arm64' : 'mac';
-            label = isArm ? 'Download for Mac (Apple Silicon)' : 'Download for Mac';
+            detectedPlatform = isArm ? 'mac-arm64' : 'mac';
         }
 
-        document.getElementById('downloadLabel').textContent = label;
+        buildPopover();
+        applyLang(detectLang());
+
+        document.getElementById('langTrigger').addEventListener('click', function(e) {
+            e.stopPropagation();
+            togglePopover();
+        });
+        document.addEventListener('click', function() { closePopover(); });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closePopover();
+        });
 
         fetch('https://api.github.com/repos/' + REPO + '/releases/latest')
             .then(function(r) { return r.json(); })
@@ -620,7 +856,7 @@
 
                 for (var i = 0; i < assets.length; i++) {
                     var name = assets[i].name;
-                    switch (platform) {
+                    switch (detectedPlatform) {
                         case 'windows':
                             if (name.match(/Setup.*\.exe$/i) && !name.match(/blockmap/)) assetUrl = assets[i].browser_download_url;
                             break;
@@ -655,7 +891,6 @@
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
-                    // Stagger content and visual within each story
                     var parent = entry.target.closest('.story');
                     if (parent) {
                         var siblings = parent.querySelectorAll('.reveal:not(.visible)');
