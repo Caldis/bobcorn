@@ -160,7 +160,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
       {hoverCard && showHoverCard && (
         <div
           className={cn(
-            'absolute bottom-full left-0 mb-2 z-50',
+            'absolute bottom-full right-0 mb-2 z-50',
             'w-[240px] rounded-lg',
             'border border-border bg-surface shadow-lg',
             'overflow-hidden',
@@ -206,13 +206,6 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
               </p>
             </div>
           )}
-
-          {/* Footer action hint */}
-          <div className="px-3 py-1.5 border-t border-border bg-surface-muted/50">
-            <p className="text-[10px] text-foreground-muted/50 text-center">
-              {status === 'downloaded' ? t('update.clickToRelaunch') : t('update.clickToDownload')}
-            </p>
-          </div>
         </div>
       )}
     </div>
