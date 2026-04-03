@@ -4,6 +4,11 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
+// Auto-forward updater debug logs to renderer console
+ipcRenderer.on('updater-debug', (_event: IpcRendererEvent, msg: string) => {
+  console.log('%c' + msg, 'color: #60a5fa; font-weight: bold');
+});
+
 contextBridge.exposeInMainWorld('electronAPI', {
   // Window controls
   windowMinimize: (): void => ipcRenderer.send('window-minimize'),

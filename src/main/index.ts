@@ -259,27 +259,47 @@ if (!gotLock) {
     autoUpdater.autoDownload = prefs.autoDownloadUpdate;
     autoUpdater.allowPrerelease = prefs.updateChannel === 'beta';
     autoUpdater.autoInstallOnAppQuit = true;
+    // Force updater to work in dev mode using dev-app-update.yml
+    if (!app.isPackaged) {
+      autoUpdater.forceDevUpdateConfig = true;
+    }
 
     // Track whether the current check was user-initiated
     let userInitiatedCheck = false;
 
+    // Debug helper — send logs to renderer devtools (no console.log to avoid EPIPE in dev)
+    const updaterLog = (...args: any[]) => {
+      const msg = args
+        .map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a)))
+        .join(' ');
+      try {
+        mainWindow?.webContents.send('updater-debug', msg);
+      } catch {}
+    };
+
     // Forward autoUpdater events to renderer
     autoUpdater.on('checking-for-update', () => {
+      updaterLog('[updater] checking-for-update');
       mainWindow?.webContents.send('update-checking');
     });
     autoUpdater.on('update-available', (info) => {
+      updaterLog('[updater] update-available:', info.version);
       mainWindow?.webContents.send('update-available', { version: info.version });
     });
-    autoUpdater.on('update-not-available', () => {
+    autoUpdater.on('update-not-available', (info) => {
+      updaterLog('[updater] update-not-available, current:', info?.version);
       mainWindow?.webContents.send('update-not-available');
     });
     autoUpdater.on('download-progress', (progress) => {
+      updaterLog('[updater] download-progress:', Math.round(progress.percent) + '%');
       mainWindow?.webContents.send('update-progress', { percent: Math.round(progress.percent) });
     });
-    autoUpdater.on('update-downloaded', () => {
+    autoUpdater.on('update-downloaded', (info) => {
+      updaterLog('[updater] update-downloaded:', info?.version);
       mainWindow?.webContents.send('update-downloaded');
     });
     autoUpdater.on('error', (err) => {
+      updaterLog('[updater] error:', err?.message);
       if (userInitiatedCheck) {
         mainWindow?.webContents.send('update-error', { message: err?.message || 'Unknown error' });
       } else {
@@ -291,8 +311,22 @@ if (!gotLock) {
 
     // IPC handlers from renderer
     ipcMain.on('check-for-update', () => {
+      updaterLog('[updater] check-for-update IPC received');
+      updaterLog('[updater] app.isPackaged:', app.isPackaged);
+      updaterLog('[updater] app.getAppPath():', app.getAppPath());
+      updaterLog('[updater] autoUpdater.currentVersion:', autoUpdater.currentVersion?.version);
       userInitiatedCheck = true;
-      autoUpdater.checkForUpdates().catch(() => {});
+      autoUpdater
+        .checkForUpdates()
+        .then((result) => {
+          updaterLog(
+            '[updater] checkForUpdates() resolved:',
+            result ? `v${result.updateInfo?.version}` : 'null (updater inactive)'
+          );
+        })
+        .catch((err) => {
+          updaterLog('[updater] checkForUpdates() rejected:', err?.message || err);
+        });
     });
     ipcMain.on('download-update', () => {
       autoUpdater.downloadUpdate().catch(() => {});
@@ -316,7 +350,14 @@ if (!gotLock) {
       }
     });
 
-    // Only auto-check in production
+    // Auto-check for updates on startup
+    // NOTE: temporarily enabled in dev for sparkle E2E testing
+    updaterLog('[updater] startup config:', {
+      autoCheckUpdate: prefs.autoCheckUpdate,
+      autoDownload: autoUpdater.autoDownload,
+      allowPrerelease: autoUpdater.allowPrerelease,
+      currentVersion: app.getVersion(),
+    });
     if (process.env.NODE_ENV !== 'development' && prefs.autoCheckUpdate) {
       autoUpdater.checkForUpdates().catch(() => {});
     }

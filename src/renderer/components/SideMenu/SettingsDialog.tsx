@@ -266,6 +266,23 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 ))}
               </div>
             </div>
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-sm text-foreground">{t('settings.checkNow')}</span>
+              <button
+                onClick={() => {
+                  (window as any).electronAPI.checkForUpdate();
+                  onClose();
+                }}
+                className={cn(
+                  'px-3 py-1 rounded-md text-[11px] font-medium',
+                  'border border-border text-foreground-muted',
+                  'hover:bg-surface-accent hover:text-foreground',
+                  'transition-colors duration-150'
+                )}
+              >
+                {t('settings.checkNowBtn')}
+              </button>
+            </div>
           </div>
         </section>
 

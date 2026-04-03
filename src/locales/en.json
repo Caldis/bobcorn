@@ -281,6 +281,8 @@
   "settings.channel": "Update channel",
   "settings.channelStable": "Stable",
   "settings.channelBeta": "Beta",
+  "settings.checkNow": "Check for updates",
+  "settings.checkNowBtn": "Check Now",
   "settings.advanced": "Advanced",
   "settings.version": "Version",
   "settings.website": "Website",

@@ -281,6 +281,8 @@
   "settings.channel": "更新通道",
   "settings.channelStable": "稳定版",
   "settings.channelBeta": "测试版",
+  "settings.checkNow": "检查更新",
+  "settings.checkNowBtn": "立即检查",
   "settings.advanced": "高级",
   "settings.version": "版本",
   "settings.website": "官网",
