@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import DOMPurify from 'dompurify';
 import useAppStore from '../../store';
 import { confirm } from '../ui/dialog';
 import { cn } from '../../lib/utils';
@@ -24,6 +25,17 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
     el.addEventListener('animationiteration', handler, { once: true });
     return () => el.removeEventListener('animationiteration', handler);
   }, [status]);
+
+  // Sanitize release notes HTML for safe rendering (must be before early return — hooks rule)
+  const sanitizedNotes = useMemo(() => {
+    if (!releaseNotes) return null;
+    const cleaned = releaseNotes.replace(/<hr\s*\/?>.*$/s, '').trim();
+    if (!cleaned || cleaned === '<p></p>') return null;
+    return DOMPurify.sanitize(cleaned, {
+      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li', 'strong', 'em', 'a', 'code', 'br'],
+      ALLOWED_ATTR: ['href', 'target', 'rel'],
+    });
+  }, [releaseNotes]);
 
   if (status === 'idle') return null;
 
@@ -69,17 +81,6 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
     clearTimeout(hoverTimeout.current);
     hoverTimeout.current = setTimeout(() => setHoverCard(false), 200);
   };
-
-  // Clean release notes: strip HTML, remove empty markdown headings, trim
-  const plainNotes = releaseNotes
-    ? releaseNotes
-        .replace(/<[^>]*>/g, '')
-        .replace(/^#{1,3}\s+.*\n?(?=\n*#{1,3}\s|\n*$)/gm, '') // remove headings with no content after them
-        .replace(/^---.*$/gm, '') // remove horizontal rules
-        .replace(/\*Built by.*$/gm, '') // remove CI footer
-        .replace(/\n{3,}/g, '\n\n')
-        .trim()
-    : null;
 
   return (
     <div
@@ -193,14 +194,29 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
           </div>
 
           {/* Release notes */}
-          {plainNotes ? (
+          {sanitizedNotes ? (
             <div className="px-3 pb-3">
               <div className="text-[10px] text-foreground-muted/60 uppercase tracking-wide font-medium mb-1">
                 {t('update.changelog')}
               </div>
-              <p className="text-[11px] text-foreground-muted leading-relaxed whitespace-pre-line max-h-[120px] overflow-y-auto">
-                {plainNotes}
-              </p>
+              <div
+                className={cn(
+                  'text-[11px] text-foreground-muted leading-relaxed',
+                  'max-h-[150px] overflow-y-auto',
+                  // Prose-like styles for rendered HTML
+                  '[&_h1]:text-xs [&_h1]:font-semibold [&_h1]:text-foreground [&_h1]:mt-2 [&_h1]:mb-1',
+                  '[&_h2]:text-[11px] [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:mt-2 [&_h2]:mb-0.5',
+                  '[&_h3]:text-[11px] [&_h3]:font-medium [&_h3]:text-foreground [&_h3]:mt-1.5 [&_h3]:mb-0.5',
+                  '[&_ul]:list-disc [&_ul]:pl-3.5 [&_ul]:my-0.5',
+                  '[&_ol]:list-decimal [&_ol]:pl-3.5 [&_ol]:my-0.5',
+                  '[&_li]:my-0.5',
+                  '[&_p]:my-0.5',
+                  '[&_strong]:font-semibold [&_strong]:text-foreground',
+                  '[&_code]:text-[10px] [&_code]:bg-surface-accent [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded',
+                  '[&_a]:text-brand-500 [&_a]:hover:text-brand-600'
+                )}
+                dangerouslySetInnerHTML={{ __html: sanitizedNotes }}
+              />
             </div>
           ) : (
             <div className="px-3 pb-3">
