@@ -34,6 +34,7 @@ export interface State {
   // Update state (UI only, not persisted)
   updateStatus: 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error';
   updateVersion: string | null;
+  updateReleaseNotes: string | null;
   updateProgress: number;
   updateError: string | null;
 }
@@ -99,6 +100,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // Update state
   updateStatus: 'idle',
   updateVersion: null,
+  updateReleaseNotes: null,
   updateProgress: 0,
   updateError: null,
 
@@ -231,7 +233,9 @@ const useAppStore = create<State & Actions>((set, get) => ({
     set({
       updateStatus: status,
       ...(version !== undefined ? { updateVersion: version } : {}),
-      ...(status === 'idle' ? { updateVersion: null, updateProgress: 0, updateError: null } : {}),
+      ...(status === 'idle'
+        ? { updateVersion: null, updateReleaseNotes: null, updateProgress: 0, updateError: null }
+        : {}),
     });
   },
   setUpdateProgress: (percent) => set({ updateProgress: percent }),

@@ -284,7 +284,16 @@ if (!gotLock) {
     });
     autoUpdater.on('update-available', (info) => {
       updaterLog('[updater] update-available:', info.version);
-      mainWindow?.webContents.send('update-available', { version: info.version });
+      const releaseNotes =
+        typeof info.releaseNotes === 'string'
+          ? info.releaseNotes
+          : Array.isArray(info.releaseNotes)
+            ? info.releaseNotes.map((n: any) => n.note || n).join('\n')
+            : '';
+      mainWindow?.webContents.send('update-available', {
+        version: info.version,
+        releaseNotes,
+      });
     });
     autoUpdater.on('update-not-available', (info) => {
       updaterLog('[updater] update-not-available, current:', info?.version);
@@ -358,8 +367,15 @@ if (!gotLock) {
       allowPrerelease: autoUpdater.allowPrerelease,
       currentVersion: app.getVersion(),
     });
-    if (process.env.NODE_ENV !== 'development' && prefs.autoCheckUpdate) {
-      autoUpdater.checkForUpdates().catch(() => {});
+    if (prefs.autoCheckUpdate) {
+      if (app.isPackaged) {
+        autoUpdater.checkForUpdates().catch(() => {});
+      } else if (autoUpdater.forceDevUpdateConfig) {
+        // Dev mode with forceDevUpdateConfig — delay to ensure renderer is ready
+        setTimeout(() => {
+          autoUpdater.checkForUpdates().catch(() => {});
+        }, 3000);
+      }
     }
 
     // ── Dev-only: simulate update lifecycle (Ctrl+Shift+U) ────────

@@ -413,9 +413,9 @@ function MainContainer() {
         useAppStore.getState().setUpdateStatus('idle');
       }),
       electronAPI.onUpdateAvailable((info) => {
+        useAppStore.setState({ updateReleaseNotes: info.releaseNotes || null });
         const opts = getOption() as OptionData;
         if (opts.autoDownloadUpdate) {
-          // Auto-download is on — skip 'available', go straight to 'downloading'
           useAppStore.getState().setUpdateStatus('downloading');
           useAppStore.setState({ updateVersion: info.version });
         } else {

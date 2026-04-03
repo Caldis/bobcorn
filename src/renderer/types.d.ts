@@ -65,7 +65,9 @@ interface ElectronAPI {
 
   // Auto-update
   onUpdateChecking: (callback: () => void) => () => void;
-  onUpdateAvailable: (callback: (info: { version: string }) => void) => () => void;
+  onUpdateAvailable: (
+    callback: (info: { version: string; releaseNotes?: string }) => void
+  ) => () => void;
   onUpdateNotAvailable: (callback: () => void) => () => void;
   onUpdateProgress: (callback: (info: { percent: number }) => void) => () => void;
   onUpdateDownloaded: (callback: () => void) => () => void;

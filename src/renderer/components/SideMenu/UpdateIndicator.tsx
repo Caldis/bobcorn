@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useAppStore from '../../store';
 import { confirm } from '../ui/dialog';
@@ -10,16 +10,17 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
   const { t } = useTranslation();
   const status = useAppStore((s) => s.updateStatus);
   const version = useAppStore((s) => s.updateVersion);
+  const releaseNotes = useAppStore((s) => s.updateReleaseNotes);
   const progress = useAppStore((s) => s.updateProgress);
   const pulseRef = useRef<HTMLSpanElement>(null);
+  const [hoverCard, setHoverCard] = useState(false);
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   // Single-round pulse: remove animation class after one cycle
   useEffect(() => {
     if (status !== 'available' || !pulseRef.current) return;
     const el = pulseRef.current;
-    const handler = () => {
-      el.classList.remove('animate-pulse');
-    };
+    const handler = () => el.classList.remove('animate-pulse');
     el.addEventListener('animationiteration', handler, { once: true });
     return () => el.removeEventListener('animationiteration', handler);
   }, [status]);
@@ -56,20 +57,35 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
     });
   };
 
-  const tooltip =
-    status === 'available'
-      ? t('update.downloadTooltip')
-      : status === 'downloaded'
-        ? t('update.installTooltip')
-        : status === 'error'
-          ? t('update.retryTooltip')
-          : undefined;
+  const showHoverCard = status === 'downloaded' || status === 'available';
+
+  const handleMouseEnter = () => {
+    if (!showHoverCard) return;
+    clearTimeout(hoverTimeout.current);
+    hoverTimeout.current = setTimeout(() => setHoverCard(true), 300);
+  };
+
+  const handleMouseLeave = () => {
+    clearTimeout(hoverTimeout.current);
+    hoverTimeout.current = setTimeout(() => setHoverCard(false), 200);
+  };
+
+  // Strip HTML tags from release notes for plain text display
+  const plainNotes = releaseNotes
+    ? releaseNotes
+        .replace(/<[^>]*>/g, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+    : null;
 
   return (
-    <div className="inline-flex items-center">
+    <div
+      className="relative inline-flex items-center"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
         onClick={isClickable ? handleClick : undefined}
-        title={tooltip}
         className={cn(
           'inline-flex items-center gap-1.5 px-2 py-1 rounded-md',
           'text-[11px] text-foreground-muted',
@@ -107,7 +123,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
           {status === 'checking' && t('update.checking')}
           {status === 'available' && t('update.available', { version: `v${version}` })}
           {status === 'downloading' && t('update.downloading', { percent: progress })}
-          {status === 'downloaded' && t('update.downloaded')}
+          {status === 'downloaded' && t('update.downloaded', { version: `v${version}` })}
           {status === 'error' && t('update.error')}
         </span>
       </button>
@@ -138,6 +154,66 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
+      )}
+
+      {/* Hover card — version + release notes preview */}
+      {hoverCard && showHoverCard && (
+        <div
+          className={cn(
+            'absolute bottom-full left-0 mb-2',
+            'w-[240px] rounded-lg',
+            'border border-border bg-surface shadow-lg',
+            'overflow-hidden',
+            'animate-in fade-in slide-in-from-bottom-1 duration-150'
+          )}
+          onMouseEnter={() => {
+            clearTimeout(hoverTimeout.current);
+          }}
+          onMouseLeave={handleMouseLeave}
+        >
+          {/* Header */}
+          <div className="px-3 pt-3 pb-2">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="text-xs font-medium text-foreground">v{version}</span>
+              {status === 'downloaded' && (
+                <span className="text-[10px] text-emerald-500 font-medium ml-auto">
+                  {t('update.readyBadge')}
+                </span>
+              )}
+              {status === 'available' && (
+                <span className="text-[10px] text-brand-500 font-medium ml-auto">
+                  {t('update.newBadge')}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Release notes */}
+          {plainNotes ? (
+            <div className="px-3 pb-3">
+              <div className="text-[10px] text-foreground-muted/60 uppercase tracking-wide font-medium mb-1">
+                {t('update.changelog')}
+              </div>
+              <p className="text-[11px] text-foreground-muted leading-relaxed line-clamp-4 whitespace-pre-line">
+                {plainNotes}
+              </p>
+            </div>
+          ) : (
+            <div className="px-3 pb-3">
+              <p className="text-[11px] text-foreground-muted/40 italic">
+                {t('update.noChangelog')}
+              </p>
+            </div>
+          )}
+
+          {/* Footer action hint */}
+          <div className="px-3 py-1.5 border-t border-border bg-surface-muted/50">
+            <p className="text-[10px] text-foreground-muted/50 text-center">
+              {status === 'downloaded' ? t('update.clickToRelaunch') : t('update.clickToDownload')}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
