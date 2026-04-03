@@ -394,7 +394,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         <img className="w-[150px]" src={h.img} />
         <div>
           {h.lines.map((line, i) => (
-            <p key={i} className="text-foreground-muted dark:text-foreground-muted mb-2">
+            <p key={i} className="text-foreground-muted mb-2">
               {line}
             </p>
           ))}
@@ -511,13 +511,13 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
             'absolute top-0 left-0 w-full z-20',
             'cursor-pointer text-left',
             'flex items-stretch',
-            'bg-surface/95 dark:bg-surface/95',
+            'bg-surface/95',
             'backdrop-blur-sm',
             'border-b border-border/50'
           )}
           onClick={() => selectGroup(stickyHeader.groupId)}
         >
-          <div className="w-[3px] shrink-0 bg-brand-500 dark:bg-brand-400" />
+          <div className="w-[3px] shrink-0 bg-accent" />
           <div className="flex flex-col justify-center py-2 pl-3 pr-4 min-w-0">
             <div className="flex items-baseline gap-2">
               <span className="text-sm font-medium text-foreground truncate">
@@ -576,12 +576,12 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                         'w-full flex items-stretch',
                         virtualRow.index > 0 && 'mt-3',
                         'transition-colors duration-200',
-                        'hover:bg-surface-muted/60 dark:hover:bg-white/[0.03]',
-                        'active:bg-surface-muted dark:active:bg-white/[0.05]'
+                        'hover:bg-surface-accent',
+                        'active:bg-surface-accent'
                       )}
                       onClick={() => selectGroup(row.groupId)}
                     >
-                      <div className="w-[3px] shrink-0 rounded-full bg-brand-500/80 dark:bg-brand-400/80" />
+                      <div className="w-[3px] shrink-0 rounded-full bg-accent/80" />
                       <div className="flex flex-col justify-center py-1.5 pl-3 pr-4 min-w-0">
                         <div className="flex items-baseline gap-2">
                           <span className="text-sm font-medium text-foreground truncate">
@@ -647,8 +647,8 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
           'opacity-0 absolute inset-x-0 top-0',
           'w-[calc(100%-40px)] h-[calc(100%-80px)]',
           'm-5',
-          'border border-dashed border-foreground/30 dark:border-foreground/30',
-          'bg-foreground/10 dark:bg-foreground/10',
+          'border border-dashed border-foreground/30',
+          'bg-foreground/10',
           'rounded-lg',
           'transition-opacity duration-700',
           'pointer-events-none',
@@ -656,9 +656,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         )}
       >
         <div className="w-full h-full flex justify-center items-center">
-          <div className="font-bold text-base text-foreground dark:text-foreground">
-            {t('emptyState.dragToGroup')}
-          </div>
+          <div className="font-bold text-base text-foreground">{t('emptyState.dragToGroup')}</div>
         </div>
       </div>
 

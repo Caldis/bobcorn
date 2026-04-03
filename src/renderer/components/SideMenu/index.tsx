@@ -111,7 +111,7 @@ const SideMenu = React.memo(function SideMenu({
   }, [handleFileMenuAction]);
 
   return (
-    <div className="relative flex h-full w-full flex-col bg-surface dark:bg-surface">
+    <div className="relative flex h-full w-full flex-col bg-surface">
       {platform() === 'darwin' && <div className={style.osxDrag} />}
       {platform() === 'win32' && <div className={style.win32Drag} />}
 

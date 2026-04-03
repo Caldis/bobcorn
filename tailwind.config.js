@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Bobcorn 品牌色
+        // Brand palette (retained for globals.css variable definitions only)
         brand: {
           50: '#eff6ff',
           100: '#dbeafe',
@@ -18,18 +18,45 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
         },
-        // 语义色
+        // Semantic colors — all theme-aware via CSS variables
         surface: {
           DEFAULT: 'hsl(var(--surface))',
           muted: 'hsl(var(--surface-muted))',
           accent: 'hsl(var(--surface-accent))',
+          elevated: 'hsl(var(--surface-elevated))',
+          overlay: 'var(--surface-overlay)',
+          inset: 'hsl(var(--surface-inset))',
         },
-        border: 'hsl(var(--border))',
-        ring: 'hsl(var(--ring))',
         foreground: {
           DEFAULT: 'hsl(var(--foreground))',
           muted: 'hsl(var(--foreground-muted))',
+          subtle: 'hsl(var(--foreground-subtle))',
         },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+          subtle: 'hsl(var(--accent-subtle))',
+          muted: 'hsl(var(--accent-muted))',
+        },
+        danger: {
+          DEFAULT: 'hsl(var(--danger))',
+          subtle: 'hsl(var(--danger-subtle))',
+        },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          subtle: 'hsl(var(--success-subtle))',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          subtle: 'hsl(var(--warning-subtle))',
+        },
+        info: {
+          DEFAULT: 'hsl(var(--info))',
+          subtle: 'hsl(var(--info-subtle))',
+        },
+        border: 'hsl(var(--border))',
+        'border-muted': 'hsl(var(--border-muted))',
+        ring: 'hsl(var(--ring))',
       },
       borderRadius: {
         lg: 'var(--radius)',

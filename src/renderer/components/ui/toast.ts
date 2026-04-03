@@ -3,33 +3,15 @@ const ANIMATION_DURATION = 250;
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 
-function isDark(): boolean {
-  return document.documentElement.classList.contains('dark');
+function getThemeColor(token: string): string {
+  return `hsl(${getComputedStyle(document.documentElement).getPropertyValue(`--${token}`).trim()})`;
 }
 
-const COLORS: Record<
-  ToastType,
-  {
-    light: { bg: string; text: string; border: string };
-    dark: { bg: string; text: string; border: string };
-  }
-> = {
-  success: {
-    light: { bg: 'rgba(255, 255, 255, 0.97)', text: '#16a34a', border: 'rgba(187, 247, 208, 1)' },
-    dark: { bg: 'rgba(30, 30, 30, 0.97)', text: '#4ade80', border: 'rgba(34, 84, 61, 1)' },
-  },
-  error: {
-    light: { bg: 'rgba(254, 242, 242, 0.97)', text: '#991b1b', border: 'rgba(252, 165, 165, 1)' },
-    dark: { bg: 'rgba(40, 20, 20, 0.97)', text: '#fca5a5', border: 'rgba(127, 29, 29, 1)' },
-  },
-  warning: {
-    light: { bg: 'rgba(255, 251, 235, 0.97)', text: '#92400e', border: 'rgba(252, 211, 77, 1)' },
-    dark: { bg: 'rgba(40, 35, 18, 0.97)', text: '#fcd34d', border: 'rgba(120, 83, 9, 1)' },
-  },
-  info: {
-    light: { bg: 'rgba(255, 255, 255, 0.97)', text: '#374151', border: 'rgba(229, 231, 235, 1)' },
-    dark: { bg: 'rgba(30, 30, 30, 0.97)', text: '#d1d5db', border: 'rgba(55, 65, 81, 1)' },
-  },
+const STATUS_TOKENS: Record<ToastType, { text: string; border: string; bg: string }> = {
+  success: { text: 'success', border: 'success', bg: 'surface-elevated' },
+  error: { text: 'danger', border: 'danger', bg: 'danger-subtle' },
+  warning: { text: 'warning', border: 'warning', bg: 'surface-elevated' },
+  info: { text: 'foreground', border: 'border', bg: 'surface-elevated' },
 };
 
 const ICONS: Record<ToastType, string> = {
@@ -42,8 +24,7 @@ const ICONS: Record<ToastType, string> = {
 let toastCount = 0;
 
 function showToast(text: string, type: ToastType, duration = DURATION) {
-  const dark = isDark();
-  const colors = dark ? COLORS[type].dark : COLORS[type].light;
+  const tokens = STATUS_TOKENS[type];
   const icon = ICONS[type];
   const el = document.createElement('div');
   const offset = toastCount * 44;
@@ -62,10 +43,10 @@ function showToast(text: string, type: ToastType, duration = DURATION) {
     letterSpacing: '0.01em',
     zIndex: '99999',
     pointerEvents: 'none',
-    backgroundColor: colors.bg,
-    color: colors.text,
-    border: `1px solid ${colors.border}`,
-    boxShadow: dark ? '0 4px 16px rgba(0, 0, 0, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.1)',
+    backgroundColor: getThemeColor(tokens.bg),
+    color: getThemeColor(tokens.text),
+    border: `1px solid ${getThemeColor(tokens.border)}`,
+    boxShadow: '0 4px 16px hsl(var(--foreground) / 0.1)',
     backdropFilter: 'blur(12px)',
     WebkitBackdropFilter: 'blur(12px)',
     opacity: '0',

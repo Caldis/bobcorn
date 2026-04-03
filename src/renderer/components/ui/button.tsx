@@ -55,11 +55,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
             )
           : 'rounded-md',
         effectiveType === 'default' &&
-          'border-border bg-surface text-foreground hover:bg-surface-muted hover:border-brand-400 dark:hover:border-brand-500 data-[state=open]:bg-surface-muted data-[state=open]:border-brand-400',
+          'border-border bg-surface text-foreground hover:bg-surface-muted hover:border-accent data-[state=open]:bg-surface-muted data-[state=open]:border-accent',
         effectiveType === 'primary' &&
-          'border-brand-500 bg-brand-500 text-white hover:bg-brand-600 hover:border-brand-600',
+          'border-accent bg-accent text-accent-foreground hover:bg-accent/90 hover:border-accent/90',
         effectiveType === 'danger' &&
-          'border-red-500 bg-red-500 text-white hover:bg-red-600 hover:border-red-600',
+          'border-danger bg-danger text-accent-foreground hover:bg-danger/90 hover:border-danger/90',
         className
       )}
     >

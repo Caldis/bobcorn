@@ -224,7 +224,7 @@ const FileMenuBar = React.memo(function FileMenuBar({
                       'group'
                     )}
                   >
-                    <span className="mt-0.5 shrink-0 text-foreground-muted group-hover:text-brand-500 transition-colors duration-75">
+                    <span className="mt-0.5 shrink-0 text-foreground-muted group-hover:text-accent transition-colors duration-75">
                       {item.icon}
                     </span>
                     <span className="flex-1 min-w-0">

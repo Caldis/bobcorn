@@ -65,8 +65,7 @@ export const Input = forwardRef<InputRef, InputProps>(function Input(
         'placeholder:text-foreground-muted/50',
         'outline-none',
         'transition-colors duration-200',
-        'focus:border-brand-400 focus:ring-2 focus:ring-ring/30',
-        'dark:focus:border-brand-500',
+        'focus:border-accent focus:ring-2 focus:ring-ring/30',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         className
       )}

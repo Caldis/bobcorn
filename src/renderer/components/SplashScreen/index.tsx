@@ -90,8 +90,7 @@ function SplashScreen() {
             'text-sm text-left',
             'text-foreground-muted',
             'transition-all duration-200',
-            'hover:bg-brand-50 hover:text-brand-700',
-            'dark:hover:bg-brand-900/30 dark:hover:text-brand-300'
+            'hover:bg-accent-subtle hover:text-accent'
           )}
         >
           <button
@@ -103,7 +102,7 @@ function SplashScreen() {
             <svg
               className={cn(
                 'w-4 h-4 shrink-0 text-foreground-muted/50',
-                'group-hover:text-brand-500 dark:group-hover:text-brand-400',
+                'group-hover:text-accent',
                 'transition-colors duration-200'
               )}
               viewBox="0 0 24 24"
@@ -131,7 +130,7 @@ function SplashScreen() {
             title={t('splash.removeRecord')}
             className={cn(
               'shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100',
-              'text-foreground-muted/40 hover:text-red-500',
+              'text-foreground-muted/40 hover:text-danger',
               'transition-all duration-150',
               'focus:outline-none focus:opacity-100'
             )}
@@ -195,11 +194,10 @@ function SplashScreen() {
             className={cn(
               'group relative flex flex-col items-center justify-center',
               'gap-2 p-5 rounded-lg',
-              'border border-brand-200 dark:border-brand-800',
-              'bg-gradient-to-b from-brand-50 to-white',
-              'dark:from-brand-950/40 dark:to-surface',
-              'hover:border-brand-400 dark:hover:border-brand-600',
-              'hover:shadow-md hover:shadow-brand-100/60 dark:hover:shadow-brand-900/30',
+              'border border-accent/30',
+              'bg-gradient-to-b from-accent-subtle to-surface',
+              'hover:border-accent',
+              'hover:shadow-md hover:shadow-accent/15',
               'transition-all duration-200',
               'focus:outline-none focus:ring-2 focus:ring-ring/50'
             )}
@@ -208,9 +206,9 @@ function SplashScreen() {
             <div
               className={cn(
                 'flex items-center justify-center w-10 h-10 rounded-full',
-                'bg-brand-100 dark:bg-brand-900/50',
-                'text-brand-600 dark:text-brand-400',
-                'group-hover:bg-brand-200 dark:group-hover:bg-brand-800/60',
+                'bg-accent-subtle',
+                'text-accent',
+                'group-hover:bg-accent-muted',
                 'transition-colors duration-200'
               )}
             >
@@ -238,8 +236,8 @@ function SplashScreen() {
               'gap-2 p-5 rounded-lg',
               'border border-border',
               'bg-gradient-to-b from-surface-muted to-surface',
-              'hover:border-brand-300 dark:hover:border-brand-700',
-              'hover:shadow-md hover:shadow-brand-100/40 dark:hover:shadow-brand-900/20',
+              'hover:border-accent/40',
+              'hover:shadow-md hover:shadow-accent/10',
               'transition-all duration-200',
               'focus:outline-none focus:ring-2 focus:ring-ring/50'
             )}
@@ -250,8 +248,8 @@ function SplashScreen() {
                 'flex items-center justify-center w-10 h-10 rounded-full',
                 'bg-surface-accent',
                 'text-foreground-muted',
-                'group-hover:bg-brand-100 dark:group-hover:bg-brand-900/50',
-                'group-hover:text-brand-600 dark:group-hover:text-brand-400',
+                'group-hover:bg-accent-subtle',
+                'group-hover:text-accent',
                 'transition-colors duration-200'
               )}
             >
@@ -294,7 +292,7 @@ function SplashScreen() {
                 onClick={clearAllHist}
                 className={cn(
                   'ml-auto text-xs text-foreground-muted/50',
-                  'hover:text-red-500 transition-colors duration-150',
+                  'hover:text-danger transition-colors duration-150',
                   'focus:outline-none'
                 )}
               >

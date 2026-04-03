@@ -404,11 +404,7 @@ const SideEditor = React.memo(function SideEditor({
 
   return (
     <div
-      className={cn(
-        'relative w-full h-full flex flex-col',
-        'border-l border-border',
-        'bg-surface dark:bg-surface'
-      )}
+      className={cn('relative w-full h-full flex flex-col', 'border-l border-border', 'bg-surface')}
     >
       {/* Win32 title bar spacer */}
       {platform() === 'win32' && <div className="w-full h-5 shrink-0" />}
@@ -421,7 +417,7 @@ const SideEditor = React.memo(function SideEditor({
               'flex items-center justify-center',
               'w-full aspect-square max-h-[180px]',
               'mb-4 rounded-xl',
-              'bg-surface-muted dark:bg-surface-muted',
+              'bg-surface-muted',
               'border border-border',
               'transition-colors duration-200',
               // SVG sizing within preview
@@ -467,7 +463,7 @@ const SideEditor = React.memo(function SideEditor({
             <h4
               className={cn(
                 'text-xs font-semibold uppercase tracking-wider',
-                'text-foreground-muted dark:text-foreground-muted',
+                'text-foreground-muted',
                 'mb-2 pb-1.5',
                 'border-b border-border'
               )}
@@ -486,8 +482,8 @@ const SideEditor = React.memo(function SideEditor({
                   key={label}
                   className={cn('flex items-center justify-between', 'text-xs py-0.5')}
                 >
-                  <span className="text-foreground-muted dark:text-foreground-muted">{label}</span>
-                  <span className="text-foreground dark:text-foreground font-medium truncate ml-2 max-w-[120px] text-right">
+                  <span className="text-foreground-muted">{label}</span>
+                  <span className="text-foreground font-medium truncate ml-2 max-w-[120px] text-right">
                     {value}
                   </span>
                 </div>
@@ -518,7 +514,7 @@ const SideEditor = React.memo(function SideEditor({
                       'w-7 h-7 rounded-md border-2 transition-all duration-150',
                       'hover:scale-110 hover:shadow-md',
                       editingColorIdx === i
-                        ? 'border-brand-500 ring-2 ring-brand-300 dark:ring-brand-700 scale-110'
+                        ? 'border-accent ring-2 ring-ring/30 scale-110'
                         : 'border-border'
                     )}
                     style={{ backgroundColor: c.color }}
@@ -530,8 +526,8 @@ const SideEditor = React.memo(function SideEditor({
                   className={cn(
                     'absolute left-0 right-0 z-50 mx-3',
                     'rounded-lg border border-border',
-                    'bg-surface dark:bg-surface',
-                    'shadow-lg dark:shadow-black/40',
+                    'bg-surface',
+                    'shadow-lg',
                     'p-3'
                   )}
                 >
@@ -556,13 +552,13 @@ const SideEditor = React.memo(function SideEditor({
                       placeholder="hex / rgb / hsl / hwb"
                       className={cn(
                         'flex-1 min-w-0 px-2 py-1 rounded text-xs font-mono',
-                        'bg-surface dark:bg-surface',
+                        'bg-surface',
                         'border transition-colors duration-150',
                         'outline-none focus:ring-1',
                         colorInputError
-                          ? 'border-red-400 focus:ring-red-300'
-                          : 'border-border focus:ring-brand-300 dark:focus:ring-brand-700',
-                        'text-foreground dark:text-foreground',
+                          ? 'border-danger focus:ring-danger/30'
+                          : 'border-border focus:ring-ring/30',
+                        'text-foreground',
                         'placeholder:text-foreground-muted/50'
                       )}
                     />
@@ -624,7 +620,7 @@ const SideEditor = React.memo(function SideEditor({
             <h4
               className={cn(
                 'text-xs font-semibold uppercase tracking-wider',
-                'text-foreground-muted dark:text-foreground-muted',
+                'text-foreground-muted',
                 'mb-2 pb-1.5',
                 'border-b border-border'
               )}
@@ -676,7 +672,7 @@ const SideEditor = React.memo(function SideEditor({
         <div
           className={cn(
             'flex-1 flex flex-col items-center justify-center',
-            'text-foreground-muted dark:text-foreground-muted',
+            'text-foreground-muted',
             '[-webkit-app-region:drag]'
           )}
         >
@@ -711,9 +707,7 @@ const SideEditor = React.memo(function SideEditor({
       >
         <div className="max-h-[60vh] overflow-y-auto -mx-2 px-2">
           {iconGroupEditModelType === 'duplicate' && (
-            <p className="mb-2 text-xs text-foreground-muted dark:text-foreground-muted">
-              {t('editor.duplicateHint')}
-            </p>
+            <p className="mb-2 text-xs text-foreground-muted">{t('editor.duplicateHint')}</p>
           )}
           <RadioGroup onChange={onTargetGroupChange} value={iconGroupEditModelTarget}>
             {buildSelectableGroupList()}

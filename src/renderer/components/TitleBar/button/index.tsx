@@ -53,8 +53,8 @@ function TitleBarButtonGroup() {
     'inline-flex items-center justify-center',
     'bg-transparent p-0 m-0 border-none',
     'cursor-pointer outline-none',
-    'hover:bg-neutral-300 dark:hover:bg-neutral-600',
-    'active:bg-neutral-400 dark:active:bg-neutral-500',
+    'hover:bg-surface-accent',
+    'active:bg-surface-accent',
     '[&>img]:h-3',
     'transition-colors duration-150'
   );
@@ -77,11 +77,7 @@ function TitleBarButtonGroup() {
         <img src={maximize} />
       </button>
       <button
-        className={cn(
-          buttonBase,
-          'hover:!bg-[#e81123] dark:hover:!bg-[#e81123]',
-          'active:!bg-[#dc5c66] dark:active:!bg-[#dc5c66]'
-        )}
+        className={cn(buttonBase, 'hover:!bg-[#e81123]', 'active:!bg-[#dc5c66]')}
         onClick={handleWindowClose}
       >
         <img src={close} />

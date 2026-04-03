@@ -8,14 +8,11 @@ import { getOption } from './config';
 import './utils/profiler';
 
 // Apply theme synchronously before first render to avoid flash
+import { resolveTheme, applyThemeClass } from './config/themes';
 const opts = getOption() as { themeMode?: 'light' | 'dark' | 'system'; darkMode?: boolean };
 const themeMode = opts.themeMode ?? (opts.darkMode ? 'dark' : 'light'); // migrate old boolean
-const isDark =
-  themeMode === 'dark' ||
-  (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-if (isDark) {
-  document.documentElement.classList.add('dark');
-}
+const { resolved } = resolveTheme(themeMode as 'light' | 'dark' | 'system');
+applyThemeClass(resolved);
 
 // Register early open-file listener BEFORE async WASM init.
 // Electron's did-finish-load sends the IPC before React mounts,

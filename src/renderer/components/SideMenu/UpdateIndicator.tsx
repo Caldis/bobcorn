@@ -112,21 +112,19 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
         {status === 'available' && (
           <span
             ref={pulseRef}
-            className="inline-block h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse"
+            className="inline-block h-1.5 w-1.5 rounded-full bg-accent animate-pulse"
           />
         )}
         {status === 'downloaded' && (
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-success" />
         )}
-        {status === 'error' && (
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
-        )}
+        {status === 'error' && <span className="inline-block h-1.5 w-1.5 rounded-full bg-danger" />}
 
         {/* Progress bar for downloading */}
         {status === 'downloading' && (
           <span className="inline-block w-12 h-0.5 rounded-full bg-surface-accent overflow-hidden">
             <span
-              className="block h-full bg-brand-500 transition-all duration-300 ease-out"
+              className="block h-full bg-accent transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
             />
           </span>
@@ -188,15 +186,15 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
           {/* Header */}
           <div className="px-3 pt-3 pb-2">
             <div className="flex items-center gap-1.5">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-success" />
               <span className="text-xs font-medium text-foreground">v{version}</span>
               {status === 'downloaded' && (
-                <span className="text-[10px] text-emerald-500 font-medium ml-auto">
+                <span className="text-[10px] text-success font-medium ml-auto">
                   {t('update.readyBadge')}
                 </span>
               )}
               {status === 'available' && (
-                <span className="text-[10px] text-brand-500 font-medium ml-auto">
+                <span className="text-[10px] text-accent font-medium ml-auto">
                   {t('update.newBadge')}
                 </span>
               )}
@@ -223,7 +221,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
                   '[&_p]:my-0.5',
                   '[&_strong]:font-semibold [&_strong]:text-foreground',
                   '[&_code]:text-[10px] [&_code]:bg-surface-accent [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded',
-                  '[&_a]:text-brand-500 [&_a]:hover:text-brand-600'
+                  '[&_a]:text-accent [&_a]:hover:text-accent/80'
                 )}
                 dangerouslySetInnerHTML={{ __html: sanitizedNotes }}
               />

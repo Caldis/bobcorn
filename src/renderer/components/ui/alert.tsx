@@ -10,22 +10,22 @@ interface AlertProps {
 
 const ALERT_STYLES = {
   warning: {
-    container: 'border-yellow-300 bg-yellow-50 dark:border-yellow-700 dark:bg-yellow-950/30',
-    icon: 'text-yellow-500',
-    title: 'text-yellow-800 dark:text-yellow-200',
-    desc: 'text-yellow-700 dark:text-yellow-300',
+    container: 'border-warning bg-warning-subtle',
+    icon: 'text-warning',
+    title: 'text-foreground',
+    desc: 'text-foreground-muted',
   },
   error: {
-    container: 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/30',
-    icon: 'text-red-500',
-    title: 'text-red-800 dark:text-red-200',
-    desc: 'text-red-700 dark:text-red-300',
+    container: 'border-danger bg-danger-subtle',
+    icon: 'text-danger',
+    title: 'text-foreground',
+    desc: 'text-foreground-muted',
   },
   info: {
-    container: 'border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30',
-    icon: 'text-blue-500',
-    title: 'text-blue-800 dark:text-blue-200',
-    desc: 'text-blue-700 dark:text-blue-300',
+    container: 'border-info bg-info-subtle',
+    icon: 'text-info',
+    title: 'text-foreground',
+    desc: 'text-foreground-muted',
   },
 };
 

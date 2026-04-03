@@ -44,16 +44,16 @@ export function Slider({
         onPointerDown={() => setShowTooltip(true)}
         onPointerUp={() => setShowTooltip(false)}
       >
-        <SliderPrimitive.Track className="relative h-1 w-full grow rounded-full bg-surface-accent dark:bg-white/10">
-          <SliderPrimitive.Range className="absolute h-full rounded-full bg-brand-500" />
+        <SliderPrimitive.Track className="relative h-1 w-full grow rounded-full bg-surface-accent">
+          <SliderPrimitive.Range className="absolute h-full rounded-full bg-accent" />
         </SliderPrimitive.Track>
         <SliderPrimitive.Thumb
           className={cn(
             'block h-4 w-4 rounded-full',
-            'border-2 border-brand-500 bg-surface',
+            'border-2 border-accent bg-surface',
             'shadow-sm',
             'transition-colors duration-150',
-            'hover:border-brand-600',
+            'hover:border-accent/90',
             'focus:outline-none focus:ring-2 focus:ring-ring/40'
           )}
           onMouseEnter={() => setShowTooltip(true)}

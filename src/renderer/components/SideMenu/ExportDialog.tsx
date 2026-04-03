@@ -416,7 +416,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
           </div>
 
           {/* 迁移提示 */}
-          <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-xs leading-relaxed mt-4">
+          <div className="flex items-start gap-2 p-2.5 rounded-md bg-info-subtle text-info text-xs leading-relaxed mt-4">
             <span className="shrink-0 mt-0.5">ℹ</span>
             <span>
               {t('export.icpMigrationHint', {
@@ -434,7 +434,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               {['SVG', 'TTF', 'WOFF2', 'CSS'].map((fmt) => (
                 <span
                   key={fmt}
-                  className="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-900/40 text-xs text-brand-700 dark:text-brand-300 font-mono"
+                  className="px-2 py-0.5 rounded bg-accent-subtle text-xs text-accent font-mono"
                 >
                   .{fmt.toLowerCase()}
                 </span>
@@ -509,7 +509,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             <div className="text-xs text-foreground-muted mb-1.5">{t('export.location')}</div>
             <div className="flex items-center gap-2">
               <div
-                className="flex-1 min-w-0 px-2.5 py-1.5 rounded border border-border bg-surface-muted text-xs text-foreground truncate font-mono cursor-pointer hover:border-brand-300 transition-colors"
+                className="flex-1 min-w-0 px-2.5 py-1.5 rounded border border-border bg-surface-muted text-xs text-foreground truncate font-mono cursor-pointer hover:border-accent/40 transition-colors"
                 onClick={handleBrowseDir}
                 title={exportParentDir || t('export.noDir')}
               >
@@ -544,8 +544,8 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               <div
                 key={i}
                 className={cn(
-                  log.startsWith('✓') && 'text-green-500 font-semibold',
-                  log.startsWith('✗') && 'text-red-500 font-semibold'
+                  log.startsWith('✓') && 'text-success font-semibold',
+                  log.startsWith('✗') && 'text-danger font-semibold'
                 )}
               >
                 {log}
@@ -564,7 +564,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     className={cn(
                       'px-2.5 py-1 rounded text-xs font-medium',
                       'border border-border',
-                      'text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-950/30',
+                      'text-accent hover:bg-accent-subtle',
                       'transition-colors duration-150 cursor-pointer'
                     )}
                   >
@@ -579,7 +579,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     className={cn(
                       'px-2.5 py-1 rounded text-xs font-medium',
                       'border border-border',
-                      'text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-950/30',
+                      'text-accent hover:bg-accent-subtle',
                       'transition-colors duration-150 cursor-pointer'
                     )}
                   >
@@ -591,7 +591,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                   className={cn(
                     'px-2.5 py-1 rounded text-xs font-medium',
                     'border border-border',
-                    'text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-950/30',
+                    'text-accent hover:bg-accent-subtle',
                     'transition-colors duration-150 cursor-pointer'
                   )}
                 >

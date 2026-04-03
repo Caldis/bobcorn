@@ -37,12 +37,12 @@ export function Checkbox({
           'flex h-4 w-4 shrink-0 items-center justify-center',
           'rounded border border-border',
           'transition-colors duration-150',
-          'data-[state=checked]:bg-brand-500 data-[state=checked]:border-brand-500',
-          'data-[state=indeterminate]:bg-brand-500 data-[state=indeterminate]:border-brand-500',
+          'data-[state=checked]:bg-accent data-[state=checked]:border-accent',
+          'data-[state=indeterminate]:bg-accent data-[state=indeterminate]:border-accent',
           'focus:outline-none focus:ring-2 focus:ring-ring/40'
         )}
       >
-        <CheckboxPrimitive.Indicator className="flex items-center justify-center text-white">
+        <CheckboxPrimitive.Indicator className="flex items-center justify-center text-accent-foreground">
           {indeterminate ? (
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
               <rect x="2" y="4.5" width="6" height="1.5" rx="0.5" fill="currentColor" />

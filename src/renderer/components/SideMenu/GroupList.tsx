@@ -53,9 +53,9 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
       className={cn(
         'group flex cursor-pointer items-center rounded-md px-3 py-1.5 text-sm transition-colors',
         isSelected
-          ? 'bg-brand-50 text-brand-600 font-medium dark:bg-brand-950/40 dark:text-brand-400'
-          : 'text-foreground hover:bg-surface-muted dark:hover:bg-white/5',
-        isDragging && 'shadow-md ring-1 ring-brand-300 dark:ring-brand-700'
+          ? 'bg-accent-subtle text-accent font-medium'
+          : 'text-foreground hover:bg-surface-muted',
+        isDragging && 'shadow-md ring-1 ring-ring/30'
       )}
     >
       <span className="flex-1 min-w-0">
@@ -86,7 +86,7 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
               },
             }}
           >
-            <button className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-black/10 dark:hover:bg-white/10">
+            <button className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-surface-accent">
               <Settings size={11} />
             </button>
           </Dropdown>
@@ -144,13 +144,13 @@ const GroupList = React.memo(function GroupList({
 
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={sideMenuWrapperRef}>
-      <div className="sticky top-0 z-10 flex items-center gap-1.5 px-4 pt-3 pb-1 bg-surface dark:bg-surface">
+      <div className="sticky top-0 z-10 flex items-center gap-1.5 px-4 pt-3 pb-1 bg-surface">
         <Tags size={14} className="text-foreground-muted" />
         <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           {t('group.groups')}
         </span>
         <button
-          className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-brand-50 hover:text-brand-500 dark:hover:bg-brand-950/40"
+          className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-accent-subtle hover:text-accent"
           onClick={onShowAddGroup}
         >
           <Plus size={11} />

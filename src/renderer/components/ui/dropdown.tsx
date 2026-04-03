@@ -113,7 +113,7 @@ export function Dropdown({ menu, children }: DropdownProps) {
                 className={cn(
                   'w-full text-left rounded-sm px-3 py-1.5 text-sm text-foreground',
                   'transition-colors duration-100',
-                  'hover:bg-surface-accent hover:text-brand-500',
+                  'hover:bg-surface-accent hover:text-accent',
                   'disabled:opacity-50 disabled:pointer-events-none'
                 )}
               >

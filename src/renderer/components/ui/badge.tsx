@@ -11,11 +11,11 @@ interface BadgeProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  success: 'bg-green-500',
-  processing: 'bg-blue-500',
-  default: 'bg-gray-400',
-  error: 'bg-red-500',
-  warning: 'bg-yellow-500',
+  success: 'bg-success',
+  processing: 'bg-info',
+  default: 'bg-foreground-subtle',
+  error: 'bg-danger',
+  warning: 'bg-warning',
 };
 
 export function Badge({ count, children, className, status, text }: BadgeProps) {
@@ -46,7 +46,7 @@ export function Badge({ count, children, className, status, text }: BadgeProps) 
               'inline-flex items-center justify-center',
               'min-w-[18px] h-[18px] px-1',
               'rounded-full',
-              'bg-red-500 text-white',
+              'bg-danger text-accent-foreground',
               'text-[10px] font-medium leading-none'
             )}
           >
@@ -65,7 +65,7 @@ export function Badge({ count, children, className, status, text }: BadgeProps) 
           'inline-flex items-center justify-center',
           'min-w-[18px] h-[18px] px-1',
           'rounded-full',
-          'bg-red-500 text-white',
+          'bg-danger text-accent-foreground',
           'text-[10px] font-medium leading-none',
           className
         )}

@@ -105,7 +105,7 @@ function IconToolbar({
           'px-2 pt-px',
           'border-y border-border',
           'transition-all duration-300',
-          'bg-surface/80 dark:bg-surface/80'
+          'bg-surface/80'
         )}
         style={{
           opacity: showActionBar ? 1 : 0,
@@ -194,7 +194,7 @@ function IconToolbar({
             className={cn(
               'inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors',
               batchMode
-                ? 'bg-brand-500 text-white'
+                ? 'bg-accent text-accent-foreground'
                 : 'text-foreground-muted hover:text-foreground hover:bg-surface-accent'
             )}
             onClick={toggleBatchMode}
@@ -251,12 +251,11 @@ function IconToolbar({
               className={cn(
                 'w-48 h-8 pl-7 pr-3 py-1',
                 'rounded-md border border-border',
-                'bg-surface-muted/50 dark:bg-surface-muted',
+                'bg-surface-muted/50',
                 'text-sm text-foreground placeholder:text-foreground-muted/50',
                 'outline-none',
                 'transition-all duration-200',
-                'focus:border-brand-400 focus:ring-2 focus:ring-ring/30',
-                'dark:focus:border-brand-500 dark:focus:ring-ring/20'
+                'focus:border-accent focus:ring-2 focus:ring-ring/30'
               )}
             />
           </div>

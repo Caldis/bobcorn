@@ -152,16 +152,12 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
   const btnClass = cn(
     'flex items-center gap-3 w-full px-4 py-3 rounded-lg',
     'text-sm font-medium text-foreground',
-    'hover:bg-surface-accent dark:hover:bg-white/5 transition-colors'
+    'hover:bg-surface-accent transition-colors'
   );
 
   return (
     <div
-      className={cn(
-        'relative w-full h-full flex flex-col',
-        'border-l border-border',
-        'bg-surface dark:bg-surface'
-      )}
+      className={cn('relative w-full h-full flex flex-col', 'border-l border-border', 'bg-surface')}
     >
       {/* Win32 title bar spacer */}
       <div className="h-[32px] shrink-0 [-webkit-app-region:drag]" />
@@ -181,7 +177,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               key={icon.id}
               className={cn(
                 'aspect-square rounded-lg',
-                'bg-surface-muted dark:bg-surface-muted',
+                'bg-surface-muted',
                 'flex items-center justify-center p-2',
                 '[&>svg]:w-full [&>svg]:h-full'
               )}
@@ -192,7 +188,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
             <div
               className={cn(
                 'aspect-square rounded-lg',
-                'bg-surface-muted dark:bg-surface-muted',
+                'bg-surface-muted',
                 'flex items-center justify-center',
                 'text-sm text-foreground-muted font-medium'
               )}
@@ -204,7 +200,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
 
         {/* Group selector sub-panel */}
         {groupAction && (
-          <div className="mb-4 p-3 rounded-lg border border-border bg-surface-muted dark:bg-surface-muted">
+          <div className="mb-4 p-3 rounded-lg border border-border bg-surface-muted">
             <div className="text-sm font-medium mb-2">
               {groupAction === 'move' ? t('batch.moveToLabel') : t('batch.copyToLabel')}:
             </div>
@@ -212,7 +208,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               {groupList.map((g: any) => (
                 <button
                   key={g.id}
-                  className="text-left px-3 py-1.5 rounded text-sm hover:bg-brand-50 dark:hover:bg-brand-950/40 text-foreground"
+                  className="text-left px-3 py-1.5 rounded text-sm hover:bg-accent-subtle text-foreground"
                   onClick={() => {
                     if (groupAction === 'move') handleMove(g.id);
                     else handleCopy(g.id);
@@ -234,7 +230,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
 
         {/* Color picker sub-panel — matches SideEditor's color editor */}
         {showColorPicker && (
-          <div className="mb-4 p-3 rounded-lg border border-border bg-surface-muted dark:bg-surface-muted">
+          <div className="mb-4 p-3 rounded-lg border border-border bg-surface-muted">
             <div className="text-sm font-medium mb-2">{t('batch.unifyColor')}</div>
             <HexColorPicker
               color={batchColor}
@@ -256,13 +252,13 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
                 placeholder="hex / rgb / hsl / hwb"
                 className={cn(
                   'flex-1 min-w-0 px-2 py-1 rounded text-xs font-mono',
-                  'bg-surface dark:bg-surface',
+                  'bg-surface',
                   'border transition-colors duration-150',
                   'outline-none focus:ring-1',
                   colorInputError
-                    ? 'border-red-400 focus:ring-red-300'
-                    : 'border-border focus:ring-brand-300 dark:focus:ring-brand-700',
-                  'text-foreground dark:text-foreground',
+                    ? 'border-danger focus:ring-danger/30'
+                    : 'border-border focus:ring-ring/30',
+                  'text-foreground',
                   'placeholder:text-foreground-muted/50'
                 )}
               />
@@ -302,7 +298,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
             </div>
             <div className="mt-3 flex gap-2">
               <button
-                className="flex-1 px-3 py-1.5 rounded bg-brand-500 text-white text-xs font-medium hover:bg-brand-600 transition-colors"
+                className="flex-1 px-3 py-1.5 rounded bg-accent text-accent-foreground text-xs font-medium hover:bg-accent/90 transition-colors"
                 onClick={handleApplyColor}
               >
                 {t('batch.applyToAll')}

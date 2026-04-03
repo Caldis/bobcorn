@@ -71,7 +71,7 @@ function ResizeHandle({
     <div
       className={cn(
         'w-[3px] shrink-0 cursor-col-resize',
-        'hover:bg-brand-400/40 active:bg-brand-400/60',
+        'hover:bg-accent/40 active:bg-accent/60',
         'transition-colors duration-150'
       )}
       onMouseDown={onMouseDown}

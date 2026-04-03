@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import db from '../database';
 import config, { getOption, setOption } from '../config';
+import { resolveTheme, applyThemeClass } from '../config/themes';
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -133,12 +134,10 @@ const useAppStore = create<State & Actions>((set, get) => ({
   setSideEditorVisible: (visible: boolean) => set({ sideEditorVisible: visible }),
 
   setThemeMode: (mode) => {
-    const isDark =
-      mode === 'dark' ||
-      (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const { isDark } = resolveTheme(mode);
+    applyThemeClass(isDark ? 'dark' : 'light');
     set({ themeMode: mode, darkMode: isDark });
     setOption({ themeMode: mode, darkMode: isDark });
-    document.documentElement.classList.toggle('dark', isDark);
   },
 
   // Batch selection actions

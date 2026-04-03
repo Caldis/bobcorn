@@ -44,7 +44,7 @@ function EnhanceInput({
 
   return (
     <div>
-      <p className="mb-1.5 text-sm text-foreground dark:text-foreground">{inputTitle}</p>
+      <p className="mb-1.5 text-sm text-foreground">{inputTitle}</p>
       <div className="relative">
         <Input ref={inputRef} {...inputProps} />
         {inputSave && (
@@ -53,7 +53,7 @@ function EnhanceInput({
               '!absolute !top-0 !right-0 !z-10',
               '!border-none',
               '!bg-transparent hover:!bg-transparent active:!bg-transparent',
-              '!text-brand-500 dark:!text-brand-400',
+              '!text-accent',
               '[&_i]:!mr-auto'
             )}
             shape="circle"

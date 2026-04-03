@@ -86,7 +86,7 @@ export function Dialog({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           onClick={handleOverlayClick}
-          className="dialog-overlay fixed inset-0 z-50 bg-black/40"
+          className="dialog-overlay fixed inset-0 z-50 bg-surface-overlay"
         />
         <DialogPrimitive.Content
           ref={contentRef}
@@ -197,8 +197,8 @@ function ConfirmDialog({
 
   const okBtnClass = cn(
     'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
-    okType === 'danger' && 'bg-red-500 text-white hover:bg-red-600',
-    okType === 'primary' && 'bg-brand-500 text-white hover:bg-brand-600',
+    okType === 'danger' && 'bg-danger text-accent-foreground hover:bg-danger/90',
+    okType === 'primary' && 'bg-accent text-accent-foreground hover:bg-accent/90',
     okType === 'default' && 'border border-border text-foreground hover:bg-surface-muted'
   );
 
@@ -218,7 +218,7 @@ function ConfirmDialog({
         key="danger"
         onClick={handleDanger}
         disabled={loading}
-        className="px-4 py-1.5 rounded-md text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+        className="px-4 py-1.5 rounded-md text-sm font-medium bg-danger text-accent-foreground hover:bg-danger/90 transition-colors"
       >
         {dangerText}
       </button>

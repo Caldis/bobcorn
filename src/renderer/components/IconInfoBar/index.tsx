@@ -32,7 +32,6 @@ const IconInfoBar = React.memo(function IconInfoBar({ selectedGroup }: IconInfoB
         'flex flex-col justify-center',
         groupDescription ? 'h-[58px]' : 'h-[50px]',
         'border-b border-border',
-        'dark:border-border',
         'transition-[height] duration-200'
       )}
     >
@@ -41,7 +40,7 @@ const IconInfoBar = React.memo(function IconInfoBar({ selectedGroup }: IconInfoB
           'pl-[30px] pr-4',
           'overflow-hidden whitespace-nowrap text-ellipsis',
           'text-sm font-medium',
-          'text-foreground dark:text-foreground'
+          'text-foreground'
         )}
       >
         {groupName}

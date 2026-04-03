@@ -17,15 +17,11 @@ export function Progress({
   const clampedPercent = Math.min(100, Math.max(0, percent));
   const barColor =
     strokeColor ||
-    (status === 'exception'
-      ? 'bg-red-500'
-      : status === 'success'
-        ? 'bg-green-500'
-        : 'bg-brand-500');
+    (status === 'exception' ? 'bg-danger' : status === 'success' ? 'bg-success' : 'bg-accent');
 
   return (
     <div className={cn('w-full flex items-center gap-3', className)}>
-      <div className="flex-1 h-2 rounded-full bg-surface-accent dark:bg-white/10 overflow-hidden">
+      <div className="flex-1 h-2 rounded-full bg-surface-accent overflow-hidden">
         <div
           className={cn(
             'h-full rounded-full transition-all duration-300 ease-out',
@@ -41,9 +37,9 @@ export function Progress({
         className={cn(
           'text-xs font-medium tabular-nums shrink-0 w-9 text-right',
           status === 'exception'
-            ? 'text-red-500'
+            ? 'text-danger'
             : status === 'success'
-              ? 'text-green-500'
+              ? 'text-success'
               : 'text-foreground-muted'
         )}
       >

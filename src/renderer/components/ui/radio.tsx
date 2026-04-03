@@ -61,8 +61,8 @@ export function RadioButton({
         'transition-colors duration-150',
         '-ml-px first:ml-0 first:rounded-l-md last:rounded-r-md',
         _selected
-          ? 'bg-brand-500 text-white border-brand-500 z-[1]'
-          : 'bg-surface text-foreground hover:bg-surface-muted hover:text-brand-500',
+          ? 'bg-accent text-accent-foreground border-accent z-[1]'
+          : 'bg-surface text-foreground hover:bg-surface-muted hover:text-accent',
         className
       )}
     >
@@ -89,7 +89,7 @@ export function Radio({ value, children, style, className, _selected, _onChange 
       className={cn(
         'flex items-center gap-2.5 cursor-pointer text-sm',
         'px-2.5 py-2 rounded-md transition-colors duration-150',
-        _selected ? 'bg-brand-50 dark:bg-brand-500/10' : 'hover:bg-surface-muted',
+        _selected ? 'bg-accent-subtle' : 'hover:bg-surface-muted',
         className
       )}
       style={style}
@@ -98,14 +98,9 @@ export function Radio({ value, children, style, className, _selected, _onChange 
         type="radio"
         checked={_selected}
         onChange={() => _onChange?.(value)}
-        className="accent-brand-500 shrink-0 m-0 w-3.5 h-3.5"
+        className="accent-accent shrink-0 m-0 w-3.5 h-3.5"
       />
-      <span
-        className={cn(
-          'text-foreground truncate',
-          _selected && 'font-medium text-brand-600 dark:text-brand-400'
-        )}
-      >
+      <span className={cn('text-foreground truncate', _selected && 'font-medium text-accent')}>
         {children}
       </span>
     </label>

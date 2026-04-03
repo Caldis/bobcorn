@@ -122,7 +122,7 @@ function GroupDialogs({
               {t('group.descriptionOptional')}
             </label>
             <textarea
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted/50 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30 resize-none dark:bg-surface-muted dark:border-border"
+              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted/50 focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30 resize-none"
               placeholder={t('group.descriptionPlaceholder')}
               value={newGroupDesc}
               onChange={(e) => setNewGroupDesc(e.target.value)}
@@ -161,7 +161,7 @@ function GroupDialogs({
               {t('group.descriptionOptional')}
             </label>
             <textarea
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted/50 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30 resize-none dark:bg-surface-muted dark:border-border"
+              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted/50 focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30 resize-none"
               placeholder={t('group.descriptionPlaceholder')}
               value={renameDesc}
               onChange={(e) => setRenameDesc(e.target.value)}

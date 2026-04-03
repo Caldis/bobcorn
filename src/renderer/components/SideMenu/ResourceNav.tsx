@@ -65,8 +65,8 @@ const ResourceNav = React.memo(function ResourceNav({
               className={cn(
                 'flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors',
                 isSelected
-                  ? 'bg-brand-50 text-brand-600 font-medium dark:bg-brand-950/40 dark:text-brand-400'
-                  : 'text-foreground hover:bg-surface-muted dark:hover:bg-white/5'
+                  ? 'bg-accent-subtle text-accent font-medium'
+                  : 'text-foreground hover:bg-surface-muted'
               )}
             >
               <Icon size={15} />

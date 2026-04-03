@@ -105,7 +105,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
             className={cn(
               'w-full px-2.5 py-2 rounded-md text-sm',
               'border border-border bg-surface text-foreground',
-              'focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30',
+              'focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30',
               'transition-colors duration-150',
               'cursor-pointer'
             )}
@@ -146,7 +146,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                     'px-2.5 py-1 text-[11px] font-medium transition-colors duration-100',
                     'flex items-center gap-1',
                     themeMode === mode
-                      ? 'bg-brand-500 text-white'
+                      ? 'bg-accent text-accent-foreground'
                       : 'text-foreground-muted hover:bg-surface-accent'
                   )}
                 >
@@ -257,7 +257,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                     className={cn(
                       'px-2.5 py-1 text-[11px] font-medium transition-colors duration-100',
                       channel === ch
-                        ? 'bg-brand-500 text-white'
+                        ? 'bg-accent text-accent-foreground'
                         : 'text-foreground-muted hover:bg-surface-accent'
                     )}
                   >
@@ -315,13 +315,13 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
           <h4
             className={cn(
               'text-[11px] font-semibold uppercase tracking-widest',
-              'text-red-500/70 mb-2.5'
+              'text-danger/70 mb-2.5'
             )}
           >
             {t('settings.advanced')}
           </h4>
-          <div className="rounded-md border border-red-500/20 bg-red-500/5 p-3">
-            <label className="block text-sm text-red-400 mb-1.5">{t('settings.prefix')}</label>
+          <div className="rounded-md border border-danger/20 bg-danger-subtle p-3">
+            <label className="block text-sm text-danger mb-1.5">{t('settings.prefix')}</label>
             <div className="flex items-center gap-2">
               <Input
                 className="flex-1"
@@ -341,7 +341,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                   'transition-colors duration-150',
                   'disabled:opacity-40 disabled:cursor-not-allowed',
                   prefixChanged
-                    ? 'bg-red-500 text-white hover:bg-red-600 border border-red-500'
+                    ? 'bg-danger text-accent-foreground hover:bg-danger/90 border border-danger'
                     : 'bg-surface-muted text-foreground-muted border border-border'
                 )}
               >
@@ -349,9 +349,9 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               </button>
             </div>
             {editingPrefixErrText && (
-              <p className="text-[11px] text-red-500 mt-1">{editingPrefixErrText}</p>
+              <p className="text-[11px] text-danger mt-1">{editingPrefixErrText}</p>
             )}
-            <p className="text-[11px] text-red-400/50 mt-1.5 leading-relaxed">
+            <p className="text-[11px] text-danger/50 mt-1.5 leading-relaxed">
               {t('settings.prefixDesc')}
             </p>
           </div>
@@ -381,7 +381,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                   e.preventDefault();
                   (window as any).electronAPI.openExternal('https://bobcorn.caldis.me/');
                 }}
-                className="text-brand-500 hover:text-brand-600 transition-colors duration-150 cursor-pointer"
+                className="text-accent hover:text-accent/80 transition-colors duration-150 cursor-pointer"
               >
                 {t('settings.website')}
               </a>

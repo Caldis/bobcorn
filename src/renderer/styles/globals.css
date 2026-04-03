@@ -4,24 +4,67 @@
 
 @layer base {
   :root {
-    /* 亮色主题 */
+    /* Surface */
     --surface: 0 0% 100%;
     --surface-muted: 210 20% 98%;
     --surface-accent: 214 32% 96%;
+    --surface-elevated: 0 0% 100%;
+    --surface-overlay: rgba(0, 0, 0, 0.4);
+    --surface-inset: 210 20% 97%;
+    /* Foreground */
     --foreground: 222 47% 11%;
     --foreground-muted: 215 16% 47%;
+    --foreground-subtle: 215 14% 65%;
+    /* Accent */
+    --accent: 221 83% 53%;
+    --accent-foreground: 0 0% 100%;
+    --accent-subtle: 214 95% 96%;
+    --accent-muted: 214 80% 92%;
+    /* Status */
+    --danger: 0 84% 60%;
+    --danger-subtle: 0 86% 97%;
+    --success: 142 71% 45%;
+    --success-subtle: 142 76% 96%;
+    --warning: 38 92% 50%;
+    --warning-subtle: 38 92% 95%;
+    --info: 213 94% 52%;
+    --info-subtle: 214 95% 96%;
+    /* Border */
     --border: 214 32% 91%;
+    --border-muted: 214 32% 95%;
     --ring: 221 83% 53%;
     --radius: 8px;
   }
 
   .dark {
-    --surface: 222 47% 11%;
-    --surface-muted: 217 33% 17%;
-    --surface-accent: 215 28% 22%;
-    --foreground: 210 40% 98%;
-    --foreground-muted: 215 20% 65%;
-    --border: 217 33% 25%;
+    /* Surface — GitHub Desktop neutral gray */
+    --surface: 220 6% 10%;
+    --surface-muted: 220 5% 13%;
+    --surface-accent: 220 5% 17%;
+    --surface-elevated: 220 5% 14%;
+    --surface-overlay: rgba(0, 0, 0, 0.6);
+    --surface-inset: 220 6% 8%;
+    /* Foreground */
+    --foreground: 220 9% 93%;
+    --foreground-muted: 220 7% 56%;
+    --foreground-subtle: 220 5% 40%;
+    /* Accent */
+    --accent: 213 94% 68%;
+    --accent-foreground: 0 0% 100%;
+    --accent-subtle: 215 50% 13%;
+    --accent-muted: 215 25% 20%;
+    /* Status */
+    --danger: 0 72% 63%;
+    --danger-subtle: 0 40% 15%;
+    --success: 142 60% 50%;
+    --success-subtle: 142 30% 14%;
+    --warning: 38 80% 55%;
+    --warning-subtle: 38 40% 14%;
+    --info: 213 94% 68%;
+    --info-subtle: 213 40% 14%;
+    /* Border */
+    --border: 220 5% 22%;
+    --border-muted: 220 5% 18%;
     --ring: 213 94% 68%;
   }
 }
@@ -35,35 +78,22 @@
   }
 }
 
-/* Custom scrollbar — light mode */
+/* Scrollbar — uses foreground token for automatic theme adaptation */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.04);
+  background: hsl(var(--foreground) / 0.04);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: hsl(var(--foreground) / 0.15);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-/* Custom scrollbar — dark mode */
-.dark ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.35);
+  background: hsl(var(--foreground) / 0.3);
 }

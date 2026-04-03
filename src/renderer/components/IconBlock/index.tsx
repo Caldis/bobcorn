@@ -91,17 +91,9 @@ const IconBlock = React.memo(function IconBlock({
         'cursor-pointer',
         'transition-all duration-200 ease-in-out',
         'hover:shadow-md hover:bg-surface-accent hover:-translate-y-0.5',
-        'dark:hover:bg-white/5 dark:hover:shadow-lg dark:hover:shadow-black/20',
-        'active:scale-[0.96] active:border-brand-500',
-        selected && [
-          'border-brand-500 bg-surface-accent shadow-sm',
-          'dark:border-brand-400 dark:bg-white/5 dark:shadow-brand-900/20',
-        ],
-        batchSelected &&
-          !selected && [
-            'bg-brand-50 border-brand-300',
-            'dark:bg-brand-950/30 dark:border-brand-500/50',
-          ]
+        'active:scale-[0.96] active:border-accent',
+        selected && ['border-accent bg-surface-accent shadow-sm shadow-black/20'],
+        batchSelected && !selected && ['bg-accent-subtle border-accent/40']
       )}
       onClick={handleSelected}
     >
@@ -155,7 +147,7 @@ const IconBlock = React.memo(function IconBlock({
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
             'text-xs font-semibold antialiased',
             'mb-1',
-            'text-foreground dark:text-foreground'
+            'text-foreground'
           )}
           style={{ height: nameVisible ? 18 : 0, overflow: 'hidden' }}
         >
@@ -166,7 +158,7 @@ const IconBlock = React.memo(function IconBlock({
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
             'text-[10px] font-semibold tracking-widest',
             'mb-1',
-            'text-foreground-muted/60 dark:text-foreground-muted/60'
+            'text-foreground-muted/60'
           )}
           style={{ height: codeVisible ? 18 : 0, overflow: 'hidden' }}
         >
