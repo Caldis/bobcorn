@@ -244,6 +244,12 @@ if (!gotLock) {
         return shell.openPath(fullPath);
       }
     );
+    ipcMain.handle(
+      'shell-open-external',
+      async (_event: Electron.IpcMainInvokeEvent, url: string) => {
+        return shell.openExternal(url);
+      }
+    );
 
     // Screen color picker
     registerPixelPicker();

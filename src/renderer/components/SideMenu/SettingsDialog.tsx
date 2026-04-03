@@ -339,7 +339,11 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               <span className="mx-1.5 text-foreground-muted/30">·</span>
               <a
                 href="https://bobcorn.caldis.me/"
-                className="text-brand-500 hover:text-brand-600 transition-colors duration-150"
+                onClick={(e) => {
+                  e.preventDefault();
+                  (window as any).electronAPI.openExternal('https://bobcorn.caldis.me/');
+                }}
+                className="text-brand-500 hover:text-brand-600 transition-colors duration-150 cursor-pointer"
               >
                 {t('settings.website')}
               </a>

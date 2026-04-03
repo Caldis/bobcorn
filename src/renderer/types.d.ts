@@ -58,6 +58,7 @@ interface ElectronAPI {
 
   // Shell
   openPath: (fullPath: string) => Promise<string>;
+  openExternal: (url: string) => Promise<void>;
 
   // Screen color picker
   pickScreenColor: () => Promise<string>;
