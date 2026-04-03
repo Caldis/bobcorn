@@ -270,8 +270,29 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               <span className="text-sm text-foreground">{t('settings.checkNow')}</span>
               <button
                 onClick={() => {
+                  // Listen for result once, then clean up
+                  const cleanups: (() => void)[] = [];
+                  const cleanup = () => cleanups.forEach((fn) => fn());
+                  cleanups.push(
+                    (window as any).electronAPI.onUpdateAvailable(() => {
+                      cleanup();
+                      message.success(t('update.foundNewVersion'));
+                      onClose();
+                    })
+                  );
+                  cleanups.push(
+                    (window as any).electronAPI.onUpdateNotAvailable(() => {
+                      cleanup();
+                      message.info(t('update.alreadyLatest'));
+                    })
+                  );
+                  cleanups.push(
+                    (window as any).electronAPI.onUpdateError(() => {
+                      cleanup();
+                      message.error(t('update.checkFailed'));
+                    })
+                  );
                   (window as any).electronAPI.checkForUpdate();
-                  onClose();
                 }}
                 className={cn(
                   'px-3 py-1 rounded-md text-[11px] font-medium',

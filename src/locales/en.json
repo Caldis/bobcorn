@@ -296,6 +296,15 @@
   "update.downloadTooltip": "Click to download",
   "update.retryTooltip": "Click to retry",
 
+  "update.cancelTooltip": "Cancel download",
+  "update.cancelTitle": "Pause Download",
+  "update.cancelContent": "Pause the update download? You can also visit the website to download the latest version manually.",
+  "update.cancelConfirm": "Pause",
+  "update.goToWebsite": "Go to Website",
+  "update.foundNewVersion": "New version found, downloading…",
+  "update.alreadyLatest": "You're on the latest version",
+  "update.checkFailed": "Failed to check for updates",
+
   "update.saveAndUpdate": "Save & Update",
   "update.unsavedTitle": "Unsaved Changes",
   "update.unsavedContent": "Installing the update will restart the app. You have unsaved changes.",
