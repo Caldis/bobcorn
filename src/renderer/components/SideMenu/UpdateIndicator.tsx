@@ -107,7 +107,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
           {status === 'checking' && t('update.checking')}
           {status === 'available' && t('update.available', { version: `v${version}` })}
           {status === 'downloading' && t('update.downloading', { percent: progress })}
-          {status === 'downloaded' && t('update.downloaded', { version: `v${version}` })}
+          {status === 'downloaded' && t('update.downloaded')}
           {status === 'error' && t('update.error')}
         </span>
       </button>

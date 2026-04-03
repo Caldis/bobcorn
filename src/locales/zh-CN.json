@@ -290,7 +290,7 @@
   "update.checking": "检查更新…",
   "update.available": "{{version}} 可用",
   "update.downloading": "{{percent}}%",
-  "update.downloaded": "{{version}} 就绪",
+  "update.downloaded": "重启以更新",
   "update.error": "更新失败",
   "update.installTooltip": "点击安装更新",
   "update.downloadTooltip": "点击下载",

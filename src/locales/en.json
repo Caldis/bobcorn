@@ -290,7 +290,7 @@
   "update.checking": "Checking for updates…",
   "update.available": "{{version}} available",
   "update.downloading": "{{percent}}%",
-  "update.downloaded": "{{version}} ready",
+  "update.downloaded": "Relaunch to update",
   "update.error": "Update failed",
   "update.installTooltip": "Click to install update",
   "update.downloadTooltip": "Click to download",
