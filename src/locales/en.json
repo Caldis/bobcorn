@@ -310,6 +310,10 @@
   "update.noChangelog": "No release notes available",
   "update.clickToRelaunch": "Click the bar button to relaunch",
   "update.clickToDownload": "Click the bar button to download",
+  "update.devInstallTitle": "Dev Mode Update",
+  "update.devInstallContent": "quitAndInstall will crash in dev mode. Proceed anyway?",
+  "update.devInstallOk": "Close & Update",
+  "update.devInstallIgnore": "Ignore",
 
   "update.saveAndUpdate": "Save & Update",
   "update.unsavedTitle": "Unsaved Changes",

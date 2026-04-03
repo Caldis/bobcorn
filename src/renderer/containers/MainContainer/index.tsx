@@ -281,10 +281,23 @@ function MainContainer() {
     const canProceed = await guardDirtyState({
       saveHandler: handleSave,
     });
-    if (canProceed) {
-      electronAPI.installUpdate();
+    if (!canProceed) return;
+
+    // In dev mode, quitAndInstall will crash — offer a choice instead
+    if (import.meta.env.DEV) {
+      confirm({
+        title: t('update.devInstallTitle'),
+        content: t('update.devInstallContent'),
+        okText: t('update.devInstallOk'),
+        cancelText: t('update.devInstallIgnore'),
+        onOk: () => {
+          electronAPI.installUpdate();
+        },
+      });
+      return;
     }
-  }, [handleSave]);
+    electronAPI.installUpdate();
+  }, [handleSave, t]);
 
   useEffect(() => {
     preventDrop();

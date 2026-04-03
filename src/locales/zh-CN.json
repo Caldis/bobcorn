@@ -310,6 +310,10 @@
   "update.noChangelog": "暂无更新说明",
   "update.clickToRelaunch": "点击底栏按钮重启更新",
   "update.clickToDownload": "点击底栏按钮开始下载",
+  "update.devInstallTitle": "开发模式更新",
+  "update.devInstallContent": "开发模式下 quitAndInstall 会导致进程崩溃。确定要继续吗？",
+  "update.devInstallOk": "关闭并更新",
+  "update.devInstallIgnore": "忽略",
 
   "update.saveAndUpdate": "保存并更新",
   "update.unsavedTitle": "未保存的更改",
