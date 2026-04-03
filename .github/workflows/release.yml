@@ -169,7 +169,7 @@ jobs:
 
             # Fallback if no conventional commits matched
             if [ -z "$FEATS" ] && [ -z "$FIXES" ] && [ -z "$OTHER" ]; then
-              git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" >> changelog.md || true
+              echo "- Bug fixes and improvements" >> changelog.md
               echo "" >> changelog.md
             fi
           else

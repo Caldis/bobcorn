@@ -29,13 +29,23 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
   // Sanitize release notes HTML for safe rendering (must be before early return — hooks rule)
   const sanitizedNotes = useMemo(() => {
     if (!releaseNotes) return null;
-    const cleaned = releaseNotes.replace(/<hr\s*\/?>.*$/s, '').trim();
+    let cleaned = releaseNotes.replace(/<hr\s*\/?>.*$/s, '').trim();
     if (!cleaned || cleaned === '<p></p>') return null;
+    // Localize section headings
+    const headingMap: Record<string, string> = {
+      "What's Changed": t('update.cl.whatsChanged'),
+      Features: t('update.cl.features'),
+      'Bug Fixes': t('update.cl.bugFixes'),
+      'Other Changes': t('update.cl.otherChanges'),
+    };
+    for (const [en, localized] of Object.entries(headingMap)) {
+      cleaned = cleaned.replace(new RegExp(`(>)${en}(<)`, 'g'), `$1${localized}$2`);
+    }
     return DOMPurify.sanitize(cleaned, {
       ALLOWED_TAGS: ['h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li', 'strong', 'em', 'a', 'code', 'br'],
       ALLOWED_ATTR: ['href', 'target', 'rel'],
     });
-  }, [releaseNotes]);
+  }, [releaseNotes, t]);
 
   if (status === 'idle') return null;
 
