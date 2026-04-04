@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل التصدير — Bobcorn Wiki</title>
+    <meta name="description" content="شرح كامل لسير عمل التصدير في Bobcorn — من اختيار الأيقونات إلى إنشاء ملفات الخطوط الجاهزة للإنتاج.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/export-guide.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/export-guide.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/export-guide.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/export-guide.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/export-guide.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/export-guide.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/export-guide.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <meta property="og:title" content="دليل التصدير — Bobcorn Wiki">
+    <meta property="og:description" content="شرح كامل لسير عمل التصدير في Bobcorn — من اختيار الأيقونات إلى إنشاء ملفات الخطوط الجاهزة للإنتاج.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="دليل التصدير — Bobcorn Wiki">
+    <meta name="twitter:description" content="شرح كامل لسير عمل التصدير في Bobcorn — من اختيار الأيقونات إلى إنشاء ملفات الخطوط الجاهزة للإنتاج.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "دليل التصدير — Bobcorn Wiki",
+                "description": "شرح كامل لسير عمل التصدير في Bobcorn — من اختيار الأيقونات إلى إنشاء ملفات الخطوط الجاهزة للإنتاج.",
+                "url": "https://bobcorn.caldis.me/wiki/ar/export-guide.html",
+                "inLanguage": "ar",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ar/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "دليل التصدير — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ar/export-guide.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>العربية</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">دليل التصدير</h1>
+                <p class="lead reveal">شرح كامل لسير عمل التصدير في Bobcorn — من اختيار الأيقونات إلى إنشاء ملفات الخطوط الجاهزة للإنتاج.</p>
+
+                <!-- Opening the Export Dialog -->
+                <h2 class="reveal">فتح نافذة التصدير</h2>
+                <div class="reveal">
+                    <p>انقر على زر <strong>تصدير</strong> في قائمة الشريط الجانبي الأيسر. تفتح نافذة التصدير كنافذة مشروطة تتيح لك تهيئة مجلد الإخراج، واختيار مجموعات الأيقونات المراد تضمينها، وتحديد تنسيقات الإخراج والملفات المرفقة. تُحفظ جميع الإعدادات بين الجلسات، لذا بمجرد تهيئة إعداد التصدير المفضل لديك، تصبح عمليات التصدير اللاحقة بنقرة واحدة.</p>
+                </div>
+
+                <!-- Choosing an Output Directory -->
+                <h2 class="reveal">اختيار مجلد الإخراج</h2>
+                <div class="reveal">
+                    <p>الخطوة الأولى هي تحديد مكان حفظ الملفات المُصدَّرة. يستخدم Bobcorn افتراضيًا <strong>سطح المكتب</strong>. انقر على زر المجلد بجوار المسار للبحث عن موقع مختلف.</p>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">تلميح</div>
+                        صدِّر مباشرةً إلى مجلد <code>fonts/</code> أو <code>assets/</code> في مشروعك لتجنب نسخ الملفات يدويًا بعد كل عملية تصدير. يُعدّ هذا مفيدًا بشكل خاص أثناء التطوير النشط عندما تكون في مرحلة تكرار مجموعة الأيقونات.
+                    </div>
+                </div>
+
+                <!-- Selecting Icon Groups -->
+                <h2 class="reveal">اختيار مجموعات الأيقونات</h2>
+                <div class="reveal">
+                    <p>يمكنك اختيار مجموعات الأيقونات التي تريد تضمينها في التصدير. بشكل افتراضي، تكون جميع المجموعات محددة. أزل تحديد أي مجموعة لا تريدها في الخط — على سبيل المثال، يمكنك استبعاد مجموعة "مسودات" تحتوي على أيقونات قيد الإنشاء.</p>
+                    <p>تعرض كل مجموعة عدد أيقوناتها بجوار اسمها. يتحدث إجمالي عدد الأيقونات في أسفل القائمة في الوقت الفعلي عند تشغيل المجموعات وإيقافها، حتى تعرف دائمًا بالضبط عدد الحروف الرسومية التي سيحتويها الخط المُصدَّر.</p>
+                </div>
+
+                <!-- Font Formats -->
+                <h2 class="reveal">تنسيقات الخطوط</h2>
+                <div class="reveal">
+                    <p>يستطيع Bobcorn إنشاء خمسة تنسيقات خطوط. اختر التنسيقات التي تتناسب مع متطلبات دعم المتصفح في مشروعك:</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>التنسيق</th><th>الافتراضي</th><th>متى يُفعَّل</th><th>مزيد من المعلومات</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fmt">.woff2</td>
+                                    <td>مفعَّل دائمًا</td>
+                                    <td>دائمًا — التنسيق الأساسي للويب</td>
+                                    <td><a href="woff2.html">WOFF2 &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.woff</td>
+                                    <td>اختياري</td>
+                                    <td>عند الحاجة لدعم IE 11</td>
+                                    <td><a href="woff.html">WOFF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.ttf</td>
+                                    <td>اختياري</td>
+                                    <td>تطبيقات سطح المكتب، تثبيت الخطوط على نظام التشغيل</td>
+                                    <td><a href="ttf.html">TTF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.svg</td>
+                                    <td>اختياري</td>
+                                    <td>التصحيح، iOS القديم</td>
+                                    <td><a href="svg-font.html">SVG Font &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.eot</td>
+                                    <td>اختياري</td>
+                                    <td>IE 6-8 القديم فقط</td>
+                                    <td><a href="eot.html">EOT &rarr;</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>يكون WOFF2 مضمَّنًا دائمًا لأنه تنسيق خط الويب الأساسي — لا يوجد سيناريو تريد فيه تصدير خط ويب بدونه. جميع التنسيقات الأخرى اختيارية بناءً على متطلباتك المحددة.</p>
+                </div>
+
+                <!-- Companion Files -->
+                <h2 class="reveal">الملفات المرفقة</h2>
+                <div class="reveal">
+                    <p>إلى جانب ملفات الخط نفسها، يستطيع Bobcorn إنشاء عدة ملفات مرفقة تجعل التكامل والتعاون أكثر سهولة:</p>
+
+                    <h3>CSS (<code>icons.css</code>)</h3>
+                    <p>يحتوي على تعريف <code>@font-face</code> وفئات CSS <code>.icon-*</code> لكل أيقونة في المجموعة. أضف هذا الملف إلى مشروعك وستكون مستعدًا لاستخدام الأيقونات بأسماء فئات بسيطة. راجع <a href="css-font-face.html">دليل CSS @font-face</a> للاطلاع على تفاصيل عمل CSS المُنشَأ.</p>
+
+                    <h3>JS (<code>icons-symbol.js</code>)</h3>
+                    <p>ملف SVG symbol sprite يسجّل جميع الأيقونات كرموز SVG مضمَّنة عند تحميل السكريبت. استخدم هذا الملف عندما تحتاج إلى أيقونات متعددة الألوان أو ميزات SVG جنبًا إلى جنب مع أيقونات الخط. راجع <a href="svg-symbol.html">دليل SVG Symbol</a> لأنماط الاستخدام.</p>
+
+                    <h3>HTML (<code>demo.html</code>)</h3>
+                    <p>صفحة معاينة تفاعلية تعرض جميع الأيقونات المُصدَّرة مع أسمائها وأسماء فئات CSS ونقاط ترميز Unicode. افتحها في المتصفح لتصفح مجموعة الأيقونات الكاملة. مفيدة للمصممين الذين يراجعون مكتبة الأيقونات والمطورين الذين يبحثون عن أسماء الفئات أثناء التكامل.</p>
+
+                    <h3>ICP (<code>project.icp</code>)</h3>
+                    <p>ملف مشروع Bobcorn. صدِّره لمشاركة مشروع الأيقونات مع أعضاء الفريق أو كنسخة احتياطية. يؤدي فتح ملف ICP في Bobcorn إلى استعادة الحالة الكاملة للمشروع — جميع الأيقونات والمجموعات والبيانات الوصفية والإعدادات — تمامًا كما كانت عند التصدير.</p>
+                </div>
+
+                <!-- ZIP Packaging -->
+                <h2 class="reveal">التعبئة في ZIP</h2>
+                <div class="reveal">
+                    <p>فعِّل خيار <strong>ZIP</strong> لتجميع جميع الملفات المُصدَّرة في أرشيف <code>.zip</code> واحد. يكون هذا مفيدًا عند مشاركة خط الأيقونات مع أعضاء الفريق، أو رفعه إلى CDN، أو إرفاقه بمستند تسليم التصميم. يحتوي ملف ZIP على نفس بنية المجلدات كالتصدير العادي — دون تداخل أو إعادة تنظيم.</p>
+                </div>
+
+                <!-- Recommended Configurations -->
+                <h2 class="reveal">التهيئات الموصى بها</h2>
+                <div class="reveal">
+                    <p>إليك ثلاثة إعدادات مسبقة عملية لأنواع المشاريع الشائعة:</p>
+
+                    <h3>مشروع ويب حديث</h3>
+                    <ul>
+                        <li>WOFF2 (مفعَّل دائمًا) + CSS + عرض HTML توضيحي</li>
+                        <li>حجم أدنى، يغطي أكثر من 97% من المتصفحات</li>
+                    </ul>
+
+                    <h3>مشروع التوافق الكامل</h3>
+                    <ul>
+                        <li>WOFF2 + WOFF + CSS + عرض HTML توضيحي</li>
+                        <li>يغطي IE 11+ وجميع المتصفحات الحديثة</li>
+                    </ul>
+
+                    <h3>نظام التصميم / مكتبة المكونات</h3>
+                    <ul>
+                        <li>WOFF2 + TTF + CSS + رموز JS + عرض HTML توضيحي + ICP</li>
+                        <li>الخطوط لاستخدام CSS، وTTF لأدوات سطح المكتب، ورموز JS للمتغيرات متعددة الألوان، وICP لنسخ المشروع الاحتياطية</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">تلميح</div>
+                        ابدأ بالإعداد المسبق "مشروع ويب حديث" — WOFF2 + CSS. أضف المزيد من التنسيقات فقط عندما تستلزم ذلك إحصائيات المتصفح أو متطلبات المنصة. تزيد التنسيقات الإضافية من حجم البناء دون أي فائدة للمستخدمين الذين تدعم متصفحاتهم WOFF2 بالفعل.
+                    </div>
+                </div>
+
+                <!-- Output File Structure -->
+                <h2 class="reveal">بنية ملفات الإخراج</h2>
+                <div class="reveal">
+                    <p>عند تفعيل جميع الخيارات، يُنشئ Bobcorn بنية الملفات التالية:</p>
+
+                    <span class="code-label">إخراج التصدير</span>
+<pre><code>output/
+├── MyIcons.woff2        <span class="code-cmt"># Font files</span>
+├── MyIcons.woff
+├── MyIcons.ttf
+├── MyIcons.css          <span class="code-cmt"># @font-face + icon classes</span>
+├── MyIcons-symbol.js    <span class="code-cmt"># SVG symbol sprite</span>
+├── demo.html            <span class="code-cmt"># Interactive preview</span>
+└── MyIcons.icp          <span class="code-cmt"># Project backup</span></code></pre>
+
+                    <p>يُشتَق اسم عائلة الخط (مثل "MyIcons") من اسم مشروعك في Bobcorn. تستخدم جميع الملفات المُنشَأة هذا الاسم كبادئة لضمان الاتساق.</p>
+                </div>
+
+                <!-- After Export -->
+                <h2 class="reveal">بعد التصدير</h2>
+                <div class="reveal">
+                    <p>بعد أن يُنشئ Bobcorn ملفاتك، اتبع هذه الخطوات لدمج خط الأيقونات في مشروعك:</p>
+
+                    <ol>
+                        <li><strong>انسخ ملفات الخط و CSS</strong> إلى مجلد الأصول أو الخطوط في مشروعك</li>
+                        <li><strong>اربط CSS</strong> في HTML الخاص بك: <code>&lt;link rel="stylesheet" href="MyIcons.css"&gt;</code></li>
+                        <li><strong>استخدم الأيقونات</strong> في أي مكان في ترميزك: <code>&lt;i class="icon icon-home"&gt;&lt;/i&gt;</code></li>
+                        <li><strong>اختياريًا، قم بالتحميل المسبق</strong> لملف WOFF2 لتسريع التصيير الأولي</li>
+                    </ol>
+
+                    <p>إليك مثال كامل للتكامل:</p>
+
+                    <span class="code-label">تكامل كامل</span>
+<pre><code><span class="code-tag">&lt;head&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"preload"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.woff2"</span> <span class="code-attr">as</span>=<span class="code-str">"font"</span>
+        <span class="code-attr">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-attr">crossorigin</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"stylesheet"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.css"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span>
+<span class="code-tag">&lt;body&gt;</span>
+  <span class="code-tag">&lt;button&gt;&lt;i</span> <span class="code-attr">class</span>=<span class="code-str">"icon icon-save"</span><span class="code-tag">&gt;&lt;/i&gt;</span> Save<span class="code-tag">&lt;/button&gt;</span>
+<span class="code-tag">&lt;/body&gt;</span></code></pre>
+
+                    <p>يُخبر تلميح <code>rel="preload"</code> المتصفحَ بالبدء في تنزيل ملف الخط قبل مصادفة قاعدة <code>@font-face</code> في CSS. يُلغي هذا التأخير بين تحليل CSS وتنزيل الخط، مما يؤدي إلى تصيير أول أسرع مع ظهور الأيقونات. السمة <code>crossorigin</code> مطلوبة للتحميل المسبق للخطوط، حتى عندما يكون الخط من نفس المصدر.</p>
+                </div>
+
+                <!-- Demo Page Callout -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">تلميح</div>
+                    افتح ملف <code>demo.html</code> المُنشَأ في المتصفح لتصفح جميع الأيقونات المُصدَّرة. يمكنك النقر على أي أيقونة لنسخ اسم فئة CSS الخاصة بها — مفيد أثناء التطوير عندما تحتاج إلى البحث عن الفئة الدقيقة لأيقونة معينة.
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">في Bobcorn</div>
+                    تتذكر نافذة التصدير آخر الإعدادات المستخدمة. بمجرد تهيئة التنسيقات والملفات المرفقة ومجلد الإخراج لمشروعك، يصبح كل تصدير لاحق بنقرة واحدة. إذا كنت تعمل بشكل متكرر، اضبط مجلد الإخراج على مجلد أصول مشروعك للحصول على تحديثات بلا أي جهد إضافي.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">السابق</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS @font-face — Bobcorn Wiki</title>
+    <meta name="description" content="قاعدة CSS @font-face التي تُشغّل خطوط الأيقونات على الويب — إعلان ملفات الخطوط المخصصة وتحميلها واستخدامها في أوراق الأنماط.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ar/css-font-face.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/css-font-face.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/css-font-face.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/css-font-face.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/css-font-face.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/css-font-face.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/css-font-face.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/css-font-face.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/css-font-face.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/css-font-face.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/css-font-face.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/css-font-face.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/css-font-face.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/css-font-face.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/css-font-face.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ar/css-font-face.html">
+    <meta property="og:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta property="og:description" content="قاعدة CSS @font-face التي تُشغّل خطوط الأيقونات على الويب — إعلان ملفات الخطوط المخصصة وتحميلها واستخدامها في أوراق الأنماط.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta name="twitter:description" content="قاعدة CSS @font-face التي تُشغّل خطوط الأيقونات على الويب — إعلان ملفات الخطوط المخصصة وتحميلها واستخدامها في أوراق الأنماط.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "CSS @font-face — Bobcorn Wiki",
+                "description": "قاعدة CSS @font-face التي تُشغّل خطوط الأيقونات على الويب — إعلان ملفات الخطوط المخصصة وتحميلها واستخدامها في أوراق الأنماط.",
+                "url": "https://bobcorn.caldis.me/wiki/ar/css-font-face.html",
+                "inLanguage": "ar",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ar/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "CSS @font-face — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ar/css-font-face.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>العربية</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">CSS @font-face</h1>
+                <p class="lead reveal">قاعدة CSS التي تُشغّل خطوط الأيقونات على الويب — إعلان ملفات الخطوط المخصصة وتحميلها واستخدامها في أوراق الأنماط.</p>
+
+                <h2 class="reveal">الأساسيات</h2>
+                <div class="reveal">
+                    <p><code>@font-face</code> هي قاعدة CSS at-rule تُخبر المتصفح أين يجد ملف الخط وكيف يُسمّيه. دُعمت لأول مرة في IE 4 عام 1997، لكنها أصبحت عملية على مستوى المتصفحات حوالي عام 2010 حين وصل WOFF وطبّقت المتصفحات الأخرى القاعدة بشكل متسق.</p>
+                    <p>بالنسبة لخطوط الأيقونات، تُعدّ <code>@font-face</code> الوصلة الرابطة بين ملفات الخطوط وفئات CSS التي تعرض الأيقونات. بدونها، لا تملك المتصفح وسيلة لمعرفة أن <code>font-family: 'MyIcons'</code> يجب أن يُحمّل ملفاً محدداً من خادمك.</p>
+
+                    <span class="code-label">الصيغة الأساسية</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'fonts/myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>تُعطي الخاصية الوصفية <code>font-family</code> الخط اسماً ستستخدمه لاحقاً. تُخبر الخاصية الوصفية <code>src</code> المتصفح من أين يُنزّل الملف وما تنسيقه. تضمن الخاصيتان الوصفيتان <code>font-weight</code> و<code>font-style</code> أن المتصفح لن يحاول توليد صيغ عريضة أو مائلة. وتتحكم <code>font-display</code> فيما يحدث أثناء تحميل الخط.</p>
+                </div>
+
+                <h2 class="reveal">مجموعة الخطوط الحديثة</h2>
+                <div class="reveal">
+                    <p>يُخبر تلميح <code>format()</code> الذي يلي كل URL المتصفَ بالتنسيق الذي يحتويه الملف، كي يتمكن من تخطي التنسيقات غير المدعومة دون تنزيلها أولاً. على مر السنين، تقلّصت مجموعة التنسيقات الموصى بها بشكل كبير مع تحسّن دعم المتصفحات.</p>
+
+                    <span class="code-label">حديث (موصى به)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>بتغطية 97%+ من المتصفحات، يكفي WOFF2 وحده لغالبية المشاريع الحديثة. إنه أبسط أسلوب وأعلاها أداءً.</p>
+
+                    <span class="code-label">مع WOFF احتياطياً (دعم IE 11)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>إضافة WOFF كاحتياطي يغطي IE 11 الذي لا يدعم WOFF2. تأخذ المتصفحات الحديثة ملف WOFF2؛ يتراجع IE 11 إلى WOFF.</p>
+
+                    <span class="code-label">مجموعة الإرث الكاملة (دعم IE 6-8)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot'</span>);                    <span class="code-cmt">/* IE9 compat */</span>
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot?#iefix'</span>) <span class="code-val">format</span>(<span class="code-str">'embedded-opentype'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>تتضمن المجموعة الكاملة "المضادة للرصاص" <a href="eot.html">EOT</a> لـ IE 6-8، و<a href="woff2.html">WOFF2</a> للمتصفحات الحديثة، و<a href="woff.html">WOFF</a> لـ IE 9-11، و<a href="ttf.html">TTF</a> كاحتياطي نهائي. يجرّب المتصفح كل إدخال <code>src</code> بالترتيب ويستخدم أول تنسيق يفهمه. هذا الأسلوب ضروري فقط للمشاريع ذات متطلبات الإرث القصوى.</p>
+                </div>
+
+                <h2 class="reveal">استخدام فئات الأيقونات</h2>
+                <div class="reveal">
+                    <p>النمط المعياري لخطوط الأيقونات يستخدم <strong>فئة أساسية</strong> تضبط font-family وأنماط التصيير المشتركة، ثم <strong>فئات أيقونات فردية</strong> تستخدم العناصر الزائفة <code>::before</code> مع <code>content</code> مضبوطة على نقطة كود Unicode لكل أيقونة.</p>
+
+                    <span class="code-label">فئات CSS للأيقونات</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-variant</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">text-transform</span>: <span class="code-val">none</span>;
+  <span class="code-prop">line-height</span>: <span class="code-val">1</span>;
+  <span class="code-prop">-webkit-font-smoothing</span>: <span class="code-val">antialiased</span>;
+  <span class="code-prop">-moz-osx-font-smoothing</span>: <span class="code-val">grayscale</span>;
+}
+
+<span class="code-kw">.icon-home::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>; }
+<span class="code-kw">.icon-search::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E002'</span>; }
+<span class="code-kw">.icon-user::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E003'</span>; }</code></pre>
+
+                    <p>تُعيد الفئة الأساسية ضبط تنسيق الخط لمنع المتصفح من تطبيق خط عريض أو مائل أو تحويلات أخرى قد تُشوّه الأيقونات. تُفعّل خصائص <code>-webkit-font-smoothing</code> و<code>-moz-osx-font-smoothing</code> مضادات الحواف للتصيير الأحد في macOS وiOS.</p>
+                    <p>تضبط كل فئة أيقونة عنصراً زائفاً <code>::before</code> بنقطة كود Unicode المخصصة لذلك الحرف الرسومي. الترميز بالشرطة المائلة العكسية (<code>\E001</code>) هو طريقة CSS للإشارة إلى حرف Unicode برمزه السداسي عشر.</p>
+
+                    <span class="code-label">الاستخدام في HTML</span>
+<pre><code><span class="code-kw">&lt;i</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-home"</span><span class="code-kw">&gt;&lt;/i&gt;</span>
+<span class="code-kw">&lt;span</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-search"</span><span class="code-kw">&gt;&lt;/span&gt;</span></code></pre>
+
+                    <p>كلا العنصرَين <code>&lt;i&gt;</code> و<code>&lt;span&gt;</code> يعملان بالقدر ذاته من الكفاءة. العنصر نفسه فارغ — تُصيَّر الأيقونة بالكامل بواسطة العنصر الزائف <code>::before</code>.</p>
+                </div>
+
+                <h2 class="reveal">font-display</h2>
+                <div class="reveal">
+                    <p>تتحكم الخاصية الوصفية <code>font-display</code> فيما يعرضه المتصفح بينما لا يزال ملف الخط يُنزَّل. هذا أمر بالغ الأهمية لخطوط الأيقونات لأن الإعداد الخاطئ قد يجعل الأيقونات غير مرئية أثناء تحميل الصفحة.</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>القيمة</th><th>السلوك</th><th>الأفضل لـ</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td><code>swap</code></td><td>يعرض النص الاحتياطي فوراً، يتحول إلى خط الأيقونات عند التحميل</td><td>خطوط الأيقونات (موصى به)</td></tr>
+                                <tr><td><code>block</code></td><td>يخفي النص لفترة وجيزة (حتى 3 ثوانٍ)، ثم يعرض الاحتياطي</td><td>خطوط النص حين يكون الوميض مشتِّتاً</td></tr>
+                                <tr><td><code>fallback</code></td><td>حجب قصير (~100 مللي ثانية) + تبديل قصير (~3 ثوانٍ)</td><td>توازن جيد لخطوط النص</td></tr>
+                                <tr><td><code>optional</code></td><td>قد يتخطى المتصفح الخط كلياً على الاتصالات البطيئة</td><td>الخطوط الزخرفية غير الأساسية</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>بالنسبة لخطوط الأيقونات، <strong><code>swap</code> هو الخيار الموصى به</strong>. وميض وجيز للمحتوى غير المنسَّق (حيث قد تظهر نقاط كود الأيقونات كمربعات أو مسافات فارغة) أفضل بكثير من الأيقونات غير المرئية. مع <code>block</code>، قد يرى المستخدمون مساحة فارغة حيث يجب أن تكون الأيقونات لمدة تصل إلى 3 ثوانٍ على الاتصالات البطيئة — مما يبدو كصفحة معطوبة. مع <code>swap</code>، تظهر الأيقونات بمجرد تحميل الخط، والانتقال غير ملحوظ عادةً على الاتصالات الحديثة.</p>
+                </div>
+
+                <h2 class="reveal">تحسين التحميل</h2>
+                <div class="reveal">
+                    <p>ملفات الخطوط تحجب التصيير افتراضياً — لن يرسم المتصفح النص بخط مخصص حتى يكتمل تنزيل الملف. إليك تقنيات لتقليل هذا التأثير:</p>
+
+                    <ul>
+                        <li><strong>التحميل المسبق لملف الخط</strong> — استخدم <code>&lt;link rel="preload"&gt;</code> لبدء تنزيل الخط في أقرب وقت ممكن، قبل أن يُحلّل المتصفح CSS الذي يُشير إليه.</li>
+                        <li><strong>استضافة الخطوط ذاتياً</strong> — تقديم ملفات الخطوط من المصدر ذاته كـ HTML يتجنب عمليات بحث DNS الإضافية وإعداد الاتصال، ويُزيل مشكلات CORS.</li>
+                        <li><strong>تجزئة الخط</strong> — أزل الأيقونات غير المستخدمة لتقليل حجم الملف. خط من 500 أيقونة تستخدم منها 50 فقط يُهدر 90% من التنزيل.</li>
+                        <li><strong>استخدام <code>unicode-range</code></strong> — إذا كان لديك مجموعات أيقونات متعددة، تُخبر هذه الخاصية الوصفية المتصفح بتنزيل ملف الخط فقط عند استخدام الحروف في النطاق المحدد فعلياً في الصفحة.</li>
+                    </ul>
+
+                    <span class="code-label">التحميل المسبق لملف الخط</span>
+<pre><code><span class="code-kw">&lt;link</span> <span class="code-prop">rel</span>=<span class="code-str">"preload"</span> <span class="code-prop">href</span>=<span class="code-str">"fonts/myicons.woff2"</span> <span class="code-prop">as</span>=<span class="code-str">"font"</span>
+      <span class="code-prop">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-prop">crossorigin</span><span class="code-kw">&gt;</span></code></pre>
+
+                    <p>خاصية <code>crossorigin</code> مطلوبة حتى للخطوط ذات المصدر ذاته — هذه سمة غريبة في مواصفات تحميل الخط. بدونها، يُنزّل المتصفح الخط مرتين: مرة من تلميح preload (بدون CORS) ومرة من قاعدة <code>@font-face</code> (مع CORS).</p>
+                </div>
+
+                <h2 class="reveal">المشكلات الشائعة</h2>
+                <div class="reveal">
+                    <ul>
+                        <li><strong>أخطاء CORS</strong> — ملفات الخط المقدَّمة من مصدر مختلف (مثل نطاق CDN الفرعي) تحتاج رؤوس <code>Access-Control-Allow-Origin</code> على الخادم. بدلاً من ذلك، استخدم خاصية <code>crossorigin</code> على العلامة <code>&lt;link&gt;</code>. بدون تكوين CORS صحيح، يحجب المتصفح الخط بصمت.</li>
+                        <li><strong>تظهر الأيقونات كمربعات أو مستطيلات</strong> — يعني هذا عادةً أن مسار ملف الخط خاطئ، أو أن الخط لم يُحمَّل بعد، أو أن اسم <code>font-family</code> في فئة الأيقونة لا يطابق الاسم في إعلان <code>@font-face</code>. تحقق من علامة تبويب الشبكة في متصفحك للتأكد من تحميل ملف الخط بالحالة 200.</li>
+                        <li><strong>تعرض الأيقونات حروفاً رسومية خاطئة</strong> — تعارض نقطة كود Unicode مع خطوط النظام. إذا كان خط الأيقونات يستخدم نقاط كود في نطاقات تتداخل مع خطوط النظام الشائعة، فقد يُصيّر المتصفح حرف نظام بدلاً من الأيقونة. تستخدم خطوط الأيقونات عادةً منطقة الاستخدام الخاص (U+E000 إلى U+F8FF) لتجنب ذلك.</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">نصيحة للتنقيح</div>
+                        افتح DevTools المتصفح، اذهب إلى علامة تبويب الشبكة، وصفِّ بـ"Font". يجب أن ترى ملف <code>.woff2</code> الخاص بك بالحالة 200. إذا كان مفقوداً، فالمسار خاطئ. إذا أظهر خطأ CORS، تحقق من رؤوس خادمك. إذا تحمّل لكن الأيقونات لا تزال غير ظاهرة، افحص العنصر وتحقق من أن <code>font-family</code> يطابق تماماً.
+                    </div>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">في Bobcorn</div>
+                    يُولّد Bobcorn ملف CSS الكامل لك — إعلان <code>@font-face</code>، والفئة الأساسية <code>.icon</code>، وفئات الأيقونات الفردية مع نقاط كود Unicode الصحيحة. يستخدم CSS اسم الخط الذي اخترته ويُشير إلى ملفات الخطوط بمسارات نسبية. فعّل خيار CSS في مربع حوار التصدير لتضمينه بجانب ملفات الخطوط.
+                </div>
+
+                <nav class="page-nav">
+                    <a href="eot.html" class="page-nav-link">
+                        <div class="page-nav-dir">السابق</div>
+                        <div class="page-nav-title">EOT</div>
+                    </a>
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">التالي</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

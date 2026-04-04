@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Fonts 101 — Bobcorn Wiki</title>
+    <meta name="description" content="Tất cả những gì bạn cần biết về icon fonts — chúng là gì, hoạt động như thế nào, và nên chọn định dạng nào cho dự án của bạn.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/vi/index.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/index.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/index.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/index.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/index.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/index.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/index.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/index.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/index.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/index.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/index.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/index.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/index.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/index.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/index.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/index.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/index.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/index.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/vi/index.html">
+    <meta property="og:title" content="Icon Fonts 101 — Bobcorn Wiki">
+    <meta property="og:description" content="Tất cả những gì bạn cần biết về icon fonts — chúng là gì, hoạt động như thế nào, và nên chọn định dạng nào cho dự án của bạn.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Icon Fonts 101 — Bobcorn Wiki">
+    <meta name="twitter:description" content="Tất cả những gì bạn cần biết về icon fonts — chúng là gì, hoạt động như thế nào, và nên chọn định dạng nào cho dự án của bạn.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Icon Fonts 101 — Bobcorn Wiki",
+                "description": "Tất cả những gì bạn cần biết về icon fonts — chúng là gì, hoạt động như thế nào, và nên chọn định dạng nào cho dự án của bạn.",
+                "url": "https://bobcorn.caldis.me/wiki/vi/index.html",
+                "inLanguage": "vi",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/index.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Tiếng Việt</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay"></div>
+
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Icon Fonts <em>101</em></h1>
+                <p class="lead reveal">Tất cả những gì bạn cần biết về icon fonts — chúng là gì, hoạt động như thế nào, và nên chọn định dạng nào cho dự án của bạn.</p>
+
+                <!-- What Are Icon Fonts? -->
+                <h2 class="reveal">Icon Fonts Là Gì?</h2>
+                <div class="reveal">
+                    <p>Icon fonts là các kiểu chữ trong đó các glyph — thường là chữ cái và số — được thay thế bằng các ký hiệu hình ảnh. Thay vì hiển thị chữ "A", một icon font hiển thị biểu tượng ngôi nhà, kính lúp tìm kiếm, hoặc giỏ hàng.</p>
+                    <p>Vì các biểu tượng nằm trong tệp font, chúng hoạt động giống hệt văn bản. Bạn có thể thay đổi kích thước bằng <code>font-size</code>, thay đổi màu bằng <code>color</code>, thêm text shadows, áp dụng CSS transitions, và thậm chí tạo hoạt ảnh — tất cả mà không cần chạm vào bất kỳ tệp hình ảnh nào.</p>
+                    <p>Phương pháp này mang lại nhiều lợi ích thực tế:</p>
+                    <ul>
+                        <li><strong>Độc lập với độ phân giải</strong> — các đường vector hiển thị sắc nét trên mọi mật độ màn hình</li>
+                        <li><strong>Dung lượng nhỏ</strong> — một tệp font nén thay thế hàng chục tệp hình ảnh riêng lẻ</li>
+                        <li><strong>Kiểm soát bằng CSS</strong> — màu sắc, kích thước, bóng, độ mờ và trạng thái hover có sẵn miễn phí với định dạng văn bản</li>
+                        <li><strong>Một yêu cầu HTTP duy nhất</strong> — toàn bộ bộ biểu tượng tải trong một lần truyền mạng</li>
+                    </ul>
+                </div>
+
+                <h3>Lịch sử ngắn gọn</h3>
+                <div class="reveal">
+                    <p>Ở thời kỳ đầu của web, các nhà phát triển dựa vào hình ảnh riêng lẻ hoặc <strong>CSS image sprites</strong> — hình ảnh tổng hợp lớn, trong đó mỗi biểu tượng chiếm một vùng hình chữ nhật cố định. Sprites giảm yêu cầu HTTP nhưng dễ vỡ: thêm hoặc thay đổi kích thước một biểu tượng đồng nghĩa với việc phải tạo lại toàn bộ sprite sheet và cập nhật pixel offset bằng tay.</p>
+                    <p>Khoảng năm 2012, các dự án như <strong>Font Awesome</strong> và <strong>IcoMoon</strong> đã phổ biến một phương án thay thế gọn gàng hơn: đóng gói các biểu tượng như các font glyph được ánh xạ vào Vùng Sử Dụng Riêng Tư của Unicode. Các nhà thiết kế có thể hoán đổi toàn bộ bộ biểu tượng bằng cách thay đổi một khai báo <code>@font-face</code>, và các nhà phát triển có thể tạo kiểu cho các biểu tượng bằng CSS họ đã sử dụng cho văn bản. Kỹ thuật này lan rộng nhanh chóng và vẫn là lựa chọn đáng tin cậy, ít tốn kém cho các hệ thống thiết kế sử dụng biểu tượng màu đơn.</p>
+                </div>
+
+                <!-- Icon Fonts vs SVG Icons -->
+                <h2 class="reveal">Icon Fonts vs SVG Icons</h2>
+                <div class="reveal">
+                    <p>Cuộc tranh luận "icon fonts vs inline SVG" đã là chủ đề thường xuyên trong các cuộc thảo luận front-end hơn một thập kỷ. Cả hai phương pháp đều hợp lệ — lựa chọn đúng đắn phụ thuộc vào yêu cầu của dự án.</p>
+
+                    <h3>Icon Fonts</h3>
+                    <ul>
+                        <li><strong>Một yêu cầu HTTP duy nhất</strong> — một tệp font cung cấp mọi biểu tượng</li>
+                        <li><strong>Tạo kiểu CSS cực đơn giản</strong> — thay đổi <code>color</code>, <code>font-size</code> và <code>text-shadow</code> như văn bản thông thường</li>
+                        <li><strong>Chỉ một màu</strong> — mỗi glyph chỉ hỗ trợ một màu tô duy nhất</li>
+                        <li><strong>Tích hợp dễ dàng</strong> — thêm liên kết stylesheet, sử dụng CSS class, hoàn tất</li>
+                    </ul>
+
+                    <h3>Inline SVG</h3>
+                    <ul>
+                        <li><strong>Đa màu</strong> — mỗi đường có thể có màu tô, stroke hoặc gradient riêng</li>
+                        <li><strong>Có thể truy cập theo mặc định</strong> — <code>&lt;title&gt;</code> và <code>aria-label</code> cung cấp ngữ nghĩa thực sự cho trình đọc màn hình</li>
+                        <li><strong>Có thể cache từng cái</strong> — các biểu tượng không sử dụng sẽ không bao giờ được tải xuống</li>
+                        <li><strong>Kiểm soát chi tiết</strong> — tạo hoạt ảnh từng đường riêng lẻ, áp dụng bộ lọc cho từng phần tử</li>
+                    </ul>
+
+                    <h3>SVG Sprites</h3>
+                    <ul>
+                        <li>Kết hợp nhiều SVG thành một <code>&lt;symbol&gt;</code> sprite sheet duy nhất</li>
+                        <li>Tham chiếu biểu tượng bằng <code>&lt;use href="#icon-name"&gt;</code></li>
+                        <li>Mang lại lợi ích của cả hai — một yêu cầu, đa màu, có thể truy cập — nhưng yêu cầu build pipeline phức tạp hơn</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Kết luận</div>
+                        Icon fonts vẫn là lựa chọn xuất sắc cho các hệ thống thiết kế xây dựng trên biểu tượng màu đơn. Chúng đơn giản để tích hợp, hiệu suất cao và được hỗ trợ rộng rãi. Nếu biểu tượng của bạn cần nhiều màu hoặc hoạt ảnh theo từng đường, inline SVG hoặc SVG sprites là lựa chọn phù hợp hơn.
+                    </div>
+                </div>
+
+                <!-- Format Comparison Table -->
+                <h2 class="reveal">So sánh các định dạng</h2>
+                <div class="reveal">
+                    <p>Icon fonts có thể được đóng gói trong năm định dạng tệp, mỗi định dạng có tính năng nén, hỗ trợ trình duyệt và trường hợp sử dụng khác nhau. Đây là cách so sánh tổng quan:</p>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Định dạng</th><th>Nén</th><th>Kích thước tệp</th><th>Hỗ trợ trình duyệt</th><th>Phù hợp nhất cho</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td class="fmt">.woff2</td><td>Brotli</td><td>Nhỏ nhất</td><td>97%+</td><td>Web hiện đại (khuyến nghị)</td></tr>
+                                <tr><td class="fmt">.woff</td><td>zlib</td><td>Nhỏ</td><td>98%+</td><td>Dự phòng tương thích rộng</td></tr>
+                                <tr><td class="fmt">.ttf</td><td>Không có</td><td>Trung bình</td><td>98%+</td><td>Ứng dụng máy tính, phát triển</td></tr>
+                                <tr><td class="fmt">.svg</td><td>Không có</td><td>Lớn nhất</td><td>Hạn chế</td><td>iOS cũ, gỡ lỗi</td></tr>
+                                <tr><td class="fmt">.eot</td><td>Tùy chọn</td><td>Trung bình</td><td>Chỉ IE</td><td>Hỗ trợ IE 6-8 cũ</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Choosing the Right Format -->
+                <h2 class="reveal">Chọn định dạng phù hợp</h2>
+                <div class="reveal">
+                    <p>Không chắc nên bao gồm định dạng nào? Sử dụng hướng dẫn quyết định thực tế này:</p>
+                    <ul>
+                        <li><strong>Nếu chỉ chọn một</strong> — dùng <strong>WOFF2</strong>. Nó mang lại tính năng nén tốt nhất (Brotli) và bao phủ 97%+ trình duyệt.</li>
+                        <li><strong>Nếu cần hỗ trợ IE 11</strong> — dùng <strong>WOFF2 + WOFF</strong>. WOFF xử lý các trình duyệt còn lại thiếu khả năng giải mã Brotli.</li>
+                        <li><strong>Nếu cần hỗ trợ IE 8</strong> — dùng <strong>WOFF2 + WOFF + EOT</strong>. EOT là định dạng duy nhất mà Internet Explorer 6-8 hiểu.</li>
+                        <li><strong>Cho ứng dụng máy tính</strong> — dùng <strong>TTF</strong>. Đây là định dạng gốc để hiển thị font ở cấp độ OS trên Windows, macOS và Linux.</li>
+                        <li><strong>Để gỡ lỗi vấn đề font</strong> — kiểm tra <strong>SVG Font</strong>. Cấu trúc XML của nó có thể đọc được bằng con người, giúp dễ dàng xác minh glyph paths và metadata.</li>
+                    </ul>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Mẹo</div>
+                        Hầu hết các dự án hiện đại chỉ cần WOFF2. Thêm định dạng bổ sung chỉ khi ma trận hỗ trợ trình duyệt của bạn yêu cầu.
+                    </div>
+                </div>
+
+                <!-- Explore by Format -->
+                <h2 class="reveal">Khám phá theo định dạng</h2>
+                <div class="reveal">
+                    <p>Tìm hiểu sâu hơn về từng định dạng để hiểu cơ chế nội bộ, tính tương thích trình duyệt và các thực hành tốt nhất:</p>
+                    <div class="format-cards">
+                        <a href="svg-font.html" class="format-card">
+                            <div class="format-card-ext">.svg</div>
+                            <div class="format-card-name">SVG Font</div>
+                            <div class="format-card-desc">Định dạng font vector gốc, có thể đọc bằng con người</div>
+                        </a>
+                        <a href="ttf.html" class="format-card">
+                            <div class="format-card-ext">.ttf</div>
+                            <div class="format-card-name">TrueType</div>
+                            <div class="format-card-desc">Tiêu chuẩn máy tính với đường cong Bezier bậc hai</div>
+                        </a>
+                        <a href="woff.html" class="format-card">
+                            <div class="format-card-ext">.woff</div>
+                            <div class="format-card-name">WOFF</div>
+                            <div class="format-card-desc">Gói tối ưu cho web với nén zlib</div>
+                        </a>
+                        <a href="woff2.html" class="format-card">
+                            <div class="format-card-ext">.woff2</div>
+                            <div class="format-card-name">WOFF2</div>
+                            <div class="format-card-desc">Tiêu chuẩn hiện đại với nén Brotli</div>
+                        </a>
+                        <a href="eot.html" class="format-card">
+                            <div class="format-card-ext">.eot</div>
+                            <div class="format-card-name">EOT</div>
+                            <div class="format-card-desc">Định dạng kế thừa của Microsoft cho Internet Explorer</div>
+                        </a>
+                    </div>
+
+                    <p>Tìm hiểu cách sử dụng các định dạng này trong dự án của bạn:</p>
+                    <div class="format-cards">
+                        <a href="css-font-face.html" class="format-card">
+                            <div class="format-card-ext">@</div>
+                            <div class="format-card-name">CSS @font-face</div>
+                            <div class="format-card-desc">Tải và đăng ký icon fonts trong stylesheets của bạn</div>
+                        </a>
+                        <a href="svg-symbol.html" class="format-card">
+                            <div class="format-card-ext">&lt;/&gt;</div>
+                            <div class="format-card-name">SVG Symbol</div>
+                            <div class="format-card-desc">Inline SVG sprites với hỗ trợ đa màu</div>
+                        </a>
+                        <a href="export-guide.html" class="format-card">
+                            <div class="format-card-ext">&darr;</div>
+                            <div class="format-card-name">Hướng dẫn xuất</div>
+                            <div class="format-card-desc">Tạo và cấu hình xuất trong Bobcorn</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Trong Bobcorn</div>
+                    Bobcorn tạo ra tất cả năm định dạng font cùng với CSS, JS symbol sprites và các trang demo HTML — tất cả chỉ trong một cú nhấp. <a href="export-guide.html">Đọc Hướng dẫn xuất &rarr;</a>
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <span></span>
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">Tiếp theo</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

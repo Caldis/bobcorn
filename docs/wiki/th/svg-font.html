@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Font — Bobcorn Wiki</title>
+    <meta name="description" content="อธิบายรูปแบบ SVG Font — XML ที่อ่านได้ด้วยมนุษย์ซึ่งแมป SVG paths ไปยัง font glyphs เรียนรู้วิธีที่ Bobcorn ใช้ SVG Font เป็นขั้นตอนแรกในกระบวนการสร้าง icon font">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/th/svg-font.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-font.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-font.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-font.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-font.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-font.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-font.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-font.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-font.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-font.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-font.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-font.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-font.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-font.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-font.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/th/svg-font.html">
+    <meta property="og:title" content="SVG Font — Bobcorn Wiki">
+    <meta property="og:description" content="อธิบายรูปแบบ SVG Font — XML ที่อ่านได้ด้วยมนุษย์ซึ่งแมป SVG paths ไปยัง font glyphs เรียนรู้วิธีที่ Bobcorn ใช้ SVG Font เป็นขั้นตอนแรกในกระบวนการสร้าง icon font">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Font — Bobcorn Wiki">
+    <meta name="twitter:description" content="อธิบายรูปแบบ SVG Font — XML ที่อ่านได้ด้วยมนุษย์ซึ่งแมป SVG paths ไปยัง font glyphs เรียนรู้วิธีที่ Bobcorn ใช้ SVG Font เป็นขั้นตอนแรกในกระบวนการสร้าง icon font">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Font — Bobcorn Wiki",
+                "description": "อธิบายรูปแบบ SVG Font — XML ที่อ่านได้ด้วยมนุษย์ซึ่งแมป SVG paths ไปยัง font glyphs เรียนรู้วิธีที่ Bobcorn ใช้ SVG Font เป็นขั้นตอนแรกในกระบวนการสร้าง icon font",
+                "url": "https://bobcorn.caldis.me/wiki/th/svg-font.html",
+                "inLanguage": "th",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/th/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Font — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/th/svg-font.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>ไทย</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">SVG Font</h1>
+                <p class="lead reveal">รูปแบบฟอนต์เวกเตอร์ดั้งเดิม — XML ที่อ่านได้ด้วยมนุษย์ซึ่งแมป SVG paths ไปยัง font glyphs</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.svg</span>
+                        <span class="fingerprint-name">รูปแบบ SVG Font</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">ประเภท</span><span class="fingerprint-val">เวกเตอร์บน XML</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">การบีบอัด</span><span class="fingerprint-val">ไม่มี (ข้อความธรรมดา)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">ขนาดไฟล์</span><span class="fingerprint-val">ใหญ่ที่สุดในบรรดาทุกรูปแบบ</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">การรองรับ</span><span class="fingerprint-val">เฉพาะ Safari (เลิกใช้ที่อื่น)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">เหมาะสำหรับ</span><span class="fingerprint-val">การดีบัก รูปแบบต้นทาง</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">ต้นทางของ pipeline</span></div>
+                </div>
+
+                <h2 class="reveal">SVG Font คืออะไร?</h2>
+                <p>SVG fonts ถูกกำหนดเป็นส่วนหนึ่งของ <strong>ข้อกำหนด SVG 1.1</strong> ที่เผยแพร่โดย W3C ต่างจากรูปแบบฟอนต์ไบนารีแบบดั้งเดิม SVG fonts ฝัง glyph outlines เป็นข้อมูล SVG path ภายใน element <code>&lt;font&gt;</code> แต่ละ glyph แทนด้วย element <code>&lt;glyph&gt;</code> ที่มี attribute <code>d</code> ซึ่งมี vector path อธิบายรูปร่าง</p>
+                <p>โดยสาระ SVG fonts คือภาพ SVG ที่บรรจุในรูปแบบฟอนต์ ไวยากรณ์ path เดียวกับที่ใช้วาดรูปในไฟล์ SVG ถูกนำมาใช้กำหนดรูปแบบตัวอักษรและ icon outlines ทำให้ตรวจสอบได้อย่างเป็นพิเศษ — คุณสามารถเปิด SVG font ในโปรแกรมแก้ไขข้อความใดก็ได้และอ่านเรขาคณิตจริงของทุก glyph</p>
+
+                <h2 class="reveal">วิธีการทำงาน</h2>
+                <p>ไฟล์ SVG font ห่อ glyph paths ไว้ในโครงสร้าง XML มาตรฐาน ต่อไปนี้คือตัวอย่างแบบย่อ:</p>
+                <span class="code-label">โครงสร้าง SVG Font</span>
+<pre><code><span class="code-tag">&lt;font</span> <span class="code-attr">id</span>=<span class="code-str">"MyIcons"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;font-face</span> <span class="code-attr">font-family</span>=<span class="code-str">"MyIcons"</span> <span class="code-attr">units-per-em</span>=<span class="code-str">"1024"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"home"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE001;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M512 0L0 448h128v576h256V640h256v384h256V448h128z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"search"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE002;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M..."</span><span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/font&gt;</span></code></pre>
+                <p>Element <code>&lt;font-face&gt;</code> ประกาศชื่อ font family และระบบพิกัด (<code>units-per-em</code>) แต่ละ <code>&lt;glyph&gt;</code> แมป Unicode code point ไปยัง vector path attribute <code>d</code> ใช้ไวยากรณ์ path เดียวกันกับ element <code>&lt;path&gt;</code> ของ SVG ปกติ</p>
+                <p>นี่คือ <strong>รูปแบบขั้นกลาง</strong> ใน pipeline ของ Bobcorn ไอคอน SVG แต่ละชิ้นจะถูกรวบรวมเป็นโครงสร้าง SVG font ก่อน แล้วจึงแปลงเป็นรูปแบบไบนารี: SVG Font &rarr; TTF &rarr; WOFF / WOFF2 / EOT</p>
+
+                <h2 class="reveal">ข้อดีและข้อเสีย</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">ข้อดี</div>
+                        <li>อ่านได้ด้วยมนุษย์ — เปิดในโปรแกรมแก้ไขข้อความใดก็ได้</li>
+                        <li>ง่ายต่อการดีบัก glyph paths และ metadata</li>
+                        <li>เป็นเวกเตอร์อย่างสมบูรณ์ สเกลได้ไม่จำกัด</li>
+                        <li>ไม่ต้องคอมไพล์เพื่อดูต้นทาง</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">ข้อเสีย</div>
+                        <li>ขนาดไฟล์ใหญ่ที่สุดในบรรดารูปแบบฟอนต์ทั้งหมด</li>
+                        <li>เลิกใช้ใน Chrome, Firefox และ Edge</li>
+                        <li>ไม่มีการบีบอัดเลย</li>
+                        <li>ไม่รองรับ hinting</li>
+                        <li>คุณภาพการแสดงผลต่ำบน Windows</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">การรองรับของเบราว์เซอร์</h2>
+                <p>การรองรับ SVG font <strong>ถูกลบออกจากเบราว์เซอร์หลักส่วนใหญ่</strong> Chrome ยกเลิกการรองรับ SVG font ในเวอร์ชัน 38 (ปี 2014) Firefox ไม่เคยนำไปใช้ Edge (ฐาน Chromium) ก็ไม่รองรับเช่นกัน ที่ยังคงรองรับเพียงแห่งเดียวคือ <strong>Safari และ iOS Safari</strong> ที่ยังคงแสดงผล SVG fonts</p>
+                <p>สำหรับการใช้งานเว็บจริง SVG font เป็นรูปแบบที่ล้าสมัยไปแล้ว ไม่ควรใช้เป็นรูปแบบส่งมอบสำหรับผู้ใช้ปลายทาง ให้ใช้ WOFF2 แทน</p>
+
+                <h2 class="reveal">เมื่อไรควรใช้ SVG Font</h2>
+                <ul>
+                    <li><strong>การดีบักปัญหาการสร้างฟอนต์</strong> — เนื่องจากเป็น XML ธรรมดา คุณสามารถอ่านข้อมูล path โดยตรงและเปรียบเทียบกับไอคอน SVG ต้นฉบับเพื่อวินิจฉัยปัญหา</li>
+                    <li><strong>เป็นรูปแบบต้นทางใน build pipelines</strong> — เครื่องมือสร้างฟอนต์หลายตัว (รวมถึง Bobcorn) ใช้ SVG font เป็นตัวแทนกลางก่อนแปลงเป็นรูปแบบไบนารี</li>
+                    <li><strong>รองรับ iOS รุ่นเก่า &lt; 5</strong> — หายากมากในปัจจุบัน แต่อุปกรณ์ iOS รุ่นเก่าที่ก่อนการรองรับ WOFF สามารถใช้ SVG fonts สำหรับ web fonts เท่านั้น</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn</div>
+                    ใน Bobcorn, SVG font คือ <strong>ขั้นตอนแรก</strong> ของ generation pipeline ไอคอน SVG ของคุณจะถูกรวบรวมเป็น SVG font ก่อน แล้วแปลงเป็น TTF และจาก TTF ไปเป็น WOFF, WOFF2 และ EOT คุณสามารถส่งออกไฟล์ SVG font เพื่อวัตถุประสงค์การดีบัก — มีประโยชน์อย่างยิ่งเมื่อ glyph ดูผิดปกติและคุณต้องตรวจสอบข้อมูล path ดิบ
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="index.html" class="page-nav-link">
+                        <div class="page-nav-dir">ก่อนหน้า</div>
+                        <div class="page-nav-title">Icon Fonts 101</div>
+                    </a>
+                    <a href="ttf.html" class="page-nav-link">
+                        <div class="page-nav-dir">ถัดไป</div>
+                        <div class="page-nav-title">TTF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

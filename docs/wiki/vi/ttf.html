@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTF (TrueType) — Bobcorn Wiki</title>
+    <meta name="description" content="Giải thích TTF (TrueType Font) — định dạng font nhị phân tiêu chuẩn ngành được phát triển bởi Apple và Microsoft. Tìm hiểu cách Bobcorn sử dụng TTF làm định dạng trung gian cốt lõi trong pipeline tạo.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/vi/ttf.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/ttf.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/ttf.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/ttf.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/ttf.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/ttf.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/ttf.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/ttf.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/ttf.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/ttf.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/ttf.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/ttf.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/ttf.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/ttf.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/ttf.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/ttf.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/vi/ttf.html">
+    <meta property="og:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta property="og:description" content="Giải thích TTF (TrueType Font) — định dạng font nhị phân tiêu chuẩn ngành được phát triển bởi Apple và Microsoft. Tìm hiểu cách Bobcorn sử dụng TTF làm định dạng trung gian cốt lõi trong pipeline tạo.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta name="twitter:description" content="Giải thích TTF (TrueType Font) — định dạng font nhị phân tiêu chuẩn ngành được phát triển bởi Apple và Microsoft. Tìm hiểu cách Bobcorn sử dụng TTF làm định dạng trung gian cốt lõi trong pipeline tạo.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "TTF (TrueType) — Bobcorn Wiki",
+                "description": "Giải thích TTF (TrueType Font) — định dạng font nhị phân tiêu chuẩn ngành được phát triển bởi Apple và Microsoft. Tìm hiểu cách Bobcorn sử dụng TTF làm định dạng trung gian cốt lõi trong pipeline tạo.",
+                "url": "https://bobcorn.caldis.me/wiki/vi/ttf.html",
+                "inLanguage": "vi",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "TTF (TrueType) — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/ttf.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Tiếng Việt</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">TTF</h1>
+                <p class="lead reveal">TrueType Font — định dạng font nhị phân tiêu chuẩn ngành được phát triển bởi Apple và Microsoft.</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.ttf</span>
+                        <span class="fingerprint-name">Định dạng TrueType Font</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Loại</span><span class="fingerprint-val">Binary outline</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Nén</span><span class="fingerprint-val">Không có</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Kích thước tệp</span><span class="fingerprint-val">Trung bình (không nén)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Hỗ trợ</span><span class="fingerprint-val">98%+ trình duyệt</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Phù hợp nhất cho</span><span class="fingerprint-val">Ứng dụng máy tính, phát triển</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">Định dạng trung gian cốt lõi</span></div>
+                </div>
+
+                <h2 class="reveal">TTF Là Gì?</h2>
+                <p>TrueType được phát triển bởi <strong>Apple vào cuối những năm 1980</strong> như một giải pháp thay thế cho font PostScript Type 1 của Adobe, và sau đó được Microsoft áp dụng cho Windows. Nó lưu trữ glyph outlines dưới dạng <strong>đường cong B&eacute;zier bậc hai</strong>, đơn giản hơn về mặt tính toán (và rasterize nhanh hơn) so với các đường cong bậc ba mà PostScript sử dụng.</p>
+                <p>TTF nhanh chóng trở thành <strong>định dạng font phổ quát</strong> cho cả macOS và Windows. Trong hơn hai thập kỷ, đây là cách tiêu chuẩn để phân phối font — từ font hệ thống đến kiểu chữ tùy chỉnh. Mặc dù WOFF/WOFF2 đã thay thế phần lớn cho việc phân phối web, TTF vẫn là nền tảng mà tất cả các định dạng font web hiện đại được xây dựng trên đó.</p>
+
+                <h2 class="reveal">Cách Hoạt Động</h2>
+                <p>Một tệp TTF là binary container được tổ chức thành các <strong>bảng</strong>, mỗi bảng lưu trữ một loại dữ liệu cụ thể:</p>
+                <ul>
+                    <li><code>glyf</code> — glyph outlines (các hình dạng vector thực tế)</li>
+                    <li><code>cmap</code> — ánh xạ ký tự sang glyph (Unicode code point nào ánh xạ tới glyph nào)</li>
+                    <li><code>head</code> — metadata của font (units-per-em, ngày tạo, flags)</li>
+                    <li><code>hmtx</code> — số liệu ngang (advance width và left side bearing cho mỗi glyph)</li>
+                </ul>
+                <p>Đối với icon fonts, mỗi biểu tượng được gán một Unicode code point trong <strong>Vùng Sử Dụng Riêng Tư</strong> (U+E000 đến U+F8FF) — phạm vi được dành riêng cho các ký tự do ứng dụng định nghĩa, không xung đột với văn bản tiêu chuẩn.</p>
+
+                <span class="code-label">Sử dụng TTF icon font trong CSS</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+}
+
+<span class="code-tag">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: normal;
+  <span class="code-prop">font-weight</span>: normal;
+}
+
+<span class="code-tag">.icon-home</span><span class="code-kw">::before</span> {
+  <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>;
+}</code></pre>
+                <p>Gợi ý <code>format('truetype')</code> cho trình duyệt biết loại tệp font nào sẽ đến, để nó có thể bỏ qua tải xuống nếu TrueType không được hỗ trợ (mặc dù hầu hết tất cả các trình duyệt đều hỗ trợ).</p>
+
+                <h2 class="reveal">Ưu và Nhược điểm</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Ưu điểm</div>
+                        <li>Tương thích đa nền tảng</li>
+                        <li>Được hỗ trợ ở mọi nơi — máy tính, điện thoại và web</li>
+                        <li>Định dạng tiêu chuẩn để cài đặt font OS</li>
+                        <li>Chất lượng hiển thị tốt với hỗ trợ hinting</li>
+                        <li>Đặc tả được ghi lại tốt</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Nhược điểm</div>
+                        <li>Không có nén — lớn hơn WOFF/WOFF2</li>
+                        <li>Không được tối ưu hóa cho việc phân phối web</li>
+                        <li>Có thể tải chậm trên kết nối di động</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Hỗ Trợ Trình Duyệt</h2>
+                <p>TTF có <strong>hỗ trợ trình duyệt 98%+</strong>, bao gồm tất cả các trình duyệt hiện đại và Internet Explorer 9+. Nó cũng được hỗ trợ gốc bởi mọi hệ điều hành máy tính chính — Windows, macOS và Linux — có nghĩa là bạn có thể cài đặt tệp TTF trực tiếp như một font hệ thống mà không cần chuyển đổi.</p>
+                <p>Mặc dù TTF hoạt động ở mọi nơi, để phân phối web bạn nên ưu tiên WOFF2 (vốn chỉ là TTF được nén). Dành TTF thuần túy cho việc sử dụng máy tính, phát triển và là định dạng cơ sở trong build pipeline của bạn.</p>
+
+                <h2 class="reveal">Khi Nào Sử Dụng TTF</h2>
+                <ul>
+                    <li><strong>Ứng dụng máy tính</strong> — cài đặt như font hệ thống để sử dụng trong ứng dụng native, công cụ thiết kế hoặc IDE.</li>
+                    <li><strong>Electron và ứng dụng native</strong> — đóng gói TTF trực tiếp với ứng dụng để hiển thị font ngoại tuyến.</li>
+                    <li><strong>Phát triển và kiểm thử</strong> — TTF dễ kiểm tra bằng các công cụ font như FontForge, fontTools hoặc trình xem font hệ thống.</li>
+                    <li><strong>Kiểm tra font hệ thống</strong> — khi cần xác minh glyph metrics, hinting hoặc bảng cmap bằng các tiện ích cấp OS.</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn</div>
+                    Trong Bobcorn, TTF là <strong>định dạng pivot trung tâm</strong> trong pipeline tạo. Các icon SVG của bạn trước tiên được tổng hợp thành SVG font, sau đó chuyển đổi sang TTF, và từ đó sang WOFF, WOFF2 và EOT. TTF luôn được tạo ra như một phần của pipeline — đây là định dạng mà mọi output khác đều phụ thuộc vào. Bật tùy chọn xuất TTF khi bạn đang xây dựng ứng dụng máy tính hoặc khi cần cài đặt icon font trên hệ điều hành.
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">Trước đó</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                    <a href="woff.html" class="page-nav-link">
+                        <div class="page-nav-dir">Tiếp theo</div>
+                        <div class="page-nav-title">WOFF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

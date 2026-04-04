@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Font — Bobcorn Wiki</title>
+    <meta name="description" content="SVG フォント形式の解説——SVG パスをフォントグリフにマッピングする人間が読める XML 形式。Bobcorn がアイコンフォント生成パイプラインの第一ステップとして SVG Font を使用する仕組みを学びます。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ja/svg-font.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-font.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-font.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-font.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-font.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-font.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-font.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-font.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-font.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-font.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-font.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-font.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-font.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-font.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-font.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ja/svg-font.html">
+    <meta property="og:title" content="SVG Font — Bobcorn Wiki">
+    <meta property="og:description" content="SVG フォント形式の解説——SVG パスをフォントグリフにマッピングする人間が読める XML 形式。Bobcorn がアイコンフォント生成パイプラインの第一ステップとして SVG Font を使用する仕組みを学びます。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Font — Bobcorn Wiki">
+    <meta name="twitter:description" content="SVG フォント形式の解説——SVG パスをフォントグリフにマッピングする人間が読める XML 形式。Bobcorn がアイコンフォント生成パイプラインの第一ステップとして SVG Font を使用する仕組みを学びます。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Font — Bobcorn Wiki",
+                "description": "SVG フォント形式の解説——SVG パスをフォントグリフにマッピングする人間が読める XML 形式。Bobcorn がアイコンフォント生成パイプラインの第一ステップとして SVG Font を使用する仕組みを学びます。",
+                "url": "https://bobcorn.caldis.me/wiki/ja/svg-font.html",
+                "inLanguage": "ja",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Font — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/svg-font.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>日本語</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">SVG Font</h1>
+                <p class="lead reveal">オリジナルのベクターフォント形式——SVG パスをフォントグリフにマッピングする人間が読める XML 形式です。</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.svg</span>
+                        <span class="fingerprint-name">SVG Font Format</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">タイプ</span><span class="fingerprint-val">XML ベースのベクター形式</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">圧縮</span><span class="fingerprint-val">なし（プレーンテキスト）</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">ファイルサイズ</span><span class="fingerprint-val">全形式中最大</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">サポート</span><span class="fingerprint-val">Safari のみ（他は廃止済み）</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">最適な用途</span><span class="fingerprint-val">デバッグ、ソース形式</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">パイプラインソース</span></div>
+                </div>
+
+                <h2 class="reveal">SVG Font とは？</h2>
+                <p>SVG フォントは W3C が公開した <strong>SVG 1.1 仕様</strong>の一部として定義されています。従来のバイナリフォント形式とは異なり、SVG フォントはグリフのアウトラインを <code>&lt;font&gt;</code> 要素内の SVG パスデータとして埋め込みます。各グリフは <code>&lt;glyph&gt;</code> 要素で表され、その <code>d</code> 属性に形状を記述するベクターパスが含まれています。</p>
+                <p>本質的に、SVG フォントはフォントとしてパッケージングされた SVG ドローイングです。SVG ファイルで図形を描くのに使うのと同じパス構文が、文字のアウトラインやアイコンのアウトラインの定義に再利用されます。これにより、SVG フォントは一意な検査可能性を持ちます——任意のテキストエディタで開き、すべてのグリフの実際のジオメトリを読み取ることができます。</p>
+
+                <h2 class="reveal">仕組み</h2>
+                <p>SVG フォントファイルは、グリフのパスを標準的な XML 構造の中に包んでいます。以下に簡略化した例を示します：</p>
+                <span class="code-label">SVG Font の構造</span>
+<pre><code><span class="code-tag">&lt;font</span> <span class="code-attr">id</span>=<span class="code-str">"MyIcons"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;font-face</span> <span class="code-attr">font-family</span>=<span class="code-str">"MyIcons"</span> <span class="code-attr">units-per-em</span>=<span class="code-str">"1024"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"home"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE001;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M512 0L0 448h128v576h256V640h256v384h256V448h128z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"search"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE002;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M..."</span><span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/font&gt;</span></code></pre>
+                <p><code>&lt;font-face&gt;</code> 要素はフォントファミリー名と座標系（<code>units-per-em</code>）を宣言します。各 <code>&lt;glyph&gt;</code> は Unicode コードポイントをベクターパスにマッピングします。<code>d</code> 属性は通常の SVG <code>&lt;path&gt;</code> 要素とまったく同じパス構文を使用します。</p>
+                <p>これは Bobcorn のパイプラインにおける<strong>中間形式</strong>です。個々の SVG アイコンはまずこの SVG フォント構造に組み立てられ、その後バイナリ形式に変換されます：SVG Font &rarr; TTF &rarr; WOFF / WOFF2 / EOT。</p>
+
+                <h2 class="reveal">メリットとデメリット</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">メリット</div>
+                        <li>人間が読める——任意のテキストエディタで開ける</li>
+                        <li>グリフのパスやメタデータのデバッグが容易</li>
+                        <li>完全なベクターベースで無限にスケーラブル</li>
+                        <li>ソースを確認するためのコンパイルが不要</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">デメリット</div>
+                        <li>全フォント形式中最大のファイルサイズ</li>
+                        <li>Chrome、Firefox、Edge では廃止済み</li>
+                        <li>圧縮がまったくない</li>
+                        <li>ヒンティングのサポートなし</li>
+                        <li>Windows でのレンダリング品質が低い</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">ブラウザサポート</h2>
+                <p>SVG フォントのサポートは<strong>ほとんどの主要ブラウザから削除</strong>されています。Chrome はバージョン 38（2014 年）で SVG フォントのサポートを廃止し、Firefox は実装したことがありません。Chromium ベースの Edge も対応していません。唯一残っているのは <strong>Safari と iOS Safari</strong> で、今でも SVG フォントをレンダリングします。</p>
+                <p>実用的なウェブ用途では、SVG フォントは事実上レガシー形式です。エンドユーザー向けの配信形式として頼るべきではありません。代わりに WOFF2 を使用してください。</p>
+
+                <h2 class="reveal">SVG Font を使う場面</h2>
+                <ul>
+                    <li><strong>フォント生成の問題をデバッグする場合</strong>——プレーン XML なので、パスデータを直接読み取り、元の SVG アイコンと比較して問題を診断できます。</li>
+                    <li><strong>ビルドパイプラインのソース形式として</strong>——多くのフォント生成ツール（Bobcorn を含む）は、バイナリ形式に変換する前の中間表現として SVG フォントを使用します。</li>
+                    <li><strong>レガシー iOS &lt; 5 のサポート</strong>——今日では極めてまれですが、WOFF サポート以前の古い iOS デバイスはウェブフォントとして SVG フォントしか使用できませんでした。</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn での使用</div>
+                    Bobcorn では、SVG Font は生成パイプラインの<strong>最初のステップ</strong>です。SVG アイコンは SVG フォントに組み立てられ、その後 TTF に変換され、TTF から WOFF、WOFF2、EOT に変換されます。デバッグ目的で SVG フォントファイルをエクスポートすることができます——グリフが正しく表示されない場合にパスデータを検査するのに特に便利です。
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="index.html" class="page-nav-link">
+                        <div class="page-nav-dir">前のページ</div>
+                        <div class="page-nav-title">アイコンフォント入門</div>
+                    </a>
+                    <a href="ttf.html" class="page-nav-link">
+                        <div class="page-nav-dir">次のページ</div>
+                        <div class="page-nav-title">TTF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

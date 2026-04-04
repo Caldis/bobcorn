@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTF (TrueType) — Bobcorn Wiki</title>
+    <meta name="description" content="TTF (TrueType Font) explicado — el formato de fuente binario estándar de la industria desarrollado por Apple y Microsoft. Aprenda cómo Bobcorn usa TTF como formato intermedio central en su pipeline de generación.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/es/ttf.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/ttf.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/ttf.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/ttf.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/ttf.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/ttf.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/ttf.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/ttf.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/ttf.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/ttf.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/ttf.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/ttf.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/ttf.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/ttf.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/ttf.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/ttf.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/es/ttf.html">
+    <meta property="og:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta property="og:description" content="TTF (TrueType Font) explicado — el formato de fuente binario estándar de la industria desarrollado por Apple y Microsoft. Aprenda cómo Bobcorn usa TTF como formato intermedio central en su pipeline de generación.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta name="twitter:description" content="TTF (TrueType Font) explicado — el formato de fuente binario estándar de la industria desarrollado por Apple y Microsoft. Aprenda cómo Bobcorn usa TTF como formato intermedio central en su pipeline de generación.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "TTF (TrueType) — Bobcorn Wiki",
+                "description": "TTF (TrueType Font) explicado — el formato de fuente binario estándar de la industria desarrollado por Apple y Microsoft. Aprenda cómo Bobcorn usa TTF como formato intermedio central en su pipeline de generación.",
+                "url": "https://bobcorn.caldis.me/wiki/es/ttf.html",
+                "inLanguage": "es",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/es/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "TTF (TrueType) — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/es/ttf.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Español</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">TTF</h1>
+                <p class="lead reveal">TrueType Font — el formato de fuente binario estándar de la industria desarrollado por Apple y Microsoft.</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.ttf</span>
+                        <span class="fingerprint-name">Formato de fuente TrueType</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Tipo</span><span class="fingerprint-val">Contorno binario</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Compresión</span><span class="fingerprint-val">Ninguna</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Tamaño de archivo</span><span class="fingerprint-val">Medio (sin comprimir)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Compatibilidad</span><span class="fingerprint-val">98 %+ navegadores</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Ideal para</span><span class="fingerprint-val">Aplicaciones de escritorio, desarrollo</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">Formato intermedio central</span></div>
+                </div>
+
+                <h2 class="reveal">¿Qué es TTF?</h2>
+                <p>TrueType fue desarrollado por <strong>Apple a finales de los años 1980</strong> como alternativa a las fuentes PostScript Type 1 de Adobe, y fue adoptado posteriormente por Microsoft para Windows. Almacena los contornos de los glifos como <strong>curvas de Bézier cuadráticas</strong>, que son computacionalmente más simples (y más rápidas de rasterizar) que las curvas cúbicas utilizadas por PostScript.</p>
+                <p>TTF se convirtió rápidamente en el <strong>formato de fuente universal</strong> para macOS y Windows. Durante más de dos décadas, fue la forma estándar de distribuir fuentes — desde fuentes del sistema hasta tipografías personalizadas. Aunque WOFF/WOFF2 lo han reemplazado en gran medida para la distribución web, TTF sigue siendo la base sobre la que se construyen todos los formatos modernos de fuentes web.</p>
+
+                <h2 class="reveal">Cómo funciona</h2>
+                <p>Un archivo TTF es un contenedor binario organizado en <strong>tablas</strong>, cada una almacenando un tipo específico de datos:</p>
+                <ul>
+                    <li><code>glyf</code> — contornos de glifos (las formas vectoriales reales)</li>
+                    <li><code>cmap</code> — mapeo de carácter a glifo (qué punto de código Unicode corresponde a qué glifo)</li>
+                    <li><code>head</code> — metadatos de la fuente (unidades por em, fecha de creación, indicadores)</li>
+                    <li><code>hmtx</code> — métricas horizontales (ancho de avance y margen izquierdo para cada glifo)</li>
+                </ul>
+                <p>En las fuentes de iconos, a cada icono se le asigna un punto de código Unicode en el <strong>Área de Uso Privado</strong> (U+E000 a U+F8FF) — un rango reservado específicamente para caracteres definidos por la aplicación que no entrarán en conflicto con el texto estándar.</p>
+
+                <span class="code-label">Uso de una fuente de iconos TTF en CSS</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+}
+
+<span class="code-tag">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: normal;
+  <span class="code-prop">font-weight</span>: normal;
+}
+
+<span class="code-tag">.icon-home</span><span class="code-kw">::before</span> {
+  <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>;
+}</code></pre>
+                <p>La indicación <code>format('truetype')</code> le dice al navegador qué tipo de archivo de fuente esperar, para que pueda omitir la descarga si TrueType no es compatible (aunque prácticamente todos los navegadores lo soportan).</p>
+
+                <h2 class="reveal">Ventajas e inconvenientes</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Ventajas</div>
+                        <li>Compatibilidad universal en todas las plataformas</li>
+                        <li>Compatible en todas partes — escritorio, móvil y web</li>
+                        <li>Formato estándar para la instalación de fuentes del sistema operativo</li>
+                        <li>Buena calidad de renderizado con soporte de hinting</li>
+                        <li>Especificación bien documentada</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Inconvenientes</div>
+                        <li>Sin compresión — más grande que WOFF/WOFF2</li>
+                        <li>No optimizado para distribución web</li>
+                        <li>Puede ser lento de descargar en conexiones móviles</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Compatibilidad con navegadores</h2>
+                <p>TTF disfruta de una <strong>compatibilidad del 98 %+ con los navegadores</strong>, incluidos todos los navegadores modernos e Internet Explorer 9+. También es compatible de forma nativa con todos los principales sistemas operativos de escritorio — Windows, macOS y Linux — lo que significa que puede instalar un archivo TTF directamente como fuente del sistema sin ninguna conversión.</p>
+                <p>Aunque TTF funciona en todas partes, para la distribución web debería preferir WOFF2 (que es simplemente un TTF comprimido). Reserve el TTF sin procesar para uso en escritorio, desarrollo y como formato base en su pipeline de compilación.</p>
+
+                <h2 class="reveal">Cuándo usar TTF</h2>
+                <ul>
+                    <li><strong>Aplicaciones de escritorio</strong> — instale como fuente del sistema para su uso en aplicaciones nativas, herramientas de diseño o IDEs.</li>
+                    <li><strong>Electron y aplicaciones nativas</strong> — incluya el TTF directamente con su aplicación para el renderizado de fuentes sin conexión.</li>
+                    <li><strong>Desarrollo y pruebas</strong> — TTF es fácil de inspeccionar con herramientas de fuentes como FontForge, fontTools o los visores de fuentes del sistema.</li>
+                    <li><strong>Inspección de fuentes del sistema</strong> — cuando necesite verificar métricas de glifos, hinting o tablas cmap usando utilidades a nivel del sistema operativo.</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn</div>
+                    En Bobcorn, TTF es el <strong>formato pivote central</strong> en el pipeline de generación. Sus iconos SVG se ensamblan primero en una fuente SVG, luego se convierten a TTF, y desde ahí a WOFF, WOFF2 y EOT. TTF siempre se genera como parte del pipeline — es el formato del que dependen todos los demás resultados. Active la exportación TTF cuando desarrolle aplicaciones de escritorio o cuando necesite instalar la fuente de iconos en su sistema operativo.
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">Anterior</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                    <a href="woff.html" class="page-nav-link">
+                        <div class="page-nav-dir">Siguiente</div>
+                        <div class="page-nav-title">WOFF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

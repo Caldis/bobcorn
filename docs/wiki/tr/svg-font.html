@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Font — Bobcorn Wiki</title>
+    <meta name="description" content="SVG Font formatı açıklandı — SVG yollarını font glif'lerine eşleyen insan tarafından okunabilir XML. Bobcorn'un ikon font oluşturma hattının ilk adımı olarak SVG Font'u nasıl kullandığını öğrenin.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/tr/svg-font.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-font.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-font.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-font.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-font.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-font.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-font.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-font.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-font.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-font.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-font.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-font.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-font.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-font.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-font.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/tr/svg-font.html">
+    <meta property="og:title" content="SVG Font — Bobcorn Wiki">
+    <meta property="og:description" content="SVG Font formatı açıklandı — SVG yollarını font glif'lerine eşleyen insan tarafından okunabilir XML. Bobcorn'un ikon font oluşturma hattının ilk adımı olarak SVG Font'u nasıl kullandığını öğrenin.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Font — Bobcorn Wiki">
+    <meta name="twitter:description" content="SVG Font formatı açıklandı — SVG yollarını font glif'lerine eşleyen insan tarafından okunabilir XML. Bobcorn'un ikon font oluşturma hattının ilk adımı olarak SVG Font'u nasıl kullandığını öğrenin.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Font — Bobcorn Wiki",
+                "description": "SVG Font formatı açıklandı — SVG yollarını font glif'lerine eşleyen insan tarafından okunabilir XML. Bobcorn'un ikon font oluşturma hattının ilk adımı olarak SVG Font'u nasıl kullandığını öğrenin.",
+                "url": "https://bobcorn.caldis.me/wiki/tr/svg-font.html",
+                "inLanguage": "tr",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/tr/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Font — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/tr/svg-font.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Türkçe</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">SVG Font</h1>
+                <p class="lead reveal">Orijinal vektör font formatı — SVG yollarını font glif'lerine eşleyen insan tarafından okunabilir XML.</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.svg</span>
+                        <span class="fingerprint-name">SVG Font Formatı</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Tür</span><span class="fingerprint-val">XML tabanlı vektör</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Sıkıştırma</span><span class="fingerprint-val">Yok (düz metin)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Dosya Boyutu</span><span class="fingerprint-val">Tüm formatlar arasında en büyük</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Destek</span><span class="fingerprint-val">Yalnızca Safari (diğerlerinde kullanımdan kaldırıldı)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">En İyi Kullanım</span><span class="fingerprint-val">Hata ayıklama, kaynak format</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">Hat kaynağı</span></div>
+                </div>
+
+                <h2 class="reveal">SVG Font Nedir?</h2>
+                <p>SVG fontları, W3C tarafından yayımlanan <strong>SVG 1.1 spesifikasyonunun</strong> bir parçası olarak tanımlanmıştır. Geleneksel ikili font formatlarının aksine, SVG fontları gliph konturlarını bir <code>&lt;font&gt;</code> öğesinin içinde SVG yol verisi olarak gömülü halde saklar. Her gliph, şekli tanımlayan vektör yolunu içeren <code>d</code> niteliğine sahip bir <code>&lt;glyph&gt;</code> öğesiyle temsil edilir.</p>
+                <p>Özünde, SVG fontları font olarak paketlenmiş SVG çizimleridir. Bir SVG dosyasında şekil çizmek için kullandığınız yol sözdiziminin aynısı, harf biçimleri ve ikon konturlarını tanımlamak için yeniden kullanılır. Bu, onları benzersiz biçimde incelenebilir kılar — bir SVG fontunu herhangi bir metin düzenleyicisinde açabilir ve her glifin gerçek geometrisini okuyabilirsiniz.</p>
+
+                <h2 class="reveal">Nasıl Çalışır</h2>
+                <p>Bir SVG font dosyası, gliph yollarını standart bir XML yapısı içinde sarmalar. İşte basitleştirilmiş bir örnek:</p>
+                <span class="code-label">SVG Font yapısı</span>
+<pre><code><span class="code-tag">&lt;font</span> <span class="code-attr">id</span>=<span class="code-str">"MyIcons"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;font-face</span> <span class="code-attr">font-family</span>=<span class="code-str">"MyIcons"</span> <span class="code-attr">units-per-em</span>=<span class="code-str">"1024"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"home"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE001;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M512 0L0 448h128v576h256V640h256v384h256V448h128z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"search"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE002;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M..."</span><span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/font&gt;</span></code></pre>
+                <p><code>&lt;font-face&gt;</code> öğesi, font ailesi adını ve koordinat sistemini (<code>units-per-em</code>) bildirir. Her <code>&lt;glyph&gt;</code>, bir Unicode kod noktasını vektör yoluyla eşleştirir. <code>d</code> niteliği, normal bir SVG <code>&lt;path&gt;</code> öğesiyle tamamen aynı yol sözdizimini kullanır.</p>
+                <p>Bu, Bobcorn'un hattındaki <strong>ara formattır</strong>. Bireysel SVG ikonları önce bu SVG font yapısında birleştirilir; bu yapı daha sonra ikili formatlara dönüştürülür: SVG Font &rarr; TTF &rarr; WOFF / WOFF2 / EOT.</p>
+
+                <h2 class="reveal">Artılar ve Eksiler</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Artılar</div>
+                        <li>İnsan tarafından okunabilir — herhangi bir metin düzenleyicisinde açılır</li>
+                        <li>Gliph yollarını ve meta verileri hata ayıklamak kolay</li>
+                        <li>Tamamen vektör tabanlı, sonsuz ölçeklenebilirlik</li>
+                        <li>Kaynağı görüntülemek için derleme gerekmez</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Eksiler</div>
+                        <li>Tüm font formatları arasında en büyük dosya boyutu</li>
+                        <li>Chrome, Firefox ve Edge'de kullanımdan kaldırıldı</li>
+                        <li>Hiçbir sıkıştırma yok</li>
+                        <li>Hinting desteği yok</li>
+                        <li>Windows'ta düşük oluşturma kalitesi</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Tarayıcı Desteği</h2>
+                <p>SVG font desteği <strong>çoğu büyük tarayıcıdan kaldırılmıştır</strong>. Chrome, SVG font desteğini 38. sürümde (2014) bıraktı. Firefox hiç uygulamadı. Chromium tabanlı Edge de desteklemiyor. Tek kalan istisna, SVG fontları hâlâ destekleyen <strong>Safari ve iOS Safari</strong>'dir.</p>
+                <p>Pratik web kullanımı için SVG Font esasen eski bir formattır. Son kullanıcılar için asla bir dağıtım formatı olarak güvenmemelisiniz. Bunun yerine WOFF2 kullanın.</p>
+
+                <h2 class="reveal">SVG Font Ne Zaman Kullanılır</h2>
+                <ul>
+                    <li><strong>Font oluşturma sorunlarını hata ayıklarken</strong> — düz XML olduğundan, yol verilerini doğrudan okuyabilir ve sorunları teşhis etmek için orijinal SVG ikonlarıyla karşılaştırabilirsiniz.</li>
+                    <li><strong>Derleme hatlarında kaynak format olarak</strong> — birçok font oluşturma aracı (Bobcorn dahil) ikili formatlara dönüştürmeden önce SVG Font'u ara temsil olarak kullanır.</li>
+                    <li><strong>Eski iOS &lt; 5 desteği</strong> — günümüzde son derece nadir, ancak WOFF desteğinden önceki eski iOS cihazları web fontları için yalnızca SVG fontları kullanabiliyordu.</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn</div>
+                    Bobcorn'da SVG Font, oluşturma hattının <strong>ilk adımıdır</strong>. SVG ikonlarınız bir SVG font yapısında bir araya getirilir, ardından TTF'e dönüştürülür ve oradan WOFF, WOFF2 ve EOT'a aktarılır. Hata ayıklama amacıyla SVG Font dosyasını dışa aktarabilirsiniz — bir gliph yanlış göründüğünde ve ham yol verilerini incelemeniz gerektiğinde özellikle kullanışlıdır.
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="index.html" class="page-nav-link">
+                        <div class="page-nav-dir">Önceki</div>
+                        <div class="page-nav-title">İkon Fontları 101</div>
+                    </a>
+                    <a href="ttf.html" class="page-nav-link">
+                        <div class="page-nav-dir">Sonraki</div>
+                        <div class="page-nav-title">TTF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

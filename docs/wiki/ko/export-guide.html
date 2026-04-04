@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내보내기 가이드 — Bobcorn Wiki</title>
+    <meta name="description" content="Bobcorn 내보내기 워크플로의 완전한 안내 — 아이콘 선택부터 프로덕션 준비 완료 폰트 파일 생성까지.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/export-guide.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/export-guide.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/export-guide.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/export-guide.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/export-guide.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/export-guide.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/export-guide.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <meta property="og:title" content="내보내기 가이드 — Bobcorn Wiki">
+    <meta property="og:description" content="Bobcorn 내보내기 워크플로의 완전한 안내 — 아이콘 선택부터 프로덕션 준비 완료 폰트 파일 생성까지.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="내보내기 가이드 — Bobcorn Wiki">
+    <meta name="twitter:description" content="Bobcorn 내보내기 워크플로의 완전한 안내 — 아이콘 선택부터 프로덕션 준비 완료 폰트 파일 생성까지.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "내보내기 가이드 — Bobcorn Wiki",
+                "description": "Bobcorn 내보내기 워크플로의 완전한 안내 — 아이콘 선택부터 프로덕션 준비 완료 폰트 파일 생성까지.",
+                "url": "https://bobcorn.caldis.me/wiki/ko/export-guide.html",
+                "inLanguage": "ko",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ko/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "내보내기 가이드 — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ko/export-guide.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>한국어</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">내보내기 가이드</h1>
+                <p class="lead reveal">Bobcorn 내보내기 워크플로의 완전한 안내 — 아이콘 선택부터 프로덕션 준비 완료 폰트 파일 생성까지.</p>
+
+                <!-- Opening the Export Dialog -->
+                <h2 class="reveal">내보내기 대화상자 열기</h2>
+                <div class="reveal">
+                    <p>왼쪽 사이드바 메뉴의 <strong>내보내기</strong> 버튼을 클릭합니다. 내보내기 대화상자가 모달로 열리며, 출력 디렉터리 설정, 포함할 아이콘 그룹 선택, 출력 형식 및 동반 파일 선택을 구성할 수 있습니다. 모든 설정은 세션 간에 기억되므로, 내보내기 설정을 한 번 구성하면 이후 내보내기는 클릭 한 번으로 완료됩니다.</p>
+                </div>
+
+                <!-- Choosing an Output Directory -->
+                <h2 class="reveal">출력 디렉터리 선택</h2>
+                <div class="reveal">
+                    <p>첫 번째 단계는 내보낸 파일을 저장할 위치를 선택하는 것입니다. 기본적으로 Bobcorn은 <strong>바탕화면</strong>을 사용합니다. 경로 옆의 폴더 버튼을 클릭하여 다른 위치를 탐색할 수 있습니다.</p>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">팁</div>
+                        프로젝트의 <code>fonts/</code> 또는 <code>assets/</code> 디렉터리로 직접 내보내면 내보낼 때마다 파일을 수동으로 복사하는 번거로움을 피할 수 있습니다. 아이콘 세트를 반복 작업하는 개발 중에 특히 유용합니다.
+                    </div>
+                </div>
+
+                <!-- Selecting Icon Groups -->
+                <h2 class="reveal">아이콘 그룹 선택</h2>
+                <div class="reveal">
+                    <p>내보내기에 포함할 아이콘 그룹을 선택할 수 있습니다. 기본적으로 모든 그룹이 선택되어 있습니다. 폰트에 포함하지 않을 그룹의 체크를 해제하세요 — 예를 들어, 작업 중인 아이콘이 포함된 "drafts" 그룹을 제외할 수 있습니다.</p>
+                    <p>각 그룹에는 이름 옆에 아이콘 수가 표시됩니다. 그룹을 켜고 끌 때마다 목록 하단의 총 아이콘 수가 실시간으로 업데이트되므로, 내보낸 폰트에 포함될 글리프 수를 항상 정확히 파악할 수 있습니다.</p>
+                </div>
+
+                <!-- Font Formats -->
+                <h2 class="reveal">폰트 형식</h2>
+                <div class="reveal">
+                    <p>Bobcorn은 다섯 가지 폰트 형식을 생성할 수 있습니다. 프로젝트의 브라우저 지원 요건에 맞는 형식을 선택하세요.</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>형식</th><th>기본값</th><th>활성화 조건</th><th>자세히 보기</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fmt">.woff2</td>
+                                    <td>항상 활성</td>
+                                    <td>항상 — 필수 웹 형식</td>
+                                    <td><a href="woff2.html">WOFF2 &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.woff</td>
+                                    <td>선택 사항</td>
+                                    <td>IE 11 지원이 필요한 경우</td>
+                                    <td><a href="woff.html">WOFF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.ttf</td>
+                                    <td>선택 사항</td>
+                                    <td>데스크톱 앱, OS 폰트 설치</td>
+                                    <td><a href="ttf.html">TTF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.svg</td>
+                                    <td>선택 사항</td>
+                                    <td>디버깅, 레거시 iOS</td>
+                                    <td><a href="svg-font.html">SVG Font &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.eot</td>
+                                    <td>선택 사항</td>
+                                    <td>IE 6-8 레거시 전용</td>
+                                    <td><a href="eot.html">EOT &rarr;</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>WOFF2는 항상 포함됩니다. 이는 필수적인 웹 폰트 형식이며, 웹 폰트 내보내기에서 WOFF2 없이 진행하는 시나리오는 존재하지 않습니다. 나머지 형식은 모두 구체적인 요구 사항에 따라 선택적으로 추가합니다.</p>
+                </div>
+
+                <!-- Companion Files -->
+                <h2 class="reveal">동반 파일</h2>
+                <div class="reveal">
+                    <p>폰트 파일 자체 외에도 Bobcorn은 통합과 협업을 더 쉽게 만드는 여러 동반 파일을 생성할 수 있습니다.</p>
+
+                    <h3>CSS（<code>icons.css</code>）</h3>
+                    <p><code>@font-face</code> 선언과 세트의 모든 아이콘에 대한 <code>.icon-*</code> CSS 클래스를 포함합니다. 이 파일을 프로젝트에 추가하면 간단한 클래스 이름으로 아이콘을 사용할 준비가 됩니다. 생성된 CSS 작동 방식에 대한 자세한 내용은 <a href="css-font-face.html">CSS @font-face 가이드</a>를 참조하세요.</p>
+
+                    <h3>JS（<code>icons-symbol.js</code>）</h3>
+                    <p>스크립트가 로드될 때 모든 아이콘을 인라인 SVG 심볼로 등록하는 SVG 심볼 스프라이트입니다. 멀티컬러 아이콘이나 SVG 특정 기능이 필요할 때 폰트 아이콘과 함께 사용합니다. 사용 패턴은 <a href="svg-symbol.html">SVG Symbol 가이드</a>를 참조하세요.</p>
+
+                    <h3>HTML（<code>demo.html</code>）</h3>
+                    <p>내보낸 모든 아이콘을 이름, CSS 클래스 이름, Unicode 코드 포인트와 함께 표시하는 인터랙티브 미리보기 페이지입니다. 브라우저에서 열어 전체 아이콘 세트를 탐색할 수 있습니다. 아이콘 라이브러리를 검토하는 디자이너와 통합 중에 클래스 이름을 조회하는 개발자 모두에게 유용합니다.</p>
+
+                    <h3>ICP（<code>project.icp</code>）</h3>
+                    <p>Bobcorn의 프로젝트 파일입니다. 팀원과 아이콘 프로젝트를 공유하거나 백업으로 보관하기 위해 내보냅니다. Bobcorn에서 ICP 파일을 열면 내보낼 당시의 전체 프로젝트 상태 — 모든 아이콘, 그룹, 메타데이터, 설정 — 가 그대로 복원됩니다.</p>
+                </div>
+
+                <!-- ZIP Packaging -->
+                <h2 class="reveal">ZIP 패키징</h2>
+                <div class="reveal">
+                    <p><strong>ZIP</strong> 옵션을 활성화하면 내보낸 모든 파일을 단일 <code>.zip</code> 아카이브로 묶습니다. 팀원과 아이콘 폰트를 공유하거나, CDN에 업로드하거나, 디자인 핸드오프 문서에 첨부할 때 유용합니다. ZIP은 일반 내보내기와 동일한 디렉터리 구조를 포함하며 중첩이나 재구성은 없습니다.</p>
+                </div>
+
+                <!-- Recommended Configurations -->
+                <h2 class="reveal">권장 구성</h2>
+                <div class="reveal">
+                    <p>일반적인 프로젝트 유형을 위한 세 가지 실용적인 프리셋을 소개합니다.</p>
+
+                    <h3>모던 웹 프로젝트</h3>
+                    <ul>
+                        <li>WOFF2（항상 활성）+ CSS + HTML 데모</li>
+                        <li>최소 용량으로 97%+ 브라우저 지원</li>
+                    </ul>
+
+                    <h3>완전 호환성 프로젝트</h3>
+                    <ul>
+                        <li>WOFF2 + WOFF + CSS + HTML 데모</li>
+                        <li>IE 11+ 및 모든 모던 브라우저 지원</li>
+                    </ul>
+
+                    <h3>디자인 시스템 / 컴포넌트 라이브러리</h3>
+                    <ul>
+                        <li>WOFF2 + TTF + CSS + JS 심볼 + HTML 데모 + ICP</li>
+                        <li>CSS 사용을 위한 폰트, 데스크톱 도구를 위한 TTF, 멀티컬러 변형을 위한 JS 심볼, 프로젝트 백업을 위한 ICP</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">팁</div>
+                        "모던 웹 프로젝트" 프리셋 — WOFF2 + CSS 로 시작하세요. 브라우저 분석 데이터나 플랫폼 요구 사항이 실제로 필요할 때만 형식을 추가하세요. 추가 형식은 빌드 용량을 늘리지만 이미 WOFF2를 지원하는 사용자에게는 아무런 이점이 없습니다.
+                    </div>
+                </div>
+
+                <!-- Output File Structure -->
+                <h2 class="reveal">출력 파일 구조</h2>
+                <div class="reveal">
+                    <p>모든 옵션을 활성화하면 Bobcorn은 다음과 같은 파일 구조를 생성합니다.</p>
+
+                    <span class="code-label">내보내기 출력</span>
+<pre><code>output/
+├── MyIcons.woff2        <span class="code-cmt"># Font files</span>
+├── MyIcons.woff
+├── MyIcons.ttf
+├── MyIcons.css          <span class="code-cmt"># @font-face + icon classes</span>
+├── MyIcons-symbol.js    <span class="code-cmt"># SVG symbol sprite</span>
+├── demo.html            <span class="code-cmt"># Interactive preview</span>
+└── MyIcons.icp          <span class="code-cmt"># Project backup</span></code></pre>
+
+                    <p>폰트 패밀리 이름（예: "MyIcons"）은 Bobcorn의 프로젝트 이름에서 가져옵니다. 생성된 모든 파일은 일관성을 위해 이 이름을 접두사로 사용합니다.</p>
+                </div>
+
+                <!-- After Export -->
+                <h2 class="reveal">내보내기 후 작업</h2>
+                <div class="reveal">
+                    <p>Bobcorn이 파일을 생성하면 다음 단계에 따라 아이콘 폰트를 프로젝트에 통합합니다.</p>
+
+                    <ol>
+                        <li><strong>폰트 파일 + CSS를 복사</strong>하여 프로젝트의 assets 또는 fonts 디렉터리에 배치합니다</li>
+                        <li>HTML에서 <strong>CSS를 링크</strong>합니다: <code>&lt;link rel="stylesheet" href="MyIcons.css"&gt;</code></li>
+                        <li>마크업 어디서나 <strong>아이콘을 사용</strong>합니다: <code>&lt;i class="icon icon-home"&gt;&lt;/i&gt;</code></li>
+                        <li>초기 렌더링 속도를 높이기 위해 WOFF2 파일을 <strong>선택적으로 프리로드</strong>합니다</li>
+                    </ol>
+
+                    <p>다음은 완전한 통합 예시입니다.</p>
+
+                    <span class="code-label">완전한 통합 예시</span>
+<pre><code><span class="code-tag">&lt;head&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"preload"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.woff2"</span> <span class="code-attr">as</span>=<span class="code-str">"font"</span>
+        <span class="code-attr">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-attr">crossorigin</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"stylesheet"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.css"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span>
+<span class="code-tag">&lt;body&gt;</span>
+  <span class="code-tag">&lt;button&gt;&lt;i</span> <span class="code-attr">class</span>=<span class="code-str">"icon icon-save"</span><span class="code-tag">&gt;&lt;/i&gt;</span> Save<span class="code-tag">&lt;/button&gt;</span>
+<span class="code-tag">&lt;/body&gt;</span></code></pre>
+
+                    <p><code>rel="preload"</code> 힌트는 브라우저가 CSS의 <code>@font-face</code> 규칙을 만나기 전에 폰트 파일 다운로드를 시작하도록 지시합니다. 이를 통해 CSS 파싱과 폰트 다운로드 사이의 지연이 제거되어 아이콘이 표시된 상태로 첫 번째 페인트가 빨라집니다. 폰트가 동일 출처인 경우에도 <code>crossorigin</code> 속성은 폰트 프리로드에 필요합니다.</p>
+                </div>
+
+                <!-- Demo Page Callout -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">팁</div>
+                    생성된 <code>demo.html</code>을 브라우저에서 열면 내보낸 모든 아이콘을 탐색할 수 있습니다. 아이콘을 클릭하면 CSS 클래스 이름이 복사됩니다 — 개발 중 특정 아이콘의 정확한 클래스를 조회할 때 편리합니다.
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn에서</div>
+                    내보내기 대화상자는 마지막으로 사용한 설정을 기억합니다. 프로젝트의 형식, 동반 파일, 출력 디렉터리를 한 번 구성하면 이후 모든 내보내기는 클릭 한 번으로 완료됩니다. 자주 반복 작업한다면 출력 디렉터리를 프로젝트의 assets 폴더로 설정하여 마찰 없이 업데이트할 수 있습니다.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">이전</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

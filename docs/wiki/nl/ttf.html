@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTF (TrueType) — Bobcorn Wiki</title>
+    <meta name="description" content="TTF (TrueType Font) uitgelegd — het industriestandaard binaire fontformaat ontwikkeld door Apple en Microsoft. Leer hoe Bobcorn TTF gebruikt als het centrale tussenformaat in zijn generatiepipeline.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/nl/ttf.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/ttf.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/ttf.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/ttf.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/ttf.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/ttf.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/ttf.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/ttf.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/ttf.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/ttf.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/ttf.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/ttf.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/ttf.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/ttf.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/ttf.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/ttf.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/nl/ttf.html">
+    <meta property="og:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta property="og:description" content="TTF (TrueType Font) uitgelegd — het industriestandaard binaire fontformaat ontwikkeld door Apple en Microsoft. Leer hoe Bobcorn TTF gebruikt als het centrale tussenformaat in zijn generatiepipeline.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta name="twitter:description" content="TTF (TrueType Font) uitgelegd — het industriestandaard binaire fontformaat ontwikkeld door Apple en Microsoft. Leer hoe Bobcorn TTF gebruikt als het centrale tussenformaat in zijn generatiepipeline.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "TTF (TrueType) — Bobcorn Wiki",
+                "description": "TTF (TrueType Font) uitgelegd — het industriestandaard binaire fontformaat ontwikkeld door Apple en Microsoft. Leer hoe Bobcorn TTF gebruikt als het centrale tussenformaat in zijn generatiepipeline.",
+                "url": "https://bobcorn.caldis.me/wiki/nl/ttf.html",
+                "inLanguage": "nl",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/nl/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "TTF (TrueType) — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/nl/ttf.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Nederlands</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">TTF</h1>
+                <p class="lead reveal">TrueType Font — het industriestandaard binaire fontformaat ontwikkeld door Apple en Microsoft.</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.ttf</span>
+                        <span class="fingerprint-name">TrueType Font Format</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Type</span><span class="fingerprint-val">Binaire vector</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Compressie</span><span class="fingerprint-val">Geen</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bestandsgrootte</span><span class="fingerprint-val">Gemiddeld (niet gecomprimeerd)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Ondersteuning</span><span class="fingerprint-val">98%+ browsers</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Geschikt voor</span><span class="fingerprint-val">Desktopapplicaties, ontwikkeling</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">Centraal tussenformaat</span></div>
+                </div>
+
+                <h2 class="reveal">Wat is TTF?</h2>
+                <p>TrueType werd in de <strong>late jaren tachtig door Apple ontwikkeld</strong> als alternatief voor de PostScript Type 1-fonts van Adobe, en later overgenomen door Microsoft voor Windows. Het slaat glyph-contouren op als <strong>kwadratische Bézier-krommen</strong>, die computationeel eenvoudiger (en sneller te rasteriseren) zijn dan de kubische krommen die PostScript gebruikt.</p>
+                <p>TTF werd al snel het <strong>universele fontformaat</strong> voor zowel macOS als Windows. Meer dan twee decennia lang was het de standaardmanier om fonts te distribueren — van systeemfonts tot aangepaste lettertypen. Hoewel WOFF/WOFF2 het voor weblevering grotendeels heeft vervangen, blijft TTF de basis waarop alle moderne webfontformaten zijn gebouwd.</p>
+
+                <h2 class="reveal">Hoe Het Werkt</h2>
+                <p>Een TTF-bestand is een binaire container georganiseerd in <strong>tabellen</strong>, elk met een specifiek type gegevens:</p>
+                <ul>
+                    <li><code>glyf</code> — glyph-contouren (de werkelijke vectorvormen)</li>
+                    <li><code>cmap</code> — teken-naar-glyph-mapping (welk Unicode-codepunt overeenkomt met welke glyph)</li>
+                    <li><code>head</code> — fontmetadata (eenheden per em, aanmaakdatum, vlaggen)</li>
+                    <li><code>hmtx</code> — horizontale metriek (vooruitgangsbreedte en linker zijbearing voor elke glyph)</li>
+                </ul>
+                <p>Voor icoonfonts krijgt elk icoon een Unicode-codepunt in het <strong>Privégebruiksgebied</strong> (U+E000 tot U+F8FF) — een bereik dat specifiek is gereserveerd voor door de applicatie gedefinieerde tekens die niet conflicteren met standaardtekst.</p>
+
+                <span class="code-label">Een TTF-icoonfont gebruiken in CSS</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+}
+
+<span class="code-tag">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: normal;
+  <span class="code-prop">font-weight</span>: normal;
+}
+
+<span class="code-tag">.icon-home</span><span class="code-kw">::before</span> {
+  <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>;
+}</code></pre>
+                <p>De hint <code>format('truetype')</code> vertelt de browser welk type fontbestand te verwachten, zodat de download kan worden overgeslagen als TrueType niet wordt ondersteund (hoewel vrijwel alle browsers het ondersteunen).</p>
+
+                <h2 class="reveal">Voor- en Nadelen</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Voordelen</div>
+                        <li>Universele compatibiliteit op alle platforms</li>
+                        <li>Overal ondersteund — desktop, mobiel en web</li>
+                        <li>Standaardformaat voor fontinstallatie op besturingssysteemniveau</li>
+                        <li>Goede renderingkwaliteit met hinting-ondersteuning</li>
+                        <li>Goed gedocumenteerde specificatie</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Nadelen</div>
+                        <li>Geen compressie — groter dan WOFF/WOFF2</li>
+                        <li>Niet geoptimaliseerd voor weblevering</li>
+                        <li>Kan traag zijn om te downloaden op mobiele verbindingen</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Browserondersteuning</h2>
+                <p>TTF geniet van <strong>98%+ browserondersteuning</strong>, inclusief alle moderne browsers en Internet Explorer 9+. Het wordt ook native ondersteund door elk groot desktopbesturingssysteem — Windows, macOS en Linux — wat betekent dat u een TTF-bestand direct als systeemfont kunt installeren zonder enige conversie.</p>
+                <p>Hoewel TTF overal werkt, geeft u voor weblevering de voorkeur aan WOFF2 (wat gewoon een gecomprimeerde TTF is). Bewaar onbewerkte TTF voor desktopgebruik, ontwikkeling en als basisformaat in uw buildpipeline.</p>
+
+                <h2 class="reveal">Wanneer TTF Gebruiken</h2>
+                <ul>
+                    <li><strong>Desktopapplicaties</strong> — installeer als systeemfont voor gebruik in native apps, ontwerptools of IDE's.</li>
+                    <li><strong>Electron en native apps</strong> — bundel de TTF direct met uw applicatie voor offline fontrendering.</li>
+                    <li><strong>Ontwikkeling en testen</strong> — TTF is eenvoudig te inspecteren met fonttools zoals FontForge, fontTools of systeemfontviewers.</li>
+                    <li><strong>Systeemfontinspectie</strong> — wanneer u glyph-metriek, hinting of cmap-tabellen moet verifiëren met behulp van hulpprogramma's op besturingssysteemniveau.</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn</div>
+                    In Bobcorn is TTF het <strong>centrale spilformaat</strong> in de generatiepipeline. Uw SVG-iconen worden eerst samengesteld in een SVG-font, daarna geconverteerd naar TTF, en van daaruit naar WOFF, WOFF2 en EOT. TTF wordt altijd gegenereerd als onderdeel van de pipeline — het is het formaat waarvan alle andere uitvoer afhankelijk is. Schakel TTF-export in wanneer u desktopapplicaties bouwt of wanneer u het icoonfont op uw besturingssysteem wilt installeren.
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">Vorige</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                    <a href="woff.html" class="page-nav-link">
+                        <div class="page-nav-dir">Volgende</div>
+                        <div class="page-nav-title">WOFF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

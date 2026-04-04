@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bobcorn Wiki</title>
+    <script>
+    (function () {
+        var LANGS = ['en','zh-CN','ja','ko','fr','de','es','pt-BR','it','nl','ru','tr','ar','th','vi','id'];
+        var saved = localStorage.getItem('site-language');
+        if (saved && LANGS.indexOf(saved) !== -1) {
+            location.replace(saved + '/index.html');
+            return;
+        }
+        var nav = (navigator.language || '').toLowerCase();
+        if (nav.startsWith('zh')) { location.replace('zh-CN/index.html'); return; }
+        if (nav.startsWith('pt') && nav.indexOf('br') !== -1) { location.replace('pt-BR/index.html'); return; }
+        var prefix = nav.split('-')[0];
+        for (var i = 0; i < LANGS.length; i++) {
+            if (LANGS[i] === prefix) { location.replace(LANGS[i] + '/index.html'); return; }
+        }
+        location.replace('en/index.html');
+    })();
+    </script>
+    <noscript><meta http-equiv="refresh" content="0;url=en/index.html"></noscript>
+</head>
+<body>
+    <p>Redirecting&hellip; <a href="en/index.html">Click here</a> if not redirected.</p>
+</body>
+</html>

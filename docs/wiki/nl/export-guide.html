@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exportgids — Bobcorn Wiki</title>
+    <meta name="description" content="Een volledige walkthrough van de exportworkflow van Bobcorn — van het selecteren van iconen tot het genereren van productie-klare fontbestanden.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/export-guide.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/export-guide.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/export-guide.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/export-guide.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/export-guide.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/export-guide.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/export-guide.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <meta property="og:title" content="Exportgids — Bobcorn Wiki">
+    <meta property="og:description" content="Een volledige walkthrough van de exportworkflow van Bobcorn — van het selecteren van iconen tot het genereren van productie-klare fontbestanden.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Exportgids — Bobcorn Wiki">
+    <meta name="twitter:description" content="Een volledige walkthrough van de exportworkflow van Bobcorn — van het selecteren van iconen tot het genereren van productie-klare fontbestanden.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Exportgids — Bobcorn Wiki",
+                "description": "Een volledige walkthrough van de exportworkflow van Bobcorn — van het selecteren van iconen tot het genereren van productie-klare fontbestanden.",
+                "url": "https://bobcorn.caldis.me/wiki/nl/export-guide.html",
+                "inLanguage": "nl",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/nl/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Exportgids — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/nl/export-guide.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Nederlands</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Exportgids</h1>
+                <p class="lead reveal">Een volledige walkthrough van de exportworkflow van Bobcorn — van het selecteren van iconen tot het genereren van productie-klare fontbestanden.</p>
+
+                <!-- Opening the Export Dialog -->
+                <h2 class="reveal">Het Exportdialoogvenster Openen</h2>
+                <div class="reveal">
+                    <p>Klik op de knop <strong>Exporteren</strong> in het linkerzijbalkmenu. Het exportdialoogvenster opent als een modaal venster waarmee u de uitvoerdirectory kunt configureren, kunt selecteren welke icoongroepen u wilt opnemen en uitvoerformaten en begeleidende bestanden kunt kiezen. Alle instellingen worden onthouden tussen sessies, zodat volgende exports na de eerste configuratie slechts één klik kosten.</p>
+                </div>
+
+                <!-- Choosing an Output Directory -->
+                <h2 class="reveal">Een Uitvoerdirectory Kiezen</h2>
+                <div class="reveal">
+                    <p>De eerste stap is het selecteren waar de geëxporteerde bestanden worden opgeslagen. Standaard gebruikt Bobcorn uw <strong>Bureaublad</strong>. Klik op de mapknop naast het pad om een andere locatie te kiezen.</p>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tip</div>
+                        Exporteer direct naar de map <code>fonts/</code> of <code>assets/</code> van uw project om te voorkomen dat u bestanden handmatig moet kopiëren na elke export. Dit is met name handig tijdens actieve ontwikkeling wanneer u herhaaldelijk de iconenset aanpast.
+                    </div>
+                </div>
+
+                <!-- Selecting Icon Groups -->
+                <h2 class="reveal">Icoongroepen Selecteren</h2>
+                <div class="reveal">
+                    <p>U kunt kiezen welke icoongroepen in de export worden opgenomen. Standaard zijn alle groepen geselecteerd. Schakel groepen die u niet in het font wilt, uit — u kunt bijvoorbeeld een groep "concepten" uitsluiten die werk-in-uitvoering-iconen bevat.</p>
+                    <p>Elke groep toont het aantal iconen naast de naam. Het totale aantal iconen onderaan de lijst wordt in realtime bijgewerkt terwijl u groepen in- en uitschakelt, zodat u altijd precies weet hoeveel glyphs het geëxporteerde font zal bevatten.</p>
+                </div>
+
+                <!-- Font Formats -->
+                <h2 class="reveal">Fontformaten</h2>
+                <div class="reveal">
+                    <p>Bobcorn kan vijf fontformaten genereren. Kies de formaten die overeenkomen met de browserondersteuningsvereisten van uw project:</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Formaat</th><th>Standaard</th><th>Wanneer inschakelen</th><th>Meer informatie</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fmt">.woff2</td>
+                                    <td>Altijd aan</td>
+                                    <td>Altijd — het essentiële webformaat</td>
+                                    <td><a href="woff2.html">WOFF2 &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.woff</td>
+                                    <td>Optioneel</td>
+                                    <td>IE 11-ondersteuning nodig</td>
+                                    <td><a href="woff.html">WOFF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.ttf</td>
+                                    <td>Optioneel</td>
+                                    <td>Desktopapplicaties, fontinstallatie op besturingssysteem</td>
+                                    <td><a href="ttf.html">TTF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.svg</td>
+                                    <td>Optioneel</td>
+                                    <td>Debuggen, legacy iOS</td>
+                                    <td><a href="svg-font.html">SVG Font &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.eot</td>
+                                    <td>Optioneel</td>
+                                    <td>Alleen legacy IE 6-8</td>
+                                    <td><a href="eot.html">EOT &rarr;</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>WOFF2 is altijd inbegrepen omdat het het essentiële webfontformaat is — er is geen scenario denkbaar waarbij u een webfontexport zonder zou willen. Alle andere formaten zijn opt-in op basis van uw specifieke vereisten.</p>
+                </div>
+
+                <!-- Companion Files -->
+                <h2 class="reveal">Begeleidende Bestanden</h2>
+                <div class="reveal">
+                    <p>Naast de fontbestanden zelf kan Bobcorn verschillende begeleidende bestanden genereren die integratie en samenwerking eenvoudiger maken:</p>
+
+                    <h3>CSS (<code>icons.css</code>)</h3>
+                    <p>Bevat de <code>@font-face</code>-declaratie en <code>.icon-*</code> CSS-klassen voor elk icoon in de set. Voeg dit bestand toe aan uw project en u bent klaar om iconen te gebruiken met eenvoudige klassenamen. Zie de <a href="css-font-face.html">CSS @font-face gids</a> voor details over hoe de gegenereerde CSS werkt.</p>
+
+                    <h3>JS (<code>icons-symbol.js</code>)</h3>
+                    <p>Een SVG symbol sprite die alle iconen registreert als inline SVG-symbolen wanneer het script laadt. Gebruik dit wanneer u meerkleurige iconen of SVG-specifieke functies naast uw fonticons nodig heeft. Zie de <a href="svg-symbol.html">SVG Symbol gids</a> voor gebruikspatronen.</p>
+
+                    <h3>HTML (<code>demo.html</code>)</h3>
+                    <p>Een interactieve voorbeeldpagina die alle geëxporteerde iconen toont met hun namen, CSS-klassenamen en Unicode-codepunten. Open het in een browser om door de volledige iconenset te bladeren. Handig voor ontwerpers die de icoonbibliotheek beoordelen en ontwikkelaars die klassenamen opzoeken tijdens integratie.</p>
+
+                    <h3>ICP (<code>project.icp</code>)</h3>
+                    <p>Het projectbestand van Bobcorn. Exporteer dit om uw icoonproject te delen met teamleden of als back-up. Het openen van een ICP-bestand in Bobcorn herstelt de volledige projectstatus — alle iconen, groepen, metadata en instellingen — precies zoals ze waren bij de export.</p>
+                </div>
+
+                <!-- ZIP Packaging -->
+                <h2 class="reveal">ZIP-verpakking</h2>
+                <div class="reveal">
+                    <p>Schakel de optie <strong>ZIP</strong> in om alle geëxporteerde bestanden samen te bundelen in één <code>.zip</code>-archief. Dit is handig bij het delen van het icoonfont met teamleden, uploaden naar een CDN of bijvoegen aan een design handoff-document. De ZIP bevat dezelfde directorystructuur als een losse export — geen nesting of reorganisatie.</p>
+                </div>
+
+                <!-- Recommended Configurations -->
+                <h2 class="reveal">Aanbevolen Configuraties</h2>
+                <div class="reveal">
+                    <p>Hier zijn drie praktische voorinstellingen voor veelvoorkomende projecttypen:</p>
+
+                    <h3>Modern webproject</h3>
+                    <ul>
+                        <li>WOFF2 (altijd aan) + CSS + HTML-demo</li>
+                        <li>Minimale footprint, dekt 97%+ van de browsers</li>
+                    </ul>
+
+                    <h3>Volledig compatibiliteitsproject</h3>
+                    <ul>
+                        <li>WOFF2 + WOFF + CSS + HTML-demo</li>
+                        <li>Dekt IE 11+ en alle moderne browsers</li>
+                    </ul>
+
+                    <h3>Ontwerpsysteem / componentenbibliotheek</h3>
+                    <ul>
+                        <li>WOFF2 + TTF + CSS + JS-symbool + HTML-demo + ICP</li>
+                        <li>Fonts voor CSS-gebruik, TTF voor desktoptools, JS-symbolen voor meerkleurige varianten, ICP voor projectback-up</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tip</div>
+                        Begin met de voorinstelling "modern webproject" — WOFF2 + CSS. Voeg alleen meer formaten toe wanneer uw browseranalytics of platformvereisten dit vragen. Extra formaten voegen bouwgewicht toe zonder gebruikers te bevoordelen wier browsers WOFF2 al ondersteunen.
+                    </div>
+                </div>
+
+                <!-- Output File Structure -->
+                <h2 class="reveal">Uitvoerbestandsstructuur</h2>
+                <div class="reveal">
+                    <p>Wanneer alle opties zijn ingeschakeld, genereert Bobcorn de volgende bestandsstructuur:</p>
+
+                    <span class="code-label">Export-uitvoer</span>
+<pre><code>output/
+├── MyIcons.woff2        <span class="code-cmt"># Fontbestanden</span>
+├── MyIcons.woff
+├── MyIcons.ttf
+├── MyIcons.css          <span class="code-cmt"># @font-face + icoonklassen</span>
+├── MyIcons-symbol.js    <span class="code-cmt"># SVG symbol sprite</span>
+├── demo.html            <span class="code-cmt"># Interactief voorbeeld</span>
+└── MyIcons.icp          <span class="code-cmt"># Projectback-up</span></code></pre>
+
+                    <p>De fontfamilienaam (bijv. "MyIcons") is afgeleid van uw projectnaam in Bobcorn. Alle gegenereerde bestanden gebruiken deze naam als prefix voor consistentie.</p>
+                </div>
+
+                <!-- After Export -->
+                <h2 class="reveal">Na de Export</h2>
+                <div class="reveal">
+                    <p>Nadat Bobcorn uw bestanden heeft gegenereerd, volgt u deze stappen om het icoonfont in uw project te integreren:</p>
+
+                    <ol>
+                        <li><strong>Kopieer fontbestanden + CSS</strong> naar de assets- of fontsmap van uw project</li>
+                        <li><strong>Koppel de CSS</strong> in uw HTML: <code>&lt;link rel="stylesheet" href="MyIcons.css"&gt;</code></li>
+                        <li><strong>Gebruik iconen</strong> overal in uw opmaak: <code>&lt;i class="icon icon-home"&gt;&lt;/i&gt;</code></li>
+                        <li><strong>Laad optioneel het WOFF2-bestand voor</strong> voor snellere initiële rendering</li>
+                    </ol>
+
+                    <p>Hier is een volledig integratievoorbeeld:</p>
+
+                    <span class="code-label">Volledige integratie</span>
+<pre><code><span class="code-tag">&lt;head&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"preload"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.woff2"</span> <span class="code-attr">as</span>=<span class="code-str">"font"</span>
+        <span class="code-attr">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-attr">crossorigin</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"stylesheet"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.css"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span>
+<span class="code-tag">&lt;body&gt;</span>
+  <span class="code-tag">&lt;button&gt;&lt;i</span> <span class="code-attr">class</span>=<span class="code-str">"icon icon-save"</span><span class="code-tag">&gt;&lt;/i&gt;</span> Opslaan<span class="code-tag">&lt;/button&gt;</span>
+<span class="code-tag">&lt;/body&gt;</span></code></pre>
+
+                    <p>De hint <code>rel="preload"</code> vertelt de browser het fontbestand te beginnen downloaden voordat het de <code>@font-face</code>-regel in de CSS tegenkomt. Dit elimineert de vertraging tussen het parsen van CSS en het downloaden van het font, wat resulteert in een snellere eerste weergave met zichtbare iconen. Het attribuut <code>crossorigin</code> is vereist voor fontpreloads, zelfs wanneer het font van dezelfde oorsprong is.</p>
+                </div>
+
+                <!-- Demo Page Callout -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">Tip</div>
+                    Open het gegenereerde <code>demo.html</code> in een browser om door alle geëxporteerde iconen te bladeren. U kunt op elk icoon klikken om de CSS-klassenaam te kopiëren — handig tijdens ontwikkeling wanneer u de exacte klasse voor een specifiek icoon moet opzoeken.
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">In Bobcorn</div>
+                    Het exportdialoogvenster onthoudt uw laatst gebruikte instellingen. Nadat u de formaten, begeleidende bestanden en uitvoerdirectory voor uw project heeft geconfigureerd, is elke volgende export slechts één klik. Als u regelmatig itereert, wijs de uitvoerdirectory dan toe aan de assetmap van uw project voor wrijvingsloze updates.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">Vorige</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

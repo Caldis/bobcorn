@@ -1,6 +1,7 @@
 {
   "nav.features": "Özellikler",
   "nav.formats": "Formatlar",
+  "nav.wiki": "Wiki",
   "hero.badge": "Açık kaynak · MIT Lisansı",
   "hero.title": "İkonları Yönet,<br><em>Fontları Oluştur</em>",
   "hero.desc": "Tasarımcılar ve geliştiriciler için açık kaynaklı ikon yöneticisi ve font üreticisi. SVG'leri içe aktarın, gruplara ayırın, renkleri düzenleyin ve üretime hazır ikon fontları dışarı aktarın.",

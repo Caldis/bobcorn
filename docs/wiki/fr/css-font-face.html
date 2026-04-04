@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS @font-face — Bobcorn Wiki</title>
+    <meta name="description" content="La règle CSS @font-face qui fait fonctionner les polices d'icônes sur le Web — déclarer, charger et utiliser des fichiers de polices personnalisées dans vos feuilles de style.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/fr/css-font-face.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/css-font-face.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/css-font-face.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/css-font-face.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/css-font-face.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/css-font-face.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/css-font-face.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/css-font-face.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/css-font-face.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/css-font-face.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/css-font-face.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/css-font-face.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/css-font-face.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/css-font-face.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/css-font-face.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/fr/css-font-face.html">
+    <meta property="og:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta property="og:description" content="La règle CSS @font-face qui fait fonctionner les polices d'icônes sur le Web — déclarer, charger et utiliser des fichiers de polices personnalisées dans vos feuilles de style.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta name="twitter:description" content="La règle CSS @font-face qui fait fonctionner les polices d'icônes sur le Web — déclarer, charger et utiliser des fichiers de polices personnalisées dans vos feuilles de style.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "CSS @font-face — Bobcorn Wiki",
+                "description": "La règle CSS @font-face qui fait fonctionner les polices d'icônes sur le Web — déclarer, charger et utiliser des fichiers de polices personnalisées dans vos feuilles de style.",
+                "url": "https://bobcorn.caldis.me/wiki/fr/css-font-face.html",
+                "inLanguage": "fr",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/fr/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "CSS @font-face — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/fr/css-font-face.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Français</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">CSS @font-face</h1>
+                <p class="lead reveal">La règle CSS qui fait fonctionner les polices d'icônes sur le Web — déclarer, charger et utiliser des fichiers de polices personnalisées dans vos feuilles de style.</p>
+
+                <h2 class="reveal">Les bases</h2>
+                <div class="reveal">
+                    <p><code>@font-face</code> est la règle CSS at-rule qui indique au navigateur où trouver un fichier de police et comment le nommer. Elle était d'abord prise en charge dans IE 4 en 1997, mais n'est devenue pratique sur tous les navigateurs qu'autour de 2010 lorsque WOFF est arrivé et que les autres navigateurs ont implémenté la règle de manière cohérente.</p>
+                    <p>Pour les polices d'icônes, <code>@font-face</code> est le liant entre vos fichiers de polices et les classes CSS qui affichent les icônes. Sans elle, le navigateur n'a aucun moyen de savoir que <code>font-family: 'MyIcons'</code> doit charger un fichier spécifique depuis votre serveur.</p>
+
+                    <span class="code-label">Syntaxe de base</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'fonts/myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Le descripteur <code>font-family</code> donne à la police un nom que vous référencerez ultérieurement. Le descripteur <code>src</code> indique au navigateur où télécharger le fichier et dans quel format il se trouve. Les descripteurs <code>font-weight</code> et <code>font-style</code> garantissent que le navigateur n'essaie pas de synthétiser des variantes grasses ou italiques. Et <code>font-display</code> contrôle ce qui se passe pendant le chargement de la police.</p>
+                </div>
+
+                <h2 class="reveal">La pile de polices moderne</h2>
+                <div class="reveal">
+                    <p>L'indication <code>format()</code> après chaque URL indique au navigateur dans quel format se trouve le fichier, afin qu'il puisse ignorer les formats qu'il ne prend pas en charge sans les télécharger. Au fil des années, l'ensemble de formats recommandés s'est considérablement réduit à mesure que la prise en charge des navigateurs s'est améliorée.</p>
+
+                    <span class="code-label">Moderne (recommandé)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Avec une couverture de 97 %+ des navigateurs, WOFF2 seul est suffisant pour la grande majorité des projets modernes. C'est l'approche la plus simple et la plus performante.</p>
+
+                    <span class="code-label">Avec solution de repli WOFF (support IE 11)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>L'ajout de WOFF comme solution de repli couvre IE 11, qui ne prend pas en charge WOFF2. Les navigateurs modernes utiliseront le fichier WOFF2 ; IE 11 se repliera sur WOFF.</p>
+
+                    <span class="code-label">Pile héritée complète (support IE 6-8)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot'</span>);                    <span class="code-cmt">/* IE9 compat */</span>
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot?#iefix'</span>) <span class="code-val">format</span>(<span class="code-str">'embedded-opentype'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>La pile « pare-balle » complète inclut <a href="eot.html">EOT</a> pour IE 6-8, <a href="woff2.html">WOFF2</a> pour les navigateurs modernes, <a href="woff.html">WOFF</a> pour IE 9-11, et <a href="ttf.html">TTF</a> comme solution de repli finale. Le navigateur essaie chaque entrée <code>src</code> dans l'ordre et utilise le premier format qu'il comprend. Cette approche n'est nécessaire que pour les projets avec des exigences héritées extrêmes.</p>
+                </div>
+
+                <h2 class="reveal">Utilisation des classes d'icônes</h2>
+                <div class="reveal">
+                    <p>Le modèle standard pour les polices d'icônes utilise une <strong>classe de base</strong> qui définit la famille de polices et les styles de rendu partagés, puis des <strong>classes d'icônes individuelles</strong> qui utilisent des pseudo-éléments <code>::before</code> avec <code>content</code> défini sur le point de code Unicode de chaque icône.</p>
+
+                    <span class="code-label">Classes CSS d'icônes</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-variant</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">text-transform</span>: <span class="code-val">none</span>;
+  <span class="code-prop">line-height</span>: <span class="code-val">1</span>;
+  <span class="code-prop">-webkit-font-smoothing</span>: <span class="code-val">antialiased</span>;
+  <span class="code-prop">-moz-osx-font-smoothing</span>: <span class="code-val">grayscale</span>;
+}
+
+<span class="code-kw">.icon-home::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>; }
+<span class="code-kw">.icon-search::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E002'</span>; }
+<span class="code-kw">.icon-user::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E003'</span>; }</code></pre>
+
+                    <p>La classe de base réinitialise le style de police pour empêcher le navigateur d'appliquer des transformations gras, italique ou autres qui déformeraient les icônes. Les propriétés <code>-webkit-font-smoothing</code> et <code>-moz-osx-font-smoothing</code> activent l'anticrénelage pour un rendu plus net sur macOS et iOS.</p>
+                    <p>Chaque classe d'icône définit un pseudo-élément <code>::before</code> avec le point de code Unicode attribué à ce glyphe. La notation barre oblique inverse-E (<code>\E001</code>) est la façon dont CSS référence un caractère Unicode par son point de code hexadécimal.</p>
+
+                    <span class="code-label">Utilisation HTML</span>
+<pre><code><span class="code-kw">&lt;i</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-home"</span><span class="code-kw">&gt;&lt;/i&gt;</span>
+<span class="code-kw">&lt;span</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-search"</span><span class="code-kw">&gt;&lt;/span&gt;</span></code></pre>
+
+                    <p>Les deux <code>&lt;i&gt;</code> et <code>&lt;span&gt;</code> fonctionnent également bien. L'élément lui-même est vide — l'icône est rendue entièrement par le pseudo-élément <code>::before</code>.</p>
+                </div>
+
+                <h2 class="reveal">font-display</h2>
+                <div class="reveal">
+                    <p>Le descripteur <code>font-display</code> contrôle ce que le navigateur affiche pendant le téléchargement du fichier de police. C'est essentiel pour les polices d'icônes car un mauvais réglage peut rendre les icônes invisibles lors du chargement de la page.</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Valeur</th><th>Comportement</th><th>Idéal pour</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td><code>swap</code></td><td>Affiche immédiatement le texte de remplacement, bascule vers la police d'icônes au chargement</td><td>Polices d'icônes (recommandé)</td></tr>
+                                <tr><td><code>block</code></td><td>Masque brièvement le texte (jusqu'à 3 s), puis affiche le remplacement</td><td>Polices de texte où le flash est distrayant</td></tr>
+                                <tr><td><code>fallback</code></td><td>Bloc court (~100 ms) + échange court (~3 s)</td><td>Bon équilibre pour les polices de texte</td></tr>
+                                <tr><td><code>optional</code></td><td>Le navigateur peut ignorer la police sur les connexions lentes</td><td>Polices décoratives non essentielles</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>Pour les polices d'icônes, <strong><code>swap</code> est le choix recommandé</strong>. Un bref flash de contenu non stylisé (où les points de code d'icônes pourraient apparaître sous forme de carrés ou d'espaces vides) est bien préférable aux icônes invisibles. Avec <code>block</code>, les utilisateurs pourraient voir un espace vide là où les icônes devraient être pendant jusqu'à 3 secondes sur des connexions lentes — ce qui ressemble à une page cassée. Avec <code>swap</code>, les icônes apparaissent dès que la police se charge, et la transition est généralement imperceptible sur les connexions modernes.</p>
+                </div>
+
+                <h2 class="reveal">Optimisation du chargement</h2>
+                <div class="reveal">
+                    <p>Les fichiers de polices bloquent le rendu par défaut — le navigateur ne peindra pas le texte en utilisant une police personnalisée tant que le fichier n'a pas été téléchargé. Voici des techniques pour minimiser l'impact :</p>
+
+                    <ul>
+                        <li><strong>Préchargez le fichier de police</strong> — utilisez <code>&lt;link rel="preload"&gt;</code> pour commencer à télécharger la police le plus tôt possible, avant même que le navigateur n'analyse le CSS qui la référence.</li>
+                        <li><strong>Hébergez vos polices vous-même</strong> — servir les fichiers de polices depuis la même origine que votre HTML évite les recherches DNS supplémentaires et la configuration de connexion, et élimine les problèmes CORS.</li>
+                        <li><strong>Créez un sous-ensemble de votre police</strong> — supprimez les icônes inutilisées pour réduire la taille du fichier. Une police de 500 icônes où vous n'en utilisez que 50 gaspille 90 % du téléchargement.</li>
+                        <li><strong>Utilisez <code>unicode-range</code></strong> — si vous avez plusieurs ensembles d'icônes, ce descripteur indique au navigateur de ne télécharger le fichier de police que lorsque des caractères dans la plage spécifiée sont effectivement utilisés sur la page.</li>
+                    </ul>
+
+                    <span class="code-label">Préchargement du fichier de police</span>
+<pre><code><span class="code-kw">&lt;link</span> <span class="code-prop">rel</span>=<span class="code-str">"preload"</span> <span class="code-prop">href</span>=<span class="code-str">"fonts/myicons.woff2"</span> <span class="code-prop">as</span>=<span class="code-str">"font"</span>
+      <span class="code-prop">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-prop">crossorigin</span><span class="code-kw">&gt;</span></code></pre>
+
+                    <p>L'attribut <code>crossorigin</code> est requis même pour les polices de même origine — c'est une particularité de la spécification de chargement des polices. Sans lui, le navigateur téléchargera la police deux fois : une fois depuis l'indication de préchargement (sans CORS) et une fois depuis la règle <code>@font-face</code> (avec CORS).</p>
+                </div>
+
+                <h2 class="reveal">Pièges courants</h2>
+                <div class="reveal">
+                    <ul>
+                        <li><strong>Erreurs CORS</strong> — les fichiers de polices servis depuis une origine différente (par exemple, un sous-domaine CDN) nécessitent des en-têtes <code>Access-Control-Allow-Origin</code> sur le serveur. Alternativement, utilisez l'attribut <code>crossorigin</code> sur la balise <code>&lt;link&gt;</code>. Sans une configuration CORS correcte, le navigateur bloquera silencieusement la police.</li>
+                        <li><strong>Icônes affichées sous forme de carrés ou rectangles</strong> — cela signifie généralement que le chemin vers le fichier de police est incorrect, que la police n'a pas encore été chargée, ou que le nom <code>font-family</code> dans la classe d'icône ne correspond pas au nom dans la déclaration <code>@font-face</code>. Vérifiez l'onglet Réseau de votre navigateur pour confirmer que le fichier de police s'est chargé avec un statut 200.</li>
+                        <li><strong>Icônes affichant des glyphes incorrects</strong> — conflits de points de code Unicode avec les polices système. Si votre police d'icônes utilise des points de code dans des plages qui se chevauchent avec les polices système courantes, le navigateur pourrait rendre un caractère système à la place. Les polices d'icônes utilisent généralement la zone d'utilisation privée (U+E000 à U+F8FF) pour éviter cela.</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Conseil de débogage</div>
+                        Ouvrez les DevTools de votre navigateur, allez dans l'onglet Réseau et filtrez par « Police ». Vous devriez voir votre fichier <code>.woff2</code> avec un statut 200. S'il est manquant, le chemin est incorrect. S'il affiche une erreur CORS, vérifiez les en-têtes de votre serveur. S'il s'est chargé mais que les icônes n'apparaissent toujours pas, inspectez l'élément et vérifiez que <code>font-family</code> correspond exactement.
+                    </div>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Dans Bobcorn</div>
+                    Bobcorn génère le fichier CSS complet pour vous — la déclaration <code>@font-face</code>, la classe de base <code>.icon</code> et les classes d'icônes individuelles avec les bons points de code Unicode. Le CSS utilise le nom de police que vous avez choisi et référence les fichiers de polices avec des chemins relatifs. Activez l'option CSS dans la boîte de dialogue d'export pour l'inclure aux côtés de vos fichiers de polices.
+                </div>
+
+                <nav class="page-nav">
+                    <a href="eot.html" class="page-nav-link">
+                        <div class="page-nav-dir">Précédent</div>
+                        <div class="page-nav-title">EOT</div>
+                    </a>
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">Suivant</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

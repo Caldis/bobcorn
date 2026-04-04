@@ -1,6 +1,7 @@
 {
   "nav.features": "Fonctionnalités",
   "nav.formats": "Formats",
+  "nav.wiki": "Wiki",
   "hero.badge": "Open source · Licence MIT",
   "hero.title": "Gérez vos icônes,<br><em>Générez vos polices</em>",
   "hero.desc": "Le gestionnaire d'icônes et générateur de polices open source pour designers et développeurs. Importez des SVG, organisez-les en groupes, modifiez les couleurs et exportez des polices d'icônes prêtes pour la production.",

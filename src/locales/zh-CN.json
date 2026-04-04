@@ -169,6 +169,8 @@
   "export.icpMigrationHint": "项目文件 (.icp) 现在通过「保存」({{shortcut}}) 管理。如仍需在导出中包含，请勾选下方选项。",
   "export.requiredFormats": "必选格式",
   "export.optionalFormats": "可选格式",
+  "export.wikiHint": "在知识库中了解更多",
+  "export.wikiLink": "在知识库中了解各字体格式",
   "export.includeIcp": "包含 .icp 项目文件",
   "export.includeIcpDesc": "在导出数据中附带项目文件，方便后续编辑",
   "export.zip": "自动打包 (ZIP)",

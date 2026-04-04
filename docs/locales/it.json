@@ -1,6 +1,7 @@
 {
   "nav.features": "Funzionalità",
   "nav.formats": "Formati",
+  "nav.wiki": "Wiki",
   "hero.badge": "Open source · Licenza MIT",
   "hero.title": "Gestisci le icone,<br><em>Genera i font</em>",
   "hero.desc": "Il gestore di icone e generatore di font open source per designer e sviluppatori. Importa SVG, organizza in gruppi, modifica i colori ed esporta font di icone pronti per la produzione.",

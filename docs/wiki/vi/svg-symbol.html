@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Symbol Sprites — Bobcorn Wiki</title>
+    <meta name="description" content="Giải pháp thay thế cho font-based icons — sử dụng SVG symbol sprites để nhúng các biểu tượng có thể mở rộng, đa màu trực tiếp vào HTML.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/vi/svg-symbol.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-symbol.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-symbol.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-symbol.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-symbol.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-symbol.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-symbol.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-symbol.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-symbol.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-symbol.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-symbol.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-symbol.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-symbol.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-symbol.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-symbol.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-symbol.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-symbol.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-symbol.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/vi/svg-symbol.html">
+    <meta property="og:title" content="SVG Symbol Sprites — Bobcorn Wiki">
+    <meta property="og:description" content="Giải pháp thay thế cho font-based icons — sử dụng SVG symbol sprites để nhúng các biểu tượng có thể mở rộng, đa màu trực tiếp vào HTML.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Symbol Sprites — Bobcorn Wiki">
+    <meta name="twitter:description" content="Giải pháp thay thế cho font-based icons — sử dụng SVG symbol sprites để nhúng các biểu tượng có thể mở rộng, đa màu trực tiếp vào HTML.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Symbol Sprites — Bobcorn Wiki",
+                "description": "Giải pháp thay thế cho font-based icons — sử dụng SVG symbol sprites để nhúng các biểu tượng có thể mở rộng, đa màu trực tiếp vào HTML.",
+                "url": "https://bobcorn.caldis.me/wiki/vi/svg-symbol.html",
+                "inLanguage": "vi",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Symbol Sprites — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/svg-symbol.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Tiếng Việt</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">SVG Symbol</h1>
+                <p class="lead reveal">Giải pháp thay thế cho font-based icons — sử dụng SVG symbol sprites để nhúng các biểu tượng có thể mở rộng, đa màu trực tiếp vào HTML.</p>
+
+                <h2 class="reveal">SVG Symbol Sprites Là Gì?</h2>
+                <div class="reveal">
+                    <p>SVG symbol sprites gộp nhiều icon SVG vào một tệp duy nhất. Mỗi biểu tượng được định nghĩa bên trong phần tử <code>&lt;symbol&gt;</code> với <code>id</code> duy nhất. Để sử dụng biểu tượng, bạn tham chiếu nó bằng <code>&lt;use href="#icon-id"&gt;</code>. Sprite được tải một lần — inline hoặc dưới dạng tệp ngoài — và các biểu tượng riêng lẻ được hiển thị ở bất kỳ đâu trên trang.</p>
+                    <p>Đây là cách tiếp cận khác về cơ bản so với icon fonts. Thay vì ánh xạ Unicode code points tới font glyphs, bạn đang sử dụng các phần tử SVG gốc. Mỗi biểu tượng giữ lại đầy đủ khả năng SVG: nhiều màu, gradient, filter và các thuộc tính accessibility chi tiết. Sự đánh đổi là markup và styling conventions phức tạp hơn một chút so với cách tiếp cận CSS thuần túy của font icons.</p>
+                </div>
+
+                <h2 class="reveal">Cách Hoạt Động</h2>
+                <div class="reveal">
+                    <p>Tệp sprite là tài liệu SVG thông thường chứa một hoặc nhiều phần tử <code>&lt;symbol&gt;</code>. Mỗi symbol định nghĩa một biểu tượng tự chứa với <code>viewBox</code> riêng:</p>
+
+                    <span class="code-label">icons.svg (tệp sprite)</span>
+<pre><code><span class="code-tag">&lt;svg</span> <span class="code-attr">xmlns</span>=<span class="code-str">"http://www.w3.org/2000/svg"</span> <span class="code-attr">style</span>=<span class="code-str">"display:none"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;symbol</span> <span class="code-attr">id</span>=<span class="code-str">"icon-home"</span> <span class="code-attr">viewBox</span>=<span class="code-str">"0 0 24 24"</span><span class="code-tag">&gt;</span>
+    <span class="code-tag">&lt;path</span> <span class="code-attr">d</span>=<span class="code-str">"M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4..."</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/symbol&gt;</span>
+  <span class="code-tag">&lt;symbol</span> <span class="code-attr">id</span>=<span class="code-str">"icon-search"</span> <span class="code-attr">viewBox</span>=<span class="code-str">"0 0 24 24"</span><span class="code-tag">&gt;</span>
+    <span class="code-tag">&lt;path</span> <span class="code-attr">d</span>=<span class="code-str">"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/symbol&gt;</span>
+<span class="code-tag">&lt;/svg&gt;</span></code></pre>
+
+                    <p><code>&lt;svg&gt;</code> ngoài được ẩn với <code>style="display:none"</code> để không chiếm không gian trên trang. Các symbol bên trong vô hình cho đến khi được tham chiếu. Để hiển thị biểu tượng, sử dụng phần tử <code>&lt;use&gt;</code>:</p>
+
+                    <span class="code-label">Sử dụng symbols trong HTML</span>
+<pre><code><span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-home"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-search"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span></code></pre>
+
+                    <p>Tạo kiểu biểu tượng bằng CSS, sử dụng <code>fill</code> và <code>stroke</code> thay vì thuộc tính <code>color</code> dựa trên font:</p>
+
+                    <span class="code-label">CSS cho SVG icons</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">width</span>: <span class="code-val">24px</span>;
+  <span class="code-prop">height</span>: <span class="code-val">24px</span>;
+  <span class="code-prop">fill</span>: <span class="code-val">currentColor</span>;
+  <span class="code-prop">stroke</span>: <span class="code-val">none</span>;
+}</code></pre>
+
+                    <p>Sử dụng <code>fill: currentColor</code> cho phép biểu tượng kế thừa màu văn bản của phần tử cha, tương tự như cách font icons hoạt động với thuộc tính <code>color</code>.</p>
+                </div>
+
+                <h2 class="reveal">Symbol vs Font Icons</h2>
+                <div class="pros-cons reveal">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Ưu điểm của Symbols</div>
+                        <li>Hỗ trợ đa màu — mỗi đường có thể có màu tô và stroke riêng</li>
+                        <li>Mỗi biểu tượng là SVG element thực với accessibility tốt hơn</li>
+                        <li>Không cần ánh xạ Unicode — tham chiếu biểu tượng bằng tên đọc được</li>
+                        <li>Hiển thị sắc nét hơn — không có vấn đề font hinting hay subpixel artifacts</li>
+                        <li>Các phần biểu tượng riêng lẻ có thể được tạo hoạt ảnh độc lập</li>
+                        <li>Hoạt động với bất kỳ tính năng SVG nào: gradient, filter, clip-path, mask</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Nhược điểm của Symbols</div>
+                        <li>Markup nhiều hơn (<code>&lt;svg&gt;&lt;use&gt;</code> so với <code>&lt;i class="icon"&gt;</code>)</li>
+                        <li>Khó tạo kiểu với CSS <code>color</code> — cần <code>fill</code>/<code>stroke</code></li>
+                        <li>External sprites có hàm ý CORS khi tải từ cross-origin</li>
+                        <li>Tổng kích thước tệp lớn hơn các định dạng font nén</li>
+                        <li>Nhiều HTML hơn mỗi lần sử dụng biểu tượng</li>
+                        <li>Không hỗ trợ pseudo-element <code>::before</code>/<code>::after</code></li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Chiến Lược Tải</h2>
+                <div class="reveal">
+                    <p>Có ba cách chính để tải SVG symbol sprite vào trang, mỗi cách có sự đánh đổi khác nhau:</p>
+
+                    <h3>Inline sprite</h3>
+                    <p>Dán toàn bộ sprite SVG trực tiếp vào <code>&lt;body&gt;</code> HTML. Đây là cách tiếp cận đơn giản nhất — không có vấn đề CORS, không có yêu cầu HTTP thêm. Các symbol sẵn sàng ngay lập tức cho bất kỳ tham chiếu <code>&lt;use&gt;</code> nào trên trang. Hoạt động tốt nhất cho single-page applications hoặc khi bạn có bộ biểu tượng nhỏ (dưới ~50 biểu tượng).</p>
+
+                    <h3>External sprite</h3>
+                    <p>Tải sprite dưới dạng tệp ngoài qua <code>&lt;use href="icons.svg#home"&gt;</code>. Điều này giữ HTML sạch và cho phép trình duyệt cache sprite riêng với trang. Tuy nhiên, nó có hàm ý CORS: sprite phải được phục vụ từ cùng origin, hoặc máy chủ phải đặt header <code>Access-Control-Allow-Origin</code> phù hợp. Lưu ý rằng Internet Explorer không hỗ trợ tham chiếu <code>&lt;use&gt;</code> ngoài — sử dụng polyfill <a href="https://github.com/jonathantneal/svg4everybody" target="_blank" rel="noopener">svg4everybody</a> nếu cần hỗ trợ IE.</p>
+
+                    <h3>JS injection</h3>
+                    <p>Tải tệp sprite qua <code>fetch()</code> và inject vào DOM ở runtime. Điều này kết hợp khả năng cache của external sprites với độ tin cậy của inline sprites — SVG được inject trở thành một phần của document, vì vậy các tham chiếu <code>&lt;use&gt;</code> hoạt động mà không có hạn chế CORS. Bobcorn tạo ra cách tiếp cận này: một tệp JS tải và đăng ký tất cả symbol khi tải.</p>
+
+                    <span class="code-label">Phương pháp JS injection (output của Bobcorn)</span>
+<pre><code><span class="code-cmt">&lt;!-- Load the generated JS sprite --&gt;</span>
+<span class="code-tag">&lt;script</span> <span class="code-attr">src</span>=<span class="code-str">"icons-symbol.js"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
+
+<span class="code-cmt">&lt;!-- Then use normally: --&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-home"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-search"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span></code></pre>
+
+                    <p>Tệp JS tạo một phần tử <code>&lt;svg&gt;</code> ẩn chứa tất cả các định nghĩa <code>&lt;symbol&gt;</code> và thêm nó vào document body. Sau khi tải, các biểu tượng được tham chiếu giống hệt cách inline.</p>
+                </div>
+
+                <h2 class="reveal">Khi Nào Sử Dụng SVG Symbols</h2>
+                <div class="reveal">
+                    <p>SVG symbol sprites là lựa chọn đúng khi dự án của bạn cần khả năng mà font icons không thể cung cấp:</p>
+                    <ul>
+                        <li><strong>Biểu tượng đa màu</strong> — khi biểu tượng sử dụng nhiều hơn một màu, gradient hoặc các màu tô phức tạp mà font glyph đơn không thể biểu diễn</li>
+                        <li><strong>Accessibility là ưu tiên hàng đầu</strong> — mỗi biểu tượng có thể bao gồm phần tử <code>&lt;title&gt;</code> và thuộc tính <code>aria-label</code>, cung cấp mô tả có ý nghĩa cho trình đọc màn hình</li>
+                        <li><strong>Phần biểu tượng có hoạt ảnh</strong> — bạn cần tạo hoạt ảnh cho các đường hoặc nhóm riêng lẻ trong biểu tượng</li>
+                        <li><strong>Dự án SVG nặng</strong> — ứng dụng của bạn đã sử dụng inline SVG rộng rãi, vì vậy symbols phù hợp tự nhiên với kiến trúc hiện có</li>
+                        <li><strong>Độ sắc nét hiển thị tối đa</strong> — font hinting có thể gây ra vấn đề căn chỉnh ở kích thước nhỏ; SVG symbols hiển thị hoàn hảo ở mọi kích thước</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Khi Nào Nên Giữ Font Icons</h2>
+                <div class="reveal">
+                    <p>Font icons vẫn là lựa chọn tốt hơn trong một số tình huống phổ biến:</p>
+                    <ul>
+                        <li><strong>Bộ biểu tượng lớn (200+)</strong> — tệp font WOFF2 nén nhỏ hơn đáng kể so với SVG sprite với cùng số lượng biểu tượng</li>
+                        <li><strong>Tất cả biểu tượng màu đơn</strong> — nếu mọi biểu tượng là một màu, font icons cho bạn tích hợp đơn giản nhất mà không có sự đánh đổi</li>
+                        <li><strong>Tích hợp chỉ CSS</strong> — font icons chỉ yêu cầu liên kết stylesheet và CSS classes, không cần JavaScript hay markup thêm</li>
+                        <li><strong>Hệ thống cũ</strong> — các dự án đã sử dụng icon fonts không đạt được đủ lợi ích từ việc chuyển đổi để biện minh cho nỗ lực migration</li>
+                        <li><strong>Hỗ trợ pseudo-element</strong> — bạn cần biểu tượng trong pseudo-elements <code>::before</code> hoặc <code>::after</code>, chỉ hoạt động với font glyphs</li>
+                    </ul>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Trong Bobcorn</div>
+                    Bobcorn có thể xuất biểu tượng của bạn dưới dạng tệp JS symbol sprite cùng với các tệp font. Bật tùy chọn <strong>JS</strong> trong hộp thoại xuất. Tệp được tạo sẽ tạo inline SVG sprite và đăng ký tất cả symbol khi tải. Bạn có thể sử dụng cả hai cách tiếp cận trong cùng một dự án — fonts cho UI icons đơn giản, symbols cho illustrations màu phức tạp.
+                </div>
+
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">Mẹo</div>
+                    Bạn không phải chọn một hay cái kia. Nhiều hệ thống thiết kế sử dụng font icons cho phần lớn UI icons màu đơn (nút, điều hướng, form) và SVG symbols cho một số illustrations đa màu hoặc biểu tượng có hoạt ảnh. Hộp thoại xuất của Bobcorn cho phép bạn tạo cả hai trong một lần xuất duy nhất.
+                </div>
+
+                <nav class="page-nav">
+                    <a href="css-font-face.html" class="page-nav-link">
+                        <div class="page-nav-dir">Trước đó</div>
+                        <div class="page-nav-title">CSS @font-face</div>
+                    </a>
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">Tiếp theo</div>
+                        <div class="page-nav-title">Hướng dẫn xuất</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

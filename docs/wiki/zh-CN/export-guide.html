@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导出指南 — Bobcorn Wiki</title>
+    <meta name="description" content="Bobcorn 导出工作流程的完整说明——从选择图标到生成生产就绪的字体文件。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/export-guide.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/export-guide.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/export-guide.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/export-guide.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/export-guide.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/export-guide.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/export-guide.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <meta property="og:title" content="导出指南 — Bobcorn Wiki">
+    <meta property="og:description" content="Bobcorn 导出工作流程的完整说明——从选择图标到生成生产就绪的字体文件。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="导出指南 — Bobcorn Wiki">
+    <meta name="twitter:description" content="Bobcorn 导出工作流程的完整说明——从选择图标到生成生产就绪的字体文件。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "导出指南 — Bobcorn Wiki",
+                "description": "Bobcorn 导出工作流程的完整说明——从选择图标到生成生产就绪的字体文件。",
+                "url": "https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html",
+                "inLanguage": "zh-CN",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "导出指南 — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>简体中文</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">导出指南</h1>
+                <p class="lead reveal">Bobcorn 导出工作流程的完整说明——从选择图标到生成生产就绪的字体文件。</p>
+
+                <!-- Opening the Export Dialog -->
+                <h2 class="reveal">打开导出对话框</h2>
+                <div class="reveal">
+                    <p>点击左侧边栏菜单中的<strong>导出</strong>按钮。导出对话框以模态形式打开，让你配置输出目录、选择要包含的图标分组，并选择输出格式和伴随文件。所有设置在会话间都会被记住，因此一旦配置好你偏好的导出设置，后续导出只需一键完成。</p>
+                </div>
+
+                <!-- Choosing an Output Directory -->
+                <h2 class="reveal">选择输出目录</h2>
+                <div class="reveal">
+                    <p>第一步是选择保存导出文件的位置。默认情况下，Bobcorn 使用你的<strong>桌面</strong>。点击路径旁的文件夹按钮可浏览并选择其他位置。</p>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">提示</div>
+                        直接导出到项目的 <code>fonts/</code> 或 <code>assets/</code> 目录，避免每次导出后手动复制文件。在图标集迭代更新的开发阶段尤其有用。
+                    </div>
+                </div>
+
+                <!-- Selecting Icon Groups -->
+                <h2 class="reveal">选择图标分组</h2>
+                <div class="reveal">
+                    <p>你可以选择要包含在导出中的图标分组。默认情况下，所有分组均已选中。取消选中你不需要的分组——例如，你可能会排除包含草稿图标的"drafts"分组。</p>
+                    <p>每个分组在名称旁边显示其图标数量。当你切换分组开关时，列表底部的图标总数会实时更新，让你随时了解导出字体中将包含多少字形。</p>
+                </div>
+
+                <!-- Font Formats -->
+                <h2 class="reveal">字体格式</h2>
+                <div class="reveal">
+                    <p>Bobcorn 可以生成五种字体格式。根据项目的浏览器支持要求选择合适的格式：</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>格式</th><th>默认状态</th><th>启用时机</th><th>了解更多</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fmt">.woff2</td>
+                                    <td>始终开启</td>
+                                    <td>始终——必不可少的网页格式</td>
+                                    <td><a href="woff2.html">WOFF2 &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.woff</td>
+                                    <td>可选</td>
+                                    <td>需要支持 IE 11</td>
+                                    <td><a href="woff.html">WOFF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.ttf</td>
+                                    <td>可选</td>
+                                    <td>桌面应用、OS 字体安装</td>
+                                    <td><a href="ttf.html">TTF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.svg</td>
+                                    <td>可选</td>
+                                    <td>调试、旧版 iOS</td>
+                                    <td><a href="svg-font.html">SVG Font &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.eot</td>
+                                    <td>可选</td>
+                                    <td>仅 IE 6-8 旧版</td>
+                                    <td><a href="eot.html">EOT &rarr;</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>WOFF2 始终包含，因为它是必不可少的网页字体格式——不存在需要网页字体导出却不需要它的场景。所有其他格式均按需选用，取决于你的具体要求。</p>
+                </div>
+
+                <!-- Companion Files -->
+                <h2 class="reveal">伴随文件</h2>
+                <div class="reveal">
+                    <p>除字体文件本身外，Bobcorn 还可以生成几个使集成和协作更便捷的伴随文件：</p>
+
+                    <h3>CSS（<code>icons.css</code>）</h3>
+                    <p>包含 <code>@font-face</code> 声明和图标集中每个图标的 <code>.icon-*</code> CSS 类。将此文件放入项目即可用简单的类名使用图标。有关生成 CSS 工作原理的详细信息，请参阅 <a href="css-font-face.html">CSS @font-face 指南</a>。</p>
+
+                    <h3>JS（<code>icons-symbol.js</code>）</h3>
+                    <p>一个 SVG symbol 精灵，在脚本加载时将所有图标注册为内联 SVG symbol。在需要多色图标或 SVG 特定功能时，可与字体图标配合使用。使用模式请参阅 <a href="svg-symbol.html">SVG Symbol 指南</a>。</p>
+
+                    <h3>HTML（<code>demo.html</code>）</h3>
+                    <p>一个交互式预览页面，显示所有导出图标及其名称、CSS 类名和 Unicode 码位。在浏览器中打开即可浏览完整图标集。对审查图标库的设计师和在集成过程中查找类名的开发者都很有用。</p>
+
+                    <h3>ICP（<code>project.icp</code>）</h3>
+                    <p>Bobcorn 的项目文件。导出此文件以与团队成员共享图标项目或作为备份。在 Bobcorn 中打开 ICP 文件会完整恢复项目状态——所有图标、分组、元数据和设置均与导出时完全一致。</p>
+                </div>
+
+                <!-- ZIP Packaging -->
+                <h2 class="reveal">ZIP 打包</h2>
+                <div class="reveal">
+                    <p>启用 <strong>ZIP</strong> 选项可将所有导出文件打包为单个 <code>.zip</code> 压缩包。在与团队成员分享图标字体、上传至 CDN 或附加到设计交付文档时非常有用。ZIP 包含与普通导出相同的目录结构——无嵌套或重新组织。</p>
+                </div>
+
+                <!-- Recommended Configurations -->
+                <h2 class="reveal">推荐配置</h2>
+                <div class="reveal">
+                    <p>以下是三种适用于常见项目类型的实用预设：</p>
+
+                    <h3>现代网页项目</h3>
+                    <ul>
+                        <li>WOFF2（始终开启）+ CSS + HTML 演示</li>
+                        <li>最小体积，覆盖 97%+ 浏览器</li>
+                    </ul>
+
+                    <h3>全兼容性项目</h3>
+                    <ul>
+                        <li>WOFF2 + WOFF + CSS + HTML 演示</li>
+                        <li>覆盖 IE 11+ 及所有现代浏览器</li>
+                    </ul>
+
+                    <h3>设计系统 / 组件库</h3>
+                    <ul>
+                        <li>WOFF2 + TTF + CSS + JS symbol + HTML 演示 + ICP</li>
+                        <li>字体用于 CSS 使用，TTF 用于桌面工具，JS symbol 用于多色变体，ICP 用于项目备份</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">提示</div>
+                        从"现代网页项目"预设开始——WOFF2 + CSS。只有当浏览器分析数据或平台要求确实需要时，再添加更多格式。额外格式会增加构建体积，而对已支持 WOFF2 的用户没有任何好处。
+                    </div>
+                </div>
+
+                <!-- Output File Structure -->
+                <h2 class="reveal">输出文件结构</h2>
+                <div class="reveal">
+                    <p>当所有选项均启用时，Bobcorn 生成以下文件结构：</p>
+
+                    <span class="code-label">导出输出</span>
+<pre><code>output/
+├── MyIcons.woff2        <span class="code-cmt"># 字体文件</span>
+├── MyIcons.woff
+├── MyIcons.ttf
+├── MyIcons.css          <span class="code-cmt"># @font-face + 图标类</span>
+├── MyIcons-symbol.js    <span class="code-cmt"># SVG symbol 精灵</span>
+├── demo.html            <span class="code-cmt"># 交互式预览</span>
+└── MyIcons.icp          <span class="code-cmt"># 项目备份</span></code></pre>
+
+                    <p>字体族名称（如"MyIcons"）来自 Bobcorn 中的项目名称。所有生成的文件都以此名称为前缀，保持一致性。</p>
+                </div>
+
+                <!-- After Export -->
+                <h2 class="reveal">导出后</h2>
+                <div class="reveal">
+                    <p>Bobcorn 生成文件后，按照以下步骤将图标字体集成到项目中：</p>
+
+                    <ol>
+                        <li><strong>复制字体文件 + CSS</strong> 到项目的 assets 或 fonts 目录</li>
+                        <li><strong>链接 CSS</strong>：<code>&lt;link rel="stylesheet" href="MyIcons.css"&gt;</code></li>
+                        <li><strong>在标记中使用图标</strong>：<code>&lt;i class="icon icon-home"&gt;&lt;/i&gt;</code></li>
+                        <li><strong>可选：预加载</strong> WOFF2 文件以加快首次渲染</li>
+                    </ol>
+
+                    <p>以下是完整的集成示例：</p>
+
+                    <span class="code-label">完整集成</span>
+<pre><code><span class="code-tag">&lt;head&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"preload"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.woff2"</span> <span class="code-attr">as</span>=<span class="code-str">"font"</span>
+        <span class="code-attr">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-attr">crossorigin</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"stylesheet"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.css"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span>
+<span class="code-tag">&lt;body&gt;</span>
+  <span class="code-tag">&lt;button&gt;&lt;i</span> <span class="code-attr">class</span>=<span class="code-str">"icon icon-save"</span><span class="code-tag">&gt;&lt;/i&gt;</span> 保存<span class="code-tag">&lt;/button&gt;</span>
+<span class="code-tag">&lt;/body&gt;</span></code></pre>
+
+                    <p><code>rel="preload"</code> 提示告诉浏览器在遇到 CSS 中的 <code>@font-face</code> 规则之前就开始下载字体文件。这消除了 CSS 解析与字体下载之间的延迟，使得首次绘制时图标即可可见。即使字体是同源的，也需要 <code>crossorigin</code> 属性。</p>
+                </div>
+
+                <!-- Demo Page Callout -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">提示</div>
+                    在浏览器中打开生成的 <code>demo.html</code> 可浏览所有导出图标。点击任意图标可复制其 CSS 类名——在开发过程中需要查找特定图标的类名时非常方便。
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">在 Bobcorn 中</div>
+                    导出对话框会记住你上次使用的设置。一旦为项目配置好格式、伴随文件和输出目录，后续每次导出只需一键。如果频繁迭代，将输出目录指向项目的 assets 文件夹，实现零摩擦更新。
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">上一页</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

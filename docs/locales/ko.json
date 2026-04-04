@@ -1,6 +1,7 @@
 {
   "nav.features": "기능",
   "nav.formats": "포맷",
+  "nav.wiki": "Wiki",
   "hero.badge": "오픈소스 · MIT 라이선스",
   "hero.title": "아이콘 관리,<br><em>폰트 생성</em>",
   "hero.desc": "디자이너와 개발자를 위한 오픈소스 아이콘 관리 및 폰트 생성 도구. SVG를 가져오고, 그룹으로 정리하고, 색상을 편집하고, 프로덕션용 아이콘 폰트를 한 번에 내보내세요.",

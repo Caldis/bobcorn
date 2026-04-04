@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS @font-face — Bobcorn Wiki</title>
+    <meta name="description" content="让图标字体在网页上运行的 CSS @font-face 规则——在样式表中声明、加载和使用自定义字体文件。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/css-font-face.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/css-font-face.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/css-font-face.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/css-font-face.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/css-font-face.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/css-font-face.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/css-font-face.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/css-font-face.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/css-font-face.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/css-font-face.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/css-font-face.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/css-font-face.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/css-font-face.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/css-font-face.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html">
+    <meta property="og:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta property="og:description" content="让图标字体在网页上运行的 CSS @font-face 规则——在样式表中声明、加载和使用自定义字体文件。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta name="twitter:description" content="让图标字体在网页上运行的 CSS @font-face 规则——在样式表中声明、加载和使用自定义字体文件。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "CSS @font-face — Bobcorn Wiki",
+                "description": "让图标字体在网页上运行的 CSS @font-face 规则——在样式表中声明、加载和使用自定义字体文件。",
+                "url": "https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html",
+                "inLanguage": "zh-CN",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "CSS @font-face — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>简体中文</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">CSS @font-face</h1>
+                <p class="lead reveal">让图标字体在网页上运行的 CSS 规则——在样式表中声明、加载和使用自定义字体文件。</p>
+
+                <!-- The Basics -->
+                <h2 class="reveal">基础知识</h2>
+                <div class="reveal">
+                    <p><code>@font-face</code> 是 CSS 的 at 规则，用于告诉浏览器在哪里找到字体文件以及如何称呼它。早在 1997 年 IE 4 就已支持，但直到 2010 年前后，随着 WOFF 的出现和其他浏览器对该规则的一致实现，它才真正在跨浏览器中变得实用。</p>
+                    <p>对于图标字体，<code>@font-face</code> 是字体文件与显示图标的 CSS 类之间的桥梁。没有它，浏览器就无从得知 <code>font-family: 'MyIcons'</code> 应该从服务器加载哪个具体文件。</p>
+
+                    <span class="code-label">基本语法</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'fonts/myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p><code>font-family</code> 描述符为字体命名，供后续引用。<code>src</code> 描述符告诉浏览器下载文件的位置及文件格式。<code>font-weight</code> 和 <code>font-style</code> 描述符确保浏览器不会尝试合成粗体或斜体变体。<code>font-display</code> 控制字体加载期间的显示行为。</p>
+                </div>
+
+                <!-- The Modern Font Stack -->
+                <h2 class="reveal">现代字体栈</h2>
+                <div class="reveal">
+                    <p>每个 URL 后的 <code>format()</code> 提示告诉浏览器文件的格式，以便它在不支持某格式时无需下载即可跳过。随着浏览器支持的改善，推荐的格式组合已大幅缩减。</p>
+
+                    <span class="code-label">现代写法（推荐）</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>凭借 97%+ 的浏览器覆盖率，仅使用 WOFF2 对绝大多数现代项目已经足够。这是最简洁、性能最优的方式。</p>
+
+                    <span class="code-label">带 WOFF 兜底（支持 IE 11）</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>添加 WOFF 作为兜底可覆盖不支持 WOFF2 的 IE 11。现代浏览器会加载 WOFF2 文件；IE 11 则回退到 WOFF。</p>
+
+                    <span class="code-label">完整旧版栈（支持 IE 6-8）</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot'</span>);                    <span class="code-cmt">/* IE9 兼容 */</span>
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot?#iefix'</span>) <span class="code-val">format</span>(<span class="code-str">'embedded-opentype'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>完整的"防弹"栈包含：<a href="eot.html">EOT</a>（IE 6-8）、<a href="woff2.html">WOFF2</a>（现代浏览器）、<a href="woff.html">WOFF</a>（IE 9-11）以及 <a href="ttf.html">TTF</a> 作为最终兜底。浏览器按顺序尝试每条 <code>src</code>，使用第一个支持的格式。该方式仅在有极端旧版要求的项目中才有必要。</p>
+                </div>
+
+                <!-- Using Icon Classes -->
+                <h2 class="reveal">使用图标类</h2>
+                <div class="reveal">
+                    <p>图标字体的标准模式是：用一个<strong>基础类</strong>设置 font-family 和共享渲染样式，再用<strong>各图标类</strong>通过 <code>::before</code> 伪元素的 <code>content</code> 属性设置各图标对应的 Unicode 码位。</p>
+
+                    <span class="code-label">CSS 图标类</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-variant</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">text-transform</span>: <span class="code-val">none</span>;
+  <span class="code-prop">line-height</span>: <span class="code-val">1</span>;
+  <span class="code-prop">-webkit-font-smoothing</span>: <span class="code-val">antialiased</span>;
+  <span class="code-prop">-moz-osx-font-smoothing</span>: <span class="code-val">grayscale</span>;
+}
+
+<span class="code-kw">.icon-home::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>; }
+<span class="code-kw">.icon-search::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E002'</span>; }
+<span class="code-kw">.icon-user::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E003'</span>; }</code></pre>
+
+                    <p>基础类重置字体样式，防止浏览器应用会扭曲图标的粗体、斜体等变换。<code>-webkit-font-smoothing</code> 和 <code>-moz-osx-font-smoothing</code> 属性在 macOS 和 iOS 上启用抗锯齿，使渲染更清晰。</p>
+                    <p>每个图标类为 <code>::before</code> 伪元素设置该字形对应的 Unicode 码位。反斜杠 E 记号（<code>\E001</code>）是 CSS 用十六进制码位引用 Unicode 字符的方式。</p>
+
+                    <span class="code-label">HTML 用法</span>
+<pre><code><span class="code-kw">&lt;i</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-home"</span><span class="code-kw">&gt;&lt;/i&gt;</span>
+<span class="code-kw">&lt;span</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-search"</span><span class="code-kw">&gt;&lt;/span&gt;</span></code></pre>
+
+                    <p><code>&lt;i&gt;</code> 和 <code>&lt;span&gt;</code> 效果相同。元素本身为空——图标完全由 <code>::before</code> 伪元素渲染。</p>
+                </div>
+
+                <!-- font-display -->
+                <h2 class="reveal">font-display</h2>
+                <div class="reveal">
+                    <p><code>font-display</code> 描述符控制在字体文件仍在下载时浏览器的显示行为。这对图标字体至关重要，因为错误的设置可能导致图标在页面加载期间不可见。</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>值</th><th>行为</th><th>最适用于</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td><code>swap</code></td><td>立即显示回退文字，字体加载后切换为图标字体</td><td>图标字体（推荐）</td></tr>
+                                <tr><td><code>block</code></td><td>短暂隐藏文字（最长 3 秒），然后显示回退</td><td>不希望有闪烁的文字字体</td></tr>
+                                <tr><td><code>fallback</code></td><td>短暂阻塞（约 100ms）+ 短暂切换（约 3 秒）</td><td>文字字体的平衡选项</td></tr>
+                                <tr><td><code>optional</code></td><td>浏览器可能在慢速连接时完全跳过该字体</td><td>非必要的装饰性字体</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>对于图标字体，<strong><code>swap</code> 是推荐选择</strong>。短暂的无样式内容闪烁（图标码位可能短暂显示为方块或空白）远好过图标完全不可见。使用 <code>block</code> 时，用户在慢速连接下可能会看到长达 3 秒的空白——页面看起来像是崩了。使用 <code>swap</code>，图标会在字体加载完成后立即出现，在现代网络连接下这个过渡几乎感知不到。</p>
+                </div>
+
+                <!-- Loading Optimization -->
+                <h2 class="reveal">加载优化</h2>
+                <div class="reveal">
+                    <p>字体文件默认会阻塞渲染——浏览器要等字体文件下载完成后才会用自定义字体渲染文字。以下是最小化影响的技巧：</p>
+
+                    <ul>
+                        <li><strong>预加载字体文件</strong>——使用 <code>&lt;link rel="preload"&gt;</code>，让浏览器尽早开始下载字体，甚至早于解析引用该字体的 CSS。</li>
+                        <li><strong>自托管字体</strong>——从与 HTML 相同的源提供字体文件，可避免额外的 DNS 查询和连接建立，同时消除 CORS 问题。</li>
+                        <li><strong>精简字体子集</strong>——删除未使用的图标以减小文件大小。一个有 500 个图标却只用了 50 个的字体，浪费了 90% 的下载。</li>
+                        <li><strong>使用 <code>unicode-range</code></strong>——如果有多个图标集，该描述符告诉浏览器只在页面实际使用了指定范围内的字符时才下载字体文件。</li>
+                    </ul>
+
+                    <span class="code-label">预加载字体文件</span>
+<pre><code><span class="code-kw">&lt;link</span> <span class="code-prop">rel</span>=<span class="code-str">"preload"</span> <span class="code-prop">href</span>=<span class="code-str">"fonts/myicons.woff2"</span> <span class="code-prop">as</span>=<span class="code-str">"font"</span>
+      <span class="code-prop">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-prop">crossorigin</span><span class="code-kw">&gt;</span></code></pre>
+
+                    <p>即使是同源字体也需要添加 <code>crossorigin</code> 属性——这是字体加载规范的一个特殊要求。不添加它，浏览器会下载字体两次：一次来自预加载提示（不带 CORS），一次来自 <code>@font-face</code> 规则（带 CORS）。</p>
+                </div>
+
+                <!-- Common Pitfalls -->
+                <h2 class="reveal">常见问题</h2>
+                <div class="reveal">
+                    <ul>
+                        <li><strong>CORS 错误</strong>——从不同源（如 CDN 子域）提供的字体文件需要服务器设置 <code>Access-Control-Allow-Origin</code> 响应头。或者在 <code>&lt;link&gt;</code> 标签上使用 <code>crossorigin</code> 属性。如果没有正确的 CORS 配置，浏览器会静默拦截字体。</li>
+                        <li><strong>图标显示为方块或矩形</strong>——通常意味着字体文件路径有误、字体尚未加载，或者图标类中的 <code>font-family</code> 名称与 <code>@font-face</code> 声明中的名称不匹配。检查浏览器的"网络"标签，确认字体文件以 200 状态码加载。</li>
+                        <li><strong>图标显示为错误字形</strong>——与系统字体的 Unicode 码位冲突。如果图标字体使用的码位范围与常见系统字体重叠，浏览器可能会渲染系统字符。图标字体通常使用私有使用区（U+E000 至 U+F8FF）来避免此问题。</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">调试提示</div>
+                        打开浏览器开发者工具，进入"网络"标签，按"Font"筛选。你应该能看到 <code>.woff2</code> 文件以 200 状态码加载。如果找不到，说明路径有误。如果显示 CORS 错误，检查服务器响应头。如果文件已加载但图标仍不显示，检查元素并验证 <code>font-family</code> 是否完全匹配。
+                    </div>
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">在 Bobcorn 中</div>
+                    Bobcorn 为你生成完整的 CSS 文件——包括 <code>@font-face</code> 声明、基础 <code>.icon</code> 类，以及包含正确 Unicode 码位的各图标类。CSS 使用你选择的字体名称，并用相对路径引用字体文件。在导出对话框中启用 CSS 选项，即可将其与字体文件一起包含在导出内容中。
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="eot.html" class="page-nav-link">
+                        <div class="page-nav-dir">上一页</div>
+                        <div class="page-nav-title">EOT</div>
+                    </a>
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">下一页</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

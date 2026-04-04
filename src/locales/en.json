@@ -169,6 +169,8 @@
   "export.icpMigrationHint": "Project files (.icp) are now managed via Save ({{shortcut}}). To include in export, check the option below.",
   "export.requiredFormats": "Required Formats",
   "export.optionalFormats": "Optional Formats",
+  "export.wikiHint": "Learn more in Wiki",
+  "export.wikiLink": "Learn about font formats in the Wiki",
   "export.includeIcp": "Include .icp project file",
   "export.includeIcpDesc": "Attach project file in export for future editing",
   "export.zip": "Auto-pack (ZIP)",

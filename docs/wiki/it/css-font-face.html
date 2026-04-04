@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS @font-face — Bobcorn Wiki</title>
+    <meta name="description" content="La regola CSS @font-face che fa funzionare i font icona sul web — dichiarare, caricare e utilizzare file di font personalizzati nei propri fogli di stile.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/it/css-font-face.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/css-font-face.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/css-font-face.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/css-font-face.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/css-font-face.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/css-font-face.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/css-font-face.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/css-font-face.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/css-font-face.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/css-font-face.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/css-font-face.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/css-font-face.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/css-font-face.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/css-font-face.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/css-font-face.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/it/css-font-face.html">
+    <meta property="og:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta property="og:description" content="La regola CSS @font-face che fa funzionare i font icona sul web — dichiarare, caricare e utilizzare file di font personalizzati nei propri fogli di stile.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta name="twitter:description" content="La regola CSS @font-face che fa funzionare i font icona sul web — dichiarare, caricare e utilizzare file di font personalizzati nei propri fogli di stile.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "CSS @font-face — Bobcorn Wiki",
+                "description": "La regola CSS @font-face che fa funzionare i font icona sul web — dichiarare, caricare e utilizzare file di font personalizzati nei propri fogli di stile.",
+                "url": "https://bobcorn.caldis.me/wiki/it/css-font-face.html",
+                "inLanguage": "it",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/it/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "CSS @font-face — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/it/css-font-face.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Italiano</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">CSS @font-face</h1>
+                <p class="lead reveal">La regola CSS che fa funzionare i font icona sul web — dichiarare, caricare e utilizzare file di font personalizzati nei propri fogli di stile.</p>
+
+                <!-- The Basics -->
+                <h2 class="reveal">Le Basi</h2>
+                <div class="reveal">
+                    <p><code>@font-face</code> è la regola CSS at-rule che indica al browser dove trovare un file di font e come chiamarlo. Era supportata per la prima volta in IE 4 nel 1997, ma è diventata pratica su tutti i browser intorno al 2010, quando è arrivato WOFF e gli altri browser hanno implementato la regola in modo coerente.</p>
+                    <p>Per i font icona, <code>@font-face</code> è il collegamento tra i file di font e le classi CSS che visualizzano le icone. Senza di essa, il browser non ha modo di sapere che <code>font-family: 'MyIcons'</code> deve caricare un file specifico dal server.</p>
+
+                    <span class="code-label">Sintassi di base</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'fonts/myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Il descrittore <code>font-family</code> assegna un nome al font che verrà referenziato in seguito. Il descrittore <code>src</code> indica al browser dove scaricare il file e in quale formato si trova. I descrittori <code>font-weight</code> e <code>font-style</code> garantiscono che il browser non tenti di sintetizzare varianti in grassetto o corsivo. E <code>font-display</code> controlla cosa accade durante il caricamento del font.</p>
+                </div>
+
+                <!-- The Modern Font Stack -->
+                <h2 class="reveal">Lo Stack di Font Moderno</h2>
+                <div class="reveal">
+                    <p>Il suggerimento <code>format()</code> dopo ogni URL indica al browser in quale formato si trova il file, in modo che possa saltare i formati non supportati senza scaricarli prima. Nel corso degli anni, il set di formati consigliato si è notevolmente ridotto con il miglioramento del supporto browser.</p>
+
+                    <span class="code-label">Moderno (consigliato)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Con una copertura browser superiore al 97%, solo WOFF2 è sufficiente per la stragrande maggioranza dei progetti moderni. Questo è l'approccio più semplice e performante.</p>
+
+                    <span class="code-label">Con fallback WOFF (supporto IE 11)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Aggiungere WOFF come fallback copre IE 11, che non supporta WOFF2. I browser moderni scaricheranno il file WOFF2; IE 11 ricorrerà a WOFF.</p>
+
+                    <span class="code-label">Stack legacy completo (supporto IE 6-8)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot'</span>);                    <span class="code-cmt">/* IE9 compat */</span>
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot?#iefix'</span>) <span class="code-val">format</span>(<span class="code-str">'embedded-opentype'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Lo stack "bulletproof" completo include <a href="eot.html">EOT</a> per IE 6-8, <a href="woff2.html">WOFF2</a> per i browser moderni, <a href="woff.html">WOFF</a> per IE 9-11 e <a href="ttf.html">TTF</a> come fallback finale. Il browser prova ogni voce <code>src</code> in ordine e utilizza il primo formato che comprende. Questo approccio è necessario solo per i progetti con requisiti legacy estremi.</p>
+                </div>
+
+                <!-- Using Icon Classes -->
+                <h2 class="reveal">Utilizzo delle Classi Icona</h2>
+                <div class="reveal">
+                    <p>Il pattern standard per i font icona utilizza una <strong>classe base</strong> che imposta la famiglia di font e gli stili di rendering condivisi, quindi <strong>classi icona individuali</strong> che utilizzano pseudo-elementi <code>::before</code> con <code>content</code> impostato al punto di codice Unicode di ciascuna icona.</p>
+
+                    <span class="code-label">Classi icona CSS</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-variant</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">text-transform</span>: <span class="code-val">none</span>;
+  <span class="code-prop">line-height</span>: <span class="code-val">1</span>;
+  <span class="code-prop">-webkit-font-smoothing</span>: <span class="code-val">antialiased</span>;
+  <span class="code-prop">-moz-osx-font-smoothing</span>: <span class="code-val">grayscale</span>;
+}
+
+<span class="code-kw">.icon-home::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>; }
+<span class="code-kw">.icon-search::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E002'</span>; }
+<span class="code-kw">.icon-user::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E003'</span>; }</code></pre>
+
+                    <p>La classe base reimposta lo stile del font per impedire al browser di applicare grassetto, corsivo o altre trasformazioni che distorcerebbero le icone. Le proprietà <code>-webkit-font-smoothing</code> e <code>-moz-osx-font-smoothing</code> abilitano l'antialiasing per un rendering più nitido su macOS e iOS.</p>
+                    <p>Ogni classe icona imposta un pseudo-elemento <code>::before</code> con il punto di codice Unicode assegnato a quel glifo. La notazione con backslash-E (<code>\E001</code>) è il modo di CSS per referenziare un carattere Unicode tramite il suo punto di codice esadecimale.</p>
+
+                    <span class="code-label">Utilizzo nell'HTML</span>
+<pre><code><span class="code-kw">&lt;i</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-home"</span><span class="code-kw">&gt;&lt;/i&gt;</span>
+<span class="code-kw">&lt;span</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-search"</span><span class="code-kw">&gt;&lt;/span&gt;</span></code></pre>
+
+                    <p>Sia <code>&lt;i&gt;</code> che <code>&lt;span&gt;</code> funzionano ugualmente bene. L'elemento stesso è vuoto — l'icona viene renderizzata interamente dal pseudo-elemento <code>::before</code>.</p>
+                </div>
+
+                <!-- font-display -->
+                <h2 class="reveal">font-display</h2>
+                <div class="reveal">
+                    <p>Il descrittore <code>font-display</code> controlla cosa mostra il browser mentre il file di font è ancora in fase di download. Questo è fondamentale per i font icona poiché l'impostazione sbagliata può rendere le icone invisibili durante il caricamento della pagina.</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Valore</th><th>Comportamento</th><th>Ideale per</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td><code>swap</code></td><td>Mostra immediatamente il testo di fallback, passa al font icona quando caricato</td><td>Font icona (consigliato)</td></tr>
+                                <tr><td><code>block</code></td><td>Nasconde brevemente il testo (fino a 3s), poi mostra il fallback</td><td>Font di testo dove il flash è fastidioso</td></tr>
+                                <tr><td><code>fallback</code></td><td>Block breve (~100ms) + swap breve (~3s)</td><td>Buon equilibrio per i font di testo</td></tr>
+                                <tr><td><code>optional</code></td><td>Il browser può saltare il font su connessioni lente</td><td>Font decorativi non essenziali</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>Per i font icona, <strong><code>swap</code> è la scelta consigliata</strong>. Un breve flash di contenuto non stilizzato (dove i punti di codice delle icone potrebbero apparire come quadrati o spazi vuoti) è di gran lunga preferibile alle icone invisibili. Con <code>block</code>, gli utenti potrebbero vedere uno spazio vuoto dove dovrebbero essere le icone per fino a 3 secondi su connessioni lente — il che sembra una pagina rotta. Con <code>swap</code>, le icone appaiono non appena il font si carica, e la transizione è di solito impercettibile su connessioni moderne.</p>
+                </div>
+
+                <!-- Loading Optimization -->
+                <h2 class="reveal">Ottimizzazione del Caricamento</h2>
+                <div class="reveal">
+                    <p>I file di font sono di default bloccanti per il rendering — il browser non visualizzerà il testo con un font personalizzato fino a quando il file non è stato scaricato. Ecco le tecniche per minimizzare l'impatto:</p>
+
+                    <ul>
+                        <li><strong>Precaricare il file di font</strong> — usare <code>&lt;link rel="preload"&gt;</code> per avviare il download del font il prima possibile, prima ancora che il browser analizzi il CSS che lo referenzia.</li>
+                        <li><strong>Ospitare i font in locale</strong> — servire i file di font dalla stessa origine dell'HTML evita lookup DNS extra e la configurazione della connessione, ed elimina i problemi di CORS.</li>
+                        <li><strong>Eseguire il subsetting del font</strong> — rimuovere le icone non utilizzate per ridurre le dimensioni del file. Un font con 500 icone in cui se ne usano solo 50 sta sprecando il 90% del download.</li>
+                        <li><strong>Usare <code>unicode-range</code></strong> — se si dispone di più set di icone, questo descrittore indica al browser di scaricare il file di font solo quando i caratteri nell'intervallo specificato vengono effettivamente utilizzati nella pagina.</li>
+                    </ul>
+
+                    <span class="code-label">Precaricamento del file di font</span>
+<pre><code><span class="code-kw">&lt;link</span> <span class="code-prop">rel</span>=<span class="code-str">"preload"</span> <span class="code-prop">href</span>=<span class="code-str">"fonts/myicons.woff2"</span> <span class="code-prop">as</span>=<span class="code-str">"font"</span>
+      <span class="code-prop">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-prop">crossorigin</span><span class="code-kw">&gt;</span></code></pre>
+
+                    <p>L'attributo <code>crossorigin</code> è necessario anche per i font della stessa origine — questa è una peculiarità della specifica di caricamento dei font. Senza di esso, il browser scaricherà il font due volte: una volta dall'hint di precaricamento (senza CORS) e una volta dalla regola <code>@font-face</code> (con CORS).</p>
+                </div>
+
+                <!-- Common Pitfalls -->
+                <h2 class="reveal">Errori Comuni</h2>
+                <div class="reveal">
+                    <ul>
+                        <li><strong>Errori CORS</strong> — I file di font serviti da un'origine diversa (ad es., un sottodominio CDN) necessitano di header <code>Access-Control-Allow-Origin</code> sul server. In alternativa, usare l'attributo <code>crossorigin</code> sul tag <code>&lt;link&gt;</code>. Senza una corretta configurazione CORS, il browser bloccherà silenziosamente il font.</li>
+                        <li><strong>Icone visualizzate come quadrati o rettangoli</strong> — Di solito significa che il percorso del file di font è sbagliato, che il font non è ancora stato caricato o che il nome <code>font-family</code> nella classe icona non corrisponde al nome nella dichiarazione <code>@font-face</code>. Controllare la scheda Rete del browser per confermare che il file di font è stato caricato con status 200.</li>
+                        <li><strong>Icone che mostrano glifi errati</strong> — Conflitti di punti di codice Unicode con i font di sistema. Se il font icona usa punti di codice in intervalli che si sovrappongono ai font di sistema comuni, il browser potrebbe renderizzare un carattere di sistema invece dell'icona. I font icona tipicamente usano l'Area ad Uso Privato (da U+E000 a U+F8FF) per evitare questo problema.</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Suggerimento per il debug</div>
+                        Aprire i DevTools del browser, andare alla scheda Rete e filtrare per "Font". Dovrebbe essere presente il file <code>.woff2</code> con status 200. Se manca, il percorso è sbagliato. Se mostra un errore CORS, controllare gli header del server. Se il file è stato caricato ma le icone non compaiono ancora, ispezionare l'elemento e verificare che il <code>font-family</code> corrisponda esattamente.
+                    </div>
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">In Bobcorn</div>
+                    Bobcorn genera il file CSS completo — la dichiarazione <code>@font-face</code>, la classe base <code>.icon</code> e le classi icona individuali con i corretti punti di codice Unicode. Il CSS utilizza il nome del font scelto e referenzia i file di font con percorsi relativi. Abilitare l'opzione CSS nella finestra di dialogo di esportazione per includerlo insieme ai file di font.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="eot.html" class="page-nav-link">
+                        <div class="page-nav-dir">Precedente</div>
+                        <div class="page-nav-title">EOT</div>
+                    </a>
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">Successivo</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

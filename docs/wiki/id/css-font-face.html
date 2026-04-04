@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS @font-face — Bobcorn Wiki</title>
+    <meta name="description" content="Aturan CSS @font-face yang membuat icon fonts bekerja di web — mendeklarasikan, memuat, dan menggunakan file font kustom di stylesheets Anda.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/id/css-font-face.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/css-font-face.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/css-font-face.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/css-font-face.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/css-font-face.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/css-font-face.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/css-font-face.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/css-font-face.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/css-font-face.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/css-font-face.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/css-font-face.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/css-font-face.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/css-font-face.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/css-font-face.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/css-font-face.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/id/css-font-face.html">
+    <meta property="og:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta property="og:description" content="Aturan CSS @font-face yang membuat icon fonts bekerja di web — mendeklarasikan, memuat, dan menggunakan file font kustom di stylesheets Anda.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta name="twitter:description" content="Aturan CSS @font-face yang membuat icon fonts bekerja di web — mendeklarasikan, memuat, dan menggunakan file font kustom di stylesheets Anda.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "CSS @font-face — Bobcorn Wiki",
+                "description": "Aturan CSS @font-face yang membuat icon fonts bekerja di web — mendeklarasikan, memuat, dan menggunakan file font kustom di stylesheets Anda.",
+                "url": "https://bobcorn.caldis.me/wiki/id/css-font-face.html",
+                "inLanguage": "id",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/id/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "CSS @font-face — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/id/css-font-face.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Bahasa Indonesia</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">CSS @font-face</h1>
+                <p class="lead reveal">Aturan CSS yang membuat icon fonts bekerja di web — mendeklarasikan, memuat, dan menggunakan file font kustom di stylesheets Anda.</p>
+
+                <h2 class="reveal">Dasar-dasar</h2>
+                <div class="reveal">
+                    <p><code>@font-face</code> adalah CSS at-rule yang memberi tahu browser di mana menemukan file font dan apa namanya. Ini pertama kali didukung di IE 4 pada tahun 1997, tetapi baru menjadi praktis di berbagai browser sekitar tahun 2010 ketika WOFF tiba dan browser lain mengimplementasikan aturan ini secara konsisten.</p>
+                    <p>Untuk icon fonts, <code>@font-face</code> adalah pengikat antara file font Anda dan CSS classes yang menampilkan ikon. Tanpanya, browser tidak memiliki cara untuk mengetahui bahwa <code>font-family: 'MyIcons'</code> harus memuat file tertentu dari server Anda.</p>
+
+                    <span class="code-label">Sintaks dasar</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'fonts/myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Descriptor <code>font-family</code> memberi nama yang akan Anda referensikan nanti. Descriptor <code>src</code> memberi tahu browser di mana mengunduh file dan format apa. Descriptor <code>font-weight</code> dan <code>font-style</code> memastikan browser tidak mencoba mensintesis varian tebal atau miring. Dan <code>font-display</code> mengontrol apa yang terjadi saat font sedang memuat.</p>
+                </div>
+
+                <h2 class="reveal">Font Stack Modern</h2>
+                <div class="reveal">
+                    <p>Petunjuk <code>format()</code> setelah setiap URL memberitahu browser format file apa yang ada, sehingga dapat melewati format yang tidak didukung tanpa mengunduhnya terlebih dahulu. Selama bertahun-tahun, kumpulan format yang direkomendasikan telah menyempit secara dramatis seiring peningkatan dukungan browser.</p>
+
+                    <span class="code-label">Modern (direkomendasikan)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Dengan cakupan browser 97%+, hanya WOFF2 sudah cukup untuk sebagian besar proyek modern. Ini adalah pendekatan paling sederhana dan berkinerja tinggi.</p>
+
+                    <span class="code-label">Dengan WOFF fallback (dukungan IE 11)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Menambahkan WOFF sebagai fallback mencakup IE 11, yang tidak mendukung WOFF2. Browser modern akan mengambil file WOFF2; IE 11 beralih ke WOFF.</p>
+
+                    <span class="code-label">Full legacy stack (dukungan IE 6-8)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot'</span>);                    <span class="code-cmt">/* IE9 compat */</span>
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot?#iefix'</span>) <span class="code-val">format</span>(<span class="code-str">'embedded-opentype'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Full "bulletproof" stack mencakup <a href="eot.html">EOT</a> untuk IE 6-8, <a href="woff2.html">WOFF2</a> untuk browser modern, <a href="woff.html">WOFF</a> untuk IE 9-11, dan <a href="ttf.html">TTF</a> sebagai fallback terakhir. Browser mencoba setiap entri <code>src</code> secara berurutan dan menggunakan format pertama yang dipahami. Pendekatan ini hanya diperlukan untuk proyek dengan persyaratan warisan yang ekstrem.</p>
+                </div>
+
+                <h2 class="reveal">Menggunakan Icon Classes</h2>
+                <div class="reveal">
+                    <p>Pola standar untuk icon fonts menggunakan <strong>base class</strong> yang menetapkan font-family dan style rendering bersama, lalu <strong>icon class individual</strong> yang menggunakan pseudo-elements <code>::before</code> dengan <code>content</code> yang diatur ke Unicode code point setiap ikon.</p>
+
+                    <span class="code-label">CSS icon classes</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-variant</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">text-transform</span>: <span class="code-val">none</span>;
+  <span class="code-prop">line-height</span>: <span class="code-val">1</span>;
+  <span class="code-prop">-webkit-font-smoothing</span>: <span class="code-val">antialiased</span>;
+  <span class="code-prop">-moz-osx-font-smoothing</span>: <span class="code-val">grayscale</span>;
+}
+
+<span class="code-kw">.icon-home::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>; }
+<span class="code-kw">.icon-search::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E002'</span>; }
+<span class="code-kw">.icon-user::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E003'</span>; }</code></pre>
+
+                    <p>Base class mereset font styling untuk mencegah browser menerapkan tebal, miring, atau transformasi lain yang akan mendistorsi ikon. Properti <code>-webkit-font-smoothing</code> dan <code>-moz-osx-font-smoothing</code> mengaktifkan antialiasing untuk rendering yang lebih tajam di macOS dan iOS.</p>
+                    <p>Setiap icon class menetapkan pseudo-element <code>::before</code> dengan Unicode code point yang ditetapkan untuk glyph tersebut. Notasi backslash-E (<code>\E001</code>) adalah cara CSS mereferensikan karakter Unicode dengan hex code point-nya.</p>
+
+                    <span class="code-label">Penggunaan HTML</span>
+<pre><code><span class="code-kw">&lt;i</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-home"</span><span class="code-kw">&gt;&lt;/i&gt;</span>
+<span class="code-kw">&lt;span</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-search"</span><span class="code-kw">&gt;&lt;/span&gt;</span></code></pre>
+
+                    <p>Baik <code>&lt;i&gt;</code> maupun <code>&lt;span&gt;</code> bekerja sama baiknya. Elemen itu sendiri kosong — ikon sepenuhnya dirender oleh pseudo-element <code>::before</code>.</p>
+                </div>
+
+                <h2 class="reveal">font-display</h2>
+                <div class="reveal">
+                    <p>Descriptor <code>font-display</code> mengontrol apa yang ditampilkan browser saat file font masih diunduh. Ini penting untuk icon fonts karena pengaturan yang salah dapat membuat ikon tidak terlihat saat halaman dimuat.</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Nilai</th><th>Perilaku</th><th>Terbaik Untuk</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td><code>swap</code></td><td>Menampilkan teks fallback segera, beralih ke icon font saat dimuat</td><td>Icon fonts (direkomendasikan)</td></tr>
+                                <tr><td><code>block</code></td><td>Menyembunyikan teks sebentar (hingga 3 detik), lalu menampilkan fallback</td><td>Text fonts di mana kilatan mengganggu</td></tr>
+                                <tr><td><code>fallback</code></td><td>Block pendek (~100ms) + swap pendek (~3 detik)</td><td>Keseimbangan baik untuk text fonts</td></tr>
+                                <tr><td><code>optional</code></td><td>Browser mungkin melewati font sepenuhnya pada koneksi lambat</td><td>Font dekoratif non-esensial</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>Untuk icon fonts, <strong><code>swap</code> adalah pilihan yang direkomendasikan</strong>. Kilatan singkat konten yang belum ditata (di mana code point ikon mungkin muncul sebagai kotak atau spasi kosong) jauh lebih baik daripada ikon yang tidak terlihat. Dengan <code>block</code>, pengguna dapat melihat ruang kosong di mana ikon seharusnya berada hingga 3 detik pada koneksi lambat — yang terlihat seperti halaman yang rusak.</p>
+                </div>
+
+                <h2 class="reveal">Optimasi Pemuatan</h2>
+                <div class="reveal">
+                    <p>File font secara default memblokir render — browser tidak akan melukis teks menggunakan font kustom hingga file telah diunduh. Berikut teknik untuk meminimalkan dampaknya:</p>
+
+                    <ul>
+                        <li><strong>Preload file font</strong> — gunakan <code>&lt;link rel="preload"&gt;</code> untuk mulai mengunduh font sesegera mungkin, sebelum browser bahkan mem-parse CSS yang mereferensikannya.</li>
+                        <li><strong>Self-host font Anda</strong> — menyajikan file font dari origin yang sama dengan HTML menghindari pencarian DNS ekstra dan pengaturan koneksi, dan menghilangkan masalah CORS.</li>
+                        <li><strong>Subset font Anda</strong> — hapus ikon yang tidak digunakan untuk mengurangi ukuran file. Font 500 ikon di mana Anda hanya menggunakan 50 ikon membuang 90% dari unduhan.</li>
+                        <li><strong>Gunakan <code>unicode-range</code></strong> — jika Anda memiliki beberapa set ikon, descriptor ini memberi tahu browser untuk hanya mengunduh file font ketika karakter dalam rentang yang ditentukan benar-benar digunakan di halaman.</li>
+                    </ul>
+
+                    <span class="code-label">Preloading file font</span>
+<pre><code><span class="code-kw">&lt;link</span> <span class="code-prop">rel</span>=<span class="code-str">"preload"</span> <span class="code-prop">href</span>=<span class="code-str">"fonts/myicons.woff2"</span> <span class="code-prop">as</span>=<span class="code-str">"font"</span>
+      <span class="code-prop">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-prop">crossorigin</span><span class="code-kw">&gt;</span></code></pre>
+
+                    <p>Atribut <code>crossorigin</code> diperlukan bahkan untuk font same-origin — ini adalah keanehan dari spesifikasi font loading. Tanpanya, browser akan mengunduh font dua kali: sekali dari petunjuk preload (tanpa CORS) dan sekali dari aturan <code>@font-face</code> (dengan CORS).</p>
+                </div>
+
+                <h2 class="reveal">Masalah Umum</h2>
+                <div class="reveal">
+                    <ul>
+                        <li><strong>Error CORS</strong> — File font yang disajikan dari origin berbeda (misalnya CDN subdomain) memerlukan header <code>Access-Control-Allow-Origin</code> di server. Atau, gunakan atribut <code>crossorigin</code> pada tag <code>&lt;link&gt;</code>. Tanpa konfigurasi CORS yang tepat, browser akan memblokir font secara diam-diam.</li>
+                        <li><strong>Ikon menampilkan kotak atau persegi panjang</strong> — Ini biasanya berarti jalur file font salah, font belum dimuat, atau nama <code>font-family</code> dalam icon class tidak cocok dengan nama dalam deklarasi <code>@font-face</code>. Periksa tab Network browser Anda untuk memastikan file font dimuat dengan status 200.</li>
+                        <li><strong>Ikon menampilkan glyph yang salah</strong> — Konflik Unicode code point dengan font sistem. Jika icon font Anda menggunakan code points dalam rentang yang tumpang tindih dengan font sistem umum, browser mungkin merender karakter sistem sebagai gantinya. Icon fonts biasanya menggunakan Private Use Area (U+E000 hingga U+F8FF) untuk menghindari ini.</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tips debugging</div>
+                        Buka DevTools browser Anda, pergi ke tab Network, dan filter dengan "Font". Anda harus melihat file <code>.woff2</code> Anda dengan status 200. Jika hilang, jalurnya salah. Jika menampilkan error CORS, periksa header server Anda. Jika sudah dimuat tetapi ikon masih tidak muncul, periksa elemen dan verifikasi bahwa <code>font-family</code> cocok persis.
+                    </div>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Di Bobcorn</div>
+                    Bobcorn menghasilkan file CSS lengkap untuk Anda — deklarasi <code>@font-face</code>, base class <code>.icon</code>, dan icon class individual dengan Unicode code points yang benar. CSS menggunakan nama font yang Anda pilih dan mereferensikan file font dengan relative paths. Aktifkan opsi CSS dalam dialog ekspor untuk menyertakannya bersama file font Anda.
+                </div>
+
+                <nav class="page-nav">
+                    <a href="eot.html" class="page-nav-link">
+                        <div class="page-nav-dir">Sebelumnya</div>
+                        <div class="page-nav-title">EOT</div>
+                    </a>
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">Berikutnya</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>
