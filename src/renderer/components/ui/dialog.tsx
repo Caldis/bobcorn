@@ -86,62 +86,66 @@ export function Dialog({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           onClick={handleOverlayClick}
-          className="dialog-overlay fixed inset-0 z-50 bg-surface-overlay"
-        />
-        <DialogPrimitive.Content
-          ref={contentRef}
-          onPointerDownOutside={(e) => {
-            if (!maskClosable) e.preventDefault();
-          }}
-          onEscapeKeyDown={(e) => {
-            if (!closable) e.preventDefault();
-          }}
-          style={{ transformOrigin: originRef.current }}
-          className={cn(
-            'dialog-content',
-            'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
-            'w-full max-w-md',
-            'rounded-lg border border-border bg-surface shadow-xl',
-            'p-6',
-            className
-          )}
+          className="dialog-overlay fixed inset-0 z-50 bg-surface-overlay overflow-y-auto flex items-center justify-center py-8"
         >
-          {title && (
-            <DialogPrimitive.Title className="text-lg font-semibold text-foreground mb-4">
-              {title}
-            </DialogPrimitive.Title>
-          )}
-          {!title && <DialogPrimitive.Title className="sr-only">Dialog</DialogPrimitive.Title>}
-          <div className="text-foreground">{children}</div>
-          {footer !== null && footer !== undefined && (
-            <div className="mt-4 flex justify-end gap-2">{footer}</div>
-          )}
-          {closable && (
-            <DialogPrimitive.Close
-              className={cn(
-                'absolute right-4 top-4',
-                'inline-flex h-6 w-6 items-center justify-center rounded-full',
-                'text-foreground-muted hover:text-foreground',
-                'hover:bg-surface-muted',
-                'transition-colors'
-              )}
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          {/* Stop click propagation so clicking the dialog itself doesn't trigger overlay close */}
+          <DialogPrimitive.Content
+            ref={contentRef}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDownOutside={(e) => {
+              // Always prevent Radix's default outside-click close — overlay onClick handles it
+              e.preventDefault();
+            }}
+            onEscapeKeyDown={(e) => {
+              if (!closable) e.preventDefault();
+            }}
+            style={{ transformOrigin: originRef.current }}
+            className={cn(
+              'dialog-content',
+              'relative z-50 my-auto',
+              'w-full max-w-md',
+              'rounded-lg border border-border bg-surface shadow-xl',
+              'p-6',
+              className
+            )}
+          >
+            {title && (
+              <DialogPrimitive.Title className="text-lg font-semibold text-foreground mb-4">
+                {title}
+              </DialogPrimitive.Title>
+            )}
+            {!title && <DialogPrimitive.Title className="sr-only">Dialog</DialogPrimitive.Title>}
+            <div className="text-foreground">{children}</div>
+            {footer !== null && footer !== undefined && (
+              <div className="mt-4 flex justify-end gap-2">{footer}</div>
+            )}
+            {closable && (
+              <DialogPrimitive.Close
+                className={cn(
+                  'absolute right-4 top-4',
+                  'inline-flex h-6 w-6 items-center justify-center rounded-full',
+                  'text-foreground-muted hover:text-foreground',
+                  'hover:bg-surface-muted',
+                  'transition-colors'
+                )}
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </DialogPrimitive.Close>
-          )}
-        </DialogPrimitive.Content>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </DialogPrimitive.Close>
+            )}
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Overlay>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   );

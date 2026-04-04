@@ -25,7 +25,9 @@ interface ElectronAPI {
   windowMinimize: () => void;
   windowMaximize: () => void;
   windowClose: () => void;
+  windowSetAlwaysOnTop: (flag: boolean) => void;
   windowIsMaximized: () => boolean;
+  onMaximizedChange: (callback: (maximized: boolean, border: number) => void) => () => void;
 
   // Dialogs (via IPC to main process)
   showOpenDialog: (options: any) => Promise<{ canceled: boolean; filePaths: string[] }>;

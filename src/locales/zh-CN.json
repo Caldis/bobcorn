@@ -80,6 +80,10 @@
   "group.deleteConfirm": "确定要删除分组「{{name}}」吗？该分组内的图标将移入未分组。",
   "group.deleteSuccess": "分组已删除",
   "group.deleteOk": "删除",
+  "group.icon": "分组图标（可选）",
+  "group.iconRandom": "随机",
+  "group.iconClear": "清除",
+  "group.iconEmpty": "该分组暂无图标",
 
   "editor.name": "名称",
   "editor.namePlaceholder": "在界面上显示的名称",

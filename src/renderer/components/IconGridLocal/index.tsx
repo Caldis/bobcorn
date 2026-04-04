@@ -10,6 +10,7 @@ import { message, confirm } from '../ui';
 // Components
 import IconBlock from '../IconBlock';
 import IconToolbar from '../IconToolbar';
+import GroupIconPreview from '../GroupIconPreview';
 // ViewModel
 import { computeIconGridViewModel, type IconItem } from './viewModel';
 // Utils
@@ -31,7 +32,6 @@ interface IconGridLocalProps {
 }
 
 const HEADER_HEIGHT = 52; // estimate: accent bar + py-1.5 (12) + content (~20) + mt-3 (12) + pb-2 (8)
-const STICKY_HEIGHT = 36; // sticky: accent bar + py-2 (16) + content (~20)
 
 function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps) {
   const { t } = useTranslation();
@@ -184,7 +184,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     estimateSize: (index) => (viewModel.rows[index]?.kind === 'header' ? HEADER_HEIGHT : rowHeight),
     getItemKey: (index) => viewModel.rows[index]?.key ?? String(index),
     overscan: 3,
-    paddingStart: GRID_H_PAD,
+    paddingStart: selectedGroup === 'resource-all' ? 0 : GRID_H_PAD,
     paddingEnd: GRID_H_PAD,
   });
 
@@ -412,93 +412,32 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       : iconData[selectedGroup] && iconData[selectedGroup].length !== 0;
 
   // ── Sticky header for "All" view ─────────────────────────────────────
-  const headerMeta = useMemo(() => {
-    if (selectedGroup !== 'resource-all') return [];
-    const headers: {
-      start: number;
-      groupName: string;
-      groupDescription?: string;
-      count: number;
-      groupId: string;
-    }[] = [];
-    let y = GRID_H_PAD; // paddingStart
-    for (let i = 0; i < viewModel.rows.length; i++) {
+  // ── Sticky header (derived from virtualizer's actual measurements) ──
+  const stickyHeader = useMemo(() => {
+    if (selectedGroup !== 'resource-all') return null;
+    const items = virtualizer.getVirtualItems();
+    if (!items.length) return null;
+
+    // Walk backward from first visible item to find the nearest header that scrolled past
+    const scrollTop = scrollRef.current?.scrollTop ?? 0;
+    if (scrollTop <= 0) return null;
+
+    const firstIdx = items[0].index;
+    for (let i = firstIdx; i >= 0; i--) {
       const row = viewModel.rows[i];
-      if (row.kind === 'header') {
-        headers.push({
-          start: y,
-          groupName: row.groupName,
-          groupDescription: row.groupDescription,
-          count: row.count,
-          groupId: row.groupId,
-        });
-      }
-      y += row.kind === 'header' ? HEADER_HEIGHT : rowHeight;
-    }
-    return headers;
-  }, [viewModel.rows, rowHeight, selectedGroup]);
-
-  const [stickyHeader, setStickyHeader] = useState<(typeof headerMeta)[0] | null>(null);
-  const stickyRef = useRef<HTMLDivElement>(null);
-  const stickyGroupIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || headerMeta.length === 0) {
-      if (stickyGroupIdRef.current !== null) {
-        stickyGroupIdRef.current = null;
-        setStickyHeader(null);
-      }
-      return;
-    }
-
-    const onScroll = () => {
-      const st = el.scrollTop;
-
-      // Find current header: last header fully scrolled past viewport top
-      let idx = -1;
-      for (let i = 0; i < headerMeta.length; i++) {
-        if (headerMeta[i].start + HEADER_HEIGHT <= st) idx = i;
-        else break;
-      }
-
-      if (idx < 0) {
-        if (stickyGroupIdRef.current !== null) {
-          stickyGroupIdRef.current = null;
-          setStickyHeader(null);
+      if (row?.kind === 'header') {
+        // Check if this header has actually scrolled past the top
+        // Use the virtualizer's measured offset for accuracy
+        const offset = virtualizer.getOffsetForIndex(i, 'start');
+        const measuredStart = offset?.[0] ?? 0;
+        if (measuredStart + HEADER_HEIGHT <= scrollTop) {
+          return row;
         }
-        if (stickyRef.current) stickyRef.current.style.transform = '';
-        return;
+        return null;
       }
-
-      const current = headerMeta[idx];
-      if (current.groupId !== stickyGroupIdRef.current) {
-        stickyGroupIdRef.current = current.groupId;
-        setStickyHeader(current);
-      }
-
-      // Push-up when next header approaches
-      if (stickyRef.current) {
-        const next = headerMeta[idx + 1];
-        if (next) {
-          const overlap = st + STICKY_HEIGHT - next.start;
-          stickyRef.current.style.transform = overlap > 0 ? `translateY(${-overlap}px)` : '';
-        } else {
-          stickyRef.current.style.transform = '';
-        }
-      }
-    };
-
-    el.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [headerMeta]);
-
-  // Reset sticky header on group change
-  useEffect(() => {
-    stickyGroupIdRef.current = null;
-    setStickyHeader(null);
-  }, [selectedGroup]);
+    }
+    return null;
+  }, [virtualizer.getVirtualItems(), selectedGroup, viewModel.rows]);
 
   // ── Render virtual items ────────────────────────────────────────────
   const virtualItems = virtualizer.getVirtualItems();
@@ -544,7 +483,6 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       {/* Sticky group header overlay (All view only) */}
       {stickyHeader && (
         <div
-          ref={stickyRef}
           className={cn(
             'absolute top-0 left-0 w-full z-20',
             'cursor-pointer text-left',
@@ -556,6 +494,12 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
           onClick={() => selectGroup(stickyHeader.groupId)}
         >
           <div className="w-[3px] shrink-0 bg-accent" />
+          {stickyHeader.groupIcon && (
+            <GroupIconPreview
+              iconId={stickyHeader.groupIcon}
+              className="w-[18px] h-[18px] ml-3 self-center opacity-60"
+            />
+          )}
           <div className="flex flex-col justify-center py-2 pl-3 pr-4 min-w-0">
             <div className="flex items-baseline gap-2">
               <span className="text-sm font-medium text-foreground truncate">
@@ -614,18 +558,25 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                         'w-full flex items-stretch',
                         virtualRow.index > 0 && 'mt-3',
                         'transition-colors duration-200',
+                        'bg-surface border-b border-border/50',
                         'hover:bg-surface-accent',
                         'active:bg-surface-accent'
                       )}
                       onClick={() => selectGroup(row.groupId)}
                     >
-                      <div className="w-[3px] shrink-0 rounded-full bg-accent/80" />
-                      <div className="flex flex-col justify-center py-1.5 pl-3 pr-4 min-w-0">
+                      <div className="w-[3px] shrink-0 bg-accent" />
+                      {row.groupIcon && (
+                        <GroupIconPreview
+                          iconId={row.groupIcon}
+                          className="w-[18px] h-[18px] ml-3 self-center opacity-60"
+                        />
+                      )}
+                      <div className="flex flex-col justify-center py-2 pl-3 pr-4 min-w-0">
                         <div className="flex items-baseline gap-2">
                           <span className="text-sm font-medium text-foreground truncate">
                             {row.groupName}
                           </span>
-                          <span className="text-xs tabular-nums text-foreground-muted/40 shrink-0">
+                          <span className="text-xs tabular-nums text-foreground-muted/50 shrink-0">
                             {row.count}
                           </span>
                         </div>

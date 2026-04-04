@@ -70,10 +70,12 @@ function ResizeHandle({
   return (
     <div
       className={cn(
-        'w-[3px] shrink-0 cursor-col-resize',
-        'hover:bg-accent/40 active:bg-accent/60',
-        'transition-colors duration-150'
+        'relative shrink-0 cursor-col-resize z-10',
+        'before:absolute before:inset-y-0 before:left-1/2 before:w-[3px] before:-translate-x-1/2',
+        'before:transition-colors before:duration-150',
+        'hover:before:bg-accent/40 active:before:bg-accent/60'
       )}
+      style={{ width: 8, marginLeft: -4, marginRight: -4 }}
       onMouseDown={onMouseDown}
     />
   );
@@ -395,17 +397,7 @@ function MainContainer() {
       });
     });
 
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (useAppStore.getState().isDirty) {
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('beforeunload', onBeforeUnload);
-
-    return () => {
-      cleanup();
-      window.removeEventListener('beforeunload', onBeforeUnload);
-    };
+    return cleanup;
   }, [handleSave, t]);
 
   // ── Language sync (i18n) ────────────────────────────────────────

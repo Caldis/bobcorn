@@ -43,7 +43,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
         'border',
         'focus:outline-none focus:ring-2 focus:ring-ring/40',
         'disabled:opacity-50 disabled:pointer-events-none',
-        size === 'small' && 'text-xs px-2 py-0.5',
+        size === 'small' && 'text-xs px-2 py-1.5',
         size === 'default' && 'text-sm px-3 py-1',
         size === 'large' && 'text-base px-4 py-2',
         shape === 'circle'

@@ -7,7 +7,7 @@
 import os from 'os';
 import path from 'path';
 import type { OpenDialogOptions, SaveDialogOptions } from 'electron';
-import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 import mainI18n from './i18n';
@@ -153,9 +153,31 @@ if (!gotLock) {
       mainWindow = null;
     });
 
+    // Forward maximize/unmaximize events to renderer (for title bar button sync)
+    mainWindow.on('maximize', () => {
+      // Detect the invisible border size (window extends beyond screen when maximized)
+      let border = 0;
+      if (mainWindow) {
+        const bounds = mainWindow.getBounds();
+        const display = screen.getDisplayMatching(bounds);
+        border = Math.max(0, display.workArea.x - bounds.x);
+      }
+      mainWindow?.webContents.send('window-maximized-change', true, border);
+    });
+    mainWindow.on('unmaximize', () => {
+      mainWindow?.webContents.send('window-maximized-change', false, 0);
+    });
+
     // ── Close guard ────────────────────────────────────────────
     let forceClose = false;
     let closeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const clearCloseTimeout = () => {
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+    };
 
     app.on('before-quit', () => {
       forceClose = true;
@@ -164,6 +186,8 @@ if (!gotLock) {
     mainWindow.on('close', (e) => {
       if (!forceClose) {
         e.preventDefault();
+        // Prevent duplicate timeouts from rapid clicks
+        clearCloseTimeout();
         mainWindow!.webContents.send('app:confirm-close');
         closeTimeout = setTimeout(() => {
           forceClose = true;
@@ -172,20 +196,17 @@ if (!gotLock) {
       }
     });
 
+    // Use removeAllListeners to prevent handler accumulation from HMR
+    ipcMain.removeAllListeners('app:close-confirmed');
     ipcMain.on('app:close-confirmed', () => {
-      if (closeTimeout) {
-        clearTimeout(closeTimeout);
-        closeTimeout = null;
-      }
+      clearCloseTimeout();
       forceClose = true;
       mainWindow?.close();
     });
 
+    ipcMain.removeAllListeners('app:close-cancelled');
     ipcMain.on('app:close-cancelled', () => {
-      if (closeTimeout) {
-        clearTimeout(closeTimeout);
-        closeTimeout = null;
-      }
+      clearCloseTimeout();
     });
 
     const menuBuilder = new MenuBuilder(mainWindow);
@@ -203,6 +224,10 @@ if (!gotLock) {
     ipcMain.on('window-minimize', () => {
       if (mainWindow) mainWindow.minimize();
     });
+    ipcMain.removeAllListeners('window-always-on-top');
+    ipcMain.on('window-always-on-top', (_event: Electron.IpcMainEvent, flag: boolean) => {
+      if (mainWindow) mainWindow.setAlwaysOnTop(flag);
+    });
     ipcMain.on('window-maximize', () => {
       if (mainWindow) {
         if (mainWindow.isMaximized()) {
@@ -212,6 +237,7 @@ if (!gotLock) {
         }
       }
     });
+    ipcMain.removeAllListeners('window-close');
     ipcMain.on('window-close', () => {
       if (mainWindow) mainWindow.close();
     });

@@ -12,6 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Tags, Plus, Settings } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Dropdown } from '../ui';
+import GroupIconPreview from '../GroupIconPreview';
 import db from '../../database';
 import useAppStore from '../../store';
 import addGroupHint from '../../resources/imgs/nodata/addGroupHint.png';
@@ -58,6 +59,9 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
         isDragging && 'shadow-md ring-1 ring-ring/30'
       )}
     >
+      {group.groupIcon && (
+        <GroupIconPreview iconId={group.groupIcon} className="w-[15px] h-[15px] mr-2 opacity-70" />
+      )}
       <span className="flex-1 min-w-0">
         <span className="block truncate">{group.groupName}</span>
         {group.groupDescription && (

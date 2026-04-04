@@ -14,7 +14,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   windowMinimize: (): void => ipcRenderer.send('window-minimize'),
   windowMaximize: (): void => ipcRenderer.send('window-maximize'),
   windowClose: (): void => ipcRenderer.send('window-close'),
+  windowSetAlwaysOnTop: (flag: boolean): void => ipcRenderer.send('window-always-on-top', flag),
   windowIsMaximized: (): boolean => ipcRenderer.sendSync('window-is-maximized'),
+  onMaximizedChange: (callback: (maximized: boolean, border: number) => void) => {
+    const handler = (_: any, maximized: boolean, border: number) => callback(maximized, border);
+    ipcRenderer.on('window-maximized-change', handler);
+    return () => {
+      ipcRenderer.removeListener('window-maximized-change', handler);
+    };
+  },
 
   // Dialogs (via IPC to main process)
   showOpenDialog: (options: OpenDialogOptions) => ipcRenderer.invoke('dialog-show-open', options),

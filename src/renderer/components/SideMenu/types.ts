@@ -4,6 +4,7 @@ export interface GroupData {
   groupOrder?: number;
   groupColor?: string;
   groupDescription?: string;
+  groupIcon?: string;
   [key: string]: any;
 }
 

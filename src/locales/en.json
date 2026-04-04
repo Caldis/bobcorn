@@ -80,6 +80,10 @@
   "group.deleteConfirm": "Are you sure you want to delete group \"{{name}}\"? Icons in this group will be moved to Ungrouped.",
   "group.deleteSuccess": "Group deleted",
   "group.deleteOk": "Delete",
+  "group.icon": "Group Icon (optional)",
+  "group.iconRandom": "Random",
+  "group.iconClear": "Clear",
+  "group.iconEmpty": "No icons in this group",
 
   "editor.name": "Name",
   "editor.namePlaceholder": "Display name in the interface",

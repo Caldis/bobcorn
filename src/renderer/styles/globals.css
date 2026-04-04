@@ -80,20 +80,30 @@
 
 /* Scrollbar — uses foreground token for automatic theme adaptation */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--foreground) / 0.04);
-  border-radius: 3px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--foreground) / 0.15);
-  border-radius: 3px;
+  border-radius: 5px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  transition: border-width 0.2s ease, background 0.2s ease;
+}
+
+/* Focus outline — match theme accent instead of browser default yellow */
+*:focus-visible {
+  outline: 2px solid hsl(var(--accent));
+  outline-offset: -2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--foreground) / 0.3);
+  background: hsl(var(--foreground) / 0.25);
+  border-width: 2px;
+  background-clip: padding-box;
 }

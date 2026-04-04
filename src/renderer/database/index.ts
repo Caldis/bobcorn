@@ -629,15 +629,20 @@ class Database {
     id: string,
     groupName: string,
     groupDescription: string | null,
-    callback?: () => void
+    callback?: () => void,
+    groupIcon?: string | null
   ): void => {
     dev && console.log('setGroupInfo');
     // 确保 groupDescription 列存在（HMR 热更新时可能还没跑过 migration）
     this.ensureGroupDescriptionColumn();
+    this.ensureGroupIconColumn();
     const dataSet: DataSet = {
       groupName: sf(groupName),
       groupDescription: groupDescription ? sf(groupDescription) : 'NULL',
     };
+    if (groupIcon !== undefined) {
+      dataSet.groupIcon = groupIcon ? sf(groupIcon) : 'NULL';
+    }
     this.setGroupData(id, dataSet, callback);
   };
   private ensureGroupDescriptionColumn = (): void => {
@@ -648,6 +653,18 @@ class Database {
       if (!has) {
         this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupDescription TEXT`);
         dev && console.log('Lazy migration: added groupDescription column');
+      }
+    } catch (_) {
+      /* column already exists */
+    }
+  };
+  private ensureGroupIconColumn = (): void => {
+    try {
+      const cols = this.db!.exec(`PRAGMA table_info(${groupData})`);
+      const has = cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'groupIcon');
+      if (!has) {
+        this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupIcon TEXT`);
+        dev && console.log('Lazy migration: added groupIcon column');
       }
     } catch (_) {
       /* column already exists */

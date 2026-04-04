@@ -457,8 +457,10 @@ const SideEditor = React.memo(function SideEditor({
     <div
       className={cn('relative w-full h-full flex flex-col', 'border-l border-border', 'bg-surface')}
     >
-      {/* Win32 title bar spacer */}
-      {platform() === 'win32' && <div className="w-full h-5 shrink-0" />}
+      {/* Win32 title bar spacer — matches IconInfoBar height to clear window controls */}
+      {platform() === 'win32' && (
+        <div className="w-full h-[58px] shrink-0 border-b border-border [-webkit-app-region:drag]" />
+      )}
 
       {selectedIcon ? (
         <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3">
@@ -696,15 +698,17 @@ const SideEditor = React.memo(function SideEditor({
             </h4>
             <div className="grid grid-cols-2 gap-1.5">
               <Button
+                size="small"
                 className="!w-full"
-                icon={<RefreshCw size={14} />}
+                icon={<RefreshCw size={12} />}
                 onClick={handleIconContentUpdate}
               >
                 {t('editor.replace')}
               </Button>
               <Button
+                size="small"
                 className="!w-full"
-                icon={<Trash2 size={14} />}
+                icon={<Trash2 size={12} />}
                 onClick={
                   selectedGroup === 'resource-recycleBin' ? handleIconDelete : handleIconRecycle
                 }
@@ -712,17 +716,19 @@ const SideEditor = React.memo(function SideEditor({
                 {selectedGroup === 'resource-recycleBin' ? t('editor.delete') : t('editor.recycle')}
               </Button>
               <Button
+                size="small"
                 disabled={groupNum === 0}
                 className="!w-full"
-                icon={<Copy size={14} />}
+                icon={<Copy size={12} />}
                 onClick={() => handleShowIconGroupEdit('duplicate')}
               >
                 {t('editor.copy')}
               </Button>
               <Button
+                size="small"
                 disabled={groupNum === 0}
                 className="!w-full"
-                icon={<ArrowRightLeft size={14} />}
+                icon={<ArrowRightLeft size={12} />}
                 onClick={() => handleShowIconGroupEdit('move')}
               >
                 {t('editor.move')}
@@ -744,7 +750,12 @@ const SideEditor = React.memo(function SideEditor({
               <Download size={12} />
               {t('editor.export')}
             </h4>
-            <Button className="!w-full" icon={<Download size={14} />} onClick={handleIconExport}>
+            <Button
+              size="small"
+              className="!w-full"
+              icon={<Download size={12} />}
+              onClick={handleIconExport}
+            >
               {t('editor.exportSvg')}
             </Button>
           </div>

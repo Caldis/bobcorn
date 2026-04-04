@@ -23,6 +23,7 @@ export type VirtualRow =
       groupId: string;
       groupName: string;
       groupDescription?: string;
+      groupIcon?: string;
       count: number;
     }
   | { kind: 'row'; key: string; icons: IconItem[]; startIndex: number };
@@ -120,6 +121,7 @@ export function computeIconGridViewModel(params: {
         groupId: group.id,
         groupName: group.groupName,
         groupDescription: group.groupDescription || undefined,
+        groupIcon: group.groupIcon || undefined,
         count: icons.length,
       });
 
