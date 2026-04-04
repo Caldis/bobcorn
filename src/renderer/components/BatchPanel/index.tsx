@@ -1,11 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HexColorPicker } from 'react-colorful';
-import { Trash2, FolderInput, Copy, Download, Palette, Star, StarOff } from 'lucide-react';
+import { Trash2, FolderInput, Copy, Download, Palette, Star, StarOff, Layers } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
 import { parseCssColor } from '../../utils/svg/colors';
 import { message, confirm } from '../ui';
+import { allVariantCombinations, buildVariantName } from '../../utils/svg/variants';
+import { bakeSvgVariant, buildVariantMeta } from '../../utils/svg/bake';
 import db from '../../database';
 import useAppStore from '../../store';
 
@@ -115,6 +117,63 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
     message.success(t('batch.colorApplied', { count: selectedIds.length }));
     setShowColorPicker(false);
   }, [selectedIds, batchColor]);
+
+  const handleBatchGenerateVariants = useCallback(async () => {
+    const combos = allVariantCombinations();
+    const total = selectedIds.length * combos.length;
+
+    confirm({
+      title: t('variant.batchGenerate'),
+      content: t('variant.batchConfirm', {
+        icons: selectedIds.length,
+        variants: total,
+      }),
+      onOk: async () => {
+        const setVariantProgress = useAppStore.getState().setVariantProgress;
+        setVariantProgress({ current: 0, total, active: true });
+        let done = 0;
+        let failed = 0;
+
+        for (const iconId of selectedIds) {
+          const iconData = db.getIconData(iconId);
+          if (!iconData || db.isVariant(iconId)) continue;
+
+          for (const { weight, scale } of combos) {
+            const state = useAppStore.getState();
+            if (!state.variantProgress?.active) break;
+
+            if (db.hasVariant(iconId, weight.key, scale.key)) {
+              done++;
+              continue;
+            }
+
+            try {
+              const svg = await bakeSvgVariant(iconData.iconContent, weight, scale);
+              const name = buildVariantName(iconData.iconName, weight, scale);
+              const meta = buildVariantMeta(weight, scale);
+              db.addVariant(iconId, svg, name, meta);
+              done++;
+            } catch {
+              failed++;
+            }
+            setVariantProgress({ current: done + failed, total, active: true });
+          }
+
+          if (!useAppStore.getState().variantProgress?.active) break;
+        }
+
+        setVariantProgress(null);
+        syncLeft();
+        clearBatchSelection();
+
+        if (failed > 0) {
+          message.warning(t('variant.batchFailed', { failed, total }));
+        } else {
+          message.success(t('variant.generated', { count: done }));
+        }
+      },
+    });
+  }, [selectedIds, syncLeft, clearBatchSelection, t]);
 
   // Sync HexColorPicker changes to both state and input
   const handlePickerChange = useCallback((color: string) => {
@@ -338,6 +397,9 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
             </button>
             <button className={btnClass} onClick={() => setShowColorPicker(true)}>
               <Palette size={18} className="text-foreground-muted" /> {t('batch.unifyColor')}
+            </button>
+            <button className={btnClass} onClick={handleBatchGenerateVariants}>
+              <Layers size={18} className="text-foreground-muted" /> {t('variant.batchGenerate')}
             </button>
           </div>
         )}
