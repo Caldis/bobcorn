@@ -37,6 +37,7 @@ export default function VariantPanel({
   const syncLeft = useAppStore((s: any) => s.syncLeft);
   const variantProgress = useAppStore((s: any) => s.variantProgress);
   const setVariantProgress = useAppStore((s: any) => s.setVariantProgress);
+  const refreshVariantCounts = useAppStore((s: any) => s.refreshVariantCounts);
 
   const [weightIndex, setWeightIndex] = useState(REGULAR_INDEX);
   const [scaleIndex, setScaleIndex] = useState(MEDIUM_SCALE_INDEX);
@@ -79,6 +80,7 @@ export default function VariantPanel({
       db.addVariant(iconId, bakedSvg, name, meta);
       message.success(t('variant.generated', { count: 1 }));
       refreshVariants();
+      refreshVariantCounts();
       syncLeft();
     } catch (err: any) {
       if (err.message === 'PUA_EXHAUSTED') {
@@ -136,6 +138,7 @@ export default function VariantPanel({
     setVariantProgress(null);
     setGenerating(false);
     refreshVariants();
+    refreshVariantCounts();
     syncLeft();
 
     if (failed > 0) {
@@ -155,9 +158,10 @@ export default function VariantPanel({
     (variantId: string) => {
       db.delIcon(variantId);
       refreshVariants();
+      refreshVariantCounts();
       syncLeft();
     },
-    [refreshVariants]
+    [refreshVariants, refreshVariantCounts]
   );
 
   // Export a single variant as SVG

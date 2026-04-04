@@ -121,8 +121,11 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     [selectedGroup]
   );
 
+  const refreshVariantCounts = useAppStore((state: any) => state.refreshVariantCounts);
+
   useEffect(() => {
     sync();
+    refreshVariantCounts();
     const timer = setTimeout(() => setReady(true), 300);
     return () => clearTimeout(timer);
   }, [sync]);

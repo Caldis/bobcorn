@@ -468,6 +468,8 @@ class Database {
     this.db!.run(
       `CREATE TRIGGER ${iconDataTimeRenewTrigger} AFTER UPDATE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${iconData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
     );
+    // Index for variant queries (filter variantOf IS NULL, count by variantOf)
+    this.db!.run(`CREATE INDEX IF NOT EXISTS idx_iconData_variantOf ON ${iconData} (variantOf)`);
   };
   // 从文件初始化新项目
   initNewProjectFromData = (data: ArrayLike<number>): void => {
@@ -491,6 +493,8 @@ class Database {
         this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN variantMeta TEXT DEFAULT NULL`);
         dev && console.log('Migration: added variantMeta column');
       }
+      // Ensure index exists (idempotent)
+      this.db!.run(`CREATE INDEX IF NOT EXISTS idx_iconData_variantOf ON ${iconData} (variantOf)`);
     } catch (e) {
       dev && console.warn('migrateVariantColumns failed:', e);
     }
@@ -1215,6 +1219,20 @@ class Database {
       `SELECT COUNT(*) FROM ${iconData} WHERE variantOf = ${sf(parentId)}`
     );
     return result.length ? (result[0].values[0][0] as number) : 0;
+  };
+
+  /** Get ALL variant counts in one query. Returns Map<parentId, count>. */
+  getAllVariantCounts = (): Map<string, number> => {
+    const result = this.db!.exec(
+      `SELECT variantOf, COUNT(*) as cnt FROM ${iconData} WHERE variantOf IS NOT NULL GROUP BY variantOf`
+    );
+    const map = new Map<string, number>();
+    if (result.length > 0) {
+      result[0].values.forEach((row: any[]) => {
+        map.set(row[0] as string, row[1] as number);
+      });
+    }
+    return map;
   };
 
   /** Check if a variant with given weight+scale already exists */

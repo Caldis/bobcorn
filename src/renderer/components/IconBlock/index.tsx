@@ -61,13 +61,10 @@ const IconBlock = React.memo(function IconBlock({
 
   const effectiveContent = patchedContent || content || lazyContent;
 
-  // Variant count badge for parent icons (non-variant icons that have variants)
-  const groupData = useAppStore((state: any) => state.groupData);
-  const variantCount = useMemo(() => {
-    if (data.variantOf) return 0; // variant icons never show a badge
-    if (!data.id) return 0;
-    return db.getVariantCount(data.id);
-  }, [data.id, data.variantOf, groupData]);
+  // Variant count badge — reads from store cache (single GROUP BY query, not per-icon)
+  const variantCount = useAppStore((state: any) =>
+    data.variantOf || !data.id ? 0 : state.variantCounts?.get(data.id) || 0
+  );
 
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 

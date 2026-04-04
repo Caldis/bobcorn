@@ -41,6 +41,9 @@ export interface State {
 
   // Variant generation progress
   variantProgress: { current: number; total: number; active: boolean } | null;
+
+  // Variant counts cache — Map<parentId, count>, refreshed in batch
+  variantCounts: Map<string, number>;
 }
 
 export interface Actions {
@@ -79,6 +82,7 @@ export interface Actions {
   setVariantProgress: (
     progress: { current: number; total: number; active: boolean } | null
   ) => void;
+  refreshVariantCounts: () => void;
 }
 
 const useAppStore = create<State & Actions>((set, get) => ({
@@ -115,6 +119,9 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // Variant generation progress
   variantProgress: null,
+
+  // Variant counts cache
+  variantCounts: new Map<string, number>(),
 
   // Actions
   showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
@@ -254,6 +261,15 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // Variant actions
   setVariantProgress: (progress) => {
     set({ variantProgress: progress });
+  },
+  refreshVariantCounts: () => {
+    try {
+      // Single GROUP BY query replaces N per-icon queries
+      const db = require('../database').default;
+      set({ variantCounts: db.getAllVariantCounts() });
+    } catch {
+      set({ variantCounts: new Map() });
+    }
   },
 }));
 
