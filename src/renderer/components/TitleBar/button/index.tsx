@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 // Utils
 import { cn } from '../../../lib/utils';
+import useAppStore from '../../../store';
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 
@@ -23,6 +24,7 @@ function TitleBarButtonGroup() {
   const [maximized, setMaximized] = useState(() => electronAPI.windowIsMaximized());
   const [border, setBorder] = useState(0);
   const [pinned, setPinned] = useState(false);
+  const sideEditorVisible = useAppStore((state: any) => state.sideEditorVisible);
 
   // Listen to ALL maximize/unmaximize events (button click, double-click title bar, Win+Up, etc.)
   useEffect(() => {
@@ -79,6 +81,7 @@ function TitleBarButtonGroup() {
       style={{ top: offset.top, right: offset.right }}
       id="titleBarButtonGroup"
     >
+      {!sideEditorVisible && <div className="w-px h-3.5 bg-foreground-muted/20 mx-1.5" />}
       <button
         className={cn(buttonBase, pinned && 'text-accent')}
         onClick={() => {

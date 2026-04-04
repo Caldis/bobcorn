@@ -31,9 +31,11 @@ const { electronAPI } = window;
 function ResizeHandle({
   onResize,
   side,
+  onDragChange,
 }: {
   onResize: (delta: number) => void;
   side: 'left' | 'right';
+  onDragChange?: (dragging: boolean) => void;
 }) {
   const dragging = useRef(false);
   const lastX = useRef(0);
@@ -43,6 +45,7 @@ function ResizeHandle({
       e.preventDefault();
       dragging.current = true;
       lastX.current = e.clientX;
+      onDragChange?.(true);
 
       const onMouseMove = (ev: MouseEvent) => {
         if (!dragging.current) return;
@@ -53,6 +56,7 @@ function ResizeHandle({
 
       const onMouseUp = () => {
         dragging.current = false;
+        onDragChange?.(false);
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
         document.body.style.cursor = '';
@@ -64,7 +68,7 @@ function ResizeHandle({
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
     },
-    [onResize, side]
+    [onResize, side, onDragChange]
   );
 
   return (
@@ -94,6 +98,7 @@ function MainContainer() {
 
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
   const isDirty = useAppStore((s: any) => s.isDirty);
+  const [resizing, setResizing] = useState(false);
 
   const selectGroup = useAppStore((state: any) => state.selectGroup);
   const selectIcon = useAppStore((state: any) => state.selectIcon);
@@ -106,6 +111,8 @@ function MainContainer() {
   };
   const [leftWidth, setLeftWidth] = useState(opts.sideMenuWidth || 250);
   const [rightWidth, setRightWidth] = useState(opts.sideEditorWidth || 250);
+  const setSideMenuVisible = useAppStore((state: any) => state.setSideMenuVisible);
+  const setSideEditorVisible = useAppStore((state: any) => state.setSideEditorVisible);
 
   const handleLeftResize = useCallback((delta: number) => {
     setLeftWidth((w) => {
@@ -469,8 +476,9 @@ function MainContainer() {
           {/*左侧边栏*/}
           <div
             className={cn(
-              'shrink-0 overflow-hidden transition-[opacity] duration-300',
-              !sideMenuVisible && '!w-0 !opacity-0'
+              'shrink-0 overflow-hidden',
+              !resizing && 'transition-[width,opacity] duration-300 ease-in-out',
+              !sideMenuVisible && 'opacity-0'
             )}
             style={{
               width: sideMenuVisible ? leftWidth : 0,
@@ -481,7 +489,9 @@ function MainContainer() {
           </div>
 
           {/* 左侧拖拽分隔线 */}
-          {sideMenuVisible ? <ResizeHandle onResize={handleLeftResize} side="left" /> : null}
+          {sideMenuVisible ? (
+            <ResizeHandle onResize={handleLeftResize} side="left" onDragChange={setResizing} />
+          ) : null}
 
           {/*中央图标网格*/}
           <div className="min-w-0 flex-1 overflow-hidden" style={{ contain: 'strict' }}>
@@ -495,13 +505,16 @@ function MainContainer() {
           </div>
 
           {/* 右侧拖拽分隔线 */}
-          {sideEditorVisible ? <ResizeHandle onResize={handleRightResize} side="right" /> : null}
+          {sideEditorVisible ? (
+            <ResizeHandle onResize={handleRightResize} side="right" onDragChange={setResizing} />
+          ) : null}
 
           {/*右侧编辑器*/}
           <div
             className={cn(
-              'shrink-0 overflow-hidden bg-surface-muted transition-[opacity] duration-300',
-              !sideEditorVisible && '!w-0 !opacity-0'
+              'shrink-0 overflow-hidden bg-surface-muted',
+              !resizing && 'transition-[width,opacity] duration-300 ease-in-out',
+              !sideEditorVisible && 'opacity-0'
             )}
             style={{
               width: sideEditorVisible ? rightWidth : 0,

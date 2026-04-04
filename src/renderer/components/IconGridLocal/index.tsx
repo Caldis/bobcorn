@@ -82,18 +82,29 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   }, [containerWidth, cellWidth]);
 
   // ── ResizeObserver for container width ──────────────────────────────
+  // Debounce width updates so sidebar toggle animations don't cause continuous re-renders.
+  // The grid only recalculates columns after resize events settle (300ms = sidebar transition).
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
       const entry = entries[0];
-      if (entry) {
-        requestAnimationFrame(() => setContainerWidth(entry.contentRect.width));
+      if (!entry) return;
+      const w = entry.contentRect.width;
+      // Immediate on first measurement (containerWidth === 0), debounced thereafter
+      if (!containerWidth) {
+        setContainerWidth(w);
+        return;
       }
+      if (widthTimerRef.current) clearTimeout(widthTimerRef.current);
+      widthTimerRef.current = setTimeout(() => setContainerWidth(w), 300);
     });
     ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+    return () => {
+      ro.disconnect();
+      if (widthTimerRef.current) clearTimeout(widthTimerRef.current);
+    };
+  }, [containerWidth === 0]); // only re-run dependency on first mount
 
   // ── Database sync ───────────────────────────────────────────────────
   const sync = useCallback(
@@ -290,9 +301,13 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     [selectedGroup, syncLeft, sync, t]
   );
 
+  const dropDisabled =
+    selectedGroup === 'resource-recent' || selectedGroup === 'resource-recycleBin';
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     noClick: true,
+    noKeyboard: true,
     onDrop: onIconDrop,
+    disabled: dropDisabled,
   });
 
   // Merge dropzone ref with scroll ref
@@ -515,6 +530,36 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
               </span>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Drop zone overlay */}
+      {isDragActive && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none">
+          <div className="w-12 h-12 mb-4 rounded-2xl bg-accent/15 flex items-center justify-center">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-accent"
+            >
+              <path d="M12 3v12m0 0l-4-4m4 4l4-4" />
+              <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+            </svg>
+          </div>
+          <p className="text-sm font-medium text-foreground">{t('dropZone.title')}</p>
+          <p className="text-xs text-foreground-muted mt-1">
+            {selectedGroup === 'resource-favorite'
+              ? t('dropZone.subtitleFavorite')
+              : selectedGroup.startsWith('resource-')
+                ? t('dropZone.subtitleUngrouped')
+                : t('dropZone.subtitle')}
+          </p>
         </div>
       )}
 

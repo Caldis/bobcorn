@@ -287,6 +287,10 @@
   "emptyState.trashHint": "Recycled icons will appear here",
   "emptyState.emptyGroup": "This group has no icons",
   "emptyState.dragToGroup": "Drag icons here to add to this group",
+  "dropZone.title": "Drop to import icons",
+  "dropZone.subtitle": "Icons will be added to the current group",
+  "dropZone.subtitleUngrouped": "Icons will be added to Ungrouped",
+  "dropZone.subtitleFavorite": "Icons will be added to Ungrouped and marked as favorites",
 
   "settings.title": "Settings",
   "settings.language": "Language",

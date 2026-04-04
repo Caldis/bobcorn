@@ -287,6 +287,10 @@
   "emptyState.trashHint": "当图标被回收后, 将会出现在此处",
   "emptyState.emptyGroup": "这个分组没有图标",
   "emptyState.dragToGroup": "拖拽到此处将图标添加到该分组",
+  "dropZone.title": "释放以导入图标",
+  "dropZone.subtitle": "图标将添加到当前分组",
+  "dropZone.subtitleUngrouped": "图标将添加到未分组",
+  "dropZone.subtitleFavorite": "图标将添加到未分组，并加入收藏",
 
   "settings.title": "设置",
   "settings.language": "语言 / Language",
