@@ -42,7 +42,10 @@ export function Checkbox({
           'focus:outline-none focus:ring-2 focus:ring-ring/40'
         )}
       >
-        <CheckboxPrimitive.Indicator className="flex items-center justify-center text-accent-foreground">
+        <CheckboxPrimitive.Indicator
+          forceMount
+          className="flex items-center justify-center text-accent-foreground data-[state=unchecked]:opacity-0"
+        >
           {indeterminate ? (
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
               <rect x="2" y="4.5" width="6" height="1.5" rx="0.5" fill="currentColor" />
@@ -60,7 +63,7 @@ export function Checkbox({
           )}
         </CheckboxPrimitive.Indicator>
       </CheckboxPrimitive.Root>
-      {children && <span className="text-foreground">{children}</span>}
+      {children && <span className="text-foreground leading-4">{children}</span>}
     </label>
   );
 }

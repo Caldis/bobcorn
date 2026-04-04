@@ -119,7 +119,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     svg: true,
     ttf: true,
     woff2: true,
-    css: true, // required, always true
+    css: true, // companion, default ON
     woff: true,
     eot: true,
     js: true,
@@ -195,9 +195,10 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
     const allGroupSelected =
       exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
+    const allIcons = db.getIconList();
     const icons = allGroupSelected
-      ? db.getIconList()
-      : db.getIconListFromGroup(exportGroupSelected);
+      ? allIcons
+      : allIcons.filter((icon: any) => exportGroupSelected.includes(icon.iconGroup));
     if (!icons.length) {
       message.warning(t('export.noIconsWarning'));
       return;
@@ -417,7 +418,18 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         <Button key="cancel" onClick={handleCancel}>
           {t('common.cancel')}
         </Button>
-        <Button key="export" type="primary" onClick={handleEnsureExportIconfonts}>
+        <Button
+          key="export"
+          type="primary"
+          disabled={exportGroupSelected.length === 0}
+          onClick={() => {
+            if (exportGroupSelected.length === 0) {
+              message.warning(t('export.noGroupWarning'));
+              return;
+            }
+            handleEnsureExportIconfonts();
+          }}
+        >
           {t('export.exportBtn')}
         </Button>
       </>
@@ -447,7 +459,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             {/* 分组选择 — 内联折叠 */}
             <div className="rounded-lg border border-border overflow-hidden">
               <div
-                className="flex items-center justify-between px-3 py-2 bg-surface-muted cursor-pointer hover:bg-surface-accent transition-colors"
+                className="flex items-center justify-between px-3 py-2 bg-surface-muted cursor-pointer hover:bg-surface-accent transition-colors min-h-[36px]"
                 onClick={() => setExportGroupModelVisible(!exportGroupModelVisible)}
               >
                 <span className="text-sm font-medium text-foreground">{t('export.groups')}</span>
@@ -481,12 +493,13 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             </div>
 
             {/* 必选格式 */}
+            {/* 必选字体格式 */}
             <div className="mt-3">
               <div className="text-xs text-foreground-muted mb-1.5">
                 {t('export.requiredFormats')}
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {(['svg', 'ttf', 'woff2', 'css'] as const).map((key) => (
+                {(['svg', 'ttf', 'woff2'] as const).map((key) => (
                   <span
                     key={key}
                     onMouseEnter={(e) => onFormatHover(key, e.currentTarget)}
@@ -498,13 +511,13 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                         : 'bg-accent-subtle text-accent'
                     )}
                   >
-                    .{key}
+                    {key.toUpperCase()}
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* 可选格式 */}
+            {/* 可选字体格式 */}
             <div className="mt-3">
               <div className="text-xs text-foreground-muted mb-1.5">
                 {t('export.optionalFormats')}
@@ -512,9 +525,8 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               <div className="flex flex-wrap gap-x-4 gap-y-1">
                 {(
                   [
-                    { key: 'woff' as const, label: '.woff' },
-                    { key: 'eot' as const, label: '.eot' },
-                    { key: 'js' as const, label: '.js (Symbol)' },
+                    { key: 'woff' as const, label: 'WOFF' },
+                    { key: 'eot' as const, label: 'EOT' },
                   ] as const
                 ).map(({ key, label }) => (
                   <label
@@ -544,25 +556,64 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               </div>
             </div>
 
-            {/* 包含 HTML Demo 页面 */}
-            <div className="mt-3">
-              <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedFormats.html}
-                  onChange={(e) =>
-                    setSelectedFormats((prev) => ({ ...prev, html: e.target.checked }))
-                  }
-                  className="rounded border-border"
-                />
-                <span className="text-foreground">{t('export.includeDemo')}</span>
-                <span className="px-1.5 py-px rounded text-[10px] font-medium bg-accent-subtle text-accent">
-                  {t('export.recommended')}
-                </span>
-              </label>
-              <p className="text-xs text-foreground-muted mt-0.5 ml-5">
-                {t('export.includeDemoDesc')}
-              </p>
+            {/* 伴随文件 */}
+            <div className="mt-4 pt-3 border-t border-border">
+              <div className="text-xs text-foreground-muted mb-1.5">
+                {t('export.companionFiles')}
+              </div>
+              <div className="flex flex-col gap-2">
+                {(
+                  [
+                    {
+                      key: 'css' as const,
+                      labelKey: 'export.includeCss',
+                      descKey: 'export.includeCssDesc',
+                      infoKey: 'css',
+                      recommended: true,
+                    },
+                    {
+                      key: 'js' as const,
+                      labelKey: 'export.includeSymbol',
+                      descKey: 'export.includeSymbolDesc',
+                      infoKey: 'js',
+                      recommended: true,
+                    },
+                    {
+                      key: 'html' as const,
+                      labelKey: 'export.includeDemo',
+                      descKey: 'export.includeDemoDesc',
+                      infoKey: null,
+                      recommended: true,
+                    },
+                  ] as const
+                ).map(({ key, labelKey, descKey, infoKey, recommended }) => (
+                  <div key={key}>
+                    <label
+                      className="inline-flex items-center gap-1.5 text-xs cursor-pointer"
+                      onMouseEnter={
+                        infoKey ? (e) => onFormatHover(infoKey, e.currentTarget) : undefined
+                      }
+                      onMouseLeave={infoKey ? onFormatLeave : undefined}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedFormats[key]}
+                        onChange={(e) =>
+                          setSelectedFormats((prev) => ({ ...prev, [key]: e.target.checked }))
+                        }
+                        className="rounded border-border"
+                      />
+                      <span className="text-foreground">{t(labelKey)}</span>
+                      {recommended && (
+                        <span className="px-1.5 py-px rounded text-[10px] font-medium bg-accent-subtle text-accent">
+                          {t('export.recommended')}
+                        </span>
+                      )}
+                    </label>
+                    <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t(descKey)}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* 包含 .icp 项目文件 */}
@@ -581,6 +632,10 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               <p className="text-xs text-foreground-muted mt-0.5 ml-5">
                 {t('export.includeIcpDesc')}
               </p>
+              <div className="flex items-center gap-2 p-2 rounded-md bg-info-subtle text-info text-[11px] leading-relaxed mt-1.5 ml-5">
+                <span className="shrink-0">ℹ</span>
+                <span>{t('export.icpMigrationHint')}</span>
+              </div>
             </div>
 
             {/* 自动打包 ZIP */}
@@ -721,19 +776,14 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             onMouseLeave={onCardLeave}
           >
             <div className="px-3 py-2.5 rounded-lg border border-border bg-surface shadow-lg">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <span className="font-mono text-xs font-semibold text-accent">
-                    .{hoveredFormat}
-                  </span>
-                  <p className="text-[11px] leading-relaxed text-foreground-muted mt-0.5">
-                    {t(FORMAT_INFO[hoveredFormat].summaryKey)}
-                  </p>
-                </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-mono text-xs font-semibold text-accent">
+                  .{hoveredFormat}
+                </span>
                 <button
                   type="button"
                   onClick={() => openWikiPage(FORMAT_INFO[hoveredFormat!].wiki)}
-                  className="shrink-0 inline-flex items-center gap-1 mt-0.5 px-2 py-1 rounded text-[10px] font-medium text-accent hover:bg-accent-subtle transition-colors whitespace-nowrap"
+                  className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-accent hover:bg-accent-subtle transition-colors whitespace-nowrap"
                 >
                   Wiki
                   <svg
@@ -750,6 +800,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                   </svg>
                 </button>
               </div>
+              <p className="text-[11px] leading-relaxed text-foreground-muted mt-1">
+                {t(FORMAT_INFO[hoveredFormat].summaryKey)}
+              </p>
             </div>
           </div>,
           document.body
