@@ -882,14 +882,23 @@ class Database {
   // 取所有图标
   getIconList = (): Record<string, any>[] => {
     dev && console.log('getIconList');
-    const targetDataSet: DataSet = { iconGroup: sf('resource-deleted') };
-    return (this.getDataOfTable(iconData, targetDataSet, { where: true, equal: false }) ||
-      []) as Record<string, any>[];
+    const rawData = this.db!.exec(
+      `SELECT * FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND variantOf IS NULL`
+    );
+    if (rawData.length === 0) return [];
+    const cols = rawData[0].columns;
+    return rawData[0].values.map((row) => {
+      const obj: Record<string, any> = {};
+      row.forEach((val: any, i: number) => {
+        obj[cols[i]] = val;
+      });
+      return obj;
+    });
   };
   // ── Metadata-only columns (excludes heavy iconContent/iconContentOriginal TEXT) ──
   // Used for grid listing — content loaded lazily per-icon when visible
   static ICON_META_COLS =
-    'id, iconCode, iconName, iconGroup, iconSize, iconType, isFavorite, createTime, updateTime';
+    'id, iconCode, iconName, iconGroup, iconSize, iconType, isFavorite, variantOf, createTime, updateTime';
 
   // 单次查询所有图标并按 group 分组（resource-all 视图用）— 仅元数据，不含 SVG 内容
   getAllIconsGrouped = (): Record<string, Record<string, any>[]> => {
@@ -897,7 +906,7 @@ class Database {
     const p = (window as any).__BOBCORN_PERF__;
     p?.mark('db.getAllIconsGrouped');
     const rawData = this.db!.exec(
-      `SELECT ${Database.ICON_META_COLS} FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
+      `SELECT ${Database.ICON_META_COLS} FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' AND variantOf IS NULL`
     );
     const result: Record<string, Record<string, any>[]> = {};
     if (rawData.length === 0) return result;
@@ -964,7 +973,7 @@ class Database {
     const cols = Database.ICON_META_COLS;
     if (typeof targetGroup === 'string') {
       if (targetGroup === 'resource-all') {
-        const rawData = this.db!.exec(`SELECT ${cols} FROM ${iconData}`);
+        const rawData = this.db!.exec(`SELECT ${cols} FROM ${iconData} WHERE variantOf IS NULL`);
         if (rawData.length === 0) return [];
         const colNameList = rawData[0].columns;
         return rawData[0].values.map((row) => {
@@ -976,7 +985,7 @@ class Database {
         });
       } else {
         const rawData = this.db!.exec(
-          `SELECT ${cols} FROM ${iconData} WHERE iconGroup = ${sf(targetGroup)}`
+          `SELECT ${cols} FROM ${iconData} WHERE iconGroup = ${sf(targetGroup)} AND variantOf IS NULL`
         );
         if (rawData.length === 0) return [];
         const colNameList = rawData[0].columns;
@@ -991,7 +1000,7 @@ class Database {
     } else if (Array.isArray(targetGroup) && targetGroup.length > 0) {
       const inClause = targetGroup.map((id) => sf(id)).join(',');
       const rawData = this.db!.exec(
-        `SELECT ${cols} FROM ${iconData} WHERE iconGroup IN (${inClause})`
+        `SELECT ${cols} FROM ${iconData} WHERE iconGroup IN (${inClause}) AND variantOf IS NULL`
       );
       if (rawData.length === 0) return [];
       const colNameList = rawData[0].columns;

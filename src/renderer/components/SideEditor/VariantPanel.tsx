@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronRight, X, Layers } from 'lucide-react';
+import { ChevronDown, ChevronRight, X, Layers, Download } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { message } from '../ui';
@@ -159,6 +159,24 @@ export default function VariantPanel({
       syncLeft();
     },
     [refreshVariants]
+  );
+
+  // Export a single variant as SVG
+  const handleExportVariant = useCallback(
+    async (v: any) => {
+      const { electronAPI } = window as any;
+      const result = await electronAPI.showSaveDialog({
+        title: t('editor.exportIcon'),
+        defaultPath: `${v.iconName}.svg`,
+      });
+      if (!result.canceled && result.filePath) {
+        electronAPI
+          .writeFile(result.filePath, v.iconContent)
+          .then(() => message.success(t('editor.exported')))
+          .catch((err: Error) => message.error(err.message));
+      }
+    },
+    [t]
   );
 
   // Variant is selected — show disabled state
@@ -358,15 +376,28 @@ export default function VariantPanel({
                                   ? t(`variant.scale.${meta.scale}`)
                                   : t(`variant.weight.${meta.weight}`)}
                               </p>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteVariant(v.id);
-                                }}
-                                className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-danger text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <X size={8} />
-                              </button>
+                              {/* Hover action buttons */}
+                              <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleExportVariant(v);
+                                  }}
+                                  className="w-4 h-4 rounded-full bg-accent text-accent-foreground flex items-center justify-center"
+                                  title={t('editor.exportIcon')}
+                                >
+                                  <Download size={7} />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteVariant(v.id);
+                                  }}
+                                  className="w-4 h-4 rounded-full bg-danger text-white flex items-center justify-center"
+                                >
+                                  <X size={8} />
+                                </button>
+                              </div>
                             </div>
                           );
                         })}
