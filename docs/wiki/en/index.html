@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Fonts 101 — Bobcorn Wiki</title>
+    <meta name="description" content="Everything you need to know about icon fonts — what they are, how they work, and which format to choose for your project.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/en/index.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/index.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/index.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/index.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/index.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/index.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/index.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/index.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/index.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/index.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/index.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/index.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/index.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/index.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/index.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/index.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/index.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/index.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/en/index.html">
+    <meta property="og:title" content="Icon Fonts 101 — Bobcorn Wiki">
+    <meta property="og:description" content="Everything you need to know about icon fonts — what they are, how they work, and which format to choose for your project.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Icon Fonts 101 — Bobcorn Wiki">
+    <meta name="twitter:description" content="Everything you need to know about icon fonts — what they are, how they work, and which format to choose for your project.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Icon Fonts 101 — Bobcorn Wiki",
+                "description": "Everything you need to know about icon fonts — what they are, how they work, and which format to choose for your project.",
+                "url": "https://bobcorn.caldis.me/wiki/en/index.html",
+                "inLanguage": "en",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/en/index.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay"></div>
+
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Icon Fonts <em>101</em></h1>
+                <p class="lead reveal">Everything you need to know about icon fonts — what they are, how they work, and which format to choose for your project.</p>
+
+                <!-- What Are Icon Fonts? -->
+                <h2 class="reveal">What Are Icon Fonts?</h2>
+                <div class="reveal">
+                    <p>Icon fonts are typefaces in which the glyphs — normally letters and numbers — are replaced with pictographic symbols. Instead of rendering the letter "A," an icon font renders a home icon, a search magnifier, or a shopping cart.</p>
+                    <p>Because the icons live inside a font file, they behave exactly like text. You can scale them to any size with <code>font-size</code>, change their color with <code>color</code>, add text shadows, apply CSS transitions, and even animate them — all without touching a single image file.</p>
+                    <p>This approach delivers several practical benefits:</p>
+                    <ul>
+                        <li><strong>Resolution independence</strong> — vector outlines scale crisply on any screen density</li>
+                        <li><strong>Tiny payload</strong> — one compressed font file replaces dozens of individual image assets</li>
+                        <li><strong>CSS control</strong> — color, size, shadow, opacity, and hover states come free with text styling</li>
+                        <li><strong>Single HTTP request</strong> — the entire icon set loads in one network round-trip</li>
+                    </ul>
+                </div>
+
+                <h3>A brief history</h3>
+                <div class="reveal">
+                    <p>In the early web, developers relied on individual images or <strong>CSS image sprites</strong> — large composite images where each icon occupied a fixed rectangular region. Sprites reduced HTTP requests but were brittle: adding or resizing an icon meant regenerating the entire sprite sheet and updating pixel offsets by hand.</p>
+                    <p>Around 2012, projects like <strong>Font Awesome</strong> and <strong>IcoMoon</strong> popularized a cleaner alternative: packaging icons as font glyphs mapped to Unicode's Private Use Area. Designers could swap an entire icon set by changing one <code>@font-face</code> declaration, and developers could style icons with the same CSS they already used for text. The technique spread rapidly and remains a reliable, low-overhead choice for design systems that use single-color iconography.</p>
+                </div>
+
+                <!-- Icon Fonts vs SVG Icons -->
+                <h2 class="reveal">Icon Fonts vs SVG Icons</h2>
+                <div class="reveal">
+                    <p>The "icon fonts vs inline SVG" debate has been a staple of front-end discussions for over a decade. Both approaches are valid — the right choice depends on your project's requirements.</p>
+
+                    <h3>Icon Fonts</h3>
+                    <ul>
+                        <li><strong>Single HTTP request</strong> — one font file delivers every icon</li>
+                        <li><strong>Dead-simple CSS styling</strong> — change <code>color</code>, <code>font-size</code>, and <code>text-shadow</code> like any text</li>
+                        <li><strong>Monochrome only</strong> — each glyph supports a single fill color</li>
+                        <li><strong>Easy drop-in</strong> — add a stylesheet link, use a CSS class, done</li>
+                    </ul>
+
+                    <h3>Inline SVG</h3>
+                    <ul>
+                        <li><strong>Multi-color</strong> — each path can have its own fill, stroke, or gradient</li>
+                        <li><strong>Accessible by default</strong> — <code>&lt;title&gt;</code> and <code>aria-label</code> give screen readers real semantics</li>
+                        <li><strong>Individually cacheable</strong> — unused icons are never downloaded</li>
+                        <li><strong>Fine-grained control</strong> — animate individual paths, apply filters per element</li>
+                    </ul>
+
+                    <h3>SVG Sprites</h3>
+                    <ul>
+                        <li>Combine multiple SVGs into a single <code>&lt;symbol&gt;</code> sprite sheet</li>
+                        <li>Reference icons with <code>&lt;use href="#icon-name"&gt;</code></li>
+                        <li>Offers the benefits of both — single request, multi-color, accessible — but requires a more involved build pipeline</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Bottom line</div>
+                        Icon fonts remain an excellent choice for design systems built on single-color iconography. They are simple to integrate, performant, and universally supported. If your icons need multiple colors or per-path animation, inline SVG or SVG sprites are the better fit.
+                    </div>
+                </div>
+
+                <!-- Format Comparison Table -->
+                <h2 class="reveal">Format Comparison</h2>
+                <div class="reveal">
+                    <p>Icon fonts can be packaged in five file formats, each with different compression, browser support, and use cases. Here is how they compare at a glance:</p>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Format</th><th>Compression</th><th>File Size</th><th>Browser Support</th><th>Best For</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td class="fmt">.woff2</td><td>Brotli</td><td>Smallest</td><td>97%+</td><td>Modern web (recommended)</td></tr>
+                                <tr><td class="fmt">.woff</td><td>zlib</td><td>Small</td><td>98%+</td><td>Wide compatibility fallback</td></tr>
+                                <tr><td class="fmt">.ttf</td><td>None</td><td>Medium</td><td>98%+</td><td>Desktop apps, development</td></tr>
+                                <tr><td class="fmt">.svg</td><td>None</td><td>Largest</td><td>Limited</td><td>Legacy iOS, debugging</td></tr>
+                                <tr><td class="fmt">.eot</td><td>Optional</td><td>Medium</td><td>IE only</td><td>IE 6-8 legacy support</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Choosing the Right Format -->
+                <h2 class="reveal">Choosing the Right Format</h2>
+                <div class="reveal">
+                    <p>Not sure which formats to include? Use this practical decision guide:</p>
+                    <ul>
+                        <li><strong>If you only pick one</strong> — ship <strong>WOFF2</strong>. It offers the best compression (Brotli) and covers 97%+ of browsers.</li>
+                        <li><strong>If you need IE 11 support</strong> — ship <strong>WOFF2 + WOFF</strong>. WOFF handles the remaining browsers that lack Brotli decoding.</li>
+                        <li><strong>If you need IE 8 support</strong> — ship <strong>WOFF2 + WOFF + EOT</strong>. EOT is the only format understood by Internet Explorer 6-8.</li>
+                        <li><strong>For desktop applications</strong> — use <strong>TTF</strong>. It is the native format for OS-level font rendering on Windows, macOS, and Linux.</li>
+                        <li><strong>For debugging font issues</strong> — inspect the <strong>SVG Font</strong>. Its XML structure is human-readable, making it easy to verify glyph paths and metadata.</li>
+                    </ul>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tip</div>
+                        Most modern projects only need WOFF2. Add extra formats only when your browser-support matrix demands it.
+                    </div>
+                </div>
+
+                <!-- Explore by Format -->
+                <h2 class="reveal">Explore by Format</h2>
+                <div class="reveal">
+                    <p>Dive deeper into each format to understand its internals, browser compatibility, and best practices:</p>
+                    <div class="format-cards">
+                        <a href="svg-font.html" class="format-card">
+                            <div class="format-card-ext">.svg</div>
+                            <div class="format-card-name">SVG Font</div>
+                            <div class="format-card-desc">The original, human-readable vector font format</div>
+                        </a>
+                        <a href="ttf.html" class="format-card">
+                            <div class="format-card-ext">.ttf</div>
+                            <div class="format-card-name">TrueType</div>
+                            <div class="format-card-desc">The desktop standard with quadratic Bezier outlines</div>
+                        </a>
+                        <a href="woff.html" class="format-card">
+                            <div class="format-card-ext">.woff</div>
+                            <div class="format-card-name">WOFF</div>
+                            <div class="format-card-desc">Web-optimized wrapper with zlib compression</div>
+                        </a>
+                        <a href="woff2.html" class="format-card">
+                            <div class="format-card-ext">.woff2</div>
+                            <div class="format-card-name">WOFF2</div>
+                            <div class="format-card-desc">The modern standard with Brotli compression</div>
+                        </a>
+                        <a href="eot.html" class="format-card">
+                            <div class="format-card-ext">.eot</div>
+                            <div class="format-card-name">EOT</div>
+                            <div class="format-card-desc">Microsoft's legacy format for Internet Explorer</div>
+                        </a>
+                    </div>
+
+                    <p>Learn how to use these formats in your projects:</p>
+                    <div class="format-cards">
+                        <a href="css-font-face.html" class="format-card">
+                            <div class="format-card-ext">@</div>
+                            <div class="format-card-name">CSS @font-face</div>
+                            <div class="format-card-desc">Load and register icon fonts in your stylesheets</div>
+                        </a>
+                        <a href="svg-symbol.html" class="format-card">
+                            <div class="format-card-ext">&lt;/&gt;</div>
+                            <div class="format-card-name">SVG Symbol</div>
+                            <div class="format-card-desc">Inline SVG sprites with multi-color support</div>
+                        </a>
+                        <a href="export-guide.html" class="format-card">
+                            <div class="format-card-ext">&darr;</div>
+                            <div class="format-card-name">Export Guide</div>
+                            <div class="format-card-desc">Generate and configure exports in Bobcorn</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">In Bobcorn</div>
+                    Bobcorn generates all five font formats plus CSS, JS symbol sprites, and HTML demo pages — all in one click. <a href="export-guide.html">Read the Export Guide &rarr;</a>
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <span></span>
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">Next</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

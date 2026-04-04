@@ -1,6 +1,7 @@
 {
   "nav.features": "Recursos",
   "nav.formats": "Formatos",
+  "nav.wiki": "Wiki",
   "hero.badge": "Código aberto · Licença MIT",
   "hero.title": "Gerencie ícones,<br><em>Gere fontes</em>",
   "hero.desc": "O gerenciador de ícones e gerador de fontes de código aberto para designers e desenvolvedores. Importe SVGs, organize em grupos, edite cores e exporte fontes de ícones prontas para produção.",

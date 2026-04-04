@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTF (TrueType) — Bobcorn Wiki</title>
+    <meta name="description" content="TTF（TrueType Font）の解説——Apple と Microsoft が開発した業界標準のバイナリフォント形式。Bobcorn が TTF を生成パイプラインの中核中間形式として使用する仕組みを学びます。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ja/ttf.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/ttf.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/ttf.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/ttf.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/ttf.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/ttf.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/ttf.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/ttf.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/ttf.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/ttf.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/ttf.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/ttf.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/ttf.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/ttf.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/ttf.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/ttf.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ja/ttf.html">
+    <meta property="og:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta property="og:description" content="TTF（TrueType Font）の解説——Apple と Microsoft が開発した業界標準のバイナリフォント形式。Bobcorn が TTF を生成パイプラインの中核中間形式として使用する仕組みを学びます。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta name="twitter:description" content="TTF（TrueType Font）の解説——Apple と Microsoft が開発した業界標準のバイナリフォント形式。Bobcorn が TTF を生成パイプラインの中核中間形式として使用する仕組みを学びます。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "TTF (TrueType) — Bobcorn Wiki",
+                "description": "TTF（TrueType Font）の解説——Apple と Microsoft が開発した業界標準のバイナリフォント形式。Bobcorn が TTF を生成パイプラインの中核中間形式として使用する仕組みを学びます。",
+                "url": "https://bobcorn.caldis.me/wiki/ja/ttf.html",
+                "inLanguage": "ja",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "TTF (TrueType) — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/ttf.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>日本語</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">TTF</h1>
+                <p class="lead reveal">TrueType Font——Apple と Microsoft が開発した業界標準のバイナリフォント形式です。</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.ttf</span>
+                        <span class="fingerprint-name">TrueType Font Format</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">タイプ</span><span class="fingerprint-val">バイナリアウトライン</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">圧縮</span><span class="fingerprint-val">なし</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">ファイルサイズ</span><span class="fingerprint-val">中程度（非圧縮）</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">サポート</span><span class="fingerprint-val">98%以上のブラウザ</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">最適な用途</span><span class="fingerprint-val">デスクトップアプリ、開発</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">中核中間形式</span></div>
+                </div>
+
+                <h2 class="reveal">TTF とは？</h2>
+                <p>TrueType は <strong>Apple が 1980 年代後半</strong>に Adobe の PostScript Type 1 フォントの代替として開発し、後に Microsoft が Windows に採用しました。グリフのアウトラインを<strong>二次ベジェ曲線</strong>として保存します。PostScript が使用する三次曲線よりも計算が単純で、ラスタライズも高速です。</p>
+                <p>TTF はすぐに macOS と Windows の双方で<strong>ユニバーサルフォント形式</strong>になりました。20 年以上にわたって、システムフォントからカスタム書体まで、フォントを配布するための標準的な方法でした。ウェブ配信では WOFF/WOFF2 に取って代わられていますが、TTF は現代のすべてのウェブフォント形式が構築される基盤であり続けています。</p>
+
+                <h2 class="reveal">仕組み</h2>
+                <p>TTF ファイルは<strong>テーブル</strong>で構成されたバイナリコンテナで、各テーブルに特定のデータが格納されています：</p>
+                <ul>
+                    <li><code>glyf</code>——グリフのアウトライン（実際のベクター形状）</li>
+                    <li><code>cmap</code>——文字とグリフのマッピング（どの Unicode コードポイントがどのグリフに対応するか）</li>
+                    <li><code>head</code>——フォントメタデータ（units-per-em、作成日、フラグ）</li>
+                    <li><code>hmtx</code>——水平メトリクス（各グリフの送り幅と左サイドベアリング）</li>
+                </ul>
+                <p>アイコンフォントでは、各アイコンは<strong>私用領域</strong>（U+E000〜U+F8FF）の Unicode コードポイントに割り当てられます。この範囲は標準テキストと競合しないよう、アプリケーション定義文字のために特別に予約されています。</p>
+
+                <span class="code-label">CSS で TTF アイコンフォントを使用する</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+}
+
+<span class="code-tag">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: normal;
+  <span class="code-prop">font-weight</span>: normal;
+}
+
+<span class="code-tag">.icon-home</span><span class="code-kw">::before</span> {
+  <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>;
+}</code></pre>
+                <p><code>format('truetype')</code> ヒントは、ブラウザに期待するフォントファイルの種類を伝えます。TrueType がサポートされていない場合はダウンロードをスキップできますが（実際にはほぼすべてのブラウザがサポートしています）。</p>
+
+                <h2 class="reveal">メリットとデメリット</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">メリット</div>
+                        <li>すべてのプラットフォームとの広い互換性</li>
+                        <li>デスクトップ、モバイル、ウェブすべてでサポート</li>
+                        <li>OS フォントインストールの標準形式</li>
+                        <li>ヒンティングサポートによる高いレンダリング品質</li>
+                        <li>仕様が充実したドキュメント</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">デメリット</div>
+                        <li>圧縮なし——WOFF/WOFF2 より大きい</li>
+                        <li>ウェブ配信に最適化されていない</li>
+                        <li>モバイル回線ではダウンロードが遅くなる場合がある</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">ブラウザサポート</h2>
+                <p>TTF は<strong>98%以上のブラウザサポート</strong>を誇り、すべての現代ブラウザと Internet Explorer 9 以降をカバーしています。また、Windows、macOS、Linux のすべての主要デスクトップ OS でネイティブにサポートされているため、TTF ファイルを変換なしでシステムフォントとして直接インストールできます。</p>
+                <p>TTF はどこでも動作しますが、ウェブ配信では WOFF2（本質的には圧縮した TTF）を優先してください。生の TTF はデスクトップ用途、開発環境、およびビルドパイプラインの基本形式に使用してください。</p>
+
+                <h2 class="reveal">TTF を使う場面</h2>
+                <ul>
+                    <li><strong>デスクトップアプリケーション</strong>——ネイティブアプリ、デザインツール、IDE で使用するシステムフォントとしてインストールする。</li>
+                    <li><strong>Electron とネイティブアプリ</strong>——オフラインでのフォントレンダリングのために、TTF をアプリケーションに直接バンドルする。</li>
+                    <li><strong>開発とテスト</strong>——FontForge、fontTools、システムフォントビューアなどのツールで簡単に検査できる。</li>
+                    <li><strong>システムフォントの検査</strong>——OS レベルのユーティリティを使ってグリフのメトリクス、ヒンティング、cmap テーブルを確認する必要がある場合。</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn での使用</div>
+                    Bobcorn では、TTF は生成パイプラインの<strong>中央ピボット形式</strong>です。SVG アイコンはまず SVG フォントに組み立てられ、次に TTF に変換され、そこから WOFF、WOFF2、EOT に変換されます。TTF はパイプラインの一部として常に生成されます——他のすべての出力が依存する形式です。デスクトップアプリを構築する場合や、オペレーティングシステムにアイコンフォントをインストールする必要がある場合は、TTF エクスポートを有効にしてください。
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">前のページ</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                    <a href="woff.html" class="page-nav-link">
+                        <div class="page-nav-dir">次のページ</div>
+                        <div class="page-nav-title">WOFF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

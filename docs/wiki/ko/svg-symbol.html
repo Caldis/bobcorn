@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Symbol 스프라이트 — Bobcorn Wiki</title>
+    <meta name="description" content="폰트 기반 아이콘의 대안——SVG 심볼 스프라이트를 사용하여 확장 가능한 다색 아이콘을 HTML에 직접 삽입하는 방법.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ko/svg-symbol.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-symbol.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-symbol.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-symbol.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-symbol.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-symbol.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-symbol.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-symbol.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-symbol.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-symbol.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-symbol.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-symbol.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-symbol.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-symbol.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-symbol.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-symbol.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-symbol.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-symbol.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ko/svg-symbol.html">
+    <meta property="og:title" content="SVG Symbol 스프라이트 — Bobcorn Wiki">
+    <meta property="og:description" content="폰트 기반 아이콘의 대안——SVG 심볼 스프라이트를 사용하여 확장 가능한 다색 아이콘을 HTML에 직접 삽입하는 방법.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Symbol 스프라이트 — Bobcorn Wiki">
+    <meta name="twitter:description" content="폰트 기반 아이콘의 대안——SVG 심볼 스프라이트를 사용하여 확장 가능한 다색 아이콘을 HTML에 직접 삽입하는 방법.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Symbol 스프라이트 — Bobcorn Wiki",
+                "description": "폰트 기반 아이콘의 대안——SVG 심볼 스프라이트를 사용하여 확장 가능한 다색 아이콘을 HTML에 직접 삽입하는 방법.",
+                "url": "https://bobcorn.caldis.me/wiki/ko/svg-symbol.html",
+                "inLanguage": "ko",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ko/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Symbol 스프라이트 — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ko/svg-symbol.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>한국어</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">SVG Symbol</h1>
+                <p class="lead reveal">폰트 기반 아이콘의 대안——SVG 심볼 스프라이트를 사용하여 확장 가능한 다색 아이콘을 HTML에 직접 삽입합니다.</p>
+
+                <!-- What Are SVG Symbol Sprites? -->
+                <h2 class="reveal">SVG 심볼 스프라이트란?</h2>
+                <div class="reveal">
+                    <p>SVG 심볼 스프라이트는 여러 SVG 아이콘을 하나의 파일로 묶습니다. 각 아이콘은 고유한 <code>id</code>를 가진 <code>&lt;symbol&gt;</code> 요소 안에 정의됩니다. 아이콘을 사용하려면 <code>&lt;use href="#icon-id"&gt;</code>로 참조합니다. 스프라이트는 한 번만 로드되고——인라인이나 외부 파일로——개별 아이콘은 페이지 어디서나 렌더링할 수 있습니다.</p>
+                    <p>이것은 아이콘 폰트와 근본적으로 다른 접근법입니다. Unicode 코드 포인트를 폰트 글리프에 매핑하는 대신 네이티브 SVG 요소를 사용합니다. 각 아이콘은 완전한 SVG 기능을 유지합니다: 다색, 그라디언트, 필터, 세밀한 접근성 속성. 트레이드오프는 폰트 아이콘의 순수 CSS 접근법에 비해 마크업과 스타일링 규칙이 약간 더 복잡하다는 것입니다.</p>
+                </div>
+
+                <!-- How It Works -->
+                <h2 class="reveal">작동 원리</h2>
+                <div class="reveal">
+                    <p>스프라이트 파일은 하나 이상의 <code>&lt;symbol&gt;</code> 요소를 포함하는 일반 SVG 문서입니다. 각 심볼은 자체 <code>viewBox</code>를 가진 독립적인 아이콘을 정의합니다:</p>
+
+                    <span class="code-label">icons.svg (스프라이트 파일)</span>
+<pre><code><span class="code-tag">&lt;svg</span> <span class="code-attr">xmlns</span>=<span class="code-str">"http://www.w3.org/2000/svg"</span> <span class="code-attr">style</span>=<span class="code-str">"display:none"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;symbol</span> <span class="code-attr">id</span>=<span class="code-str">"icon-home"</span> <span class="code-attr">viewBox</span>=<span class="code-str">"0 0 24 24"</span><span class="code-tag">&gt;</span>
+    <span class="code-tag">&lt;path</span> <span class="code-attr">d</span>=<span class="code-str">"M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4..."</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/symbol&gt;</span>
+  <span class="code-tag">&lt;symbol</span> <span class="code-attr">id</span>=<span class="code-str">"icon-search"</span> <span class="code-attr">viewBox</span>=<span class="code-str">"0 0 24 24"</span><span class="code-tag">&gt;</span>
+    <span class="code-tag">&lt;path</span> <span class="code-attr">d</span>=<span class="code-str">"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/symbol&gt;</span>
+<span class="code-tag">&lt;/svg&gt;</span></code></pre>
+
+                    <p>바깥 <code>&lt;svg&gt;</code>는 <code>style="display:none"</code>으로 숨겨져 페이지에서 공간을 차지하지 않습니다. 내부 심볼들은 참조되기 전까지 보이지 않습니다. 아이콘을 렌더링하려면 <code>&lt;use&gt;</code> 요소를 사용합니다:</p>
+
+                    <span class="code-label">HTML에서 심볼 사용하기</span>
+<pre><code><span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-home"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-search"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span></code></pre>
+
+                    <p>폰트 기반의 <code>color</code> 속성 대신 <code>fill</code>과 <code>stroke</code>로 CSS에서 아이콘을 스타일링합니다:</p>
+
+                    <span class="code-label">SVG 아이콘의 CSS</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">width</span>: <span class="code-val">24px</span>;
+  <span class="code-prop">height</span>: <span class="code-val">24px</span>;
+  <span class="code-prop">fill</span>: <span class="code-val">currentColor</span>;
+  <span class="code-prop">stroke</span>: <span class="code-val">none</span>;
+}</code></pre>
+
+                    <p><code>fill: currentColor</code>를 사용하면 폰트 아이콘이 <code>color</code> 속성으로 작동하는 것과 유사하게, 아이콘이 부모 요소의 텍스트 색을 상속합니다.</p>
+                </div>
+
+                <!-- Symbol vs Font Icons -->
+                <h2 class="reveal">심볼 vs 폰트 아이콘</h2>
+                <div class="pros-cons reveal">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">심볼의 장점</div>
+                        <li>다색 지원——각 경로가 자체 fill과 stroke를 가질 수 있음</li>
+                        <li>각 아이콘이 실제 SVG 요소로 접근성이 더 우수</li>
+                        <li>Unicode 매핑 불필요——읽기 쉬운 이름으로 아이콘 참조</li>
+                        <li>더 선명한 렌더링——폰트 힌팅 문제나 서브픽셀 아티팩트 없음</li>
+                        <li>아이콘 각 부분을 독립적으로 애니메이션 가능</li>
+                        <li>모든 SVG 기능 지원: 그라디언트, 필터, 클립 패스, 마스크</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">심볼의 단점</div>
+                        <li>더 장황한 마크업 (<code>&lt;svg&gt;&lt;use&gt;</code> vs <code>&lt;i class="icon"&gt;</code>)</li>
+                        <li>CSS <code>color</code>로 스타일링하기 어려움——<code>fill</code>/<code>stroke</code> 필요</li>
+                        <li>외부 스프라이트는 크로스 오리진 로딩 시 CORS 문제</li>
+                        <li>압축 폰트 형식보다 총 파일 크기가 더 큼</li>
+                        <li>아이콘 사용마다 HTML 용량이 더 큼</li>
+                        <li><code>::before</code>/<code>::after</code> 가상 요소 지원 없음</li>
+                    </ul>
+                </div>
+
+                <!-- Loading Strategies -->
+                <h2 class="reveal">로딩 전략</h2>
+                <div class="reveal">
+                    <p>SVG 심볼 스프라이트를 페이지에 로드하는 세 가지 주요 방법이 있으며, 각각 다른 트레이드오프가 있습니다:</p>
+
+                    <h3>인라인 스프라이트</h3>
+                    <p>전체 스프라이트 SVG를 HTML <code>&lt;body&gt;</code>에 직접 붙여넣습니다. 가장 단순한 접근법입니다——CORS 문제 없음, 추가 HTTP 요청 없음. 심볼은 페이지의 모든 <code>&lt;use&gt;</code> 참조에 즉시 사용 가능합니다. 단일 페이지 애플리케이션이나 작은 아이콘 세트(50개 미만)에 가장 적합합니다.</p>
+
+                    <h3>외부 스프라이트</h3>
+                    <p><code>&lt;use href="icons.svg#home"&gt;</code>를 통해 스프라이트를 외부 파일로 로드합니다. HTML을 깔끔하게 유지하고 브라우저가 스프라이트를 페이지와 별도로 캐시할 수 있습니다. 그러나 CORS 문제가 있습니다: 스프라이트는 동일 오리진에서 제공되거나 서버가 적절한 <code>Access-Control-Allow-Origin</code> 헤더를 설정해야 합니다. Internet Explorer는 외부 <code>&lt;use&gt;</code> 참조를 지원하지 않으므로 IE 지원이 필요한 경우 <a href="https://github.com/jonathantneal/svg4everybody" target="_blank" rel="noopener">svg4everybody</a> 폴리필을 사용하세요.</p>
+
+                    <h3>JS 인젝션</h3>
+                    <p><code>fetch()</code>로 스프라이트 파일을 로드하고 런타임에 DOM에 삽입합니다. 외부 스프라이트의 캐시 가능성과 인라인 스프라이트의 신뢰성을 결합합니다——삽입된 SVG가 문서의 일부가 되어 <code>&lt;use&gt;</code> 참조가 CORS 제한 없이 작동합니다. Bobcorn이 이 접근법을 생성합니다: 로드 시 모든 심볼을 가져와 등록하는 JS 파일입니다.</p>
+
+                    <span class="code-label">JS 인젝션 방식 (Bobcorn 출력)</span>
+<pre><code><span class="code-cmt">&lt;!-- 생성된 JS 스프라이트 로드 --&gt;</span>
+<span class="code-tag">&lt;script</span> <span class="code-attr">src</span>=<span class="code-str">"icons-symbol.js"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
+
+<span class="code-cmt">&lt;!-- 그 다음 일반적으로 사용: --&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-home"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-search"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span></code></pre>
+
+                    <p>JS 파일은 모든 <code>&lt;symbol&gt;</code> 정의를 포함하는 숨겨진 <code>&lt;svg&gt;</code> 요소를 만들어 문서 body에 추가합니다. 로드 후 아이콘 참조 방식은 인라인 방식과 동일합니다.</p>
+                </div>
+
+                <!-- When to Use SVG Symbols -->
+                <h2 class="reveal">SVG 심볼을 사용하는 경우</h2>
+                <div class="reveal">
+                    <p>프로젝트가 폰트 아이콘으로는 제공할 수 없는 기능을 필요로 할 때 SVG 심볼 스프라이트가 적합합니다:</p>
+                    <ul>
+                        <li><strong>다색 아이콘</strong>——아이콘이 두 가지 이상의 색, 그라디언트, 또는 단일 글리프 폰트로 표현할 수 없는 복잡한 채우기를 사용할 때</li>
+                        <li><strong>접근성이 최우선 과제</strong>——각 아이콘에 <code>&lt;title&gt;</code> 요소와 <code>aria-label</code> 속성을 포함시켜 스크린 리더에 의미 있는 설명을 제공할 수 있음</li>
+                        <li><strong>아이콘 부분 애니메이션</strong>——아이콘 내의 개별 경로나 그룹을 애니메이션해야 할 때 (예: 설정 아이콘 안의 회전하는 톱니바퀴)</li>
+                        <li><strong>SVG를 많이 사용하는 프로젝트</strong>——애플리케이션이 이미 인라인 SVG를 광범위하게 사용하여 심볼이 기존 아키텍처에 자연스럽게 맞는 경우</li>
+                        <li><strong>최고의 렌더링 선명도</strong>——폰트 힌팅이 작은 크기에서 정렬 문제를 일으킬 수 있습니다. SVG 심볼은 어떤 크기에서도 픽셀 완벽하게 렌더링합니다</li>
+                    </ul>
+                </div>
+
+                <!-- When to Stick with Font Icons -->
+                <h2 class="reveal">폰트 아이콘을 유지하는 경우</h2>
+                <div class="reveal">
+                    <p>폰트 아이콘이 더 나은 선택인 몇 가지 일반적인 시나리오가 있습니다:</p>
+                    <ul>
+                        <li><strong>대형 아이콘 세트 (200개 이상)</strong>——압축된 WOFF2 폰트 파일이 같은 수의 아이콘을 가진 SVG 스프라이트보다 훨씬 작음</li>
+                        <li><strong>모두 단색 아이콘</strong>——모든 아이콘이 단색이라면 폰트 아이콘이 트레이드오프 없이 가장 단순한 통합을 제공</li>
+                        <li><strong>CSS 전용 통합</strong>——폰트 아이콘은 스타일시트 링크와 CSS 클래스만 필요하고 JavaScript나 추가 마크업이 없음</li>
+                        <li><strong>레거시 시스템</strong>——이미 아이콘 폰트를 사용하는 프로젝트는 전환을 정당화할 만큼 충분한 이익을 얻지 못함</li>
+                        <li><strong>가상 요소 지원</strong>——폰트 글리프로만 작동하는 <code>::before</code> 또는 <code>::after</code> 가상 요소에 아이콘이 필요한 경우</li>
+                    </ul>
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn에서</div>
+                    Bobcorn은 폰트 파일과 함께 JS 심볼 스프라이트 파일로 아이콘을 내보낼 수 있습니다. 내보내기 대화상자에서 <strong>JS</strong> 옵션을 활성화하세요. 생성된 파일은 로드 시 인라인 SVG 스프라이트를 만들고 모든 심볼을 등록합니다. 같은 프로젝트에서 두 방식 모두 사용할 수 있습니다——간단한 UI 아이콘에는 폰트, 복잡한 컬러 일러스트레이션에는 심볼을 사용하세요.
+                </div>
+
+                <!-- Tip -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">팁</div>
+                    반드시 하나를 선택할 필요는 없습니다. 많은 디자인 시스템이 대량의 단색 UI 아이콘(버튼, 네비게이션, 폼 요소)에는 폰트 아이콘을, 소수의 다색 일러스트레이션이나 애니메이션 아이콘에는 SVG 심볼을 사용합니다. Bobcorn의 내보내기 대화상자는 한 번의 내보내기로 두 가지를 모두 생성할 수 있습니다.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="css-font-face.html" class="page-nav-link">
+                        <div class="page-nav-dir">이전</div>
+                        <div class="page-nav-title">CSS @font-face</div>
+                    </a>
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">다음</div>
+                        <div class="page-nav-title">내보내기 가이드</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

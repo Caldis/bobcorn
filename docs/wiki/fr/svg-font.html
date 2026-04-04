@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Font — Bobcorn Wiki</title>
+    <meta name="description" content="Le format de police SVG expliqué — un XML lisible par l'homme qui mappe des chemins SVG sur des glyphes de police. Découvrez comment Bobcorn utilise SVG Font comme première étape de son pipeline de génération de polices d'icônes.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/fr/svg-font.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-font.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-font.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-font.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-font.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-font.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-font.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-font.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-font.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-font.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-font.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-font.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-font.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-font.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-font.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/fr/svg-font.html">
+    <meta property="og:title" content="SVG Font — Bobcorn Wiki">
+    <meta property="og:description" content="Le format de police SVG expliqué — un XML lisible par l'homme qui mappe des chemins SVG sur des glyphes de police. Découvrez comment Bobcorn utilise SVG Font comme première étape de son pipeline de génération de polices d'icônes.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Font — Bobcorn Wiki">
+    <meta name="twitter:description" content="Le format de police SVG expliqué — un XML lisible par l'homme qui mappe des chemins SVG sur des glyphes de police. Découvrez comment Bobcorn utilise SVG Font comme première étape de son pipeline de génération de polices d'icônes.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Font — Bobcorn Wiki",
+                "description": "Le format de police SVG expliqué — un XML lisible par l'homme qui mappe des chemins SVG sur des glyphes de police. Découvrez comment Bobcorn utilise SVG Font comme première étape de son pipeline de génération de polices d'icônes.",
+                "url": "https://bobcorn.caldis.me/wiki/fr/svg-font.html",
+                "inLanguage": "fr",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/fr/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Font — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/fr/svg-font.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Français</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">SVG Font</h1>
+                <p class="lead reveal">Le format de police vectorielle original — un XML lisible par l'homme qui mappe des chemins SVG sur des glyphes de police.</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.svg</span>
+                        <span class="fingerprint-name">Format de police SVG</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Type</span><span class="fingerprint-val">Vecteur basé sur XML</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Compression</span><span class="fingerprint-val">Aucune (texte brut)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Taille du fichier</span><span class="fingerprint-val">La plus grande de tous les formats</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Prise en charge</span><span class="fingerprint-val">Safari uniquement (obsolète ailleurs)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Idéal pour</span><span class="fingerprint-val">Débogage, format source</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">Source du pipeline</span></div>
+                </div>
+
+                <h2 class="reveal">Qu'est-ce qu'une police SVG ?</h2>
+                <p>Les polices SVG ont été définies dans le cadre de la <strong>spécification SVG 1.1</strong>, publiée par le W3C. Contrairement aux formats de polices binaires traditionnels, les polices SVG intègrent les contours des glyphes sous forme de données de chemin SVG dans un élément <code>&lt;font&gt;</code>. Chaque glyphe est représenté par un élément <code>&lt;glyph&gt;</code> dont l'attribut <code>d</code> contient le chemin vectoriel décrivant la forme.</p>
+                <p>En substance, les polices SVG sont des dessins SVG conditionnés comme une police. La même syntaxe de chemin que vous utilisez pour dessiner des formes dans un fichier SVG est réutilisée pour définir les lettres et les contours des icônes. Cela les rend uniques en matière d'inspection — vous pouvez ouvrir une police SVG dans n'importe quel éditeur de texte et lire la géométrie réelle de chaque glyphe.</p>
+
+                <h2 class="reveal">Fonctionnement</h2>
+                <p>Un fichier de police SVG encapsule les chemins de glyphes dans une structure XML standard. Voici un exemple simplifié :</p>
+                <span class="code-label">Structure d'une police SVG</span>
+<pre><code><span class="code-tag">&lt;font</span> <span class="code-attr">id</span>=<span class="code-str">"MyIcons"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;font-face</span> <span class="code-attr">font-family</span>=<span class="code-str">"MyIcons"</span> <span class="code-attr">units-per-em</span>=<span class="code-str">"1024"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"home"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE001;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M512 0L0 448h128v576h256V640h256v384h256V448h128z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"search"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE002;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M..."</span><span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/font&gt;</span></code></pre>
+                <p>L'élément <code>&lt;font-face&gt;</code> déclare le nom de la famille de polices et le système de coordonnées (<code>units-per-em</code>). Chaque <code>&lt;glyph&gt;</code> mappe un point de code Unicode sur un chemin vectoriel. L'attribut <code>d</code> utilise exactement la même syntaxe de chemin qu'un élément SVG <code>&lt;path&gt;</code> ordinaire.</p>
+                <p>C'est le <strong>format intermédiaire</strong> dans le pipeline de Bobcorn. Les icônes SVG individuelles sont d'abord assemblées dans cette structure de police SVG, qui est ensuite convertie en formats binaires : SVG Font &rarr; TTF &rarr; WOFF / WOFF2 / EOT.</p>
+
+                <h2 class="reveal">Avantages et inconvénients</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Avantages</div>
+                        <li>Lisible par l'homme — ouvrez dans n'importe quel éditeur de texte</li>
+                        <li>Débogage facile des chemins de glyphes et des métadonnées</li>
+                        <li>Entièrement vectoriel, évolutivité infinie</li>
+                        <li>Pas de compilation nécessaire pour voir la source</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Inconvénients</div>
+                        <li>Taille de fichier la plus grande de tous les formats de polices</li>
+                        <li>Obsolète dans Chrome, Firefox et Edge</li>
+                        <li>Aucune compression</li>
+                        <li>Pas de prise en charge du crénage</li>
+                        <li>Mauvaise qualité de rendu sous Windows</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Prise en charge par les navigateurs</h2>
+                <p>La prise en charge des polices SVG a été <strong>supprimée de la plupart des navigateurs principaux</strong>. Chrome a abandonné la prise en charge des polices SVG dans la version 38 (2014). Firefox ne l'a jamais implémentée. Edge (basé sur Chromium) ne le prend pas en charge non plus. Le seul navigateur restant est <strong>Safari et iOS Safari</strong>, qui rendent encore les polices SVG.</p>
+                <p>Pour une utilisation web pratique, la police SVG est essentiellement un format hérité. Vous ne devriez jamais compter sur elle comme format de livraison pour les utilisateurs finaux. Utilisez plutôt WOFF2.</p>
+
+                <h2 class="reveal">Quand utiliser SVG Font</h2>
+                <ul>
+                    <li><strong>Débogage des problèmes de génération de polices</strong> — puisqu'il s'agit d'un XML brut, vous pouvez lire les données de chemin directement et les comparer aux icônes SVG originales pour diagnostiquer les problèmes.</li>
+                    <li><strong>Comme format source dans les pipelines de compilation</strong> — de nombreux outils de génération de polices (dont Bobcorn) utilisent SVG Font comme représentation intermédiaire avant la conversion en formats binaires.</li>
+                    <li><strong>Support iOS hérité &lt; 5</strong> — extrêmement rare aujourd'hui, mais les anciens appareils iOS antérieurs à la prise en charge de WOFF ne pouvaient utiliser que des polices SVG pour les polices web.</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn</div>
+                    Dans Bobcorn, SVG Font est la <strong>première étape</strong> du pipeline de génération. Vos icônes SVG sont assemblées dans une police SVG, qui est ensuite convertie en TTF, puis de TTF en WOFF, WOFF2 et EOT. Vous pouvez exporter le fichier de police SVG à des fins de débogage — c'est particulièrement utile lorsqu'un glyphe semble incorrect et que vous devez inspecter les données de chemin brutes.
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="index.html" class="page-nav-link">
+                        <div class="page-nav-dir">Précédent</div>
+                        <div class="page-nav-title">Icon Fonts 101</div>
+                    </a>
+                    <a href="ttf.html" class="page-nav-link">
+                        <div class="page-nav-dir">Suivant</div>
+                        <div class="page-nav-title">TTF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

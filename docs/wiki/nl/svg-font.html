@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Font — Bobcorn Wiki</title>
+    <meta name="description" content="SVG Font-formaat uitgelegd — voor mensen leesbare XML die SVG-paden koppelt aan fontglyphs. Leer hoe Bobcorn SVG Font gebruikt als de eerste stap in zijn icoonfont-generatiepipeline.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/nl/svg-font.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-font.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-font.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-font.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-font.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-font.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-font.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-font.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-font.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-font.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-font.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-font.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-font.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-font.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-font.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/nl/svg-font.html">
+    <meta property="og:title" content="SVG Font — Bobcorn Wiki">
+    <meta property="og:description" content="SVG Font-formaat uitgelegd — voor mensen leesbare XML die SVG-paden koppelt aan fontglyphs. Leer hoe Bobcorn SVG Font gebruikt als de eerste stap in zijn icoonfont-generatiepipeline.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Font — Bobcorn Wiki">
+    <meta name="twitter:description" content="SVG Font-formaat uitgelegd — voor mensen leesbare XML die SVG-paden koppelt aan fontglyphs. Leer hoe Bobcorn SVG Font gebruikt als de eerste stap in zijn icoonfont-generatiepipeline.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Font — Bobcorn Wiki",
+                "description": "SVG Font-formaat uitgelegd — voor mensen leesbare XML die SVG-paden koppelt aan fontglyphs. Leer hoe Bobcorn SVG Font gebruikt als de eerste stap in zijn icoonfont-generatiepipeline.",
+                "url": "https://bobcorn.caldis.me/wiki/nl/svg-font.html",
+                "inLanguage": "nl",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/nl/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Font — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/nl/svg-font.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Nederlands</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">SVG Font</h1>
+                <p class="lead reveal">Het originele vectorfontformaat — voor mensen leesbare XML die SVG-paden koppelt aan fontglyphs.</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.svg</span>
+                        <span class="fingerprint-name">SVG Font Format</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Type</span><span class="fingerprint-val">XML-gebaseerde vector</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Compressie</span><span class="fingerprint-val">Geen (platte tekst)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bestandsgrootte</span><span class="fingerprint-val">Grootste van alle formaten</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Ondersteuning</span><span class="fingerprint-val">Alleen Safari (elders verouderd)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Geschikt voor</span><span class="fingerprint-val">Debuggen, bronformaat</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">Pipeline-bron</span></div>
+                </div>
+
+                <h2 class="reveal">Wat is SVG Font?</h2>
+                <p>SVG-fonts werden gedefinieerd als onderdeel van de <strong>SVG 1.1-specificatie</strong>, gepubliceerd door het W3C. In tegenstelling tot traditionele binaire fontformaten sluiten SVG-fonts glyph-contouren in als SVG-padgegevens binnen een <code>&lt;font&gt;</code>-element. Elke glyph wordt vertegenwoordigd door een <code>&lt;glyph&gt;</code>-element waarvan het attribuut <code>d</code> het vectorpad bevat dat de vorm beschrijft.</p>
+                <p>In wezen zijn SVG-fonts SVG-tekeningen verpakt als een font. Dezelfde padsyntaxis die u gebruikt om vormen te tekenen in een SVG-bestand wordt hergebruikt om lettervormen en icooncontouren te definiëren. Dit maakt ze uniek inspecteerbaar — u kunt een SVG-font openen in elke teksteditor en de werkelijke geometrie van elke glyph lezen.</p>
+
+                <h2 class="reveal">Hoe Het Werkt</h2>
+                <p>Een SVG-fontbestand omhult glyph-paden binnen een standaard XML-structuur. Hier is een vereenvoudigd voorbeeld:</p>
+                <span class="code-label">SVG Font-structuur</span>
+<pre><code><span class="code-tag">&lt;font</span> <span class="code-attr">id</span>=<span class="code-str">"MyIcons"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;font-face</span> <span class="code-attr">font-family</span>=<span class="code-str">"MyIcons"</span> <span class="code-attr">units-per-em</span>=<span class="code-str">"1024"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"home"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE001;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M512 0L0 448h128v576h256V640h256v384h256V448h128z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"search"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE002;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M..."</span><span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/font&gt;</span></code></pre>
+                <p>Het element <code>&lt;font-face&gt;</code> declareert de fontfamilienaam en het coördinatensysteem (<code>units-per-em</code>). Elke <code>&lt;glyph&gt;</code> koppelt een Unicode-codepunt aan een vectorpad. Het attribuut <code>d</code> gebruikt exact dezelfde padsyntaxis als een gewoon SVG <code>&lt;path&gt;</code>-element.</p>
+                <p>Dit is het <strong>tussenformaat</strong> in de pipeline van Bobcorn. Individuele SVG-iconen worden eerst samengesteld in deze SVG-fontstructuur, die vervolgens wordt geconverteerd naar binaire formaten: SVG Font &rarr; TTF &rarr; WOFF / WOFF2 / EOT.</p>
+
+                <h2 class="reveal">Voor- en Nadelen</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Voordelen</div>
+                        <li>Voor mensen leesbaar — open in elke teksteditor</li>
+                        <li>Eenvoudig glyph-paden en metadata debuggen</li>
+                        <li>Volledig vectorgebaseerd, oneindige schaalbaarheid</li>
+                        <li>Geen compilatie nodig om de bron te bekijken</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Nadelen</div>
+                        <li>Grootste bestandsgrootte van alle fontformaten</li>
+                        <li>Verouderd in Chrome, Firefox en Edge</li>
+                        <li>Geen enkele compressie</li>
+                        <li>Geen hinting-ondersteuning</li>
+                        <li>Slechte renderingkwaliteit op Windows</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Browserondersteuning</h2>
+                <p>SVG-fontondersteuning is <strong>verwijderd uit de meeste grote browsers</strong>. Chrome verwijderde SVG-fontondersteuning in versie 38 (2014). Firefox heeft het nooit geïmplementeerd. Edge (op Chromium gebaseerd) ondersteunt het ook niet. De enige overgebleven uitzondering is <strong>Safari en iOS Safari</strong>, die SVG-fonts nog steeds renderen.</p>
+                <p>Voor praktisch webgebruik is SVG Font in wezen een verouderd formaat. U mag er nooit op vertrouwen als leveringsformaat voor eindgebruikers. Gebruik in plaats daarvan WOFF2.</p>
+
+                <h2 class="reveal">Wanneer SVG Font Gebruiken</h2>
+                <ul>
+                    <li><strong>Debuggen van fontgeneratieproblemen</strong> — omdat het gewone XML is, kunt u de padgegevens direct lezen en vergelijken met de originele SVG-iconen om problemen te diagnosticeren.</li>
+                    <li><strong>Als bronformaat in buildpipelines</strong> — veel fontgeneratietools (inclusief Bobcorn) gebruiken SVG Font als tussenliggende representatie voordat ze converteren naar binaire formaten.</li>
+                    <li><strong>Legacy iOS &lt; 5 ondersteuning</strong> — tegenwoordig extreem zeldzaam, maar oudere iOS-apparaten die dateren van vóór WOFF-ondersteuning konden alleen SVG-fonts gebruiken voor webfonts.</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn</div>
+                    In Bobcorn is SVG Font de <strong>eerste stap</strong> van de generatiepipeline. Uw SVG-iconen worden samengesteld in een SVG-font, dat vervolgens wordt geconverteerd naar TTF, en van TTF naar WOFF, WOFF2 en EOT. U kunt het SVG-fontbestand exporteren voor debuggingdoeleinden — dit is met name nuttig wanneer een glyph er niet goed uitziet en u de onbewerkte padgegevens moet inspecteren.
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="index.html" class="page-nav-link">
+                        <div class="page-nav-dir">Vorige</div>
+                        <div class="page-nav-title">Icoonfonts 101</div>
+                    </a>
+                    <a href="ttf.html" class="page-nav-link">
+                        <div class="page-nav-dir">Volgende</div>
+                        <div class="page-nav-title">TTF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

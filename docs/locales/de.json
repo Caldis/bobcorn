@@ -1,6 +1,7 @@
 {
   "nav.features": "Funktionen",
   "nav.formats": "Formate",
+  "nav.wiki": "Wiki",
   "hero.badge": "Open Source · MIT-Lizenz",
   "hero.title": "Icons verwalten,<br><em>Schriften generieren</em>",
   "hero.desc": "Der Open-Source-Icon-Manager und Schriftgenerator für Designer und Entwickler. Importiere SVGs, organisiere sie in Gruppen, bearbeite Farben und exportiere produktionsreife Icon-Fonts.",

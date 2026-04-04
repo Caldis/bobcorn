@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Ekspor — Bobcorn Wiki</title>
+    <meta name="description" content="Panduan lengkap alur kerja ekspor Bobcorn — dari memilih ikon hingga menghasilkan file font siap produksi.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/export-guide.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/export-guide.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/export-guide.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/export-guide.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/export-guide.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/export-guide.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/export-guide.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:title" content="Panduan Ekspor — Bobcorn Wiki">
+    <meta property="og:description" content="Panduan lengkap alur kerja ekspor Bobcorn — dari memilih ikon hingga menghasilkan file font siap produksi.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Panduan Ekspor — Bobcorn Wiki">
+    <meta name="twitter:description" content="Panduan lengkap alur kerja ekspor Bobcorn — dari memilih ikon hingga menghasilkan file font siap produksi.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Panduan Ekspor — Bobcorn Wiki",
+                "description": "Panduan lengkap alur kerja ekspor Bobcorn — dari memilih ikon hingga menghasilkan file font siap produksi.",
+                "url": "https://bobcorn.caldis.me/wiki/id/export-guide.html",
+                "inLanguage": "id",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/id/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Panduan Ekspor — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/id/export-guide.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Bahasa Indonesia</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Panduan Ekspor</h1>
+                <p class="lead reveal">Panduan lengkap alur kerja ekspor Bobcorn — dari memilih ikon hingga menghasilkan file font siap produksi.</p>
+
+                <!-- Opening the Export Dialog -->
+                <h2 class="reveal">Membuka Dialog Ekspor</h2>
+                <div class="reveal">
+                    <p>Klik tombol <strong>Ekspor</strong> di menu sidebar kiri. Dialog ekspor terbuka sebagai modal yang memungkinkan Anda mengonfigurasi direktori output, memilih grup ikon yang akan disertakan, serta memilih format output dan file pendamping. Semua pengaturan diingat di antara sesi, sehingga setelah mengonfigurasi pengaturan ekspor yang diinginkan, ekspor berikutnya hanya butuh satu klik.</p>
+                </div>
+
+                <!-- Choosing an Output Directory -->
+                <h2 class="reveal">Memilih Direktori Output</h2>
+                <div class="reveal">
+                    <p>Langkah pertama adalah memilih tempat menyimpan file yang diekspor. Secara default, Bobcorn menggunakan <strong>Desktop</strong> Anda. Klik tombol folder di samping jalur untuk memilih lokasi lain.</p>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tips</div>
+                        Ekspor langsung ke direktori <code>fonts/</code> atau <code>assets/</code> proyek Anda untuk menghindari penyalinan file manual setelah setiap ekspor. Ini sangat berguna selama pengembangan aktif ketika Anda sedang melakukan iterasi pada kumpulan ikon.
+                    </div>
+                </div>
+
+                <!-- Selecting Icon Groups -->
+                <h2 class="reveal">Memilih Grup Ikon</h2>
+                <div class="reveal">
+                    <p>Anda dapat memilih grup ikon mana yang akan disertakan dalam ekspor. Secara default, semua grup dipilih. Hapus centang grup yang tidak Anda inginkan dalam font — misalnya, Anda mungkin mengecualikan grup "draf" yang berisi ikon dalam proses pengerjaan.</p>
+                    <p>Setiap grup menampilkan jumlah ikonnya di samping namanya. Total jumlah ikon di bagian bawah daftar diperbarui secara real time saat Anda mengaktifkan dan menonaktifkan grup, sehingga Anda selalu tahu persis berapa banyak glyph yang akan dikandung font yang diekspor.</p>
+                </div>
+
+                <!-- Font Formats -->
+                <h2 class="reveal">Format Font</h2>
+                <div class="reveal">
+                    <p>Bobcorn dapat menghasilkan lima format font. Pilih yang sesuai dengan persyaratan dukungan browser proyek Anda:</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Format</th><th>Default</th><th>Kapan Diaktifkan</th><th>Pelajari Lebih Lanjut</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fmt">.woff2</td>
+                                    <td>Selalu aktif</td>
+                                    <td>Selalu — format web yang esensial</td>
+                                    <td><a href="woff2.html">WOFF2 &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.woff</td>
+                                    <td>Opsional</td>
+                                    <td>Perlu dukungan IE 11</td>
+                                    <td><a href="woff.html">WOFF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.ttf</td>
+                                    <td>Opsional</td>
+                                    <td>Aplikasi desktop, instalasi font OS</td>
+                                    <td><a href="ttf.html">TTF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.svg</td>
+                                    <td>Opsional</td>
+                                    <td>Debugging, iOS lama</td>
+                                    <td><a href="svg-font.html">SVG Font &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.eot</td>
+                                    <td>Opsional</td>
+                                    <td>Hanya untuk IE 6-8 lawas</td>
+                                    <td><a href="eot.html">EOT &rarr;</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>WOFF2 selalu disertakan karena merupakan format font web yang esensial — tidak ada skenario di mana Anda menginginkan ekspor font web tanpanya. Semua format lainnya bersifat opsional berdasarkan kebutuhan spesifik Anda.</p>
+                </div>
+
+                <!-- Companion Files -->
+                <h2 class="reveal">File Pendamping</h2>
+                <div class="reveal">
+                    <p>Selain file font itu sendiri, Bobcorn dapat menghasilkan beberapa file pendamping yang memudahkan integrasi dan kolaborasi:</p>
+
+                    <h3>CSS (<code>icons.css</code>)</h3>
+                    <p>Berisi deklarasi <code>@font-face</code> dan kelas CSS <code>.icon-*</code> untuk setiap ikon dalam kumpulan. Tambahkan file ini ke proyek dan Anda siap menggunakan ikon dengan nama kelas sederhana. Lihat <a href="css-font-face.html">panduan CSS @font-face</a> untuk detail cara kerja CSS yang dihasilkan.</p>
+
+                    <h3>JS (<code>icons-symbol.js</code>)</h3>
+                    <p>Sprite SVG symbol yang mendaftarkan semua ikon sebagai SVG symbol inline saat skrip dimuat. Gunakan ini ketika Anda membutuhkan ikon multi-warna atau fitur khusus SVG bersamaan dengan ikon font. Lihat <a href="svg-symbol.html">panduan SVG Symbol</a> untuk pola penggunaan.</p>
+
+                    <h3>HTML (<code>demo.html</code>)</h3>
+                    <p>Halaman pratinjau interaktif yang menampilkan semua ikon yang diekspor beserta nama, nama kelas CSS, dan code point Unicode. Buka di browser untuk menelusuri kumpulan ikon lengkap. Berguna bagi desainer yang meninjau perpustakaan ikon dan developer yang mencari nama kelas saat integrasi.</p>
+
+                    <h3>ICP (<code>project.icp</code>)</h3>
+                    <p>File proyek Bobcorn. Ekspor ini untuk berbagi proyek ikon dengan rekan tim atau sebagai cadangan. Membuka file ICP di Bobcorn memulihkan seluruh status proyek — semua ikon, grup, metadata, dan pengaturan — persis seperti saat diekspor.</p>
+                </div>
+
+                <!-- ZIP Packaging -->
+                <h2 class="reveal">Pengemasan ZIP</h2>
+                <div class="reveal">
+                    <p>Aktifkan opsi <strong>ZIP</strong> untuk membundel semua file yang diekspor ke dalam satu arsip <code>.zip</code>. Ini berguna saat berbagi font ikon dengan rekan tim, mengunggah ke CDN, atau melampirkan ke dokumen serah terima desain. ZIP berisi struktur direktori yang sama seperti ekspor biasa — tanpa penumpukan atau reorganisasi.</p>
+                </div>
+
+                <!-- Recommended Configurations -->
+                <h2 class="reveal">Konfigurasi yang Direkomendasikan</h2>
+                <div class="reveal">
+                    <p>Berikut tiga preset praktis untuk jenis proyek yang umum:</p>
+
+                    <h3>Proyek web modern</h3>
+                    <ul>
+                        <li>WOFF2 (selalu aktif) + CSS + HTML demo</li>
+                        <li>Jejak minimal, mencakup 97%+ browser</li>
+                    </ul>
+
+                    <h3>Proyek kompatibilitas penuh</h3>
+                    <ul>
+                        <li>WOFF2 + WOFF + CSS + HTML demo</li>
+                        <li>Mencakup IE 11+ dan semua browser modern</li>
+                    </ul>
+
+                    <h3>Design system / perpustakaan komponen</h3>
+                    <ul>
+                        <li>WOFF2 + TTF + CSS + JS symbol + HTML demo + ICP</li>
+                        <li>Font untuk penggunaan CSS, TTF untuk alat desktop, JS symbol untuk varian multi-warna, ICP untuk backup proyek</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tips</div>
+                        Mulai dengan preset "proyek web modern" — WOFF2 + CSS. Tambahkan lebih banyak format hanya ketika analitik browser atau persyaratan platform Anda membutuhkannya. Format tambahan menambah bobot build tanpa memberi manfaat bagi pengguna yang browsernya sudah mendukung WOFF2.
+                    </div>
+                </div>
+
+                <!-- Output File Structure -->
+                <h2 class="reveal">Struktur File Output</h2>
+                <div class="reveal">
+                    <p>Ketika semua opsi diaktifkan, Bobcorn menghasilkan struktur file berikut:</p>
+
+                    <span class="code-label">Hasil ekspor</span>
+<pre><code>output/
+├── MyIcons.woff2        <span class="code-cmt"># Font files</span>
+├── MyIcons.woff
+├── MyIcons.ttf
+├── MyIcons.css          <span class="code-cmt"># @font-face + icon classes</span>
+├── MyIcons-symbol.js    <span class="code-cmt"># SVG symbol sprite</span>
+├── demo.html            <span class="code-cmt"># Interactive preview</span>
+└── MyIcons.icp          <span class="code-cmt"># Project backup</span></code></pre>
+
+                    <p>Nama keluarga font (misalnya, "MyIcons") diambil dari nama proyek di Bobcorn. Semua file yang dihasilkan menggunakan nama ini sebagai awalan untuk konsistensi.</p>
+                </div>
+
+                <!-- After Export -->
+                <h2 class="reveal">Setelah Ekspor</h2>
+                <div class="reveal">
+                    <p>Setelah Bobcorn menghasilkan file Anda, ikuti langkah-langkah berikut untuk mengintegrasikan font ikon ke dalam proyek:</p>
+
+                    <ol>
+                        <li><strong>Salin file font + CSS</strong> ke direktori assets atau fonts proyek Anda</li>
+                        <li><strong>Tautkan CSS</strong> di HTML Anda: <code>&lt;link rel="stylesheet" href="MyIcons.css"&gt;</code></li>
+                        <li><strong>Gunakan ikon</strong> di mana saja dalam markup: <code>&lt;i class="icon icon-home"&gt;&lt;/i&gt;</code></li>
+                        <li><strong>Opsional preload</strong> file WOFF2 untuk rendering awal yang lebih cepat</li>
+                    </ol>
+
+                    <p>Berikut contoh integrasi lengkap:</p>
+
+                    <span class="code-label">Integrasi lengkap</span>
+<pre><code><span class="code-tag">&lt;head&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"preload"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.woff2"</span> <span class="code-attr">as</span>=<span class="code-str">"font"</span>
+        <span class="code-attr">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-attr">crossorigin</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"stylesheet"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.css"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span>
+<span class="code-tag">&lt;body&gt;</span>
+  <span class="code-tag">&lt;button&gt;&lt;i</span> <span class="code-attr">class</span>=<span class="code-str">"icon icon-save"</span><span class="code-tag">&gt;&lt;/i&gt;</span> Save<span class="code-tag">&lt;/button&gt;</span>
+<span class="code-tag">&lt;/body&gt;</span></code></pre>
+
+                    <p>Petunjuk <code>rel="preload"</code> memberi tahu browser untuk mulai mengunduh file font sebelum menemukan aturan <code>@font-face</code> dalam CSS. Ini menghilangkan jeda antara parse CSS dan pengunduhan font, menghasilkan first-paint yang lebih cepat dengan ikon yang langsung terlihat. Atribut <code>crossorigin</code> diperlukan untuk preload font, bahkan ketika font berada di origin yang sama.</p>
+                </div>
+
+                <!-- Demo Page Callout -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">Tips</div>
+                    Buka <code>demo.html</code> yang dihasilkan di browser untuk menelusuri semua ikon yang diekspor. Anda dapat mengklik ikon mana pun untuk menyalin nama kelas CSS-nya — berguna selama pengembangan ketika Anda perlu mencari kelas yang tepat untuk ikon tertentu.
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Di Bobcorn</div>
+                    Dialog ekspor mengingat pengaturan terakhir yang digunakan. Setelah mengonfigurasi format, file pendamping, dan direktori output untuk proyek Anda, setiap ekspor berikutnya hanya butuh satu klik. Jika Anda sering melakukan iterasi, arahkan direktori output ke folder assets proyek untuk pembaruan tanpa hambatan.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">Sebelumnya</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

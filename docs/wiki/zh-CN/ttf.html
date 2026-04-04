@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTF（TrueType）— Bobcorn Wiki</title>
+    <meta name="description" content="TTF（TrueType Font）详解——由 Apple 和 Microsoft 共同开发的行业标准二进制字体格式。了解 Bobcorn 如何将 TTF 作为生成管道的核心中间格式。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/zh-CN/ttf.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/ttf.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/ttf.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/ttf.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/ttf.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/ttf.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/ttf.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/ttf.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/ttf.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/ttf.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/ttf.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/ttf.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/ttf.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/ttf.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/ttf.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/ttf.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/zh-CN/ttf.html">
+    <meta property="og:title" content="TTF（TrueType）— Bobcorn Wiki">
+    <meta property="og:description" content="TTF（TrueType Font）详解——由 Apple 和 Microsoft 共同开发的行业标准二进制字体格式。了解 Bobcorn 如何将 TTF 作为生成管道的核心中间格式。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="TTF（TrueType）— Bobcorn Wiki">
+    <meta name="twitter:description" content="TTF（TrueType Font）详解——由 Apple 和 Microsoft 共同开发的行业标准二进制字体格式。了解 Bobcorn 如何将 TTF 作为生成管道的核心中间格式。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "TTF（TrueType）— Bobcorn Wiki",
+                "description": "TTF（TrueType Font）详解——由 Apple 和 Microsoft 共同开发的行业标准二进制字体格式。了解 Bobcorn 如何将 TTF 作为生成管道的核心中间格式。",
+                "url": "https://bobcorn.caldis.me/wiki/zh-CN/ttf.html",
+                "inLanguage": "zh-CN",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "TTF（TrueType）— Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/ttf.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>简体中文</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">TTF</h1>
+                <p class="lead reveal">TrueType Font——由 Apple 和 Microsoft 共同开发的行业标准二进制字体格式。</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.ttf</span>
+                        <span class="fingerprint-name">TrueType Font Format</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">类型</span><span class="fingerprint-val">二进制轮廓</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">压缩</span><span class="fingerprint-val">无</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">文件大小</span><span class="fingerprint-val">中等（未压缩）</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">支持范围</span><span class="fingerprint-val">98%+ 浏览器</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">最适用于</span><span class="fingerprint-val">桌面应用、开发调试</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">核心中间格式</span></div>
+                </div>
+
+                <h2 class="reveal">什么是 TTF？</h2>
+                <p>TrueType 由 <strong>Apple 于 1980 年代末</strong>开发，作为 Adobe PostScript Type 1 字体的替代方案，后被 Microsoft 引入 Windows。它将字形轮廓存储为<strong>二次贝塞尔曲线</strong>，在计算上比 PostScript 使用的三次曲线更简单（光栅化速度也更快）。</p>
+                <p>TTF 迅速成为 macOS 和 Windows 的<strong>通用字体格式</strong>。二十余年来，它是发布字体的标准方式——从系统字体到自定义字样皆是如此。虽然 WOFF/WOFF2 在网页交付方面已基本取代了它，但 TTF 仍是所有现代网页字体格式赖以构建的基础。</p>
+
+                <h2 class="reveal">工作原理</h2>
+                <p>TTF 文件是一个二进制容器，按<strong>表</strong>组织，每张表存储特定类型的数据：</p>
+                <ul>
+                    <li><code>glyf</code>——字形轮廓（实际矢量形状）</li>
+                    <li><code>cmap</code>——字符到字形的映射（哪个 Unicode 码位对应哪个字形）</li>
+                    <li><code>head</code>——字体元数据（每 em 单位数、创建日期、标志）</li>
+                    <li><code>hmtx</code>——水平度量（每个字形的推进宽度和左侧轴承）</li>
+                </ul>
+                <p>对于图标字体，每个图标被分配一个位于<strong>私有使用区</strong>（U+E000 至 U+F8FF）的 Unicode 码位——该区间专门为应用自定义字符保留，不会与标准文本冲突。</p>
+
+                <span class="code-label">在 CSS 中使用 TTF 图标字体</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+}
+
+<span class="code-tag">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: normal;
+  <span class="code-prop">font-weight</span>: normal;
+}
+
+<span class="code-tag">.icon-home</span><span class="code-kw">::before</span> {
+  <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>;
+}</code></pre>
+                <p><code>format('truetype')</code> 提示告诉浏览器期望的字体文件类型，以便在不支持 TrueType 时跳过下载（尽管几乎所有浏览器都支持它）。</p>
+
+                <h2 class="reveal">优缺点</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">优点</div>
+                        <li>跨平台通用兼容性</li>
+                        <li>全面支持——桌面、移动和网页均可使用</li>
+                        <li>操作系统字体安装的标准格式</li>
+                        <li>支持字体微调，渲染质量良好</li>
+                        <li>规范文档完善</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">缺点</div>
+                        <li>无压缩——比 WOFF/WOFF2 更大</li>
+                        <li>未针对网页交付优化</li>
+                        <li>在移动网络上下载可能较慢</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">浏览器支持</h2>
+                <p>TTF 享有 <strong>98%+ 的浏览器支持率</strong>，涵盖所有现代浏览器及 Internet Explorer 9+。它同样被所有主要桌面操作系统原生支持——Windows、macOS 和 Linux——这意味着你可以直接将 TTF 文件安装为系统字体，无需任何转换。</p>
+                <p>虽然 TTF 无处不在，但在网页交付方面应优先选择 WOFF2（本质上是压缩的 TTF）。将原始 TTF 保留用于桌面应用、开发环境以及构建管道的基础格式。</p>
+
+                <h2 class="reveal">何时使用 TTF</h2>
+                <ul>
+                    <li><strong>桌面应用</strong>——作为系统字体安装，用于原生应用、设计工具或 IDE。</li>
+                    <li><strong>Electron 和原生应用</strong>——将 TTF 直接与应用捆绑，用于离线字体渲染。</li>
+                    <li><strong>开发和测试</strong>——TTF 可用 FontForge、fontTools 或系统字体查看器等工具轻松检查。</li>
+                    <li><strong>系统字体检查</strong>——需要使用操作系统级工具验证字形度量、字体微调或 cmap 表时。</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">在 Bobcorn 中</div>
+                    在 Bobcorn 中，TTF 是生成管道的<strong>核心枢纽格式</strong>。SVG 图标首先组装成 SVG 字体，然后转换为 TTF，再由 TTF 转换为 WOFF、WOFF2 和 EOT。TTF 始终作为管道的一部分生成——它是其他所有输出格式的基础。在构建桌面应用或需要将图标字体安装到操作系统时，请启用 TTF 导出。
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">上一页</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                    <a href="woff.html" class="page-nav-link">
+                        <div class="page-nav-dir">下一页</div>
+                        <div class="page-nav-title">WOFF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

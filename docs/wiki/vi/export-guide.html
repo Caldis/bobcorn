@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Xuất File — Bobcorn Wiki</title>
+    <meta name="description" content="Hướng dẫn đầy đủ về quy trình xuất file của Bobcorn — từ chọn icon đến tạo file font sẵn sàng cho môi trường sản xuất.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/export-guide.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/export-guide.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/export-guide.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/export-guide.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/export-guide.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/export-guide.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/export-guide.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <meta property="og:title" content="Hướng Dẫn Xuất File — Bobcorn Wiki">
+    <meta property="og:description" content="Hướng dẫn đầy đủ về quy trình xuất file của Bobcorn — từ chọn icon đến tạo file font sẵn sàng cho môi trường sản xuất.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Hướng Dẫn Xuất File — Bobcorn Wiki">
+    <meta name="twitter:description" content="Hướng dẫn đầy đủ về quy trình xuất file của Bobcorn — từ chọn icon đến tạo file font sẵn sàng cho môi trường sản xuất.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Hướng Dẫn Xuất File — Bobcorn Wiki",
+                "description": "Hướng dẫn đầy đủ về quy trình xuất file của Bobcorn — từ chọn icon đến tạo file font sẵn sàng cho môi trường sản xuất.",
+                "url": "https://bobcorn.caldis.me/wiki/vi/export-guide.html",
+                "inLanguage": "vi",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Hướng Dẫn Xuất File — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/export-guide.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Tiếng Việt</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Hướng Dẫn Xuất File</h1>
+                <p class="lead reveal">Hướng dẫn đầy đủ về quy trình xuất file của Bobcorn — từ chọn icon đến tạo file font sẵn sàng cho môi trường sản xuất.</p>
+
+                <!-- Opening the Export Dialog -->
+                <h2 class="reveal">Mở Hộp Thoại Xuất File</h2>
+                <div class="reveal">
+                    <p>Nhấn nút <strong>Xuất</strong> trong menu thanh bên trái. Hộp thoại xuất file mở ra dưới dạng modal cho phép bạn cấu hình thư mục đầu ra, chọn nhóm icon cần đưa vào, và chọn định dạng đầu ra cùng các file đi kèm. Tất cả cài đặt đều được ghi nhớ giữa các phiên làm việc, vì vậy sau khi đã cấu hình xong thiết lập xuất file ưa thích, các lần xuất tiếp theo chỉ cần một cú nhấp chuột.</p>
+                </div>
+
+                <!-- Choosing an Output Directory -->
+                <h2 class="reveal">Chọn Thư Mục Đầu Ra</h2>
+                <div class="reveal">
+                    <p>Bước đầu tiên là chọn nơi lưu các file đã xuất. Theo mặc định, Bobcorn sử dụng <strong>Desktop</strong> của bạn. Nhấn nút thư mục bên cạnh đường dẫn để chọn vị trí khác.</p>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Mẹo</div>
+                        Xuất trực tiếp vào thư mục <code>fonts/</code> hoặc <code>assets/</code> của dự án để tránh phải sao chép file thủ công sau mỗi lần xuất. Điều này đặc biệt hữu ích trong quá trình phát triển tích cực khi bạn đang lặp lại nhiều lần trên bộ icon.
+                    </div>
+                </div>
+
+                <!-- Selecting Icon Groups -->
+                <h2 class="reveal">Chọn Nhóm Icon</h2>
+                <div class="reveal">
+                    <p>Bạn có thể chọn nhóm icon nào sẽ được đưa vào file xuất. Theo mặc định, tất cả các nhóm đều được chọn. Bỏ chọn các nhóm bạn không muốn đưa vào font — ví dụ, bạn có thể loại trừ nhóm "bản nháp" chứa các icon đang trong quá trình thiết kế.</p>
+                    <p>Mỗi nhóm hiển thị số lượng icon bên cạnh tên của nó. Tổng số icon ở cuối danh sách cập nhật theo thời gian thực khi bạn bật/tắt các nhóm, vì vậy bạn luôn biết chính xác font xuất ra sẽ chứa bao nhiêu ký tự đồ họa.</p>
+                </div>
+
+                <!-- Font Formats -->
+                <h2 class="reveal">Định Dạng Font</h2>
+                <div class="reveal">
+                    <p>Bobcorn có thể tạo ra năm định dạng font. Hãy chọn những định dạng phù hợp với yêu cầu hỗ trợ trình duyệt của dự án:</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Định dạng</th><th>Mặc định</th><th>Khi nào bật</th><th>Tìm hiểu thêm</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fmt">.woff2</td>
+                                    <td>Luôn bật</td>
+                                    <td>Luôn luôn — định dạng web thiết yếu</td>
+                                    <td><a href="woff2.html">WOFF2 &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.woff</td>
+                                    <td>Tùy chọn</td>
+                                    <td>Cần hỗ trợ IE 11</td>
+                                    <td><a href="woff.html">WOFF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.ttf</td>
+                                    <td>Tùy chọn</td>
+                                    <td>Ứng dụng desktop, cài đặt font hệ điều hành</td>
+                                    <td><a href="ttf.html">TTF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.svg</td>
+                                    <td>Tùy chọn</td>
+                                    <td>Gỡ lỗi, iOS cũ</td>
+                                    <td><a href="svg-font.html">SVG Font &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.eot</td>
+                                    <td>Tùy chọn</td>
+                                    <td>Chỉ dành cho IE 6-8 cũ</td>
+                                    <td><a href="eot.html">EOT &rarr;</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>WOFF2 luôn được bao gồm vì đây là định dạng font web thiết yếu — không có trường hợp nào bạn muốn xuất font web mà không có nó. Tất cả các định dạng khác là tùy chọn dựa trên yêu cầu cụ thể của bạn.</p>
+                </div>
+
+                <!-- Companion Files -->
+                <h2 class="reveal">Các File Đi Kèm</h2>
+                <div class="reveal">
+                    <p>Ngoài các file font chính, Bobcorn có thể tạo thêm một số file đi kèm giúp tích hợp và cộng tác dễ dàng hơn:</p>
+
+                    <h3>CSS (<code>icons.css</code>)</h3>
+                    <p>Chứa khai báo <code>@font-face</code> và các lớp CSS <code>.icon-*</code> cho mỗi icon trong bộ. Thêm file này vào dự án và bạn đã sẵn sàng sử dụng icon bằng tên lớp đơn giản. Xem <a href="css-font-face.html">hướng dẫn CSS @font-face</a> để biết chi tiết về cách CSS được tạo ra hoạt động.</p>
+
+                    <h3>JS (<code>icons-symbol.js</code>)</h3>
+                    <p>Sprite SVG symbol đăng ký tất cả icon dưới dạng SVG symbol nội tuyến khi script tải. Sử dụng khi bạn cần icon nhiều màu hoặc các tính năng SVG cụ thể bên cạnh icon font. Xem <a href="svg-symbol.html">hướng dẫn SVG Symbol</a> để biết các cách sử dụng.</p>
+
+                    <h3>HTML (<code>demo.html</code>)</h3>
+                    <p>Trang xem trước tương tác hiển thị tất cả icon đã xuất với tên, tên lớp CSS và điểm mã Unicode. Mở trong trình duyệt để duyệt toàn bộ bộ icon. Hữu ích cho designer xem xét thư viện icon và developer tra cứu tên lớp khi tích hợp.</p>
+
+                    <h3>ICP (<code>project.icp</code>)</h3>
+                    <p>File dự án của Bobcorn. Xuất file này để chia sẻ dự án icon với đồng nghiệp hoặc làm bản sao lưu. Mở file ICP trong Bobcorn sẽ khôi phục toàn bộ trạng thái dự án — tất cả icon, nhóm, siêu dữ liệu và cài đặt — chính xác như khi xuất.</p>
+                </div>
+
+                <!-- ZIP Packaging -->
+                <h2 class="reveal">Đóng Gói ZIP</h2>
+                <div class="reveal">
+                    <p>Bật tùy chọn <strong>ZIP</strong> để đóng gói tất cả file đã xuất vào một kho lưu trữ <code>.zip</code> duy nhất. Điều này hữu ích khi chia sẻ font icon với đồng nghiệp, tải lên CDN, hoặc đính kèm vào tài liệu bàn giao thiết kế. File ZIP chứa cùng cấu trúc thư mục như xuất file thông thường — không có lồng nhau hay tổ chức lại.</p>
+                </div>
+
+                <!-- Recommended Configurations -->
+                <h2 class="reveal">Cấu Hình Khuyến Nghị</h2>
+                <div class="reveal">
+                    <p>Dưới đây là ba cài đặt sẵn thực tế cho các loại dự án phổ biến:</p>
+
+                    <h3>Dự án web hiện đại</h3>
+                    <ul>
+                        <li>WOFF2 (luôn bật) + CSS + HTML demo</li>
+                        <li>Dung lượng tối thiểu, hỗ trợ 97%+ trình duyệt</li>
+                    </ul>
+
+                    <h3>Dự án tương thích toàn diện</h3>
+                    <ul>
+                        <li>WOFF2 + WOFF + CSS + HTML demo</li>
+                        <li>Hỗ trợ IE 11+ và tất cả trình duyệt hiện đại</li>
+                    </ul>
+
+                    <h3>Hệ thống thiết kế / thư viện component</h3>
+                    <ul>
+                        <li>WOFF2 + TTF + CSS + JS symbol + HTML demo + ICP</li>
+                        <li>Font cho CSS, TTF cho công cụ desktop, JS symbol cho biến thể nhiều màu, ICP để sao lưu dự án</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Mẹo</div>
+                        Bắt đầu với cài đặt "dự án web hiện đại" — WOFF2 + CSS. Chỉ thêm nhiều định dạng hơn khi phân tích trình duyệt hoặc yêu cầu nền tảng của bạn đòi hỏi. Các định dạng thêm làm tăng dung lượng build mà không mang lại lợi ích cho người dùng có trình duyệt đã hỗ trợ WOFF2.
+                    </div>
+                </div>
+
+                <!-- Output File Structure -->
+                <h2 class="reveal">Cấu Trúc File Đầu Ra</h2>
+                <div class="reveal">
+                    <p>Khi tất cả các tùy chọn được bật, Bobcorn tạo ra cấu trúc file sau:</p>
+
+                    <span class="code-label">Kết quả xuất file</span>
+<pre><code>output/
+├── MyIcons.woff2        <span class="code-cmt"># Font files</span>
+├── MyIcons.woff
+├── MyIcons.ttf
+├── MyIcons.css          <span class="code-cmt"># @font-face + icon classes</span>
+├── MyIcons-symbol.js    <span class="code-cmt"># SVG symbol sprite</span>
+├── demo.html            <span class="code-cmt"># Interactive preview</span>
+└── MyIcons.icp          <span class="code-cmt"># Project backup</span></code></pre>
+
+                    <p>Tên bộ font (ví dụ: "MyIcons") được lấy từ tên dự án trong Bobcorn. Tất cả các file được tạo đều sử dụng tên này làm tiền tố để nhất quán.</p>
+                </div>
+
+                <!-- After Export -->
+                <h2 class="reveal">Sau Khi Xuất File</h2>
+                <div class="reveal">
+                    <p>Sau khi Bobcorn đã tạo xong file, hãy làm theo các bước sau để tích hợp font icon vào dự án:</p>
+
+                    <ol>
+                        <li><strong>Sao chép file font + CSS</strong> vào thư mục assets hoặc fonts của dự án</li>
+                        <li><strong>Liên kết CSS</strong> trong HTML: <code>&lt;link rel="stylesheet" href="MyIcons.css"&gt;</code></li>
+                        <li><strong>Sử dụng icon</strong> ở bất kỳ đâu trong markup: <code>&lt;i class="icon icon-home"&gt;&lt;/i&gt;</code></li>
+                        <li><strong>Tùy chọn preload</strong> file WOFF2 để render nhanh hơn lần đầu</li>
+                    </ol>
+
+                    <p>Dưới đây là ví dụ tích hợp hoàn chỉnh:</p>
+
+                    <span class="code-label">Tích hợp hoàn chỉnh</span>
+<pre><code><span class="code-tag">&lt;head&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"preload"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.woff2"</span> <span class="code-attr">as</span>=<span class="code-str">"font"</span>
+        <span class="code-attr">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-attr">crossorigin</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"stylesheet"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.css"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span>
+<span class="code-tag">&lt;body&gt;</span>
+  <span class="code-tag">&lt;button&gt;&lt;i</span> <span class="code-attr">class</span>=<span class="code-str">"icon icon-save"</span><span class="code-tag">&gt;&lt;/i&gt;</span> Save<span class="code-tag">&lt;/button&gt;</span>
+<span class="code-tag">&lt;/body&gt;</span></code></pre>
+
+                    <p>Gợi ý <code>rel="preload"</code> yêu cầu trình duyệt bắt đầu tải file font trước khi gặp quy tắc <code>@font-face</code> trong CSS. Điều này loại bỏ độ trễ giữa quá trình phân tích CSS và tải font, dẫn đến lần hiển thị đầu tiên nhanh hơn với icon hiển thị ngay. Thuộc tính <code>crossorigin</code> là bắt buộc cho preload font, ngay cả khi font ở cùng origin.</p>
+                </div>
+
+                <!-- Demo Page Callout -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">Mẹo</div>
+                    Mở file <code>demo.html</code> đã tạo trong trình duyệt để duyệt tất cả icon đã xuất. Bạn có thể nhấp vào bất kỳ icon nào để sao chép tên lớp CSS — tiện dụng trong quá trình phát triển khi bạn cần tra cứu lớp chính xác cho một icon cụ thể.
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Trong Bobcorn</div>
+                    Hộp thoại xuất file ghi nhớ các cài đặt đã sử dụng lần cuối. Sau khi đã cấu hình xong định dạng, file đi kèm và thư mục đầu ra cho dự án, mỗi lần xuất tiếp theo chỉ cần một cú nhấp chuột. Nếu bạn thường xuyên lặp lại, hãy trỏ thư mục đầu ra đến thư mục assets của dự án để cập nhật không cần thao tác thêm.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">Trước đó</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

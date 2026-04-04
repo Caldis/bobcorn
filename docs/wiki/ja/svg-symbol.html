@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Symbol スプライト — Bobcorn Wiki</title>
+    <meta name="description" content="フォントベースのアイコンの代替手段——SVG シンボルスプライトを使用して、スケーラブルなマルチカラーアイコンを HTML に直接埋め込む方法。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ja/svg-symbol.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-symbol.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-symbol.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-symbol.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-symbol.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-symbol.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-symbol.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-symbol.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-symbol.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-symbol.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-symbol.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-symbol.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-symbol.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-symbol.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-symbol.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-symbol.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-symbol.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-symbol.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ja/svg-symbol.html">
+    <meta property="og:title" content="SVG Symbol スプライト — Bobcorn Wiki">
+    <meta property="og:description" content="フォントベースのアイコンの代替手段——SVG シンボルスプライトを使用して、スケーラブルなマルチカラーアイコンを HTML に直接埋め込む方法。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Symbol スプライト — Bobcorn Wiki">
+    <meta name="twitter:description" content="フォントベースのアイコンの代替手段——SVG シンボルスプライトを使用して、スケーラブルなマルチカラーアイコンを HTML に直接埋め込む方法。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Symbol スプライト — Bobcorn Wiki",
+                "description": "フォントベースのアイコンの代替手段——SVG シンボルスプライトを使用して、スケーラブルなマルチカラーアイコンを HTML に直接埋め込む方法。",
+                "url": "https://bobcorn.caldis.me/wiki/ja/svg-symbol.html",
+                "inLanguage": "ja",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Symbol スプライト — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/svg-symbol.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>日本語</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">SVG Symbol</h1>
+                <p class="lead reveal">フォントベースのアイコンの代替手段——SVG シンボルスプライトを使用して、スケーラブルなマルチカラーアイコンを HTML に直接埋め込む方法です。</p>
+
+                <!-- What Are SVG Symbol Sprites? -->
+                <h2 class="reveal">SVG シンボルスプライトとは？</h2>
+                <div class="reveal">
+                    <p>SVG シンボルスプライトは、複数の SVG アイコンを 1 つのファイルにまとめます。各アイコンはユニークな <code>id</code> を持つ <code>&lt;symbol&gt;</code> 要素内に定義されます。アイコンを使用するには、<code>&lt;use href="#icon-id"&gt;</code> で参照します。スプライトは一度だけロードされ——インラインか外部ファイルとして——個々のアイコンはページのどこでもレンダリングできます。</p>
+                    <p>これはアイコンフォントとは根本的に異なるアプローチです。Unicode コードポイントをフォントグリフにマッピングする代わりに、ネイティブの SVG 要素を使用します。各アイコンはフル SVG の能力を保持しています：複数の色、グラデーション、フィルター、きめ細かいアクセシビリティ属性。トレードオフは、フォントアイコンの純粋な CSS アプローチと比べて、マークアップとスタイリングの規則が若干複雑になることです。</p>
+                </div>
+
+                <!-- How It Works -->
+                <h2 class="reveal">仕組み</h2>
+                <div class="reveal">
+                    <p>スプライトファイルは、1 つ以上の <code>&lt;symbol&gt;</code> 要素を含む通常の SVG ドキュメントです。各シンボルは独自の <code>viewBox</code> を持つ自己完結したアイコンを定義します：</p>
+
+                    <span class="code-label">icons.svg（スプライトファイル）</span>
+<pre><code><span class="code-tag">&lt;svg</span> <span class="code-attr">xmlns</span>=<span class="code-str">"http://www.w3.org/2000/svg"</span> <span class="code-attr">style</span>=<span class="code-str">"display:none"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;symbol</span> <span class="code-attr">id</span>=<span class="code-str">"icon-home"</span> <span class="code-attr">viewBox</span>=<span class="code-str">"0 0 24 24"</span><span class="code-tag">&gt;</span>
+    <span class="code-tag">&lt;path</span> <span class="code-attr">d</span>=<span class="code-str">"M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4..."</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/symbol&gt;</span>
+  <span class="code-tag">&lt;symbol</span> <span class="code-attr">id</span>=<span class="code-str">"icon-search"</span> <span class="code-attr">viewBox</span>=<span class="code-str">"0 0 24 24"</span><span class="code-tag">&gt;</span>
+    <span class="code-tag">&lt;path</span> <span class="code-attr">d</span>=<span class="code-str">"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/symbol&gt;</span>
+<span class="code-tag">&lt;/svg&gt;</span></code></pre>
+
+                    <p>外側の <code>&lt;svg&gt;</code> は <code>style="display:none"</code> で非表示にし、ページ上のスペースを取りません。内部のシンボルは参照されるまで見えません。アイコンをレンダリングするには、<code>&lt;use&gt;</code> 要素を使用します：</p>
+
+                    <span class="code-label">HTML でシンボルを使用する</span>
+<pre><code><span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-home"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-search"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span></code></pre>
+
+                    <p>フォントベースの <code>color</code> プロパティの代わりに、<code>fill</code> と <code>stroke</code> を使って CSS でアイコンをスタイリングします：</p>
+
+                    <span class="code-label">SVG アイコンの CSS</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">width</span>: <span class="code-val">24px</span>;
+  <span class="code-prop">height</span>: <span class="code-val">24px</span>;
+  <span class="code-prop">fill</span>: <span class="code-val">currentColor</span>;
+  <span class="code-prop">stroke</span>: <span class="code-val">none</span>;
+}</code></pre>
+
+                    <p><code>fill: currentColor</code> を使うことで、フォントアイコンが <code>color</code> プロパティで機能するのと同様に、アイコンが親要素のテキスト色を継承できます。</p>
+                </div>
+
+                <!-- Symbol vs Font Icons -->
+                <h2 class="reveal">シンボルとフォントアイコンの比較</h2>
+                <div class="pros-cons reveal">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">シンボルのメリット</div>
+                        <li>マルチカラーサポート——各パスが独自の fill と stroke を持てる</li>
+                        <li>各アイコンが本物の SVG 要素でアクセシビリティが優れる</li>
+                        <li>Unicode マッピング不要——読みやすい名前でアイコンを参照</li>
+                        <li>シャープなレンダリング——フォントヒンティングの問題やサブピクセルアーティファクトなし</li>
+                        <li>アイコンの各パーツを独立してアニメーション可能</li>
+                        <li>SVG の全機能に対応：グラデーション、フィルター、クリップパス、マスク</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">シンボルのデメリット</div>
+                        <li>より冗長なマークアップ（<code>&lt;svg&gt;&lt;use&gt;</code> vs <code>&lt;i class="icon"&gt;</code>）</li>
+                        <li>CSS の <code>color</code> でスタイリングしにくい——<code>fill</code>/<code>stroke</code> が必要</li>
+                        <li>外部スプライトはクロスオリジン読み込みで CORS の問題がある</li>
+                        <li>圧縮フォント形式より総ファイルサイズが大きい</li>
+                        <li>アイコン使用ごとの HTML の重さが増す</li>
+                        <li><code>::before</code>/<code>::after</code> 疑似要素のサポートなし</li>
+                    </ul>
+                </div>
+
+                <!-- Loading Strategies -->
+                <h2 class="reveal">読み込み戦略</h2>
+                <div class="reveal">
+                    <p>SVG シンボルスプライトをページに読み込む主な方法は 3 つあり、それぞれトレードオフがあります：</p>
+
+                    <h3>インラインスプライト</h3>
+                    <p>スプライット SVG 全体を HTML の <code>&lt;body&gt;</code> に直接貼り付けます。これが最もシンプルなアプローチです——CORS の問題なし、追加の HTTP リクエストなし。シンボルはページ上の任意の <code>&lt;use&gt;</code> 参照にすぐに利用できます。シングルページアプリや小さなアイコンセット（50 アイコン未満）に最適です。</p>
+
+                    <h3>外部スプライト</h3>
+                    <p><code>&lt;use href="icons.svg#home"&gt;</code> で外部ファイルとしてスプライトを読み込みます。HTML をクリーンに保ち、ブラウザがスプライトをページとは独立してキャッシュできます。ただし CORS の問題があります：スプライトは同一オリジンから提供するか、サーバーが適切な <code>Access-Control-Allow-Origin</code> ヘッダーを設定する必要があります。Internet Explorer は外部の <code>&lt;use&gt;</code> 参照をサポートしていないため、IE サポートが必要な場合は <a href="https://github.com/jonathantneal/svg4everybody" target="_blank" rel="noopener">svg4everybody</a> ポリフィルを使用してください。</p>
+
+                    <h3>JS インジェクション</h3>
+                    <p><code>fetch()</code> でスプライトファイルを読み込み、実行時に DOM に挿入します。これは外部スプライトのキャッシュ可能性とインラインスプライトの信頼性を組み合わせます——挿入された SVG はドキュメントの一部になるため、<code>&lt;use&gt;</code> 参照は CORS 制限なく機能します。Bobcorn はこのアプローチを生成します：ロード時にすべてのシンボルをフェッチして登録する JS ファイルです。</p>
+
+                    <span class="code-label">JS インジェクションアプローチ（Bobcorn の出力）</span>
+<pre><code><span class="code-cmt">&lt;!-- 生成された JS スプライトを読み込む --&gt;</span>
+<span class="code-tag">&lt;script</span> <span class="code-attr">src</span>=<span class="code-str">"icons-symbol.js"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
+
+<span class="code-cmt">&lt;!-- 通常通りに使用: --&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-home"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-search"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span></code></pre>
+
+                    <p>JS ファイルはすべての <code>&lt;symbol&gt;</code> 定義を含む非表示の <code>&lt;svg&gt;</code> 要素を作成し、ドキュメントの body に追加します。ロード後、アイコンの参照方法はインラインアプローチと同一です。</p>
+                </div>
+
+                <!-- When to Use SVG Symbols -->
+                <h2 class="reveal">SVG シンボルを使う場面</h2>
+                <div class="reveal">
+                    <p>プロジェクトがフォントアイコンでは提供できない機能を必要とする場合、SVG シンボルスプライトが適切な選択です：</p>
+                    <ul>
+                        <li><strong>マルチカラーアイコン</strong>——アイコンが複数の色、グラデーション、単一グリフのフォントで表現できない複雑な塗りを使用する場合</li>
+                        <li><strong>アクセシビリティが最優先事項</strong>——各アイコンに <code>&lt;title&gt;</code> 要素と <code>aria-label</code> 属性を含め、スクリーンリーダーに意味のある説明を提供できる</li>
+                        <li><strong>アイコンパーツのアニメーション</strong>——アイコン内の個々のパスやグループをアニメーションする必要がある場合（例：設定アイコン内の回転するギア）</li>
+                        <li><strong>SVG を多用するプロジェクト</strong>——アプリケーションがすでにインライン SVG を広く使用しており、シンボルが既存のアーキテクチャに自然にフィットする</li>
+                        <li><strong>最高のレンダリング鮮明度</strong>——フォントヒンティングが小さいサイズで配置の問題を引き起こす可能性があります。SVG シンボルはどのサイズでもピクセルパーフェクトにレンダリングします</li>
+                    </ul>
+                </div>
+
+                <!-- When to Stick with Font Icons -->
+                <h2 class="reveal">フォントアイコンを使い続ける場面</h2>
+                <div class="reveal">
+                    <p>いくつかの一般的なシナリオではフォントアイコンの方が優れた選択です：</p>
+                    <ul>
+                        <li><strong>大型アイコンセット（200 以上）</strong>——圧縮された WOFF2 フォントファイルは同じ数のアイコンを持つ SVG スプライトよりも大幅に小さい</li>
+                        <li><strong>すべてモノクロのアイコン</strong>——すべてのアイコンが単色の場合、フォントアイコンはトレードオフなく最もシンプルな統合を提供する</li>
+                        <li><strong>CSS のみの統合</strong>——フォントアイコンはスタイルシートリンクと CSS クラスだけでよく、JavaScript や追加マークアップが不要</li>
+                        <li><strong>レガシーシステム</strong>——すでにアイコンフォントを使用しているプロジェクトは、切り替えを正当化するほどの利益が得られない</li>
+                        <li><strong>疑似要素のサポート</strong>——フォントグリフでしか機能しない <code>::before</code> または <code>::after</code> 疑似要素にアイコンが必要な場合</li>
+                    </ul>
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn での使用</div>
+                    Bobcorn はフォントファイルと並んで、JS シンボルスプライトファイルとしてアイコンをエクスポートできます。エクスポートダイアログで <strong>JS</strong> オプションを有効にしてください。生成されるファイルはロード時にインライン SVG スプライトを作成してすべてのシンボルを登録します。同じプロジェクトで両方のアプローチを使用できます——シンプルな UI アイコンにはフォント、複雑なカラーイラストレーションにはシンボルというように。
+                </div>
+
+                <!-- Tip -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">ヒント</div>
+                    どちらか一方を選ぶ必要はありません。多くのデザインシステムは大量のモノクロ UI アイコン（ボタン、ナビゲーション、フォーム要素）にフォントアイコンを使用し、少数のマルチカラーイラストレーションやアニメーションアイコンに SVG シンボルを使用しています。Bobcorn のエクスポートダイアログでは、1 回のエクスポートで両方を生成できます。
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="css-font-face.html" class="page-nav-link">
+                        <div class="page-nav-dir">前のページ</div>
+                        <div class="page-nav-title">CSS @font-face</div>
+                    </a>
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">次のページ</div>
+                        <div class="page-nav-title">エクスポートガイド</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

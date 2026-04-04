@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>エクスポートガイド — Bobcorn Wiki</title>
+    <meta name="description" content="Bobcorn のエクスポートワークフローの完全なガイド — アイコンの選択から本番環境に即したフォントファイルの生成まで。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/export-guide.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/export-guide.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/export-guide.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/export-guide.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/export-guide.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/export-guide.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/export-guide.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <meta property="og:title" content="エクスポートガイド — Bobcorn Wiki">
+    <meta property="og:description" content="Bobcorn のエクスポートワークフローの完全なガイド — アイコンの選択から本番環境に即したフォントファイルの生成まで。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="エクスポートガイド — Bobcorn Wiki">
+    <meta name="twitter:description" content="Bobcorn のエクスポートワークフローの完全なガイド — アイコンの選択から本番環境に即したフォントファイルの生成まで。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "エクスポートガイド — Bobcorn Wiki",
+                "description": "Bobcorn のエクスポートワークフローの完全なガイド — アイコンの選択から本番環境に即したフォントファイルの生成まで。",
+                "url": "https://bobcorn.caldis.me/wiki/ja/export-guide.html",
+                "inLanguage": "ja",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "エクスポートガイド — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/export-guide.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>日本語</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">エクスポートガイド</h1>
+                <p class="lead reveal">Bobcorn のエクスポートワークフローの完全なガイド — アイコンの選択から本番環境に即したフォントファイルの生成まで。</p>
+
+                <!-- Opening the Export Dialog -->
+                <h2 class="reveal">エクスポートダイアログを開く</h2>
+                <div class="reveal">
+                    <p>左サイドバーメニューの<strong>エクスポート</strong>ボタンをクリックします。エクスポートダイアログがモーダルとして開き、出力ディレクトリの設定、含めるアイコングループの選択、出力フォーマットと付属ファイルの選択が行えます。すべての設定はセッション間で記憶されるため、一度エクスポート設定を行えば、以降は1クリックでエクスポートが完了します。</p>
+                </div>
+
+                <!-- Choosing an Output Directory -->
+                <h2 class="reveal">出力ディレクトリの選択</h2>
+                <div class="reveal">
+                    <p>最初のステップは、エクスポートファイルの保存先を選択することです。デフォルトでは、Bobcorn は<strong>デスクトップ</strong>を使用します。パスの横にあるフォルダーボタンをクリックして別の場所を参照できます。</p>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">ヒント</div>
+                        プロジェクトの <code>fonts/</code> または <code>assets/</code> ディレクトリに直接エクスポートすると、毎回手動でファイルをコピーする手間が省けます。アイコンセットを繰り返し更新する開発中に特に便利です。
+                    </div>
+                </div>
+
+                <!-- Selecting Icon Groups -->
+                <h2 class="reveal">アイコングループの選択</h2>
+                <div class="reveal">
+                    <p>エクスポートに含めるアイコングループを選択できます。デフォルトではすべてのグループが選択されています。フォントに含めたくないグループのチェックを外してください — たとえば、作業中のアイコンが含まれる「drafts」グループを除外する場合などです。</p>
+                    <p>各グループにはアイコン数が名前の横に表示されます。グループのオン/オフを切り替えると、リスト下部の合計アイコン数がリアルタイムで更新されるため、エクスポートされるフォントに含まれるグリフ数を常に把握できます。</p>
+                </div>
+
+                <!-- Font Formats -->
+                <h2 class="reveal">フォントフォーマット</h2>
+                <div class="reveal">
+                    <p>Bobcorn は5種類のフォントフォーマットを生成できます。プロジェクトのブラウザーサポート要件に合わせて選択してください。</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>フォーマット</th><th>デフォルト</th><th>有効にする条件</th><th>詳細</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fmt">.woff2</td>
+                                    <td>常に有効</td>
+                                    <td>常に — 必須のウェブフォーマット</td>
+                                    <td><a href="woff2.html">WOFF2 &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.woff</td>
+                                    <td>任意</td>
+                                    <td>IE 11 のサポートが必要な場合</td>
+                                    <td><a href="woff.html">WOFF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.ttf</td>
+                                    <td>任意</td>
+                                    <td>デスクトップアプリ、OS フォントのインストール</td>
+                                    <td><a href="ttf.html">TTF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.svg</td>
+                                    <td>任意</td>
+                                    <td>デバッグ、レガシー iOS</td>
+                                    <td><a href="svg-font.html">SVG Font &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.eot</td>
+                                    <td>任意</td>
+                                    <td>IE 6-8 のレガシーサポートのみ</td>
+                                    <td><a href="eot.html">EOT &rarr;</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>WOFF2 は常に含まれます。これはウェブフォントに不可欠なフォーマットであり、ウェブフォントのエクスポートで WOFF2 を除外するシナリオは存在しません。その他のフォーマットはすべて、要件に応じてオプトインで追加します。</p>
+                </div>
+
+                <!-- Companion Files -->
+                <h2 class="reveal">付属ファイル</h2>
+                <div class="reveal">
+                    <p>フォントファイル本体に加えて、Bobcorn はインテグレーションとコラボレーションを容易にするいくつかの付属ファイルを生成できます。</p>
+
+                    <h3>CSS（<code>icons.css</code>）</h3>
+                    <p><code>@font-face</code> 宣言とセット内のすべてのアイコンの <code>.icon-*</code> CSS クラスを含みます。このファイルをプロジェクトに追加するだけで、シンプルなクラス名でアイコンが使用できます。生成された CSS の仕組みについては <a href="css-font-face.html">CSS @font-face ガイド</a>を参照してください。</p>
+
+                    <h3>JS（<code>icons-symbol.js</code>）</h3>
+                    <p>スクリプトが読み込まれるとすべてのアイコンをインライン SVG シンボルとして登録する SVG シンボルスプライトです。マルチカラーアイコンや SVG 特有の機能が必要な場合に、フォントアイコンと併用できます。使用パターンについては <a href="svg-symbol.html">SVG Symbol ガイド</a>を参照してください。</p>
+
+                    <h3>HTML（<code>demo.html</code>）</h3>
+                    <p>エクスポートされたすべてのアイコンを名前、CSS クラス名、Unicode コードポイントとともに表示するインタラクティブなプレビューページです。ブラウザーで開くと、アイコンセット全体を閲覧できます。アイコンライブラリを確認するデザイナーや、インテグレーション中にクラス名を調べる開発者に役立ちます。</p>
+
+                    <h3>ICP（<code>project.icp</code>）</h3>
+                    <p>Bobcorn のプロジェクトファイルです。チームメンバーとアイコンプロジェクトを共有したり、バックアップとして保存したりするためにエクスポートします。Bobcorn で ICP ファイルを開くと、エクスポート時の状態 — すべてのアイコン、グループ、メタデータ、設定 — が完全に復元されます。</p>
+                </div>
+
+                <!-- ZIP Packaging -->
+                <h2 class="reveal">ZIP パッケージング</h2>
+                <div class="reveal">
+                    <p><strong>ZIP</strong> オプションを有効にすると、エクスポートされたすべてのファイルを単一の <code>.zip</code> アーカイブにまとめられます。チームメンバーとアイコンフォントを共有したり、CDN にアップロードしたり、デザインのハンドオフ資料に添付したりする際に便利です。ZIP には通常のエクスポートと同じディレクトリ構造が含まれ、ネストや再編成はありません。</p>
+                </div>
+
+                <!-- Recommended Configurations -->
+                <h2 class="reveal">推奨設定</h2>
+                <div class="reveal">
+                    <p>一般的なプロジェクトタイプ向けの3つの実用的なプリセットを紹介します。</p>
+
+                    <h3>モダンウェブプロジェクト</h3>
+                    <ul>
+                        <li>WOFF2（常に有効）+ CSS + HTML デモ</li>
+                        <li>最小のフットプリントで 97%+ のブラウザーをカバー</li>
+                    </ul>
+
+                    <h3>完全互換性プロジェクト</h3>
+                    <ul>
+                        <li>WOFF2 + WOFF + CSS + HTML デモ</li>
+                        <li>IE 11+ およびすべてのモダンブラウザーをカバー</li>
+                    </ul>
+
+                    <h3>デザインシステム / コンポーネントライブラリ</h3>
+                    <ul>
+                        <li>WOFF2 + TTF + CSS + JS シンボル + HTML デモ + ICP</li>
+                        <li>CSS 使用向けフォント、デスクトップツール向け TTF、マルチカラーバリアント向け JS シンボル、プロジェクトバックアップ向け ICP</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">ヒント</div>
+                        「モダンウェブプロジェクト」プリセット — WOFF2 + CSS から始めましょう。ブラウザーの利用統計やプラットフォームの要件で必要になったときだけ、追加のフォーマットを加えてください。余分なフォーマットはビルドサイズを増やしますが、すでに WOFF2 をサポートしているユーザーには何のメリットもありません。
+                    </div>
+                </div>
+
+                <!-- Output File Structure -->
+                <h2 class="reveal">出力ファイル構造</h2>
+                <div class="reveal">
+                    <p>すべてのオプションを有効にした場合、Bobcorn は次のファイル構造を生成します。</p>
+
+                    <span class="code-label">エクスポート出力</span>
+<pre><code>output/
+├── MyIcons.woff2        <span class="code-cmt"># Font files</span>
+├── MyIcons.woff
+├── MyIcons.ttf
+├── MyIcons.css          <span class="code-cmt"># @font-face + icon classes</span>
+├── MyIcons-symbol.js    <span class="code-cmt"># SVG symbol sprite</span>
+├── demo.html            <span class="code-cmt"># Interactive preview</span>
+└── MyIcons.icp          <span class="code-cmt"># Project backup</span></code></pre>
+
+                    <p>フォントファミリー名（例：「MyIcons」）は Bobcorn のプロジェクト名から取得されます。生成されたすべてのファイルは、一貫性のためにこの名前をプレフィックスとして使用します。</p>
+                </div>
+
+                <!-- After Export -->
+                <h2 class="reveal">エクスポート後の手順</h2>
+                <div class="reveal">
+                    <p>Bobcorn がファイルを生成したら、以下の手順でアイコンフォントをプロジェクトに組み込みます。</p>
+
+                    <ol>
+                        <li><strong>フォントファイル + CSS をコピー</strong>してプロジェクトの assets または fonts ディレクトリに配置する</li>
+                        <li>HTML で <strong>CSS をリンク</strong>する: <code>&lt;link rel="stylesheet" href="MyIcons.css"&gt;</code></li>
+                        <li>マークアップ内で<strong>アイコンを使用</strong>する: <code>&lt;i class="icon icon-home"&gt;&lt;/i&gt;</code></li>
+                        <li>初回レンダリングを高速化するために WOFF2 ファイルを<strong>オプションでプリロード</strong>する</li>
+                    </ol>
+
+                    <p>完全なインテグレーション例を以下に示します。</p>
+
+                    <span class="code-label">完全なインテグレーション例</span>
+<pre><code><span class="code-tag">&lt;head&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"preload"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.woff2"</span> <span class="code-attr">as</span>=<span class="code-str">"font"</span>
+        <span class="code-attr">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-attr">crossorigin</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"stylesheet"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.css"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span>
+<span class="code-tag">&lt;body&gt;</span>
+  <span class="code-tag">&lt;button&gt;&lt;i</span> <span class="code-attr">class</span>=<span class="code-str">"icon icon-save"</span><span class="code-tag">&gt;&lt;/i&gt;</span> Save<span class="code-tag">&lt;/button&gt;</span>
+<span class="code-tag">&lt;/body&gt;</span></code></pre>
+
+                    <p><code>rel="preload"</code> ヒントにより、ブラウザーは CSS 内の <code>@font-face</code> ルールに到達する前にフォントファイルのダウンロードを開始します。これにより CSS の解析とフォントのダウンロードの間の遅延がなくなり、アイコンが表示された状態での初回描画が高速化されます。フォントが同一オリジンであっても、<code>crossorigin</code> 属性はフォントのプリロードに必要です。</p>
+                </div>
+
+                <!-- Demo Page Callout -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">ヒント</div>
+                    生成された <code>demo.html</code> をブラウザーで開くと、エクスポートされたすべてのアイコンを閲覧できます。任意のアイコンをクリックすると CSS クラス名がコピーされます — 開発中に特定のアイコンのクラスを調べる際に重宝します。
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn での使用</div>
+                    エクスポートダイアログは最後に使用した設定を記憶します。フォーマット、付属ファイル、出力ディレクトリをプロジェクト用に設定すれば、以降のエクスポートはすべて1クリックで完了します。頻繁に反復する場合は、出力ディレクトリをプロジェクトの assets フォルダーに設定すると、摩擦ゼロで更新できます。
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">前のページ</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

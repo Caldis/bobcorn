@@ -1,6 +1,7 @@
 {
   "nav.features": "Functies",
   "nav.formats": "Formaten",
+  "nav.wiki": "Wiki",
   "hero.badge": "Open source · MIT-licentie",
   "hero.title": "Beheer iconen,<br><em>Genereer lettertypen</em>",
   "hero.desc": "De open-source iconenbeheerder en lettertypegenerator voor ontwerpers en ontwikkelaars. Importeer SVG's, organiseer in groepen, bewerk kleuren en exporteer productieklare iconlettertypen.",

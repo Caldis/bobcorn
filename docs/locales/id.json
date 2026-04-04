@@ -1,6 +1,7 @@
 {
   "nav.features": "Fitur",
   "nav.formats": "Format",
+  "nav.wiki": "Wiki",
   "hero.badge": "Open source · Lisensi MIT",
   "hero.title": "Kelola Ikon,<br><em>Buat Font</em>",
   "hero.desc": "Pengelola ikon dan pembuat font open source untuk desainer dan developer. Impor SVG, kelompokkan, edit warna, dan ekspor font ikon siap produksi.",

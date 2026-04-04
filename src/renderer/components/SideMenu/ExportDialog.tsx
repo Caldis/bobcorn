@@ -28,8 +28,34 @@ interface ExportDialogProps {
   onClose: () => void;
 }
 
+/** Map format keys to wiki page slugs */
+const WIKI_BASE = 'https://bobcorn.caldis.me/wiki/';
+const WIKI_LANG_MAP: Record<string, string> = {
+  'zh-CN': 'zh-CN',
+  ja: 'ja',
+  ko: 'ko',
+  fr: 'fr',
+  de: 'de',
+  es: 'es',
+  'pt-BR': 'pt-BR',
+  it: 'it',
+  nl: 'nl',
+  ru: 'ru',
+  tr: 'tr',
+  ar: 'ar',
+  th: 'th',
+  vi: 'vi',
+  id: 'id',
+};
+
 function ExportDialog({ visible, onClose }: ExportDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  /** Open a wiki page in the default browser, localized to current app language */
+  const openWikiPage = (slug: string) => {
+    const lang = WIKI_LANG_MAP[i18n.language] || 'en';
+    electronAPI.openExternal(`${WIKI_BASE}${lang}/${slug}.html`);
+  };
   // 导出进度
   const [exportPhase, setExportPhase] = useState<'config' | 'exporting' | 'done' | 'error'>(
     'config'
@@ -431,13 +457,35 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               {t('export.requiredFormats')}
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {['SVG', 'TTF', 'WOFF2', 'CSS'].map((fmt) => (
-                <span
+              {(
+                [
+                  { fmt: 'SVG', wiki: 'svg-font' },
+                  { fmt: 'TTF', wiki: 'ttf' },
+                  { fmt: 'WOFF2', wiki: 'woff2' },
+                  { fmt: 'CSS', wiki: 'css-font-face' },
+                ] as const
+              ).map(({ fmt, wiki }) => (
+                <button
                   key={fmt}
-                  className="px-2 py-0.5 rounded bg-accent-subtle text-xs text-accent font-mono"
+                  type="button"
+                  onClick={() => openWikiPage(wiki)}
+                  className="group inline-flex items-center gap-1 px-2 py-0.5 rounded bg-accent-subtle text-xs text-accent font-mono transition-colors hover:bg-accent/15"
+                  title={t('export.wikiHint')}
                 >
                   .{fmt.toLowerCase()}
-                </span>
+                  <svg
+                    className="w-2.5 h-2.5 opacity-0 -translate-x-0.5 transition-all group-hover:opacity-70 group-hover:translate-x-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M7 17L17 7" />
+                    <path d="M7 7h10v10" />
+                  </svg>
+                </button>
               ))}
             </div>
           </div>
@@ -450,12 +498,12 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               {(
                 [
-                  { key: 'woff' as const, label: '.woff' },
-                  { key: 'eot' as const, label: '.eot' },
-                  { key: 'js' as const, label: '.js (Symbol)' },
-                  { key: 'html' as const, label: '.html (Demo)' },
+                  { key: 'woff' as const, label: '.woff', wiki: 'woff' },
+                  { key: 'eot' as const, label: '.eot', wiki: 'eot' },
+                  { key: 'js' as const, label: '.js (Symbol)', wiki: 'svg-symbol' },
+                  { key: 'html' as const, label: '.html (Demo)', wiki: null },
                 ] as const
-              ).map(({ key, label }) => (
+              ).map(({ key, label, wiki }) => (
                 <label
                   key={key}
                   className="inline-flex items-center gap-1.5 text-xs cursor-pointer"
@@ -469,9 +517,69 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     className="rounded border-border"
                   />
                   <span className="font-mono text-foreground-muted">{label}</span>
+                  {wiki && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openWikiPage(wiki);
+                      }}
+                      className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-foreground-muted/40 hover:text-accent hover:bg-accent-subtle transition-colors"
+                      title={t('export.wikiHint')}
+                    >
+                      <svg
+                        className="w-2.5 h-2.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+                        <path d="M12 17h.01" />
+                      </svg>
+                    </button>
+                  )}
                 </label>
               ))}
             </div>
+          </div>
+
+          {/* Wiki 知识库提示 */}
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => openWikiPage('export-guide')}
+              className="group inline-flex items-center gap-1.5 text-[11px] text-foreground-muted/60 hover:text-accent transition-colors"
+            >
+              <svg
+                className="w-3 h-3"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+              </svg>
+              <span>{t('export.wikiLink')}</span>
+              <svg
+                className="w-2.5 h-2.5 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
 
           {/* 包含 .icp 项目文件 */}

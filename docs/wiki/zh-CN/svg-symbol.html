@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Symbol 精灵 — Bobcorn Wiki</title>
+    <meta name="description" content="字体图标的替代方案——使用 SVG symbol 精灵将可缩放的多色图标直接嵌入 HTML。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-symbol.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-symbol.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-symbol.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-symbol.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-symbol.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-symbol.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-symbol.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-symbol.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-symbol.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-symbol.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-symbol.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-symbol.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-symbol.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-symbol.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-symbol.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-symbol.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-symbol.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-symbol.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/zh-CN/svg-symbol.html">
+    <meta property="og:title" content="SVG Symbol 精灵 — Bobcorn Wiki">
+    <meta property="og:description" content="字体图标的替代方案——使用 SVG symbol 精灵将可缩放的多色图标直接嵌入 HTML。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Symbol 精灵 — Bobcorn Wiki">
+    <meta name="twitter:description" content="字体图标的替代方案——使用 SVG symbol 精灵将可缩放的多色图标直接嵌入 HTML。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Symbol 精灵 — Bobcorn Wiki",
+                "description": "字体图标的替代方案——使用 SVG symbol 精灵将可缩放的多色图标直接嵌入 HTML。",
+                "url": "https://bobcorn.caldis.me/wiki/zh-CN/svg-symbol.html",
+                "inLanguage": "zh-CN",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Symbol 精灵 — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/svg-symbol.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>简体中文</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">SVG Symbol</h1>
+                <p class="lead reveal">字体图标的替代方案——使用 SVG symbol 精灵将可缩放的多色图标直接嵌入 HTML。</p>
+
+                <!-- What Are SVG Symbol Sprites? -->
+                <h2 class="reveal">什么是 SVG Symbol 精灵？</h2>
+                <div class="reveal">
+                    <p>SVG symbol 精灵将多个 SVG 图标打包到一个文件中。每个图标定义在一个带有唯一 <code>id</code> 的 <code>&lt;symbol&gt;</code> 元素内。要使用某个图标，通过 <code>&lt;use href="#icon-id"&gt;</code> 引用它。精灵文件只加载一次——无论是内联还是作为外部文件——各个图标即可在页面任意位置渲染。</p>
+                    <p>这与字体图标是根本不同的方式。它不是将 Unicode 码位映射到字体字形，而是使用原生 SVG 元素。每个图标保留了完整的 SVG 能力：多色、渐变、滤镜和细粒度的无障碍属性。代价是相比字体图标的纯 CSS 方式，标记和样式约定稍显复杂。</p>
+                </div>
+
+                <!-- How It Works -->
+                <h2 class="reveal">工作原理</h2>
+                <div class="reveal">
+                    <p>精灵文件是一个包含一个或多个 <code>&lt;symbol&gt;</code> 元素的普通 SVG 文档。每个 symbol 定义一个带有自己 <code>viewBox</code> 的独立图标：</p>
+
+                    <span class="code-label">icons.svg（精灵文件）</span>
+<pre><code><span class="code-tag">&lt;svg</span> <span class="code-attr">xmlns</span>=<span class="code-str">"http://www.w3.org/2000/svg"</span> <span class="code-attr">style</span>=<span class="code-str">"display:none"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;symbol</span> <span class="code-attr">id</span>=<span class="code-str">"icon-home"</span> <span class="code-attr">viewBox</span>=<span class="code-str">"0 0 24 24"</span><span class="code-tag">&gt;</span>
+    <span class="code-tag">&lt;path</span> <span class="code-attr">d</span>=<span class="code-str">"M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4..."</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/symbol&gt;</span>
+  <span class="code-tag">&lt;symbol</span> <span class="code-attr">id</span>=<span class="code-str">"icon-search"</span> <span class="code-attr">viewBox</span>=<span class="code-str">"0 0 24 24"</span><span class="code-tag">&gt;</span>
+    <span class="code-tag">&lt;path</span> <span class="code-attr">d</span>=<span class="code-str">"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/symbol&gt;</span>
+<span class="code-tag">&lt;/svg&gt;</span></code></pre>
+
+                    <p>外层 <code>&lt;svg&gt;</code> 用 <code>style="display:none"</code> 隐藏，不占用页面空间。内部的 symbol 在被引用之前不可见。要渲染一个图标，使用 <code>&lt;use&gt;</code> 元素：</p>
+
+                    <span class="code-label">在 HTML 中使用 symbol</span>
+<pre><code><span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-home"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-search"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span></code></pre>
+
+                    <p>用 CSS 控制图标样式，使用 <code>fill</code> 和 <code>stroke</code> 而非字体图标的 <code>color</code> 属性：</p>
+
+                    <span class="code-label">SVG 图标的 CSS</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">width</span>: <span class="code-val">24px</span>;
+  <span class="code-prop">height</span>: <span class="code-val">24px</span>;
+  <span class="code-prop">fill</span>: <span class="code-val">currentColor</span>;
+  <span class="code-prop">stroke</span>: <span class="code-val">none</span>;
+}</code></pre>
+
+                    <p>使用 <code>fill: currentColor</code> 让图标继承父元素的文字颜色，与字体图标通过 <code>color</code> 属性控制颜色的方式类似。</p>
+                </div>
+
+                <!-- Symbol vs Font Icons -->
+                <h2 class="reveal">Symbol 与字体图标对比</h2>
+                <div class="pros-cons reveal">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Symbol 的优点</div>
+                        <li>支持多色——每条路径可以有独立的填充和描边</li>
+                        <li>每个图标是真正的 SVG 元素，无障碍性更好</li>
+                        <li>无需 Unicode 映射——通过可读名称引用图标</li>
+                        <li>渲染更清晰——没有字体微调问题或次像素伪影</li>
+                        <li>各图标部件可以独立动画</li>
+                        <li>支持所有 SVG 功能：渐变、滤镜、裁剪路径、蒙版</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Symbol 的缺点</div>
+                        <li>标记更冗长（<code>&lt;svg&gt;&lt;use&gt;</code> 对比 <code>&lt;i class="icon"&gt;</code>）</li>
+                        <li>难以用 CSS <code>color</code> 设置样式——需要 <code>fill</code>/<code>stroke</code></li>
+                        <li>外部精灵有跨域加载的 CORS 问题</li>
+                        <li>总文件大小比压缩字体格式更大</li>
+                        <li>每次使用图标的 HTML 体积更大</li>
+                        <li>不支持 <code>::before</code>/<code>::after</code> 伪元素</li>
+                    </ul>
+                </div>
+
+                <!-- Loading Strategies -->
+                <h2 class="reveal">加载策略</h2>
+                <div class="reveal">
+                    <p>将 SVG symbol 精灵加载到页面中有三种主要方式，各有不同的权衡：</p>
+
+                    <h3>内联精灵</h3>
+                    <p>将整个精灵 SVG 直接粘贴到 HTML <code>&lt;body&gt;</code> 中。这是最简单的方式——无 CORS 问题，无额外 HTTP 请求。所有 symbol 立即可供页面上任何 <code>&lt;use&gt;</code> 引用。最适合单页应用或图标集较小（少于约 50 个图标）的场景。</p>
+
+                    <h3>外部精灵</h3>
+                    <p>通过 <code>&lt;use href="icons.svg#home"&gt;</code> 将精灵作为外部文件加载。这可以保持 HTML 简洁，并让浏览器单独缓存精灵文件。但有 CORS 问题：精灵必须从同源提供，或者服务器必须设置适当的 <code>Access-Control-Allow-Origin</code> 响应头。注意 Internet Explorer 不支持外部 <code>&lt;use&gt;</code> 引用——如需 IE 支持，请使用 <a href="https://github.com/jonathantneal/svg4everybody" target="_blank" rel="noopener">svg4everybody</a> polyfill。</p>
+
+                    <h3>JS 注入</h3>
+                    <p>通过 <code>fetch()</code> 加载精灵文件并在运行时注入 DOM。这兼具外部精灵的可缓存性和内联精灵的可靠性——注入的 SVG 成为文档的一部分，<code>&lt;use&gt;</code> 引用无需 CORS 限制即可工作。Bobcorn 生成的正是这种方式：一个在加载时获取并注册所有 symbol 的 JS 文件。</p>
+
+                    <span class="code-label">JS 注入方式（Bobcorn 输出）</span>
+<pre><code><span class="code-cmt">&lt;!-- 加载生成的 JS 精灵 --&gt;</span>
+<span class="code-tag">&lt;script</span> <span class="code-attr">src</span>=<span class="code-str">"icons-symbol.js"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
+
+<span class="code-cmt">&lt;!-- 然后正常使用: --&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-home"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span>
+<span class="code-tag">&lt;svg</span> <span class="code-attr">class</span>=<span class="code-str">"icon"</span><span class="code-tag">&gt;&lt;use</span> <span class="code-attr">href</span>=<span class="code-str">"#icon-search"</span><span class="code-tag">&gt;&lt;/use&gt;&lt;/svg&gt;</span></code></pre>
+
+                    <p>JS 文件创建一个包含所有 <code>&lt;symbol&gt;</code> 定义的隐藏 <code>&lt;svg&gt;</code> 元素并附加到文档 body。加载完成后，图标的引用方式与内联方式完全相同。</p>
+                </div>
+
+                <!-- When to Use SVG Symbols -->
+                <h2 class="reveal">何时使用 SVG Symbol</h2>
+                <div class="reveal">
+                    <p>当项目需要字体图标无法提供的能力时，SVG symbol 精灵是正确选择：</p>
+                    <ul>
+                        <li><strong>多色图标</strong>——当图标使用多种颜色、渐变或单字形字体无法表示的复杂填充时</li>
+                        <li><strong>无障碍性是首要考量</strong>——每个图标可以包含 <code>&lt;title&gt;</code> 元素和 <code>aria-label</code> 属性，为屏幕阅读器提供有意义的描述</li>
+                        <li><strong>图标局部动画</strong>——需要对图标内部的单条路径或群组进行动画（例如，设置图标中旋转的齿轮）</li>
+                        <li><strong>大量使用 SVG 的项目</strong>——应用已广泛使用内联 SVG，symbol 可以自然地融入现有架构</li>
+                        <li><strong>最大渲染清晰度</strong>——字体微调在小尺寸下可能导致对齐问题；SVG symbol 在任何尺寸下都能像素级完美渲染</li>
+                    </ul>
+                </div>
+
+                <!-- When to Stick with Font Icons -->
+                <h2 class="reveal">何时坚持使用字体图标</h2>
+                <div class="reveal">
+                    <p>在几种常见场景中，字体图标仍然是更好的选择：</p>
+                    <ul>
+                        <li><strong>大型图标集（200+）</strong>——压缩的 WOFF2 字体文件比包含相同数量图标的 SVG 精灵小得多</li>
+                        <li><strong>全部为单色图标</strong>——如果每个图标都是单色，字体图标提供最简单的集成，无需妥协</li>
+                        <li><strong>仅 CSS 集成</strong>——字体图标只需一个样式表链接和 CSS 类，无需 JavaScript 或额外标记</li>
+                        <li><strong>遗留系统</strong>——已使用字体图标的项目，迁移收益不足以证明切换的合理性</li>
+                        <li><strong>伪元素支持</strong>——需要在 <code>::before</code> 或 <code>::after</code> 伪元素中使用图标，而这只有字体字形才能做到</li>
+                    </ul>
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">在 Bobcorn 中</div>
+                    Bobcorn 可以将图标导出为 JS symbol 精灵文件，与字体文件并列生成。在导出对话框中启用 <strong>JS</strong> 选项。生成的文件在加载时创建内联 SVG 精灵并注册所有 symbol。同一项目中可以同时使用两种方式——对简单 UI 图标使用字体，对复杂彩色插图使用 symbol。
+                </div>
+
+                <!-- Tip -->
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">提示</div>
+                    不必非此即彼。许多设计系统对大量单色 UI 图标（按钮、导航、表单元素）使用字体图标，对少数多色插图或动画图标使用 SVG symbol。Bobcorn 的导出对话框让你可以在一次导出中同时生成两者。
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="css-font-face.html" class="page-nav-link">
+                        <div class="page-nav-dir">上一页</div>
+                        <div class="page-nav-title">CSS @font-face</div>
+                    </a>
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">下一页</div>
+                        <div class="page-nav-title">导出指南</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

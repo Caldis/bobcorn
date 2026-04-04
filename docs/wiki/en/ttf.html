@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTF (TrueType) — Bobcorn Wiki</title>
+    <meta name="description" content="TTF (TrueType Font) explained — the industry-standard binary font format developed by Apple and Microsoft. Learn how Bobcorn uses TTF as the core intermediate format in its generation pipeline.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/ttf.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/ttf.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/ttf.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/ttf.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/ttf.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/ttf.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/ttf.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/ttf.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/ttf.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/ttf.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/ttf.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/ttf.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/ttf.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/ttf.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/ttf.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/en/ttf.html">
+    <meta property="og:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta property="og:description" content="TTF (TrueType Font) explained — the industry-standard binary font format developed by Apple and Microsoft. Learn how Bobcorn uses TTF as the core intermediate format in its generation pipeline.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="TTF (TrueType) — Bobcorn Wiki">
+    <meta name="twitter:description" content="TTF (TrueType Font) explained — the industry-standard binary font format developed by Apple and Microsoft. Learn how Bobcorn uses TTF as the core intermediate format in its generation pipeline.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "TTF (TrueType) — Bobcorn Wiki",
+                "description": "TTF (TrueType Font) explained — the industry-standard binary font format developed by Apple and Microsoft. Learn how Bobcorn uses TTF as the core intermediate format in its generation pipeline.",
+                "url": "https://bobcorn.caldis.me/wiki/en/ttf.html",
+                "inLanguage": "en",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/en/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "TTF (TrueType) — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/en/ttf.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">TTF</h1>
+                <p class="lead reveal">TrueType Font — the industry-standard binary font format developed by Apple and Microsoft.</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.ttf</span>
+                        <span class="fingerprint-name">TrueType Font Format</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Type</span><span class="fingerprint-val">Binary outline</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Compression</span><span class="fingerprint-val">None</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">File Size</span><span class="fingerprint-val">Medium (uncompressed)</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Support</span><span class="fingerprint-val">98%+ browsers</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Best For</span><span class="fingerprint-val">Desktop apps, development</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">Core intermediate format</span></div>
+                </div>
+
+                <h2 class="reveal">What is TTF?</h2>
+                <p>TrueType was developed by <strong>Apple in the late 1980s</strong> as an alternative to Adobe's PostScript Type 1 fonts, and was later adopted by Microsoft for Windows. It stores glyph outlines as <strong>quadratic B&eacute;zier curves</strong>, which are computationally simpler (and faster to rasterize) than the cubic curves used by PostScript.</p>
+                <p>TTF quickly became the <strong>universal font format</strong> for both macOS and Windows. For over two decades, it was the standard way to distribute fonts — from system fonts to custom typefaces. While WOFF/WOFF2 have largely replaced it for web delivery, TTF remains the foundation that all modern web font formats are built upon.</p>
+
+                <h2 class="reveal">How It Works</h2>
+                <p>A TTF file is a binary container organized into <strong>tables</strong>, each storing a specific type of data:</p>
+                <ul>
+                    <li><code>glyf</code> — glyph outlines (the actual vector shapes)</li>
+                    <li><code>cmap</code> — character-to-glyph mapping (which Unicode code point maps to which glyph)</li>
+                    <li><code>head</code> — font metadata (units-per-em, creation date, flags)</li>
+                    <li><code>hmtx</code> — horizontal metrics (advance width and left side bearing for each glyph)</li>
+                </ul>
+                <p>For icon fonts, each icon is assigned a Unicode code point in the <strong>Private Use Area</strong> (U+E000 to U+F8FF) — a range specifically reserved for application-defined characters that won't conflict with standard text.</p>
+
+                <span class="code-label">Using a TTF icon font in CSS</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+}
+
+<span class="code-tag">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: normal;
+  <span class="code-prop">font-weight</span>: normal;
+}
+
+<span class="code-tag">.icon-home</span><span class="code-kw">::before</span> {
+  <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>;
+}</code></pre>
+                <p>The <code>format('truetype')</code> hint tells the browser what kind of font file to expect, so it can skip the download if TrueType is not supported (though virtually all browsers support it).</p>
+
+                <h2 class="reveal">Pros &amp; Cons</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">Pros</div>
+                        <li>Universal compatibility across all platforms</li>
+                        <li>Supported everywhere — desktop, mobile, and web</li>
+                        <li>Standard format for OS font installation</li>
+                        <li>Good rendering quality with hinting support</li>
+                        <li>Well-documented specification</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">Cons</div>
+                        <li>No compression — larger than WOFF/WOFF2</li>
+                        <li>Not optimized for web delivery</li>
+                        <li>Can be slow to download on mobile connections</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">Browser Support</h2>
+                <p>TTF enjoys <strong>98%+ browser support</strong>, including all modern browsers and Internet Explorer 9+. It is also natively supported by every major desktop operating system — Windows, macOS, and Linux — meaning you can install a TTF file directly as a system font without any conversion.</p>
+                <p>While TTF works everywhere, for web delivery you should prefer WOFF2 (which is simply a compressed TTF). Reserve raw TTF for desktop use, development, and as the base format in your build pipeline.</p>
+
+                <h2 class="reveal">When to Use TTF</h2>
+                <ul>
+                    <li><strong>Desktop applications</strong> — install as a system font for use in native apps, design tools, or IDEs.</li>
+                    <li><strong>Electron and native apps</strong> — bundle the TTF directly with your application for offline font rendering.</li>
+                    <li><strong>Development and testing</strong> — TTF is easy to inspect with font tools like FontForge, fontTools, or system font viewers.</li>
+                    <li><strong>System font inspection</strong> — when you need to verify glyph metrics, hinting, or cmap tables using OS-level utilities.</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn</div>
+                    In Bobcorn, TTF is the <strong>central pivot format</strong> in the generation pipeline. Your SVG icons are first assembled into an SVG font, then converted to TTF, and from there to WOFF, WOFF2, and EOT. TTF is always generated as part of the pipeline — it's the format every other output depends on. Enable TTF export when you're building desktop apps or when you need to install the icon font on your operating system.
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">Previous</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                    <a href="woff.html" class="page-nav-link">
+                        <div class="page-nav-dir">Next</div>
+                        <div class="page-nav-title">WOFF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

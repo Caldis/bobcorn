@@ -1,6 +1,7 @@
 {
   "nav.features": "Tính năng",
   "nav.formats": "Định dạng",
+  "nav.wiki": "Wiki",
   "hero.badge": "Mã nguồn mở · Giấy phép MIT",
   "hero.title": "Quản lý biểu tượng,<br><em>Tạo phông chữ</em>",
   "hero.desc": "Trình quản lý biểu tượng và tạo phông chữ mã nguồn mở dành cho nhà thiết kế và lập trình viên. Nhập SVG, sắp xếp theo nhóm, chỉnh màu sắc và xuất phông chữ biểu tượng sẵn sàng cho sản phẩm.",

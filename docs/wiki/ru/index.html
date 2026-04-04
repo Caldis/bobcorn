@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шрифтовые иконки: основы — Bobcorn Wiki</title>
+    <meta name="description" content="Всё, что нужно знать о шрифтовых иконках — что это такое, как они работают и какой формат выбрать для вашего проекта.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ru/index.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/index.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/index.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/index.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/index.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/index.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/index.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/index.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/index.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/index.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/index.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/index.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/index.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/index.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/index.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/index.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/index.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/index.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ru/index.html">
+    <meta property="og:title" content="Шрифтовые иконки: основы — Bobcorn Wiki">
+    <meta property="og:description" content="Всё, что нужно знать о шрифтовых иконках — что это такое, как они работают и какой формат выбрать для вашего проекта.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Шрифтовые иконки: основы — Bobcorn Wiki">
+    <meta name="twitter:description" content="Всё, что нужно знать о шрифтовых иконках — что это такое, как они работают и какой формат выбрать для вашего проекта.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Шрифтовые иконки: основы — Bobcorn Wiki",
+                "description": "Всё, что нужно знать о шрифтовых иконках — что это такое, как они работают и какой формат выбрать для вашего проекта.",
+                "url": "https://bobcorn.caldis.me/wiki/ru/index.html",
+                "inLanguage": "ru",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ru/index.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Русский</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay"></div>
+
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Шрифтовые иконки: <em>основы</em></h1>
+                <p class="lead reveal">Всё, что нужно знать о шрифтовых иконках — что это такое, как они работают и какой формат выбрать для вашего проекта.</p>
+
+                <!-- What Are Icon Fonts? -->
+                <h2 class="reveal">Что такое шрифтовые иконки?</h2>
+                <div class="reveal">
+                    <p>Шрифтовые иконки — это шрифты, в которых глифы (обычно буквы и цифры) заменены пиктографическими символами. Вместо буквы «А» шрифтовая иконка отображает значок дома, поисковую лупу или корзину покупок.</p>
+                    <p>Поскольку иконки хранятся внутри шрифтового файла, они ведут себя в точности как текст. Их можно масштабировать до любого размера с помощью <code>font-size</code>, менять цвет через <code>color</code>, добавлять тени, применять CSS-переходы и даже анимировать — не трогая ни одного файла изображения.</p>
+                    <p>Такой подход даёт несколько практических преимуществ:</p>
+                    <ul>
+                        <li><strong>Независимость от разрешения</strong> — векторные контуры чётко масштабируются на экранах с любой плотностью пикселей</li>
+                        <li><strong>Минимальный вес</strong> — один сжатый шрифтовой файл заменяет десятки отдельных графических ресурсов</li>
+                        <li><strong>Управление через CSS</strong> — цвет, размер, тень, прозрачность и состояния при наведении доступны «из коробки» при стилизации текста</li>
+                        <li><strong>Один HTTP-запрос</strong> — весь набор иконок загружается за один сетевой обмен</li>
+                    </ul>
+                </div>
+
+                <h3>Краткая история</h3>
+                <div class="reveal">
+                    <p>На заре веба разработчики полагались на отдельные изображения или <strong>CSS-спрайты</strong> — большие составные изображения, где каждая иконка занимала фиксированную прямоугольную область. Спрайты сокращали количество HTTP-запросов, но были хрупки: добавление или изменение размера иконки требовало регенерации всего спрайта и ручного обновления пиксельных смещений.</p>
+                    <p>Около 2012 года такие проекты, как <strong>Font Awesome</strong> и <strong>IcoMoon</strong>, популяризировали более чистую альтернативу: упаковку иконок в виде глифов шрифта, сопоставленных с зоной частного использования Unicode. Дизайнеры могли сменить целый набор иконок, изменив одно объявление <code>@font-face</code>, а разработчики — стилизовать иконки тем же CSS, что уже использовали для текста. Методика быстро распространилась и по-прежнему остаётся надёжным, малозатратным выбором для дизайн-систем, использующих одноцветную иконографию.</p>
+                </div>
+
+                <!-- Icon Fonts vs SVG Icons -->
+                <h2 class="reveal">Шрифтовые иконки vs SVG-иконки</h2>
+                <div class="reveal">
+                    <p>Дискуссия «шрифтовые иконки vs встроенный SVG» является неизменной темой фронтенд-обсуждений уже более десяти лет. Оба подхода состоятельны — правильный выбор зависит от требований вашего проекта.</p>
+
+                    <h3>Шрифтовые иконки</h3>
+                    <ul>
+                        <li><strong>Один HTTP-запрос</strong> — один шрифтовой файл содержит все иконки</li>
+                        <li><strong>Предельно простая стилизация CSS</strong> — меняйте <code>color</code>, <code>font-size</code> и <code>text-shadow</code>, как для любого текста</li>
+                        <li><strong>Только монохром</strong> — каждый глиф поддерживает единственный цвет заливки</li>
+                        <li><strong>Простое подключение</strong> — добавьте ссылку на таблицу стилей, используйте CSS-класс, готово</li>
+                    </ul>
+
+                    <h3>Встроенный SVG</h3>
+                    <ul>
+                        <li><strong>Многоцветность</strong> — каждый контур может иметь собственную заливку, обводку или градиент</li>
+                        <li><strong>Доступность по умолчанию</strong> — <code>&lt;title&gt;</code> и <code>aria-label</code> предоставляют скринридерам реальную семантику</li>
+                        <li><strong>Кэшируется по отдельности</strong> — неиспользуемые иконки никогда не загружаются</li>
+                        <li><strong>Точечное управление</strong> — анимация отдельных контуров, применение фильтров к каждому элементу</li>
+                    </ul>
+
+                    <h3>SVG-спрайты</h3>
+                    <ul>
+                        <li>Объединяют несколько SVG в единый спрайт из элементов <code>&lt;symbol&gt;</code></li>
+                        <li>Иконки подключаются через <code>&lt;use href="#icon-name"&gt;</code></li>
+                        <li>Сочетает преимущества обоих подходов — один запрос, многоцветность, доступность — но требует более сложного конвейера сборки</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Итог</div>
+                        Шрифтовые иконки остаются отличным выбором для дизайн-систем, основанных на одноцветной иконографии. Они просты в интеграции, производительны и поддерживаются повсеместно. Если вашим иконкам нужна многоцветность или анимация отдельных контуров, лучше подойдут встроенный SVG или SVG-спрайты.
+                    </div>
+                </div>
+
+                <!-- Format Comparison Table -->
+                <h2 class="reveal">Сравнение форматов</h2>
+                <div class="reveal">
+                    <p>Шрифтовые иконки могут быть упакованы в пять файловых форматов, каждый из которых имеет разные степень сжатия, поддержку браузеров и сценарии использования. Вот краткое сравнение:</p>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Формат</th><th>Сжатие</th><th>Размер файла</th><th>Поддержка браузеров</th><th>Лучше всего для</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td class="fmt">.woff2</td><td>Brotli</td><td>Наименьший</td><td>97%+</td><td>Современный веб (рекомендуется)</td></tr>
+                                <tr><td class="fmt">.woff</td><td>zlib</td><td>Небольшой</td><td>98%+</td><td>Запасной вариант для широкой совместимости</td></tr>
+                                <tr><td class="fmt">.ttf</td><td>Нет</td><td>Средний</td><td>98%+</td><td>Настольные приложения, разработка</td></tr>
+                                <tr><td class="fmt">.svg</td><td>Нет</td><td>Наибольший</td><td>Ограниченная</td><td>Устаревший iOS, отладка</td></tr>
+                                <tr><td class="fmt">.eot</td><td>Опционально</td><td>Средний</td><td>Только IE</td><td>Поддержка устаревшего IE 6-8</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Choosing the Right Format -->
+                <h2 class="reveal">Выбор подходящего формата</h2>
+                <div class="reveal">
+                    <p>Не знаете, какие форматы включить? Воспользуйтесь этим практическим руководством:</p>
+                    <ul>
+                        <li><strong>Если выбирать только один</strong> — используйте <strong>WOFF2</strong>. Он обеспечивает наилучшее сжатие (Brotli) и охватывает 97%+ браузеров.</li>
+                        <li><strong>Если нужна поддержка IE 11</strong> — используйте <strong>WOFF2 + WOFF</strong>. WOFF охватывает оставшиеся браузеры без поддержки декодирования Brotli.</li>
+                        <li><strong>Если нужна поддержка IE 8</strong> — используйте <strong>WOFF2 + WOFF + EOT</strong>. EOT — единственный формат, понятный Internet Explorer 6-8.</li>
+                        <li><strong>Для настольных приложений</strong> — используйте <strong>TTF</strong>. Это нативный формат для рендеринга шрифтов на уровне ОС в Windows, macOS и Linux.</li>
+                        <li><strong>Для отладки проблем со шрифтами</strong> — изучите <strong>SVG Font</strong>. Его XML-структура читаема человеком, что упрощает проверку контуров глифов и метаданных.</li>
+                    </ul>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Совет</div>
+                        Большинству современных проектов достаточно только WOFF2. Добавляйте дополнительные форматы лишь тогда, когда этого требует матрица поддерживаемых браузеров.
+                    </div>
+                </div>
+
+                <!-- Explore by Format -->
+                <h2 class="reveal">Обзор по форматам</h2>
+                <div class="reveal">
+                    <p>Подробнее изучите каждый формат, чтобы понять его внутреннее устройство, совместимость с браузерами и лучшие практики:</p>
+                    <div class="format-cards">
+                        <a href="svg-font.html" class="format-card">
+                            <div class="format-card-ext">.svg</div>
+                            <div class="format-card-name">SVG Font</div>
+                            <div class="format-card-desc">Оригинальный, читаемый человеком векторный формат шрифта</div>
+                        </a>
+                        <a href="ttf.html" class="format-card">
+                            <div class="format-card-ext">.ttf</div>
+                            <div class="format-card-name">TrueType</div>
+                            <div class="format-card-desc">Настольный стандарт с квадратичными кривыми Безье</div>
+                        </a>
+                        <a href="woff.html" class="format-card">
+                            <div class="format-card-ext">.woff</div>
+                            <div class="format-card-name">WOFF</div>
+                            <div class="format-card-desc">Веб-оптимизированная обёртка со сжатием zlib</div>
+                        </a>
+                        <a href="woff2.html" class="format-card">
+                            <div class="format-card-ext">.woff2</div>
+                            <div class="format-card-name">WOFF2</div>
+                            <div class="format-card-desc">Современный стандарт со сжатием Brotli</div>
+                        </a>
+                        <a href="eot.html" class="format-card">
+                            <div class="format-card-ext">.eot</div>
+                            <div class="format-card-name">EOT</div>
+                            <div class="format-card-desc">Устаревший формат Microsoft для Internet Explorer</div>
+                        </a>
+                    </div>
+
+                    <p>Узнайте, как использовать эти форматы в своих проектах:</p>
+                    <div class="format-cards">
+                        <a href="css-font-face.html" class="format-card">
+                            <div class="format-card-ext">@</div>
+                            <div class="format-card-name">CSS @font-face</div>
+                            <div class="format-card-desc">Загрузка и регистрация шрифтовых иконок в таблицах стилей</div>
+                        </a>
+                        <a href="svg-symbol.html" class="format-card">
+                            <div class="format-card-ext">&lt;/&gt;</div>
+                            <div class="format-card-name">SVG Symbol</div>
+                            <div class="format-card-desc">Встроенные SVG-спрайты с поддержкой многоцветности</div>
+                        </a>
+                        <a href="export-guide.html" class="format-card">
+                            <div class="format-card-ext">&darr;</div>
+                            <div class="format-card-name">Руководство по экспорту</div>
+                            <div class="format-card-desc">Генерация и настройка экспорта в Bobcorn</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bobcorn Callout -->
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">В Bobcorn</div>
+                    Bobcorn генерирует все пять форматов шрифтов, а также CSS, JS-спрайты символов и HTML-демо-страницы — всё одним нажатием. <a href="export-guide.html">Читайте руководство по экспорту &rarr;</a>
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <span></span>
+                    <a href="svg-font.html" class="page-nav-link">
+                        <div class="page-nav-dir">Далее</div>
+                        <div class="page-nav-title">SVG Font</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

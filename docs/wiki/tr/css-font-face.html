@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS @font-face — Bobcorn Wiki</title>
+    <meta name="description" content="İkon fontlarını web'de çalıştıran CSS @font-face kuralı — stil sayfalarınızda özel font dosyalarını bildirme, yükleme ve kullanma.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/tr/css-font-face.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/css-font-face.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/css-font-face.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/css-font-face.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/css-font-face.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/css-font-face.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/css-font-face.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/css-font-face.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/css-font-face.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/css-font-face.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/css-font-face.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/css-font-face.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/css-font-face.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/css-font-face.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/css-font-face.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/css-font-face.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/css-font-face.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/tr/css-font-face.html">
+    <meta property="og:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta property="og:description" content="İkon fontlarını web'de çalıştıran CSS @font-face kuralı — stil sayfalarınızda özel font dosyalarını bildirme, yükleme ve kullanma.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="CSS @font-face — Bobcorn Wiki">
+    <meta name="twitter:description" content="İkon fontlarını web'de çalıştıran CSS @font-face kuralı — stil sayfalarınızda özel font dosyalarını bildirme, yükleme ve kullanma.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "CSS @font-face — Bobcorn Wiki",
+                "description": "İkon fontlarını web'de çalıştıran CSS @font-face kuralı — stil sayfalarınızda özel font dosyalarını bildirme, yükleme ve kullanma.",
+                "url": "https://bobcorn.caldis.me/wiki/tr/css-font-face.html",
+                "inLanguage": "tr",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/tr/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "CSS @font-face — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/tr/css-font-face.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Türkçe</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">CSS @font-face</h1>
+                <p class="lead reveal">İkon fontlarını web'de çalıştıran CSS kuralı — stil sayfalarınızda özel font dosyalarını bildirme, yükleme ve kullanma.</p>
+
+                <h2 class="reveal">Temel Bilgiler</h2>
+                <div class="reveal">
+                    <p><code>@font-face</code>, tarayıcıya bir font dosyasının nerede bulunacağını ve nasıl adlandırılacağını söyleyen CSS at-kuralıdır. İlk olarak 1997'de IE 4'te desteklendi; ancak WOFF'un ortaya çıkması ve diğer tarayıcıların bu kuralı tutarlı biçimde uygulamasıyla birlikte 2010 civarında tüm tarayıcılarda pratik hale geldi.</p>
+                    <p>İkon fontları için <code>@font-face</code>, font dosyalarınız ile ikonları görüntüleyen CSS sınıfları arasındaki yapıştırıcıdır. Bu kural olmadan tarayıcının <code>font-family: 'MyIcons'</code>'ın sunucunuzdan belirli bir dosya yüklemesi gerektiğini bilmesinin yolu yoktur.</p>
+
+                    <span class="code-label">Temel sözdizimi</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'fonts/myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p><code>font-family</code> tanımlayıcısı fonta daha sonra başvuracağınız bir ad verir. <code>src</code> tanımlayıcısı tarayıcıya dosyayı nereden indireceğini ve hangi formatta olduğunu söyler. <code>font-weight</code> ve <code>font-style</code> tanımlayıcıları tarayıcının kalın veya italik varyantlar sentezlememesini sağlar. <code>font-display</code> ise font yüklenirken ne olacağını kontrol eder.</p>
+                </div>
+
+                <h2 class="reveal">Modern Font Yığını</h2>
+                <div class="reveal">
+                    <p>Her URL'nin ardından gelen <code>format()</code> ipucu, tarayıcıya dosyanın hangi formatta olduğunu söyler; böylece önce indirmeden desteklemediği formatları atlayabilir. Yıllar içinde tarayıcı desteği geliştikçe önerilen format seti önemli ölçüde daraldı.</p>
+
+                    <span class="code-label">Modern (önerilen)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>%97+ tarayıcı kapsamıyla, yalnızca WOFF2 modern projelerin büyük çoğunluğu için yeterlidir. Bu en basit ve en performanslı yaklaşımdır.</p>
+
+                    <span class="code-label">WOFF yedekli (IE 11 desteği)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Yedek olarak WOFF eklemek, WOFF2'yi desteklemeyen IE 11'i kapsar. Modern tarayıcılar WOFF2 dosyasını alır; IE 11 WOFF'a geçer.</p>
+
+                    <span class="code-label">Tam eski sürüm yığını (IE 6-8 desteği)</span>
+<pre><code><span class="code-kw">@font-face</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot'</span>);                    <span class="code-cmt">/* IE9 compat */</span>
+  <span class="code-prop">src</span>: <span class="code-val">url</span>(<span class="code-str">'myicons.eot?#iefix'</span>) <span class="code-val">format</span>(<span class="code-str">'embedded-opentype'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff2'</span>) <span class="code-val">format</span>(<span class="code-str">'woff2'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.woff'</span>) <span class="code-val">format</span>(<span class="code-str">'woff'</span>),
+       <span class="code-val">url</span>(<span class="code-str">'myicons.ttf'</span>) <span class="code-val">format</span>(<span class="code-str">'truetype'</span>);
+  <span class="code-prop">font-display</span>: <span class="code-val">swap</span>;
+}</code></pre>
+
+                    <p>Tam "kurşun geçirmez" yığın IE 6-8 için <a href="eot.html">EOT</a>'u, modern tarayıcılar için <a href="woff2.html">WOFF2</a>'yi, IE 9-11 için <a href="woff.html">WOFF</a>'u ve son yedek olarak <a href="ttf.html">TTF</a>'yi içerir. Tarayıcı her <code>src</code> girişini sırayla dener ve anladığı ilk formatı kullanır. Bu yaklaşım yalnızca aşırı eski sürüm gereksinimi olan projeler için gereklidir.</p>
+                </div>
+
+                <h2 class="reveal">İkon Sınıflarını Kullanmak</h2>
+                <div class="reveal">
+                    <p>İkon fontları için standart desen, font-family'yi ve paylaşılan oluşturma stillerini ayarlayan bir <strong>temel sınıf</strong>, ardından <code>::before</code> sözde öğelerini her ikonun Unicode kod noktasına ayarlayan <code>content</code> ile <strong>bireysel ikon sınıfları</strong> kullanır.</p>
+
+                    <span class="code-label">CSS ikon sınıfları</span>
+<pre><code><span class="code-kw">.icon</span> {
+  <span class="code-prop">font-family</span>: <span class="code-str">'MyIcons'</span>;
+  <span class="code-prop">font-style</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-weight</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">font-variant</span>: <span class="code-val">normal</span>;
+  <span class="code-prop">text-transform</span>: <span class="code-val">none</span>;
+  <span class="code-prop">line-height</span>: <span class="code-val">1</span>;
+  <span class="code-prop">-webkit-font-smoothing</span>: <span class="code-val">antialiased</span>;
+  <span class="code-prop">-moz-osx-font-smoothing</span>: <span class="code-val">grayscale</span>;
+}
+
+<span class="code-kw">.icon-home::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E001'</span>; }
+<span class="code-kw">.icon-search::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E002'</span>; }
+<span class="code-kw">.icon-user::before</span> { <span class="code-prop">content</span>: <span class="code-str">'\E003'</span>; }</code></pre>
+
+                    <p>Temel sınıf, tarayıcının ikonları bozacak kalın, italik veya diğer dönüşümleri uygulamamasını sağlamak için font stilini sıfırlar. <code>-webkit-font-smoothing</code> ve <code>-moz-osx-font-smoothing</code> özellikleri macOS ve iOS'ta daha keskin oluşturma için antialiasing'i etkinleştirir.</p>
+                    <p>Her ikon sınıfı, o gliph'e atanan Unicode kod noktasıyla bir <code>::before</code> sözde öğesi ayarlar. Ters eğik çizgi gösterimi (<code>\E001</code>), CSS'in bir Unicode karakterini onaltılık kod noktasıyla başvurma yoludur.</p>
+
+                    <span class="code-label">HTML kullanımı</span>
+<pre><code><span class="code-kw">&lt;i</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-home"</span><span class="code-kw">&gt;&lt;/i&gt;</span>
+<span class="code-kw">&lt;span</span> <span class="code-prop">class</span>=<span class="code-str">"icon icon-search"</span><span class="code-kw">&gt;&lt;/span&gt;</span></code></pre>
+
+                    <p>Hem <code>&lt;i&gt;</code> hem de <code>&lt;span&gt;</code> eşit derecede iyi çalışır. Öğenin kendisi boştur — ikon tamamen <code>::before</code> sözde öğesi tarafından oluşturulur.</p>
+                </div>
+
+                <h2 class="reveal">font-display</h2>
+                <div class="reveal">
+                    <p><code>font-display</code> tanımlayıcısı, font dosyası hâlâ indirilirken tarayıcının ne göstereceğini kontrol eder. Bu, ikon fontları için kritiktir; çünkü yanlış ayar sayfa yüklenirken ikonları görünmez kılabilir.</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Değer</th><th>Davranış</th><th>En İyi Kullanım</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td><code>swap</code></td><td>Yedek metni hemen gösterir, yüklenince ikon fontuna geçer</td><td>İkon fontları (önerilen)</td></tr>
+                                <tr><td><code>block</code></td><td>Metni kısaca gizler (3 saniyeye kadar), ardından yedek gösterir</td><td>Yanıp sönmenin dikkat dağıtıcı olduğu metin fontları</td></tr>
+                                <tr><td><code>fallback</code></td><td>Kısa engelleme (~100ms) + kısa takas (~3s)</td><td>Metin fontları için iyi denge</td></tr>
+                                <tr><td><code>optional</code></td><td>Tarayıcı yavaş bağlantılarda fontu tamamen atlayabilir</td><td>Zorunlu olmayan dekoratif fontlar</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>İkon fontları için <strong><code>swap</code> önerilen seçimdir</strong>. Kısa bir biçimsiz içerik yanıp sönmesi (ikon kod noktalarının kareler veya boş alanlar olarak görünebileceği yerde), görünmez ikonlardan çok daha iyidir. <code>block</code> ile kullanıcılar yavaş bağlantılarda ikonların olması gereken yerde 3 saniyeye kadar boş alan görebilir — bu da sayfanın bozuk göründüğü anlamına gelir. <code>swap</code> ile ikonlar font yüklenir yüklenmez beliriyor ve geçiş modern bağlantılarda genellikle fark edilmiyor.</p>
+                </div>
+
+                <h2 class="reveal">Yükleme Optimizasyonu</h2>
+                <div class="reveal">
+                    <p>Font dosyaları varsayılan olarak oluşturmayı engeller — tarayıcı, dosya indirilene kadar özel bir fontla metin boyamaz. Etkiyi en aza indirme teknikleri:</p>
+
+                    <ul>
+                        <li><strong>Font dosyasını önceden yükleyin</strong> — <code>&lt;link rel="preload"&gt;</code> kullanarak, tarayıcı ona başvuran CSS'i parse etmeden önce fontun indirilmesine başlayın.</li>
+                        <li><strong>Fontları kendiniz barındırın</strong> — font dosyalarını HTML'nizle aynı kaynaktan sunmak, ekstra DNS aramalarını ve bağlantı kurulumunu önler ve CORS sorunlarını ortadan kaldırır.</li>
+                        <li><strong>Fontu alt kümeye alın</strong> — dosya boyutunu azaltmak için kullanılmayan ikonları kaldırın. Yalnızca 50 ikon kullandığınız 500 ikonluk bir font, indirmenin %90'ını boşa harcıyor demektir.</li>
+                        <li><strong><code>unicode-range</code> kullanın</strong> — birden fazla ikon setiniz varsa, bu tanımlayıcı tarayıcıya font dosyasını yalnızca belirtilen aralıktaki karakterler sayfada gerçekten kullanıldığında indirmesini söyler.</li>
+                    </ul>
+
+                    <span class="code-label">Font dosyasını önceden yükleme</span>
+<pre><code><span class="code-kw">&lt;link</span> <span class="code-prop">rel</span>=<span class="code-str">"preload"</span> <span class="code-prop">href</span>=<span class="code-str">"fonts/myicons.woff2"</span> <span class="code-prop">as</span>=<span class="code-str">"font"</span>
+      <span class="code-prop">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-prop">crossorigin</span><span class="code-kw">&gt;</span></code></pre>
+
+                    <p><code>crossorigin</code> niteliği, aynı kaynaklı fontlar için bile gereklidir — bu, font yükleme spesifikasyonunun bir tuhaf özelliğidir. Bu olmadan tarayıcı fontu iki kez indirir: preload ipucundan bir kez (CORS olmadan) ve <code>@font-face</code> kuralından bir kez (CORS ile).</p>
+                </div>
+
+                <h2 class="reveal">Yaygın Sorunlar</h2>
+                <div class="reveal">
+                    <ul>
+                        <li><strong>CORS hataları</strong> — farklı bir kaynaktan sunulan font dosyaları (örn. CDN alt alan adı) sunucuda <code>Access-Control-Allow-Origin</code> başlıkları gerektirir. Alternatif olarak <code>&lt;link&gt;</code> etiketinde <code>crossorigin</code> niteliğini kullanın. Uygun CORS yapılandırması olmadan tarayıcı fontu sessizce engeller.</li>
+                        <li><strong>İkonlar kareler veya dikdörtgenler olarak görünüyor</strong> — bu genellikle font dosyası yolunun yanlış olduğu, fontun henüz yüklenmediği veya ikon sınıfındaki <code>font-family</code> adının <code>@font-face</code> bildirimindeki adla eşleşmediği anlamına gelir. Font dosyasının 200 durumuyla yüklendiğini doğrulamak için tarayıcınızın Ağ sekmesini kontrol edin.</li>
+                        <li><strong>İkonlar yanlış glif'leri gösteriyor</strong> — sistem fontlarıyla Unicode kod noktası çakışması. İkon fontu sistem fontlarıyla örtüşen aralıklardaki kod noktalarını kullanıyorsa, tarayıcı ikon yerine bir sistem karakteri oluşturabilir. İkon fontları bunu önlemek için genellikle Özel Kullanım Alanı'nı (U+E000 ile U+F8FF arası) kullanır.</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Hata ayıklama ipucu</div>
+                        Tarayıcınızın DevTools'unu açın, Ağ sekmesine gidin ve "Font" ile filtreleyin. <code>.woff2</code> dosyanızı 200 durumuyla görmelisiniz. Yoksa yol yanlıştır. CORS hatası gösteriyorsa sunucu başlıklarınızı kontrol edin. Yüklendi ama ikonlar hâlâ görünmüyorsa öğeyi inceleyin ve <code>font-family</code>'nin tam olarak eşleştiğini doğrulayın.
+                    </div>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn'da</div>
+                    Bobcorn sizin için eksiksiz CSS dosyasını oluşturur — <code>@font-face</code> bildirimi, temel <code>.icon</code> sınıfı ve doğru Unicode kod noktalarına sahip bireysel ikon sınıfları. CSS, seçtiğiniz font adını kullanır ve font dosyalarına göreli yollarla başvurur. Font dosyalarınızın yanına eklemek için dışa aktarma iletişim kutusunda CSS seçeneğini etkinleştirin.
+                </div>
+
+                <nav class="page-nav">
+                    <a href="eot.html" class="page-nav-link">
+                        <div class="page-nav-dir">Önceki</div>
+                        <div class="page-nav-title">EOT</div>
+                    </a>
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">Sonraki</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Font — Bobcorn Wiki</title>
+    <meta name="description" content="SVG 字体格式详解——将 SVG 路径映射到字体字形的人类可读 XML 格式。了解 Bobcorn 如何将 SVG Font 作为图标字体生成管道的第一步。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/svg-font.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/svg-font.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/svg-font.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/svg-font.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/svg-font.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/svg-font.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/svg-font.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/svg-font.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/svg-font.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/svg-font.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/svg-font.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/svg-font.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/svg-font.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/svg-font.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/svg-font.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html">
+    <meta property="og:title" content="SVG Font — Bobcorn Wiki">
+    <meta property="og:description" content="SVG 字体格式详解——将 SVG 路径映射到字体字形的人类可读 XML 格式。了解 Bobcorn 如何将 SVG Font 作为图标字体生成管道的第一步。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SVG Font — Bobcorn Wiki">
+    <meta name="twitter:description" content="SVG 字体格式详解——将 SVG 路径映射到字体字形的人类可读 XML 格式。了解 Bobcorn 如何将 SVG Font 作为图标字体生成管道的第一步。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "SVG Font — Bobcorn Wiki",
+                "description": "SVG 字体格式详解——将 SVG 路径映射到字体字形的人类可读 XML 格式。了解 Bobcorn 如何将 SVG Font 作为图标字体生成管道的第一步。",
+                "url": "https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html",
+                "inLanguage": "zh-CN",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "SVG Font — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/zh-CN/svg-font.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>简体中文</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">SVG Font</h1>
+                <p class="lead reveal">最初的矢量字体格式——将 SVG 路径映射到字体字形的人类可读 XML 格式。</p>
+
+                <div class="fingerprint reveal">
+                    <div class="fingerprint-header">
+                        <span class="fingerprint-ext">.svg</span>
+                        <span class="fingerprint-name">SVG Font Format</span>
+                    </div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">类型</span><span class="fingerprint-val">基于 XML 的矢量格式</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">压缩</span><span class="fingerprint-val">无（纯文本）</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">文件大小</span><span class="fingerprint-val">所有格式中最大</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">支持范围</span><span class="fingerprint-val">仅 Safari（其他浏览器已废弃）</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">最适用于</span><span class="fingerprint-val">调试、源格式</span></div>
+                    <div class="fingerprint-row"><span class="fingerprint-key">Bobcorn</span><span class="fingerprint-val tag-accent tag">管道源格式</span></div>
+                </div>
+
+                <h2 class="reveal">什么是 SVG Font？</h2>
+                <p>SVG 字体是 W3C 发布的 <strong>SVG 1.1 规范</strong>的一部分。与传统的二进制字体格式不同，SVG 字体将字形轮廓作为 SVG 路径数据嵌入 <code>&lt;font&gt;</code> 元素中。每个字形由一个 <code>&lt;glyph&gt;</code> 元素表示，其 <code>d</code>属性包含描述形状的矢量路径。</p>
+                <p>本质上，SVG 字体是以字体形式封装的 SVG 图形。你在 SVG 文件中用于绘制形状的路径语法，同样被用来定义字母轮廓和图标轮廓。这使得它们具有独特的可读性——你可以用任何文本编辑器打开 SVG 字体，直接读取每个字形的实际几何数据。</p>
+
+                <h2 class="reveal">工作原理</h2>
+                <p>SVG 字体文件将字形路径封装在标准 XML 结构中。以下是一个简化示例：</p>
+                <span class="code-label">SVG Font 结构</span>
+<pre><code><span class="code-tag">&lt;font</span> <span class="code-attr">id</span>=<span class="code-str">"MyIcons"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;font-face</span> <span class="code-attr">font-family</span>=<span class="code-str">"MyIcons"</span> <span class="code-attr">units-per-em</span>=<span class="code-str">"1024"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"home"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE001;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M512 0L0 448h128v576h256V640h256v384h256V448h128z"</span><span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;glyph</span> <span class="code-attr">glyph-name</span>=<span class="code-str">"search"</span> <span class="code-attr">unicode</span>=<span class="code-str">"&amp;#xE002;"</span>
+         <span class="code-attr">d</span>=<span class="code-str">"M..."</span><span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/font&gt;</span></code></pre>
+                <p><code>&lt;font-face&gt;</code> 元素声明字族名称和坐标系（<code>units-per-em</code>）。每个 <code>&lt;glyph&gt;</code> 将一个 Unicode 码位映射到一个矢量路径。<code>d</code> 属性使用与普通 SVG <code>&lt;path&gt;</code> 元素完全相同的路径语法。</p>
+                <p>这是 Bobcorn 管道中的<strong>中间格式</strong>。各个 SVG 图标首先被组装成这种 SVG 字体结构，然后转换为二进制格式：SVG Font &rarr; TTF &rarr; WOFF / WOFF2 / EOT。</p>
+
+                <h2 class="reveal">优缺点</h2>
+                <div class="pros-cons">
+                    <ul class="pros-list">
+                        <div class="pros-cons-label">优点</div>
+                        <li>人类可读——可用任何文本编辑器打开</li>
+                        <li>便于调试字形路径和元数据</li>
+                        <li>完全基于矢量，可无限缩放</li>
+                        <li>无需编译即可查看源码</li>
+                    </ul>
+                    <ul class="cons-list">
+                        <div class="pros-cons-label">缺点</div>
+                        <li>所有字体格式中文件最大</li>
+                        <li>已在 Chrome、Firefox 和 Edge 中废弃</li>
+                        <li>完全没有压缩</li>
+                        <li>不支持字体微调（hinting）</li>
+                        <li>在 Windows 上渲染质量差</li>
+                    </ul>
+                </div>
+
+                <h2 class="reveal">浏览器支持</h2>
+                <p>SVG 字体支持已被<strong>大多数主流浏览器移除</strong>。Chrome 在第 38 版（2014 年）放弃了 SVG 字体支持，Firefox 从未实现，基于 Chromium 的 Edge 也不支持。目前唯一仍在渲染 SVG 字体的是 <strong>Safari 和 iOS Safari</strong>。</p>
+                <p>对于实际的网页应用，SVG 字体本质上已是遗留格式。永远不要将其作为面向用户的交付格式。请使用 WOFF2。</p>
+
+                <h2 class="reveal">何时使用 SVG Font</h2>
+                <ul>
+                    <li><strong>调试字体生成问题</strong>——由于是纯 XML，可以直接读取路径数据，与原始 SVG 图标对比以诊断问题。</li>
+                    <li><strong>作为构建管道中的源格式</strong>——许多字体生成工具（包括 Bobcorn）在转换为二进制格式之前，将 SVG 字体用作中间表示。</li>
+                    <li><strong>旧版 iOS &lt; 5 支持</strong>——如今极为罕见，但早于 WOFF 支持的旧版 iOS 设备只能使用 SVG 字体作为网页字体。</li>
+                </ul>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">在 Bobcorn 中</div>
+                    在 Bobcorn 中，SVG Font 是生成管道的<strong>第一步</strong>。你的 SVG 图标首先被组装成 SVG 字体，然后转换为 TTF，再由 TTF 转换为 WOFF、WOFF2 和 EOT。你可以导出 SVG 字体文件用于调试——当某个字形显示异常、需要检查原始路径数据时尤为有用。
+                </div>
+
+                <nav class="page-nav reveal">
+                    <a href="index.html" class="page-nav-link">
+                        <div class="page-nav-dir">上一页</div>
+                        <div class="page-nav-title">图标字体 101</div>
+                    </a>
+                    <a href="ttf.html" class="page-nav-link">
+                        <div class="page-nav-dir">下一页</div>
+                        <div class="page-nav-title">TTF</div>
+                    </a>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

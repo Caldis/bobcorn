@@ -1,6 +1,7 @@
 {
   "nav.features": "功能",
   "nav.formats": "格式",
+  "nav.wiki": "知识库",
   "hero.badge": "开源 · MIT 协议",
   "hero.title": "管理图标，<br><em>生成字体</em>",
   "hero.desc": "开源的图标管理器和字体生成工具，为设计师和开发者打造。导入 SVG，分组整理，编辑颜色，一键导出生产级图标字体。",

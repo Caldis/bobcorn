@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export-Leitfaden — Bobcorn Wiki</title>
+    <meta name="description" content="Eine vollständige Anleitung zum Export-Workflow von Bobcorn — von der Icon-Auswahl bis zur Generierung produktionsfertiger Schriftdateien.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/export-guide.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/export-guide.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/export-guide.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/export-guide.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/export-guide.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/export-guide.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/export-guide.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/export-guide.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/export-guide.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/export-guide.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/export-guide.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/export-guide.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/export-guide.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/export-guide.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/export-guide.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/de/export-guide.html">
+    <meta property="og:title" content="Export-Leitfaden — Bobcorn Wiki">
+    <meta property="og:description" content="Eine vollständige Anleitung zum Export-Workflow von Bobcorn — von der Icon-Auswahl bis zur Generierung produktionsfertiger Schriftdateien.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Export-Leitfaden — Bobcorn Wiki">
+    <meta name="twitter:description" content="Eine vollständige Anleitung zum Export-Workflow von Bobcorn — von der Icon-Auswahl bis zur Generierung produktionsfertiger Schriftdateien.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Export-Leitfaden — Bobcorn Wiki",
+                "description": "Eine vollständige Anleitung zum Export-Workflow von Bobcorn — von der Icon-Auswahl bis zur Generierung produktionsfertiger Schriftdateien.",
+                "url": "https://bobcorn.caldis.me/wiki/de/export-guide.html",
+                "inLanguage": "de",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/de/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Export-Leitfaden — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/de/export-guide.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>Deutsch</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <h1 class="reveal">Export-Leitfaden</h1>
+                <p class="lead reveal">Eine vollständige Anleitung zum Export-Workflow von Bobcorn — von der Icon-Auswahl bis zur Generierung produktionsfertiger Schriftdateien.</p>
+
+                <h2 class="reveal">Export-Dialog öffnen</h2>
+                <div class="reveal">
+                    <p>Klicken Sie auf die Schaltfläche <strong>Exportieren</strong> im linken Seitenleisten-Menü. Der Export-Dialog öffnet sich als Modal, das Ihnen ermöglicht, das Ausgabeverzeichnis zu konfigurieren, auszuwählen, welche Icon-Gruppen eingeschlossen werden sollen, und Ausgabeformate sowie Begleitdateien zu wählen. Alle Einstellungen werden zwischen Sitzungen gespeichert, sodass jeder Folgeexport nach der ersten Konfiguration ein einziger Klick ist.</p>
+                </div>
+
+                <h2 class="reveal">Ausgabeverzeichnis auswählen</h2>
+                <div class="reveal">
+                    <p>Der erste Schritt ist die Auswahl, wo die exportierten Dateien gespeichert werden sollen. Standardmäßig verwendet Bobcorn Ihren <strong>Desktop</strong>. Klicken Sie auf die Ordner-Schaltfläche neben dem Pfad, um einen anderen Speicherort zu durchsuchen.</p>
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tipp</div>
+                        Exportieren Sie direkt in das <code>fonts/</code>- oder <code>assets/</code>-Verzeichnis Ihres Projekts, um das manuelle Kopieren von Dateien nach jedem Export zu vermeiden. Das ist besonders nützlich während der aktiven Entwicklung, wenn Sie am Icon-Set iterieren.
+                    </div>
+                </div>
+
+                <h2 class="reveal">Icon-Gruppen auswählen</h2>
+                <div class="reveal">
+                    <p>Sie können wählen, welche Icon-Gruppen in den Export einbezogen werden sollen. Standardmäßig sind alle Gruppen ausgewählt. Deaktivieren Sie Gruppen, die Sie nicht in der Schrift haben möchten — zum Beispiel könnten Sie eine „Entwürfe"-Gruppe ausschließen, die Icons in Arbeit enthält.</p>
+                    <p>Jede Gruppe zeigt ihre Icon-Anzahl neben ihrem Namen. Die Gesamtzahl der Icons am unteren Ende der Liste aktualisiert sich in Echtzeit, wenn Sie Gruppen ein- und ausschalten, sodass Sie immer genau wissen, wie viele Glyphen die exportierte Schrift enthalten wird.</p>
+                </div>
+
+                <h2 class="reveal">Schriftformate</h2>
+                <div class="reveal">
+                    <p>Bobcorn kann fünf Schriftformate generieren. Wählen Sie diejenigen, die den Browser-Unterstützungsanforderungen Ihres Projekts entsprechen:</p>
+
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Format</th><th>Standard</th><th>Wann aktivieren</th><th>Mehr erfahren</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fmt">.woff2</td>
+                                    <td>Immer an</td>
+                                    <td>Immer — das wesentliche Web-Format</td>
+                                    <td><a href="woff2.html">WOFF2 &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.woff</td>
+                                    <td>Optional</td>
+                                    <td>IE 11-Unterstützung benötigt</td>
+                                    <td><a href="woff.html">WOFF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.ttf</td>
+                                    <td>Optional</td>
+                                    <td>Desktop-Apps, OS-Schriftinstallation</td>
+                                    <td><a href="ttf.html">TTF &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.svg</td>
+                                    <td>Optional</td>
+                                    <td>Debugging, Legacy iOS</td>
+                                    <td><a href="svg-font.html">SVG Font &rarr;</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fmt">.eot</td>
+                                    <td>Optional</td>
+                                    <td>Nur IE 6-8 Legacy</td>
+                                    <td><a href="eot.html">EOT &rarr;</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>WOFF2 ist immer enthalten, da es das wesentliche Web-Schriftformat ist — es gibt kein Szenario, in dem Sie einen Web-Schrift-Export ohne es möchten. Alle anderen Formate sind je nach Ihren spezifischen Anforderungen optional.</p>
+                </div>
+
+                <h2 class="reveal">Begleitdateien</h2>
+                <div class="reveal">
+                    <p>Über die Schriftdateien selbst hinaus kann Bobcorn mehrere Begleitdateien generieren, die Integration und Zusammenarbeit erleichtern:</p>
+
+                    <h3>CSS (<code>icons.css</code>)</h3>
+                    <p>Enthält die <code>@font-face</code>-Deklaration und <code>.icon-*</code>-CSS-Klassen für jedes Icon im Set. Legen Sie diese Datei in Ihr Projekt und Sie können Icons sofort mit einfachen Klassennamen verwenden. Weitere Details zur Funktionsweise des generierten CSS finden Sie im <a href="css-font-face.html">CSS @font-face-Leitfaden</a>.</p>
+
+                    <h3>JS (<code>icons-symbol.js</code>)</h3>
+                    <p>Ein SVG-Symbol-Sprite, das alle Icons als Inline-SVG-Symbole registriert, wenn das Skript lädt. Verwenden Sie dies, wenn Sie mehrfarbige Icons oder SVG-spezifische Funktionen neben Ihren Font-Icons benötigen. Verwendungsmuster finden Sie im <a href="svg-symbol.html">SVG-Symbol-Leitfaden</a>.</p>
+
+                    <h3>HTML (<code>demo.html</code>)</h3>
+                    <p>Eine interaktive Vorschauseite, die alle exportierten Icons mit ihren Namen, CSS-Klassennamen und Unicode-Codepunkten anzeigt. Öffnen Sie sie in einem Browser, um das vollständige Icon-Set zu durchsuchen. Nützlich für Designer, die die Icon-Bibliothek prüfen, und Entwickler, die Klassennamen bei der Integration nachschlagen.</p>
+
+                    <h3>ICP (<code>project.icp</code>)</h3>
+                    <p>Bobcorns Projektdatei. Exportieren Sie sie, um Ihr Icon-Projekt mit Teammitgliedern zu teilen oder als Backup. Das Öffnen einer ICP-Datei in Bobcorn stellt den vollständigen Projektstatus wieder her — alle Icons, Gruppen, Metadaten und Einstellungen — genau wie sie beim Export waren.</p>
+                </div>
+
+                <h2 class="reveal">ZIP-Paketierung</h2>
+                <div class="reveal">
+                    <p>Aktivieren Sie die <strong>ZIP</strong>-Option, um alle exportierten Dateien in ein einzelnes <code>.zip</code>-Archiv zu bündeln. Das ist nützlich, wenn Sie die Icon-Font mit Teammitgliedern teilen, auf ein CDN hochladen oder einem Design-Übergabedokument beifügen. Das ZIP enthält dieselbe Verzeichnisstruktur wie ein loser Export — keine Verschachtelung oder Umorganisation.</p>
+                </div>
+
+                <h2 class="reveal">Empfohlene Konfigurationen</h2>
+                <div class="reveal">
+                    <p>Hier sind drei praktische Voreinstellungen für gängige Projekttypen:</p>
+
+                    <h3>Modernes Web-Projekt</h3>
+                    <ul>
+                        <li>WOFF2 (immer an) + CSS + HTML-Demo</li>
+                        <li>Minimaler Footprint, deckt 97 %+ der Browser ab</li>
+                    </ul>
+
+                    <h3>Vollständiges Kompatibilitätsprojekt</h3>
+                    <ul>
+                        <li>WOFF2 + WOFF + CSS + HTML-Demo</li>
+                        <li>Deckt IE 11+ und alle modernen Browser ab</li>
+                    </ul>
+
+                    <h3>Design-System / Komponentenbibliothek</h3>
+                    <ul>
+                        <li>WOFF2 + TTF + CSS + JS-Symbol + HTML-Demo + ICP</li>
+                        <li>Schriften für CSS-Nutzung, TTF für Desktop-Tools, JS-Symbole für mehrfarbige Varianten, ICP als Projekt-Backup</li>
+                    </ul>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tipp</div>
+                        Starten Sie mit der Voreinstellung „modernes Web-Projekt" — WOFF2 + CSS. Fügen Sie weitere Formate nur hinzu, wenn Ihre Browser-Analysen oder Plattformanforderungen es verlangen. Zusätzliche Formate erhöhen das Build-Gewicht, ohne Nutzern zu nützen, deren Browser WOFF2 bereits unterstützen.
+                    </div>
+                </div>
+
+                <h2 class="reveal">Ausgabedateistruktur</h2>
+                <div class="reveal">
+                    <p>Wenn alle Optionen aktiviert sind, generiert Bobcorn folgende Dateistruktur:</p>
+
+                    <span class="code-label">Export-Ausgabe</span>
+<pre><code>output/
+├── MyIcons.woff2        <span class="code-cmt"># Font files</span>
+├── MyIcons.woff
+├── MyIcons.ttf
+├── MyIcons.css          <span class="code-cmt"># @font-face + icon classes</span>
+├── MyIcons-symbol.js    <span class="code-cmt"># SVG symbol sprite</span>
+├── demo.html            <span class="code-cmt"># Interactive preview</span>
+└── MyIcons.icp          <span class="code-cmt"># Project backup</span></code></pre>
+
+                    <p>Der Schriftfamilienname (z. B. „MyIcons") leitet sich von Ihrem Projektnamen in Bobcorn ab. Alle generierten Dateien verwenden diesen Namen als Präfix für Konsistenz.</p>
+                </div>
+
+                <h2 class="reveal">Nach dem Export</h2>
+                <div class="reveal">
+                    <p>Nachdem Bobcorn Ihre Dateien generiert hat, führen Sie diese Schritte aus, um die Icon-Font in Ihr Projekt zu integrieren:</p>
+
+                    <ol>
+                        <li><strong>Schriftdateien + CSS kopieren</strong> in das Assets- oder Fonts-Verzeichnis Ihres Projekts</li>
+                        <li><strong>CSS verlinken</strong> in Ihrem HTML: <code>&lt;link rel="stylesheet" href="MyIcons.css"&gt;</code></li>
+                        <li><strong>Icons verwenden</strong> überall in Ihrem Markup: <code>&lt;i class="icon icon-home"&gt;&lt;/i&gt;</code></li>
+                        <li><strong>Optional vorausladen</strong> der WOFF2-Datei für schnelleres erstes Rendering</li>
+                    </ol>
+
+                    <p>Hier ist ein vollständiges Integrationsbeispiel:</p>
+
+                    <span class="code-label">Vollständige Integration</span>
+<pre><code><span class="code-tag">&lt;head&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"preload"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.woff2"</span> <span class="code-attr">as</span>=<span class="code-str">"font"</span>
+        <span class="code-attr">type</span>=<span class="code-str">"font/woff2"</span> <span class="code-attr">crossorigin</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;link</span> <span class="code-attr">rel</span>=<span class="code-str">"stylesheet"</span> <span class="code-attr">href</span>=<span class="code-str">"MyIcons.css"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span>
+<span class="code-tag">&lt;body&gt;</span>
+  <span class="code-tag">&lt;button&gt;&lt;i</span> <span class="code-attr">class</span>=<span class="code-str">"icon icon-save"</span><span class="code-tag">&gt;&lt;/i&gt;</span> Speichern<span class="code-tag">&lt;/button&gt;</span>
+<span class="code-tag">&lt;/body&gt;</span></code></pre>
+
+                    <p>Der <code>rel="preload"</code>-Hinweis teilt dem Browser mit, die Schriftdatei herunterzuladen, bevor er die <code>@font-face</code>-Regel im CSS findet. Das eliminiert die Verzögerung zwischen CSS-Parsing und Schrift-Download und ergibt ein schnelleres First-Paint mit sichtbaren Icons. Das <code>crossorigin</code>-Attribut ist für Schrift-Preloads erforderlich, auch wenn die Schrift vom selben Ursprung stammt.</p>
+                </div>
+
+                <div class="callout callout-tip reveal">
+                    <div class="callout-label">Tipp</div>
+                    Öffnen Sie das generierte <code>demo.html</code> in einem Browser, um alle exportierten Icons zu durchsuchen. Sie können auf ein beliebiges Icon klicken, um seinen CSS-Klassennamen zu kopieren — praktisch während der Entwicklung, wenn Sie die genaue Klasse für ein bestimmtes Icon nachschlagen müssen.
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">In Bobcorn</div>
+                    Der Export-Dialog merkt sich Ihre zuletzt verwendeten Einstellungen. Einmal konfiguriert — Formate, Begleitdateien und Ausgabeverzeichnis für Ihr Projekt — ist jeder Folgeexport ein einziger Klick. Wenn Sie häufig iterieren, verweisen Sie das Ausgabeverzeichnis auf den Assets-Ordner Ihres Projekts für reibungslose Updates.
+                </div>
+
+                <nav class="page-nav">
+                    <a href="svg-symbol.html" class="page-nav-link">
+                        <div class="page-nav-dir">Zurück</div>
+                        <div class="page-nav-title">SVG Symbol</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>
