@@ -22,6 +22,8 @@ import db from '../../database';
 import selectedIconHint from '../../resources/imgs/nodata/selectedIconHint.png';
 // Store
 import useAppStore from '../../store';
+// Variant panel
+import VariantPanel from './VariantPanel';
 
 const radioStyle: React.CSSProperties = {};
 
@@ -35,6 +37,8 @@ interface IconDataRecord {
   iconContent: string;
   createTime: string;
   updateTime: string;
+  variantOf: string | null;
+  variantMeta: string | null;
   [key: string]: any;
 }
 
@@ -613,6 +617,16 @@ const SideEditor = React.memo(function SideEditor({
                 </button>
               )}
             </div>
+          )}
+
+          {/* Section: 变体 */}
+          {selectedIcon && iconData.id && (
+            <VariantPanel
+              iconId={iconData.id}
+              iconName={iconData.iconName}
+              iconContent={iconData.iconContent}
+              isVariant={!!iconData.variantOf}
+            />
           )}
 
           {/* Section: 高级操作 */}
