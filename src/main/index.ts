@@ -33,7 +33,10 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+  if (
+    (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') &&
+    !process.env.NO_DEVTOOLS
+  ) {
     try {
       require('electron-debug')();
     } catch (e) {
@@ -95,12 +98,14 @@ if (!gotLock) {
       await installExtensions();
     }
 
+    const winW = process.env.WIN_WIDTH ? parseInt(process.env.WIN_WIDTH, 10) : 1200;
+    const winH = process.env.WIN_HEIGHT ? parseInt(process.env.WIN_HEIGHT, 10) : 800;
     mainWindow = new BrowserWindow({
       title: 'Bobcorn',
       show: false,
-      width: 1200,
+      width: winW,
       minWidth: 1080,
-      height: 800,
+      height: winH,
       minHeight: 640,
       icon: path.join(__dirname, '../../resources/icon.png'),
       hasShadow: true,
@@ -142,8 +147,8 @@ if (!gotLock) {
         mainWindow.webContents.send('open-file', pendingFilePath);
         pendingFilePath = null;
       }
-      // Send file path from Windows/Linux command-line args
-      const argPath = extractIcpPath(process.argv);
+      // Send file path from command-line args or OPEN_FILE env var
+      const argPath = extractIcpPath(process.argv) || process.env.OPEN_FILE || null;
       if (argPath) {
         mainWindow.webContents.send('open-file', argPath);
       }

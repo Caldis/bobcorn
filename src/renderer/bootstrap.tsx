@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import MainContainer from './containers/MainContainer';
 import db, { dbReady } from './database';
 import useAppStore from './store';
+import i18n from './i18n';
 import { getOption } from './config';
 // Initialize profiler (attaches to window.__BOBCORN_PERF__)
 import './utils/profiler';
@@ -30,6 +31,11 @@ async function mount() {
 
   // Wire dirty state tracking
   db.registerOnMutation(() => useAppStore.getState().markDirty());
+
+  // Expose internals for E2E / screenshot automation
+  (window as any).__BOBCORN_STORE__ = useAppStore;
+  (window as any).__BOBCORN_I18N__ = i18n;
+  (window as any).__BOBCORN_DB__ = db;
 
   const container = document.getElementById('root');
   if (container) {

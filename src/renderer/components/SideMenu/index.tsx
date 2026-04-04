@@ -102,11 +102,14 @@ const SideMenu = React.memo(function SideMenu({
   useEffect(() => {
     const exportHandler = () => setExportVisible(true);
     const importHandler = () => handleFileMenuAction('import-icons');
+    const settingsHandler = () => setPrefixVisible(true);
     window.addEventListener('bobcorn:open-export', exportHandler);
     window.addEventListener('bobcorn:import-icons', importHandler);
+    window.addEventListener('bobcorn:open-settings', settingsHandler);
     return () => {
       window.removeEventListener('bobcorn:open-export', exportHandler);
       window.removeEventListener('bobcorn:import-icons', importHandler);
+      window.removeEventListener('bobcorn:open-settings', settingsHandler);
     };
   }, [handleFileMenuAction]);
 

@@ -616,7 +616,7 @@
 
         <!-- ─── Hero Product Image ─── -->
         <div class="hero-visual reveal">
-            <img src="screenshots/main.png" alt="Bobcorn — browse and manage thousands of SVG icons with groups, search, and detail panel" loading="eager">
+            <img src="screenshots/main.png" data-screenshot="main.png" alt="Bobcorn — browse and manage thousands of SVG icons with groups, search, and detail panel" loading="eager">
         </div>
 
         <div class="divider" style="margin-top: 104px;"></div>
@@ -629,7 +629,7 @@
                 <p data-i18n="story1.desc">Import thousands of SVG icons in one drag. Multi-select for batch operations&nbsp;&mdash; move to groups, copy, favorite, delete, or export as SVG. Search and filter instantly across your entire library. Dark mode included.</p>
             </div>
             <div class="story-visual reveal">
-                <img src="screenshots/select.png" alt="Batch select 13 icons with multi-select mode — move, copy, favorite, delete, and export operations" loading="lazy">
+                <img src="screenshots/select.png" data-screenshot="select.png" alt="Batch select 13 icons with multi-select mode — move, copy, favorite, delete, and export operations" loading="lazy">
             </div>
         </section>
 
@@ -646,7 +646,7 @@
                 </div>
             </div>
             <div class="story-visual reveal">
-                <img src="screenshots/export.png" alt="Export dialog — select groups, choose font formats (SVG, TTF, WOFF, WOFF2, EOT), set output path" loading="lazy">
+                <img src="screenshots/export.png" data-screenshot="export.png" alt="Export dialog — select groups, choose font formats (SVG, TTF, WOFF, WOFF2, EOT), set output path" loading="lazy">
             </div>
         </section>
 
@@ -660,7 +660,7 @@
                 <p data-i18n="story3.desc">Move icons between groups in seconds. Create, reorder, and nest groups to match your project structure. Save everything as a .icp project file and pick up exactly where you left off.</p>
             </div>
             <div class="story-visual reveal">
-                <img src="screenshots/move.png" alt="Move icons to target group — select from accessibility, arrows, automotive, cameraAndPhotos, and more" loading="lazy">
+                <img src="screenshots/move.png" data-screenshot="move.png" alt="Move icons to target group — select from accessibility, arrows, automotive, cameraAndPhotos, and more" loading="lazy">
             </div>
         </section>
 
@@ -685,6 +685,8 @@
     var LANGS = [
         { code: 'en',    label: 'English' },
         { code: 'zh-CN', label: '简体中文' },
+        { code: 'zh-TW', label: '繁體中文（台灣）' },
+        { code: 'zh-HK', label: '繁體中文（香港）' },
         { code: 'ja',    label: '日本語' },
         { code: 'ko',    label: '한국어' },
         { code: 'fr',    label: 'Français' },
@@ -713,7 +715,12 @@
         var saved = localStorage.getItem('site-language');
         if (saved && LANG_CODES.indexOf(saved) !== -1) return saved;
         var nav = (navigator.language || '').toLowerCase();
-        if (nav.startsWith('zh')) return 'zh-CN';
+        if (nav.startsWith('zh')) {
+            if (nav === 'zh-tw' || nav === 'zh-hant-tw') return 'zh-TW';
+            if (nav === 'zh-hk' || nav === 'zh-hant-hk') return 'zh-HK';
+            if (nav === 'zh-hant') return 'zh-TW';
+            return 'zh-CN';
+        }
         if (nav.startsWith('pt') && nav.indexOf('br') !== -1) return 'pt-BR';
         var prefix = nav.split('-')[0];
         for (var i = 0; i < LANG_CODES.length; i++) {
@@ -778,6 +785,13 @@
 
             document.querySelectorAll('.lang-popover a[data-lang]').forEach(function(a) {
                 a.classList.toggle('active', a.getAttribute('data-lang') === lang);
+            });
+
+            // Swap screenshots: Chinese variants use cn/, all others use en/
+            var shotDir = lang.startsWith('zh') ? 'cn' : 'en';
+            document.querySelectorAll('[data-screenshot]').forEach(function(img) {
+                var file = img.getAttribute('data-screenshot');
+                img.setAttribute('src', 'screenshots/' + shotDir + '/' + file);
             });
         }).catch(function() {});
     }
