@@ -948,6 +948,23 @@ class Database {
     return '';
   };
 
+  /** Batch-load SVG content for multiple icons in a single query */
+  getIconContentBatch = (ids: string[]): Map<string, string> => {
+    if (ids.length === 0) return new Map();
+    const placeholders = ids.map(() => '?').join(',');
+    const result = this.db!.exec(
+      `SELECT id, iconContent FROM ${iconData} WHERE id IN (${placeholders})`,
+      ids
+    );
+    const map = new Map<string, string>();
+    if (result.length > 0) {
+      result[0].values.forEach((row: any[]) => {
+        map.set(row[0] as string, row[1] as string);
+      });
+    }
+    return map;
+  };
+
   /** Lazy backfill: if iconContentOriginal is NULL, copy current iconContent into it.
    *  Called before any content mutation to preserve the pre-edit baseline. */
   ensureOriginalContent = (id: string): void => {

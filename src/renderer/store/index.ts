@@ -27,6 +27,8 @@ export interface State {
   iconContentVersion: number;
   // 热更新的图标内容 — IconBlock 优先读这里的内容
   patchedIcons: Record<string, string>;
+  // 批量预取的图标内容 — 虚拟滚动可见区域批量加载
+  prefetchedContent: Record<string, string>;
 
   // File state
   currentFilePath: string | null;
@@ -66,6 +68,7 @@ export interface Actions {
   syncLeft: () => void; // 重：刷新分组列表 + 图标网格（增删/移动图标/增删分组时用）
   syncIconContent: () => void; // 轻：递增版本号，触发 SideEditor 刷新
   patchIconContent: (iconId: string, content: string) => void; // 最轻：热更新单个图标内容
+  prefetchIconContent: (ids: string[]) => void; // 批量预取可见图标的 SVG 内容
   syncAll: () => void;
 
   // File state
@@ -105,6 +108,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
   groupData: [],
   iconContentVersion: 0,
   patchedIcons: {},
+  prefetchedContent: {},
 
   // File state
   currentFilePath: (getOption('currentFilePath') as string | null) ?? null,
@@ -227,6 +231,18 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // 最轻同步：热更新单个图标内容（直接更新 IconBlock，不查 DB 不重载网格）
   patchIconContent: (iconId: string, content: string) => {
     set({ patchedIcons: { ...get().patchedIcons, [iconId]: content } });
+  },
+
+  // 批量预取可见图标的 SVG 内容（虚拟滚动新行可见时，一次 SQL 查询取回所有内容）
+  prefetchIconContent: (ids: string[]) => {
+    const map: Map<string, string> = (db as any).getIconContentBatch(ids);
+    const patch: Record<string, string> = {};
+    map.forEach((content, id) => {
+      patch[id] = content;
+    });
+    if (Object.keys(patch).length > 0) {
+      set({ prefetchedContent: { ...get().prefetchedContent, ...patch } });
+    }
   },
 
   syncAll: () => {

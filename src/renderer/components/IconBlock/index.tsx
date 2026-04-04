@@ -55,6 +55,9 @@ const IconBlock = React.memo(function IconBlock({
   const patchedContent = useAppStore(
     useCallback((state: any) => state.patchedIcons?.[iconId] ?? null, [iconId])
   );
+  const prefetchedContent = useAppStore(
+    useCallback((state: any) => state.prefetchedContent?.[iconId] ?? null, [iconId])
+  );
   const variantCount = useAppStore(
     useCallback(
       (state: any) => (data.variantOf || !iconId ? 0 : (state.variantCounts?.[iconId] ?? 0)),
@@ -63,9 +66,10 @@ const IconBlock = React.memo(function IconBlock({
   );
 
   // Lazy-load SVG content from database when icon is mounted (visible in viewport)
+  // Prefetched content from batch query takes priority over individual lazy-load
   const [lazyContent, setLazyContent] = useState('');
   useEffect(() => {
-    if (!content && iconId && !patchedContent) {
+    if (!content && iconId && !patchedContent && !prefetchedContent) {
       // Defer to next idle frame to avoid blocking scroll
       const handle = requestIdleCallback(() => {
         const loaded = db.getIconContent(iconId);
@@ -73,9 +77,9 @@ const IconBlock = React.memo(function IconBlock({
       });
       return () => cancelIdleCallback(handle);
     }
-  }, [iconId, content, patchedContent]);
+  }, [iconId, content, patchedContent, prefetchedContent]);
 
-  const effectiveContent = patchedContent || content || lazyContent;
+  const effectiveContent = patchedContent || prefetchedContent || content || lazyContent;
   const hasContent = !!effectiveContent;
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 

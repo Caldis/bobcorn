@@ -504,6 +504,27 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const virtualItems = virtualizer.getVirtualItems();
   const totalHeight = virtualizer.getTotalSize();
 
+  // ── Batch prefetch SVG content for visible icons ───────────────────
+  const prefetchIconContent = useAppStore((state: any) => state.prefetchIconContent);
+
+  useEffect(() => {
+    const visibleIds: string[] = [];
+    const store = useAppStore.getState();
+    for (const vItem of virtualItems) {
+      const row = viewModel.rows[vItem.index];
+      if (row?.kind === 'row') {
+        for (const icon of row.icons) {
+          if (!icon.iconContent && !store.prefetchedContent?.[icon.id]) {
+            visibleIds.push(icon.id);
+          }
+        }
+      }
+    }
+    if (visibleIds.length > 0) {
+      prefetchIconContent(visibleIds);
+    }
+  }, [virtualItems, prefetchIconContent, viewModel.rows]);
+
   return (
     <div className="relative w-full h-full flex flex-col" id="iconGridLocalContainer">
       {/* Sticky group header overlay (All view only) */}
