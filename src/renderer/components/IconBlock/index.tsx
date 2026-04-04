@@ -31,6 +31,8 @@ interface IconBlockProps {
   batchSelected?: boolean;
   showCheckbox?: boolean;
   isFavorite?: boolean;
+  /** Column index within the row — used for staggered fade-in delay */
+  staggerIndex?: number;
 }
 
 const IconBlock = React.memo(function IconBlock({
@@ -46,6 +48,7 @@ const IconBlock = React.memo(function IconBlock({
   batchSelected = false,
   showCheckbox = false,
   isFavorite = false,
+  staggerIndex = 0,
 }: IconBlockProps) {
   // Store subscriptions — stable selectors to avoid unnecessary re-renders
   const iconId = data.id;
@@ -73,6 +76,7 @@ const IconBlock = React.memo(function IconBlock({
   }, [iconId, content, patchedContent]);
 
   const effectiveContent = patchedContent || content || lazyContent;
+  const hasContent = !!effectiveContent;
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 
   const handleSelected = useCallback(
@@ -159,13 +163,19 @@ const IconBlock = React.memo(function IconBlock({
         </div>
       )}
 
-      <div className={cn(style.iconContentContainer, 'mx-auto w-[120px]')} style={{ width }}>
+      <div
+        className={cn(style.iconContentContainer, 'mx-auto w-[120px] aspect-square')}
+        style={{ width }}
+      >
         <div
           className={cn(
             style.iconContentWrapper,
             'flex items-center justify-center',
-            '[&>svg]:w-full [&>svg]:h-full'
+            'w-full h-full',
+            '[&>svg]:w-full [&>svg]:h-full',
+            hasContent ? style.iconFadeIn : 'opacity-0'
           )}
+          style={hasContent ? { animationDelay: `${staggerIndex * 30}ms` } : undefined}
           dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
         />
       </div>

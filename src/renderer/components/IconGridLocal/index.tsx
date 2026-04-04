@@ -618,7 +618,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
                 >
-                  {row.icons.map((icon) => (
+                  {row.icons.map((icon, colIdx) => (
                     <IconBlock
                       key={icon.id}
                       data={icon}
@@ -633,6 +633,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                       batchSelected={selectedIcons.has(icon.id)}
                       showCheckbox={showCheckbox}
                       isFavorite={!!icon.isFavorite}
+                      staggerIndex={colIdx}
                     />
                   ))}
                 </div>
