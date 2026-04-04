@@ -7,6 +7,8 @@
 
 import type { WeightLevel, ScaleLevel, VariantMeta } from './variants';
 import { injectWeightFilter, applyScaleTransform, getViewBoxSize } from './variants';
+// @ts-expect-error — imagetracerjs is CJS with no TS types
+import ImageTracer from 'imagetracerjs';
 
 // Canvas size for rasterization (balance between quality and speed)
 const DEFAULT_CANVAS_SIZE = 256;
@@ -57,10 +59,6 @@ export async function rasterizeSvgAsync(
  * Returns a clean SVG with a single <path> element.
  */
 export function vectorizeImageData(imageData: ImageData, viewBoxSize: number = 24): string {
-  // Dynamic import to support lazy loading
-  // @ts-expect-error — imagetracerjs has no TS types
-  const ImageTracer = require('imagetracerjs');
-
   // Configure for clean icon output
   const options = {
     // Tracing options
