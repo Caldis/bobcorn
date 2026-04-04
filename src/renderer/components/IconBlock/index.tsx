@@ -47,25 +47,32 @@ const IconBlock = React.memo(function IconBlock({
   showCheckbox = false,
   isFavorite = false,
 }: IconBlockProps) {
-  // Only 1 store subscription — hot-patch content for color editing
-  const patchedContent = useAppStore((state: any) => state.patchedIcons?.[data.id]);
-
-  // Lazy-load SVG content from database when icon is mounted (visible in viewport)
-  const [lazyContent, setLazyContent] = useState(content || '');
-  useEffect(() => {
-    if (!content && data.id && !patchedContent) {
-      const loaded = db.getIconContent(data.id);
-      if (loaded) setLazyContent(loaded);
-    }
-  }, [data.id, content, patchedContent]);
-
-  const effectiveContent = patchedContent || content || lazyContent;
-
-  // Variant count badge — reads from store cache (single GROUP BY query, not per-icon)
-  const variantCount = useAppStore((state: any) =>
-    data.variantOf || !data.id ? 0 : state.variantCounts?.get(data.id) || 0
+  // Store subscriptions — stable selectors to avoid unnecessary re-renders
+  const iconId = data.id;
+  const patchedContent = useAppStore(
+    useCallback((state: any) => state.patchedIcons?.[iconId] ?? null, [iconId])
+  );
+  const variantCount = useAppStore(
+    useCallback(
+      (state: any) => (data.variantOf || !iconId ? 0 : (state.variantCounts?.[iconId] ?? 0)),
+      [iconId, data.variantOf]
+    )
   );
 
+  // Lazy-load SVG content from database when icon is mounted (visible in viewport)
+  const [lazyContent, setLazyContent] = useState('');
+  useEffect(() => {
+    if (!content && iconId && !patchedContent) {
+      // Defer to next idle frame to avoid blocking scroll
+      const handle = requestIdleCallback(() => {
+        const loaded = db.getIconContent(iconId);
+        if (loaded) setLazyContent(loaded);
+      });
+      return () => cancelIdleCallback(handle);
+    }
+  }, [iconId, content, patchedContent]);
+
+  const effectiveContent = patchedContent || content || lazyContent;
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 
   const handleSelected = useCallback(

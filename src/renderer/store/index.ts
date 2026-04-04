@@ -42,8 +42,8 @@ export interface State {
   // Variant generation progress
   variantProgress: { current: number; total: number; active: boolean } | null;
 
-  // Variant counts cache — Map<parentId, count>, refreshed in batch
-  variantCounts: Map<string, number>;
+  // Variant counts cache — plain object for Zustand equality check
+  variantCounts: Record<string, number>;
 }
 
 export interface Actions {
@@ -121,7 +121,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
   variantProgress: null,
 
   // Variant counts cache
-  variantCounts: new Map<string, number>(),
+  variantCounts: {},
 
   // Actions
   showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
@@ -266,9 +266,15 @@ const useAppStore = create<State & Actions>((set, get) => ({
     try {
       // Single GROUP BY query replaces N per-icon queries
       const db = require('../database').default;
-      set({ variantCounts: db.getAllVariantCounts() });
+      const map: Map<string, number> = db.getAllVariantCounts();
+      // Convert Map to plain object for Zustand shallow equality
+      const obj: Record<string, number> = {};
+      map.forEach((count: number, id: string) => {
+        obj[id] = count;
+      });
+      set({ variantCounts: obj });
     } catch {
-      set({ variantCounts: new Map() });
+      set({ variantCounts: {} });
     }
   },
 }));
