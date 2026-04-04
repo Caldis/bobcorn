@@ -321,20 +321,40 @@ export default function VariantPanel({
             </div>
           )}
 
-          {/* Generated variants list */}
+          {/* Generated variants list with thumbnails */}
           {variants.length > 0 && (
-            <div className="space-y-0.5 max-h-32 overflow-y-auto">
+            <div className="grid grid-cols-4 gap-1.5 max-h-48 overflow-y-auto">
               {variants.map((v: any) => (
                 <div
                   key={v.id}
-                  className="flex items-center justify-between px-2 py-1 rounded text-xs hover:bg-surface-muted group"
+                  className="relative group rounded-md border border-border bg-surface-muted p-1.5 hover:border-accent transition-colors"
                 >
-                  <span className="text-foreground truncate">{v.iconName}</span>
+                  {/* Thumbnail */}
+                  <div
+                    className="aspect-square [&>svg]:w-full [&>svg]:h-full"
+                    dangerouslySetInnerHTML={{ __html: sanitizeSVG(v.iconContent) }}
+                  />
+                  {/* Name */}
+                  <p
+                    className="text-[8px] text-foreground-muted text-center truncate mt-0.5"
+                    title={v.iconName}
+                  >
+                    {(() => {
+                      const meta = v.variantMeta ? JSON.parse(v.variantMeta) : {};
+                      const parts: string[] = [];
+                      if (meta.weight && meta.weight !== 'regular')
+                        parts.push(t(`variant.weight.${meta.weight}`));
+                      if (meta.scale && meta.scale !== 'medium')
+                        parts.push(t(`variant.scale.${meta.scale}`));
+                      return parts.join(' · ') || v.iconName;
+                    })()}
+                  </p>
+                  {/* Delete button */}
                   <button
                     onClick={() => handleDeleteVariant(v.id)}
-                    className="opacity-0 group-hover:opacity-100 text-foreground-muted hover:text-danger transition-opacity"
+                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-danger text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    <X size={12} />
+                    <X size={8} />
                   </button>
                 </div>
               ))}
