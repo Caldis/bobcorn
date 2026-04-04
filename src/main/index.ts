@@ -264,8 +264,8 @@ if (!gotLock) {
       autoUpdater.forceDevUpdateConfig = true;
     }
 
-    // Track whether the current check was user-initiated
-    let userInitiatedCheck = false;
+    // Track whether the current action (check/download) was user-initiated
+    let userInitiatedAction = false;
 
     // Debug helper — send logs to renderer devtools (no console.log to avoid EPIPE in dev)
     const updaterLog = (...args: any[]) => {
@@ -309,13 +309,13 @@ if (!gotLock) {
     });
     autoUpdater.on('error', (err) => {
       updaterLog('[updater] error:', err?.message);
-      if (userInitiatedCheck) {
+      if (userInitiatedAction) {
         mainWindow?.webContents.send('update-error', { message: err?.message || 'Unknown error' });
       } else {
         // Auto-check errors are silent — just reset to idle
         mainWindow?.webContents.send('update-not-available');
       }
-      userInitiatedCheck = false;
+      userInitiatedAction = false;
     });
 
     // IPC handlers from renderer
@@ -324,7 +324,7 @@ if (!gotLock) {
       updaterLog('[updater] app.isPackaged:', app.isPackaged);
       updaterLog('[updater] app.getAppPath():', app.getAppPath());
       updaterLog('[updater] autoUpdater.currentVersion:', autoUpdater.currentVersion?.version);
-      userInitiatedCheck = true;
+      userInitiatedAction = true;
       autoUpdater
         .checkForUpdates()
         .then((result) => {
@@ -338,6 +338,7 @@ if (!gotLock) {
         });
     });
     ipcMain.on('download-update', () => {
+      userInitiatedAction = true;
       autoUpdater.downloadUpdate().catch(() => {});
     });
     ipcMain.on('install-update', () => {

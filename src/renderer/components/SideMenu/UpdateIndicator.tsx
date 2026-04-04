@@ -13,6 +13,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
   const version = useAppStore((s) => s.updateVersion);
   const releaseNotes = useAppStore((s) => s.updateReleaseNotes);
   const progress = useAppStore((s) => s.updateProgress);
+  const error = useAppStore((s) => s.updateError);
   const pulseRef = useRef<HTMLSpanElement>(null);
   const [hoverCard, setHoverCard] = useState(false);
   const hoverTimeout = useRef<ReturnType<typeof setTimeout>>();
@@ -100,6 +101,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
     >
       <button
         onClick={isClickable ? handleClick : undefined}
+        title={status === 'error' && error ? error : undefined}
         className={cn(
           'inline-flex items-center gap-1.5 px-2 py-1 rounded-md',
           'text-[11px] text-foreground-muted',

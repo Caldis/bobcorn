@@ -46,14 +46,18 @@
       "node_modules/electron-pixel-picker/**"
     ],
     "dmg": {
+      "window": {
+        "width": 540,
+        "height": 380
+      },
       "contents": [
         {
-          "x": 130,
-          "y": 220
+          "x": 135,
+          "y": 175
         },
         {
-          "x": 410,
-          "y": 220,
+          "x": 405,
+          "y": 175,
           "type": "link",
           "path": "/Applications"
         }
@@ -94,6 +98,13 @@
       "target": [
         {
           "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
           "arch": [
             "x64",
             "arm64"
