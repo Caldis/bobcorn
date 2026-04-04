@@ -1052,6 +1052,24 @@ class Database {
     ]);
     callback && callback();
   };
+
+  /** Batch move icons AND their variants to a new group */
+  moveIconsWithVariants = (ids: string[], targetGroup: string, callback?: () => void): void => {
+    dev && console.log('moveIconsWithVariants');
+    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
+    const placeholders = ids.map(() => '?').join(',');
+    // Move the icons themselves
+    this.runMutation(`UPDATE ${iconData} SET iconGroup = ? WHERE id IN (${placeholders})`, [
+      group,
+      ...ids,
+    ]);
+    // Move their variants
+    this.runMutation(`UPDATE ${iconData} SET iconGroup = ? WHERE variantOf IN (${placeholders})`, [
+      group,
+      ...ids,
+    ]);
+    callback && callback();
+  };
   delIcons = (ids: string[], callback?: () => void): void => {
     dev && console.log('delIcons');
     const placeholders = ids.map(() => '?').join(',');

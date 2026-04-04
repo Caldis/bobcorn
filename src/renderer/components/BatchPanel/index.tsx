@@ -51,7 +51,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
   // --- Operations ---
   const handleMove = useCallback(
     (targetGroup: string) => {
-      db.moveIcons(selectedIds, targetGroup);
+      db.moveIconsWithVariants(selectedIds, targetGroup);
       syncLeft();
       clearBatchSelection();
       message.success(t('batch.moved', { count: selectedIds.length }));
@@ -75,7 +75,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
       content: t('batch.deleteConfirm', { count: selectedIds.length }),
       okText: t('batch.deleteOk'),
       onOk() {
-        db.moveIcons(selectedIds, 'resource-recycleBin');
+        db.moveIconsWithVariants(selectedIds, 'resource-recycleBin');
         syncLeft();
         clearBatchSelection();
         message.success(t('batch.deleted', { count: selectedIds.length }));
