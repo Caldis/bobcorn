@@ -147,7 +147,7 @@ const IconBlock = React.memo(function IconBlock({
             'flex items-center justify-center',
             'rounded-full',
             'bg-foreground/20 text-foreground/70',
-            'text-[8px] font-medium leading-none',
+            'text-[7px] font-medium leading-[14px]',
             'pointer-events-none'
           )}
         >

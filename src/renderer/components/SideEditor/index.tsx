@@ -16,6 +16,7 @@ import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
 import { extractSvgColors, replaceSvgColor, parseCssColor } from '../../utils/svg/colors';
 import { platform } from '../../utils/tools';
+import { checkVariants, buildVariantWarning } from '../../utils/variantGuard';
 // Database
 import db from '../../database';
 // Images
@@ -171,17 +172,40 @@ const SideEditor = React.memo(function SideEditor({
 
   // 替换图标相关
   const handleIconContentUpdate = async () => {
-    const result = await electronAPI.showOpenDialog({
-      title: t('editor.selectSvgFile'),
-      filters: [{ name: t('editor.svgFileFilter'), extensions: ['svg'] }],
-      properties: ['openFile'],
-    });
-    if (!result.canceled && result.filePaths.length > 0) {
-      const newIconFileData = Object.assign({}, iconData, { path: result.filePaths[0] });
-      db.renewIconData(selectedIcon, newIconFileData, () => {
-        message.success(t('editor.dataUpdated'));
-        syncIconContent();
+    const guard = checkVariants(selectedIcon);
+    const doReplace = async () => {
+      const result = await electronAPI.showOpenDialog({
+        title: t('editor.selectSvgFile'),
+        filters: [{ name: t('editor.svgFileFilter'), extensions: ['svg'] }],
+        properties: ['openFile'],
       });
+      if (!result.canceled && result.filePaths.length > 0) {
+        const newIconFileData = Object.assign({}, iconData, { path: result.filePaths[0] });
+        if (guard.hasVariants) {
+          db.deleteVariants(selectedIcon);
+        }
+        db.renewIconData(selectedIcon, newIconFileData, () => {
+          message.success(t('editor.dataUpdated'));
+          syncIconContent();
+          syncLeft();
+        });
+      }
+    };
+
+    if (guard.hasVariants) {
+      confirm({
+        title: t('editor.replaceTitle'),
+        content: buildVariantWarning(
+          t('editor.replaceContent'),
+          guard.count,
+          t,
+          'variant.replaceWarn'
+        ),
+        okType: 'danger',
+        onOk: doReplace,
+      });
+    } else {
+      doReplace();
     }
   };
 
@@ -223,16 +247,17 @@ const SideEditor = React.memo(function SideEditor({
     }
   };
 
-  // 删除图标相关
+  // 删除图标相关（通过 variantGuard 统一处理）
   const handleIconRecycle = () => {
-    const variantCount = db.getVariantCount(selectedIcon);
-    const content =
-      variantCount > 0
-        ? `${t('editor.recycleContent')}\n\n${t('variant.deleteConfirm', { count: variantCount })}`
-        : t('editor.recycleContent');
+    const guard = checkVariants(selectedIcon);
     confirm({
       title: t('editor.recycleTitle'),
-      content,
+      content: buildVariantWarning(
+        t('editor.recycleContent'),
+        guard.count,
+        t,
+        'variant.recycleNote'
+      ),
       onOk() {
         db.moveIconWithVariants(selectedIcon, 'resource-recycleBin', () => {
           message.success(t('editor.recycled'));
@@ -243,31 +268,23 @@ const SideEditor = React.memo(function SideEditor({
     });
   };
   const handleIconDelete = () => {
-    const variantCount = db.getVariantCount(selectedIcon);
-    const confirmContent =
-      variantCount > 0
-        ? t('variant.deleteConfirm', { count: variantCount })
-        : t('editor.deleteContent');
-
+    const guard = checkVariants(selectedIcon);
     confirm({
       title: t('editor.deleteTitle'),
-      content: confirmContent,
+      content: buildVariantWarning(
+        t('editor.deleteContent'),
+        guard.count,
+        t,
+        'variant.deleteConfirm'
+      ),
       okType: 'danger',
       okText: t('common.delete'),
       onOk() {
-        if (variantCount > 0) {
-          db.deleteIconWithVariants(selectedIcon, () => {
-            message.success(t('editor.deleted'));
-            syncLeft();
-            selectIcon(null);
-          });
-        } else {
-          db.delIcon(selectedIcon, () => {
-            message.success(t('editor.deleted'));
-            syncLeft();
-            selectIcon(null);
-          });
-        }
+        db.deleteIconWithVariants(selectedIcon, () => {
+          message.success(t('editor.deleted'));
+          syncLeft();
+          selectIcon(null);
+        });
       },
     });
   };
@@ -292,7 +309,13 @@ const SideEditor = React.memo(function SideEditor({
     }
   };
   const handleEnsureIconGroupEdit = () => {
+    const guard = checkVariants(selectedIcon);
+
     if (iconGroupEditModelType === 'duplicate') {
+      // Copy does NOT include variants — just inform
+      if (guard.hasVariants) {
+        message.info(t('variant.copyNote', { count: guard.count }));
+      }
       db.duplicateIconGroup(selectedIcon, iconGroupEditModelTarget, () => {
         message.success(t('editor.copiedToGroup'));
         syncLeft();
@@ -300,6 +323,10 @@ const SideEditor = React.memo(function SideEditor({
       });
     }
     if (iconGroupEditModelType === 'move') {
+      // Move includes variants
+      if (guard.hasVariants) {
+        message.info(t('variant.moveNote', { count: guard.count }));
+      }
       db.moveIconWithVariants(selectedIcon, iconGroupEditModelTarget, () => {
         message.success(t('editor.movedToGroup'));
         syncLeft();
