@@ -61,6 +61,13 @@ const IconBlock = React.memo(function IconBlock({
 
   const effectiveContent = patchedContent || content || lazyContent;
 
+  // Variant count badge for parent icons (non-variant icons that have variants)
+  const variantCount = useMemo(() => {
+    if (data.variantOf) return 0; // variant icons never show a badge
+    if (!data.id) return 0;
+    return db.getVariantCount(data.id);
+  }, [data.id, data.variantOf]);
+
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 
   const handleSelected = useCallback(
@@ -127,6 +134,23 @@ const IconBlock = React.memo(function IconBlock({
               isFavorite ? 'fill-amber-400 stroke-amber-400' : 'fill-none stroke-foreground-muted'
             )}
           />
+        </div>
+      )}
+
+      {/* Variant count badge — bottom-right corner for parent icons with variants */}
+      {variantCount > 0 && (
+        <div
+          className={cn(
+            'absolute bottom-1 right-1 z-10',
+            'min-w-[16px] h-4 px-1',
+            'flex items-center justify-center',
+            'rounded-full',
+            'bg-accent text-accent-foreground',
+            'text-[9px] font-semibold leading-none',
+            'pointer-events-none'
+          )}
+        >
+          {variantCount}
         </div>
       )}
 
