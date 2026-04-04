@@ -20,6 +20,8 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
   const syncLeft = useAppStore((state: any) => state.syncLeft);
   const syncIconContent = useAppStore((state: any) => state.syncIconContent);
 
+  const variantProgress = useAppStore((s: any) => s.variantProgress);
+
   const selectedIds = useMemo(() => Array.from(selectedIcons) as string[], [selectedIcons]);
 
   const iconPreviews = useMemo(() => {
@@ -368,6 +370,26 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               >
                 {t('common.cancel')}
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Variant generation progress bar */}
+        {variantProgress && (
+          <div className="w-full px-4 py-2">
+            <div className="flex justify-between text-[10px] text-foreground-muted mb-1">
+              <span>
+                {t('variant.progress', {
+                  current: variantProgress.current,
+                  total: variantProgress.total,
+                })}
+              </span>
+            </div>
+            <div className="w-full bg-surface-muted rounded-full h-1.5">
+              <div
+                className="bg-accent h-1.5 rounded-full transition-all duration-200"
+                style={{ width: `${(variantProgress.current / variantProgress.total) * 100}%` }}
+              />
             </div>
           </div>
         )}

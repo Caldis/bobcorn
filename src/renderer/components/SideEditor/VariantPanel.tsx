@@ -321,45 +321,61 @@ export default function VariantPanel({
             </div>
           )}
 
-          {/* Generated variants list with thumbnails */}
-          {variants.length > 0 && (
-            <div className="grid grid-cols-4 gap-1.5 max-h-48 overflow-y-auto">
-              {variants.map((v: any) => (
-                <div
-                  key={v.id}
-                  className="relative group rounded-md border border-border bg-surface-muted p-1.5 hover:border-accent transition-colors"
-                >
-                  {/* Thumbnail */}
-                  <div
-                    className="aspect-square [&>svg]:w-full [&>svg]:h-full"
-                    dangerouslySetInnerHTML={{ __html: sanitizeSVG(v.iconContent) }}
-                  />
-                  {/* Name */}
-                  <p
-                    className="text-[8px] text-foreground-muted text-center truncate mt-0.5"
-                    title={v.iconName}
-                  >
-                    {(() => {
-                      const meta = v.variantMeta ? JSON.parse(v.variantMeta) : {};
-                      const parts: string[] = [];
-                      if (meta.weight && meta.weight !== 'regular')
-                        parts.push(t(`variant.weight.${meta.weight}`));
-                      if (meta.scale && meta.scale !== 'medium')
-                        parts.push(t(`variant.scale.${meta.scale}`));
-                      return parts.join(' · ') || v.iconName;
-                    })()}
-                  </p>
-                  {/* Delete button */}
-                  <button
-                    onClick={() => handleDeleteVariant(v.id)}
-                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-danger text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X size={8} />
-                  </button>
+          {/* Generated variants list with thumbnails — grouped by weight */}
+          {variants.length > 0 &&
+            (() => {
+              // Group variants by weight
+              const grouped: Record<string, any[]> = {};
+              variants.forEach((v: any) => {
+                const meta = v.variantMeta ? JSON.parse(v.variantMeta) : {};
+                const weightKey = meta.weight || 'unknown';
+                if (!grouped[weightKey]) grouped[weightKey] = [];
+                grouped[weightKey].push(v);
+              });
+
+              return (
+                <div className="space-y-2">
+                  {Object.entries(grouped).map(([weightKey, items]) => (
+                    <div key={weightKey}>
+                      <p className="text-[9px] text-foreground-muted font-medium uppercase tracking-wider mb-1">
+                        {t(`variant.weight.${weightKey}`)}
+                      </p>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {items.map((v: any) => {
+                          const meta = v.variantMeta ? JSON.parse(v.variantMeta) : {};
+                          return (
+                            <div
+                              key={v.id}
+                              className="relative group rounded-md border border-border bg-surface-muted p-1.5 hover:border-accent transition-colors cursor-pointer"
+                              title={v.iconName}
+                            >
+                              <div
+                                className="aspect-square [&>svg]:w-full [&>svg]:h-full"
+                                dangerouslySetInnerHTML={{ __html: sanitizeSVG(v.iconContent) }}
+                              />
+                              <p className="text-[8px] text-foreground-muted text-center truncate mt-0.5">
+                                {meta.scale && meta.scale !== 'medium'
+                                  ? t(`variant.scale.${meta.scale}`)
+                                  : t(`variant.weight.${meta.weight}`)}
+                              </p>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteVariant(v.id);
+                                }}
+                                className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-danger text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X size={8} />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              );
+            })()}
         </div>
       )}
     </div>

@@ -225,11 +225,16 @@ const SideEditor = React.memo(function SideEditor({
 
   // 删除图标相关
   const handleIconRecycle = () => {
+    const variantCount = db.getVariantCount(selectedIcon);
+    const content =
+      variantCount > 0
+        ? `${t('editor.recycleContent')}\n\n${t('variant.deleteConfirm', { count: variantCount })}`
+        : t('editor.recycleContent');
     confirm({
       title: t('editor.recycleTitle'),
-      content: t('editor.recycleContent'),
+      content,
       onOk() {
-        db.moveIconGroup(selectedIcon, 'resource-recycleBin', () => {
+        db.moveIconWithVariants(selectedIcon, 'resource-recycleBin', () => {
           message.success(t('editor.recycled'));
           syncLeft();
           selectIcon(null);

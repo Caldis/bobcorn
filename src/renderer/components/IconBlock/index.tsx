@@ -62,11 +62,12 @@ const IconBlock = React.memo(function IconBlock({
   const effectiveContent = patchedContent || content || lazyContent;
 
   // Variant count badge for parent icons (non-variant icons that have variants)
+  const groupData = useAppStore((state: any) => state.groupData);
   const variantCount = useMemo(() => {
     if (data.variantOf) return 0; // variant icons never show a badge
     if (!data.id) return 0;
     return db.getVariantCount(data.id);
-  }, [data.id, data.variantOf]);
+  }, [data.id, data.variantOf, groupData]);
 
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 
@@ -137,16 +138,16 @@ const IconBlock = React.memo(function IconBlock({
         </div>
       )}
 
-      {/* Variant count badge — bottom-right corner for parent icons with variants */}
-      {variantCount > 0 && (
+      {/* Variant count badge — top-right corner for parent icons with variants (hidden in batch mode) */}
+      {variantCount > 0 && !showCheckbox && (
         <div
           className={cn(
-            'absolute bottom-1 right-1 z-10',
-            'min-w-[16px] h-4 px-1',
+            'absolute top-1 right-1 z-10',
+            'min-w-[14px] h-[14px] px-0.5',
             'flex items-center justify-center',
             'rounded-full',
-            'bg-accent text-accent-foreground',
-            'text-[9px] font-semibold leading-none',
+            'bg-foreground/20 text-foreground/70',
+            'text-[8px] font-medium leading-none',
             'pointer-events-none'
           )}
         >
