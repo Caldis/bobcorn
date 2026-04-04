@@ -334,6 +334,7 @@
   "variant.generateAll": "Generate All {{count}}",
   "variant.generateCurrent": "Generate Current",
   "variant.generated": "Generated {{count}} variants",
+  "variant.preview.original": "Original",
   "variant.progress": "Generating variants ({{current}}/{{total}})",
   "variant.scale": "Scale",
   "variant.scale.large": "Large",

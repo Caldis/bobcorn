@@ -334,6 +334,7 @@
   "variant.generateAll": "生成全部 {{count}} 个",
   "variant.generateCurrent": "生成当前变体",
   "variant.generated": "已生成 {{count}} 个变体",
+  "variant.preview.original": "原始",
   "variant.progress": "正在生成变体 ({{current}}/{{total}})",
   "variant.scale": "尺寸",
   "variant.scale.large": "大",

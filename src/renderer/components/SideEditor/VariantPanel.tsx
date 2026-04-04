@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronRight, X, Layers } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -35,8 +35,6 @@ export default function VariantPanel({
 }: VariantPanelProps) {
   const { t } = useTranslation();
   const syncLeft = useAppStore((s: any) => s.syncLeft);
-  const syncIconContent = useAppStore((s: any) => s.syncIconContent);
-  const patchIconContent = useAppStore((s: any) => s.patchIconContent);
   const variantProgress = useAppStore((s: any) => s.variantProgress);
   const setVariantProgress = useAppStore((s: any) => s.setVariantProgress);
 
@@ -44,7 +42,6 @@ export default function VariantPanel({
   const [weightIndex, setWeightIndex] = useState(REGULAR_INDEX);
   const [scaleIndex, setScaleIndex] = useState(MEDIUM_SCALE_INDEX);
   const [generating, setGenerating] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Existing variants for this icon
   const [variants, setVariants] = useState<any[]>([]);
@@ -64,30 +61,13 @@ export default function VariantPanel({
     [iconId, currentWeight.key, currentScale.key, variants]
   );
 
-  // Real-time preview via feMorphology injection (debounced)
-  useEffect(() => {
-    if (!expanded || isVariant) return;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      if (isOriginal) {
-        patchIconContent(iconId, null); // restore original
-        return;
-      }
-      let preview = injectWeightFilter(iconContent, currentWeight);
-      preview = applyScaleTransform(preview, currentScale);
-      patchIconContent(iconId, preview);
-    }, 50);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [weightIndex, scaleIndex, expanded, iconContent, iconId, isVariant, isOriginal]);
-
-  // Restore original when panel collapses or icon changes
-  useEffect(() => {
-    return () => {
-      patchIconContent(iconId, null);
-    };
-  }, [iconId]);
+  // Preview SVG for the variant panel (local state only — does NOT patch central canvas)
+  const previewSvg = useMemo(() => {
+    if (isOriginal) return iconContent;
+    let preview = injectWeightFilter(iconContent, currentWeight);
+    preview = applyScaleTransform(preview, currentScale);
+    return preview;
+  }, [iconContent, currentWeight, currentScale, isOriginal]);
 
   // Generate single variant
   const handleGenerateCurrent = useCallback(async () => {
@@ -271,34 +251,30 @@ export default function VariantPanel({
 
           {/* Preview comparison */}
           <div className="flex gap-2">
-            <div className="flex-1 aspect-square rounded-lg bg-surface-muted border border-border flex items-center justify-center p-2">
-              <div
-                className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
-                dangerouslySetInnerHTML={{ __html: sanitizeSVG(iconContent) }}
-              />
+            <div className="flex-1">
+              <div className="aspect-square rounded-lg bg-surface-muted border border-border flex items-center justify-center p-2">
+                <div
+                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
+                  dangerouslySetInnerHTML={{ __html: sanitizeSVG(iconContent) }}
+                />
+              </div>
+              <p className="text-[9px] text-foreground-muted text-center mt-1">
+                {t('variant.preview.original')}
+              </p>
             </div>
-            <div className="flex-1 aspect-square rounded-lg bg-surface-muted border border-border flex items-center justify-center p-2">
-              <div
-                className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeSVG(
-                    isOriginal
-                      ? iconContent
-                      : applyScaleTransform(
-                          injectWeightFilter(iconContent, currentWeight),
-                          currentScale
-                        )
-                  ),
-                }}
-              />
+            <div className="flex-1">
+              <div className="aspect-square rounded-lg bg-surface-muted border border-border flex items-center justify-center p-2">
+                <div
+                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
+                  dangerouslySetInnerHTML={{ __html: sanitizeSVG(previewSvg) }}
+                />
+              </div>
+              <p className="text-[9px] text-foreground-muted text-center mt-1">
+                {isOriginal
+                  ? t('variant.preview.original')
+                  : `${t(`variant.weight.${currentWeight.key}`)}${currentScale.key !== 'medium' ? ` · ${t(`variant.scale.${currentScale.key}`)}` : ''}`}
+              </p>
             </div>
-          </div>
-          <div className="flex justify-between text-[9px] text-foreground-muted">
-            <span>{t('variant.weight.regular')}</span>
-            <span>
-              {isOriginal ? t('variant.weight.regular') : t(`variant.weight.${currentWeight.key}`)}
-              {currentScale.key !== 'medium' ? ` · ${t(`variant.scale.${currentScale.key}`)}` : ''}
-            </span>
           </div>
 
           {/* Generate buttons */}
