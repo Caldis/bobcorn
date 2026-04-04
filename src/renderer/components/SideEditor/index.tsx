@@ -8,7 +8,16 @@ import { Dialog, Button, message, confirm } from '../ui';
 import { Radio, RadioGroup } from '../ui/radio';
 // Color picker
 import { HexColorPicker } from 'react-colorful';
-import { RefreshCw, Download, Trash2, Copy, ArrowRightLeft } from 'lucide-react';
+import {
+  RefreshCw,
+  Download,
+  Trash2,
+  Copy,
+  ArrowRightLeft,
+  Info,
+  Palette,
+  Wrench,
+} from 'lucide-react';
 // Components
 import EnhanceInput from '../enhance/input';
 // Utils
@@ -504,12 +513,14 @@ const SideEditor = React.memo(function SideEditor({
           <div className="mb-4">
             <h4
               className={cn(
+                'flex items-center gap-1.5',
                 'text-xs font-semibold uppercase tracking-wider',
                 'text-foreground-muted',
                 'mb-2 pb-1.5',
                 'border-b border-border'
               )}
             >
+              <Info size={12} />
               {t('editor.basicInfo')}
             </h4>
             <div className="space-y-1">
@@ -538,12 +549,14 @@ const SideEditor = React.memo(function SideEditor({
             <div className="mb-4" ref={colorSectionRef}>
               <h4
                 className={cn(
+                  'flex items-center gap-1.5',
                   'text-xs font-semibold uppercase tracking-wider',
                   'text-foreground-muted',
                   'mb-2 pb-1.5',
                   'border-b border-border'
                 )}
               >
+                <Palette size={12} />
                 {t('editor.color')}
               </h4>
               <div className="flex flex-wrap gap-1.5 mb-2">
@@ -667,22 +680,21 @@ const SideEditor = React.memo(function SideEditor({
             />
           )}
 
-          {/* Section: 高级操作 */}
-          <div className="mb-2">
+          {/* Section: 操作 */}
+          <div className="mb-4">
             <h4
               className={cn(
+                'flex items-center gap-1.5',
                 'text-xs font-semibold uppercase tracking-wider',
                 'text-foreground-muted',
                 'mb-2 pb-1.5',
                 'border-b border-border'
               )}
             >
-              {t('editor.advancedOps')}
+              <Wrench size={12} />
+              {t('editor.operations')}
             </h4>
-            <Button className="!w-full" icon={<Download size={14} />} onClick={handleIconExport}>
-              {t('editor.export')}
-            </Button>
-            <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+            <div className="grid grid-cols-2 gap-1.5">
               <Button
                 className="!w-full"
                 icon={<RefreshCw size={14} />}
@@ -699,8 +711,6 @@ const SideEditor = React.memo(function SideEditor({
               >
                 {selectedGroup === 'resource-recycleBin' ? t('editor.delete') : t('editor.recycle')}
               </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-1.5 mt-1.5">
               <Button
                 disabled={groupNum === 0}
                 className="!w-full"
@@ -718,6 +728,25 @@ const SideEditor = React.memo(function SideEditor({
                 {t('editor.move')}
               </Button>
             </div>
+          </div>
+
+          {/* Section: 导出 */}
+          <div className="mb-2">
+            <h4
+              className={cn(
+                'flex items-center gap-1.5',
+                'text-xs font-semibold uppercase tracking-wider',
+                'text-foreground-muted',
+                'mb-2 pb-1.5',
+                'border-b border-border'
+              )}
+            >
+              <Download size={12} />
+              {t('editor.export')}
+            </h4>
+            <Button className="!w-full" icon={<Download size={14} />} onClick={handleIconExport}>
+              {t('editor.exportSvg')}
+            </Button>
           </div>
         </div>
       ) : (

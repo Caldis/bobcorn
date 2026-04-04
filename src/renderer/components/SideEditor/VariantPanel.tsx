@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronRight, X, Layers, Download } from 'lucide-react';
+import { X, Layers, Download } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { message } from '../ui';
@@ -38,7 +38,6 @@ export default function VariantPanel({
   const variantProgress = useAppStore((s: any) => s.variantProgress);
   const setVariantProgress = useAppStore((s: any) => s.setVariantProgress);
 
-  const [expanded, setExpanded] = useState(false);
   const [weightIndex, setWeightIndex] = useState(REGULAR_INDEX);
   const [scaleIndex, setScaleIndex] = useState(MEDIUM_SCALE_INDEX);
   const [generating, setGenerating] = useState(false);
@@ -50,8 +49,8 @@ export default function VariantPanel({
   }, [iconId]);
 
   useEffect(() => {
-    if (expanded) refreshVariants();
-  }, [expanded, iconId, refreshVariants]);
+    refreshVariants();
+  }, [iconId, refreshVariants]);
 
   const currentWeight = WEIGHT_LEVELS[weightIndex];
   const currentScale = SCALE_LEVELS[scaleIndex];
@@ -199,216 +198,203 @@ export default function VariantPanel({
 
   return (
     <div className="mb-4">
-      {/* Header — collapsible */}
-      <button
-        onClick={() => setExpanded(!expanded)}
+      {/* Header */}
+      <h4
         className={cn(
-          'w-full flex items-center justify-between',
+          'flex items-center justify-between',
           'text-xs font-semibold uppercase tracking-wider',
-          'text-foreground-muted mb-2 pb-1.5 border-b border-border',
-          'hover:text-foreground transition-colors cursor-pointer'
+          'text-foreground-muted',
+          'mb-2 pb-1.5',
+          'border-b border-border'
         )}
       >
-        <span>
-          {expanded ? (
-            <ChevronDown size={12} className="inline mr-1" />
-          ) : (
-            <ChevronRight size={12} className="inline mr-1" />
-          )}
+        <span className="flex items-center gap-1.5">
+          <Layers size={12} />
           {t('variant.title')}
         </span>
         <span className="text-[10px] font-normal">
           {variants.length}/{TOTAL_VARIANTS}
         </span>
-      </button>
+      </h4>
 
-      {expanded && (
-        <div className="space-y-3">
-          {/* Weight slider */}
-          <div>
-            <label className="text-xs text-foreground-muted mb-1 block">
-              {t('variant.weight')}
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={WEIGHT_LEVELS.length - 1}
-              value={weightIndex}
-              onChange={(e) => setWeightIndex(Number(e.target.value))}
-              className="w-full accent-accent"
-            />
-            <div className="flex justify-between text-[9px] text-foreground-muted mt-0.5">
-              {WEIGHT_LEVELS.map((w, i) => (
-                <span key={w.key} className={cn(i === weightIndex && 'text-accent font-bold')}>
-                  {t(`variant.weight.${w.key}`).slice(0, 2)}
-                </span>
-              ))}
-            </div>
+      <div className="space-y-3">
+        {/* Weight slider */}
+        <div>
+          <label className="text-xs text-foreground-muted mb-1 block">{t('variant.weight')}</label>
+          <input
+            type="range"
+            min={0}
+            max={WEIGHT_LEVELS.length - 1}
+            value={weightIndex}
+            onChange={(e) => setWeightIndex(Number(e.target.value))}
+            className="w-full accent-accent"
+          />
+          <div className="flex justify-between text-[9px] text-foreground-muted mt-0.5">
+            {WEIGHT_LEVELS.map((w, i) => (
+              <span key={w.key} className={cn(i === weightIndex && 'text-accent font-bold')}>
+                {t(`variant.weight.${w.key}`).slice(0, 2)}
+              </span>
+            ))}
           </div>
-
-          {/* Scale toggle */}
-          <div>
-            <label className="text-xs text-foreground-muted mb-1 block">{t('variant.scale')}</label>
-            <div className="flex gap-1">
-              {SCALE_LEVELS.map((s, i) => (
-                <button
-                  key={s.key}
-                  onClick={() => setScaleIndex(i)}
-                  className={cn(
-                    'flex-1 py-1 text-xs rounded-md border transition-colors',
-                    i === scaleIndex
-                      ? 'bg-accent text-accent-foreground border-accent'
-                      : 'bg-surface text-foreground border-border hover:border-accent'
-                  )}
-                >
-                  {t(`variant.scale.${s.key}`)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Preview comparison */}
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <div className="aspect-square rounded-lg bg-surface-muted border border-border flex items-center justify-center p-2">
-                <div
-                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
-                  dangerouslySetInnerHTML={{ __html: sanitizeSVG(iconContent) }}
-                />
-              </div>
-              <p className="text-[9px] text-foreground-muted text-center mt-1">
-                {t('variant.preview.original')}
-              </p>
-            </div>
-            <div className="flex-1">
-              <div className="aspect-square rounded-lg bg-surface-muted border border-border flex items-center justify-center p-2">
-                <div
-                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
-                  dangerouslySetInnerHTML={{ __html: sanitizeSVG(previewSvg) }}
-                />
-              </div>
-              <p className="text-[9px] text-foreground-muted text-center mt-1">
-                {isOriginal
-                  ? t('variant.preview.original')
-                  : `${t(`variant.weight.${currentWeight.key}`)}${currentScale.key !== 'medium' ? ` · ${t(`variant.scale.${currentScale.key}`)}` : ''}`}
-              </p>
-            </div>
-          </div>
-
-          {/* Generate buttons */}
-          <div className="flex gap-2">
-            <Button
-              size="small"
-              type={isOriginal || alreadyExists ? 'default' : 'primary'}
-              disabled={isOriginal || alreadyExists || generating}
-              onClick={handleGenerateCurrent}
-              className="flex-1"
-            >
-              {alreadyExists ? t('variant.alreadyGenerated') : t('variant.generateCurrent')}
-            </Button>
-            <Button
-              size="small"
-              disabled={generating}
-              onClick={handleGenerateAll}
-              className="flex-1"
-            >
-              {t('variant.generateAll', { count: TOTAL_VARIANTS - variants.length })}
-            </Button>
-          </div>
-
-          {/* Progress bar */}
-          {variantProgress && (
-            <div>
-              <div className="flex justify-between text-[10px] text-foreground-muted mb-1">
-                <span>
-                  {t('variant.progress', {
-                    current: variantProgress.current,
-                    total: variantProgress.total,
-                  })}
-                </span>
-                <button onClick={handleCancel} className="text-danger hover:underline">
-                  {t('common.cancel')}
-                </button>
-              </div>
-              <div className="w-full bg-surface-muted rounded-full h-1.5">
-                <div
-                  className="bg-accent h-1.5 rounded-full transition-all duration-200"
-                  style={{ width: `${(variantProgress.current / variantProgress.total) * 100}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Generated variants list with thumbnails — grouped by weight */}
-          {variants.length > 0 &&
-            (() => {
-              // Group variants by weight
-              const grouped: Record<string, any[]> = {};
-              variants.forEach((v: any) => {
-                const meta = v.variantMeta ? JSON.parse(v.variantMeta) : {};
-                const weightKey = meta.weight || 'unknown';
-                if (!grouped[weightKey]) grouped[weightKey] = [];
-                grouped[weightKey].push(v);
-              });
-
-              return (
-                <div className="space-y-2">
-                  {Object.entries(grouped).map(([weightKey, items]) => (
-                    <div key={weightKey}>
-                      <p className="text-[9px] text-foreground-muted font-medium uppercase tracking-wider mb-1">
-                        {t(`variant.weight.${weightKey}`)}
-                      </p>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {items.map((v: any) => {
-                          const meta = v.variantMeta ? JSON.parse(v.variantMeta) : {};
-                          return (
-                            <div
-                              key={v.id}
-                              className="relative group rounded-md border border-border bg-surface-muted p-1.5 hover:border-accent transition-colors cursor-pointer"
-                              title={v.iconName}
-                            >
-                              <div
-                                className="aspect-square [&>svg]:w-full [&>svg]:h-full"
-                                dangerouslySetInnerHTML={{ __html: sanitizeSVG(v.iconContent) }}
-                              />
-                              <p className="text-[8px] text-foreground-muted text-center truncate mt-0.5">
-                                {meta.scale && meta.scale !== 'medium'
-                                  ? t(`variant.scale.${meta.scale}`)
-                                  : t(`variant.weight.${meta.weight}`)}
-                              </p>
-                              {/* Hover action buttons */}
-                              <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleExportVariant(v);
-                                  }}
-                                  className="w-4 h-4 rounded-full bg-accent text-accent-foreground flex items-center justify-center"
-                                  title={t('editor.exportIcon')}
-                                >
-                                  <Download size={7} />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteVariant(v.id);
-                                  }}
-                                  className="w-4 h-4 rounded-full bg-danger text-white flex items-center justify-center"
-                                >
-                                  <X size={8} />
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
         </div>
-      )}
+
+        {/* Scale toggle */}
+        <div>
+          <label className="text-xs text-foreground-muted mb-1 block">{t('variant.scale')}</label>
+          <div className="flex gap-1">
+            {SCALE_LEVELS.map((s, i) => (
+              <button
+                key={s.key}
+                onClick={() => setScaleIndex(i)}
+                className={cn(
+                  'flex-1 py-1 text-xs rounded-md border transition-colors',
+                  i === scaleIndex
+                    ? 'bg-accent text-accent-foreground border-accent'
+                    : 'bg-surface text-foreground border-border hover:border-accent'
+                )}
+              >
+                {t(`variant.scale.${s.key}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Preview comparison */}
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <div className="aspect-square rounded-lg bg-surface-muted border border-border flex items-center justify-center p-2">
+              <div
+                className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
+                dangerouslySetInnerHTML={{ __html: sanitizeSVG(iconContent) }}
+              />
+            </div>
+            <p className="text-[9px] text-foreground-muted text-center mt-1">
+              {t('variant.preview.original')}
+            </p>
+          </div>
+          <div className="flex-1">
+            <div className="aspect-square rounded-lg bg-surface-muted border border-border flex items-center justify-center p-2">
+              <div
+                className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
+                dangerouslySetInnerHTML={{ __html: sanitizeSVG(previewSvg) }}
+              />
+            </div>
+            <p className="text-[9px] text-foreground-muted text-center mt-1">
+              {isOriginal
+                ? t('variant.preview.original')
+                : `${t(`variant.weight.${currentWeight.key}`)}${currentScale.key !== 'medium' ? ` · ${t(`variant.scale.${currentScale.key}`)}` : ''}`}
+            </p>
+          </div>
+        </div>
+
+        {/* Generate buttons */}
+        <div className="flex gap-2">
+          <Button
+            size="small"
+            type={isOriginal || alreadyExists ? 'default' : 'primary'}
+            disabled={isOriginal || alreadyExists || generating}
+            onClick={handleGenerateCurrent}
+            className="flex-1"
+          >
+            {alreadyExists ? t('variant.alreadyGenerated') : t('variant.generateCurrent')}
+          </Button>
+          <Button size="small" disabled={generating} onClick={handleGenerateAll} className="flex-1">
+            {t('variant.generateAll', { count: TOTAL_VARIANTS - variants.length })}
+          </Button>
+        </div>
+
+        {/* Progress bar */}
+        {variantProgress && (
+          <div>
+            <div className="flex justify-between text-[10px] text-foreground-muted mb-1">
+              <span>
+                {t('variant.progress', {
+                  current: variantProgress.current,
+                  total: variantProgress.total,
+                })}
+              </span>
+              <button onClick={handleCancel} className="text-danger hover:underline">
+                {t('common.cancel')}
+              </button>
+            </div>
+            <div className="w-full bg-surface-muted rounded-full h-1.5">
+              <div
+                className="bg-accent h-1.5 rounded-full transition-all duration-200"
+                style={{ width: `${(variantProgress.current / variantProgress.total) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Generated variants list with thumbnails — grouped by weight */}
+        {variants.length > 0 &&
+          (() => {
+            // Group variants by weight
+            const grouped: Record<string, any[]> = {};
+            variants.forEach((v: any) => {
+              const meta = v.variantMeta ? JSON.parse(v.variantMeta) : {};
+              const weightKey = meta.weight || 'unknown';
+              if (!grouped[weightKey]) grouped[weightKey] = [];
+              grouped[weightKey].push(v);
+            });
+
+            return (
+              <div className="space-y-2">
+                {Object.entries(grouped).map(([weightKey, items]) => (
+                  <div key={weightKey}>
+                    <p className="text-[9px] text-foreground-muted font-medium uppercase tracking-wider mb-1">
+                      {t(`variant.weight.${weightKey}`)}
+                    </p>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {items.map((v: any) => {
+                        const meta = v.variantMeta ? JSON.parse(v.variantMeta) : {};
+                        return (
+                          <div
+                            key={v.id}
+                            className="relative group rounded-md border border-border bg-surface-muted p-1.5 hover:border-accent transition-colors cursor-pointer"
+                            title={v.iconName}
+                          >
+                            <div
+                              className="aspect-square [&>svg]:w-full [&>svg]:h-full"
+                              dangerouslySetInnerHTML={{ __html: sanitizeSVG(v.iconContent) }}
+                            />
+                            <p className="text-[8px] text-foreground-muted text-center truncate mt-0.5">
+                              {meta.scale && meta.scale !== 'medium'
+                                ? t(`variant.scale.${meta.scale}`)
+                                : t(`variant.weight.${meta.weight}`)}
+                            </p>
+                            {/* Hover action buttons */}
+                            <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleExportVariant(v);
+                                }}
+                                className="w-4 h-4 rounded-full bg-accent text-accent-foreground flex items-center justify-center"
+                                title={t('editor.exportIcon')}
+                              >
+                                <Download size={7} />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteVariant(v.id);
+                                }}
+                                className="w-4 h-4 rounded-full bg-danger text-white flex items-center justify-center"
+                              >
+                                <X size={8} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+      </div>
     </div>
   );
 }
