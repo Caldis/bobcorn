@@ -505,24 +505,38 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const totalHeight = virtualizer.getTotalSize();
 
   // ── Batch prefetch SVG content for visible icons ───────────────────
+  // Two-layer throttle: debounce (80ms) waits for scroll to settle,
+  // then requestIdleCallback ensures the query doesn't block rendering.
   const prefetchIconContent = useAppStore((state: any) => state.prefetchIconContent);
+  const prefetchTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const prefetchIdleRef = useRef<number>();
 
   useEffect(() => {
-    const visibleIds: string[] = [];
-    const store = useAppStore.getState();
-    for (const vItem of virtualItems) {
-      const row = viewModel.rows[vItem.index];
-      if (row?.kind === 'row') {
-        for (const icon of row.icons) {
-          if (!icon.iconContent && !store.prefetchedContent?.[icon.id]) {
-            visibleIds.push(icon.id);
+    if (prefetchTimerRef.current) clearTimeout(prefetchTimerRef.current);
+    prefetchTimerRef.current = setTimeout(() => {
+      if (prefetchIdleRef.current) cancelIdleCallback(prefetchIdleRef.current);
+      prefetchIdleRef.current = requestIdleCallback(() => {
+        const visibleIds: string[] = [];
+        const store = useAppStore.getState();
+        for (const vItem of virtualItems) {
+          const row = viewModel.rows[vItem.index];
+          if (row?.kind === 'row') {
+            for (const icon of row.icons) {
+              if (!icon.iconContent && !store.prefetchedContent?.[icon.id]) {
+                visibleIds.push(icon.id);
+              }
+            }
           }
         }
-      }
-    }
-    if (visibleIds.length > 0) {
-      prefetchIconContent(visibleIds);
-    }
+        if (visibleIds.length > 0) {
+          prefetchIconContent(visibleIds);
+        }
+      });
+    }, 80);
+    return () => {
+      if (prefetchTimerRef.current) clearTimeout(prefetchTimerRef.current);
+      if (prefetchIdleRef.current) cancelIdleCallback(prefetchIdleRef.current);
+    };
   }, [virtualItems, prefetchIconContent, viewModel.rows]);
 
   return (
