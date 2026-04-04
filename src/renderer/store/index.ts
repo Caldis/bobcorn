@@ -38,6 +38,9 @@ export interface State {
   updateReleaseNotes: string | null;
   updateProgress: number;
   updateError: string | null;
+
+  // Variant generation progress
+  variantProgress: { current: number; total: number; active: boolean } | null;
 }
 
 export interface Actions {
@@ -71,6 +74,11 @@ export interface Actions {
   setUpdateStatus: (status: State['updateStatus'], version?: string) => void;
   setUpdateProgress: (percent: number) => void;
   setUpdateError: (error: string | null) => void;
+
+  // Variant actions
+  setVariantProgress: (
+    progress: { current: number; total: number; active: boolean } | null
+  ) => void;
 }
 
 const useAppStore = create<State & Actions>((set, get) => ({
@@ -104,6 +112,9 @@ const useAppStore = create<State & Actions>((set, get) => ({
   updateReleaseNotes: null,
   updateProgress: 0,
   updateError: null,
+
+  // Variant generation progress
+  variantProgress: null,
 
   // Actions
   showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
@@ -239,6 +250,11 @@ const useAppStore = create<State & Actions>((set, get) => ({
   },
   setUpdateProgress: (percent) => set({ updateProgress: percent }),
   setUpdateError: (error) => set({ updateError: error }),
+
+  // Variant actions
+  setVariantProgress: (progress) => {
+    set({ variantProgress: progress });
+  },
 }));
 
 export default useAppStore;
