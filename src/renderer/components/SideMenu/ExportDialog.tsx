@@ -2,6 +2,7 @@
 const { electronAPI } = window;
 
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Dialog, Button, Checkbox, CheckboxGroup, Progress } from '../ui';
 import { message } from '../ui/toast';
@@ -28,7 +29,7 @@ interface ExportDialogProps {
   onClose: () => void;
 }
 
-/** Map format keys to wiki page slugs */
+/** Wiki integration */
 const WIKI_BASE = 'https://bobcorn.caldis.me/wiki/';
 const WIKI_LANG_MAP: Record<string, string> = {
   'zh-CN': 'zh-CN',
@@ -48,6 +49,17 @@ const WIKI_LANG_MAP: Record<string, string> = {
   id: 'id',
 };
 
+/** Format wiki slugs + i18n summary keys for hover knowledge cards */
+const FORMAT_INFO: Record<string, { wiki: string; summaryKey: string }> = {
+  svg: { wiki: 'svg-font', summaryKey: 'export.fmt.svg' },
+  ttf: { wiki: 'ttf', summaryKey: 'export.fmt.ttf' },
+  woff2: { wiki: 'woff2', summaryKey: 'export.fmt.woff2' },
+  css: { wiki: 'css-font-face', summaryKey: 'export.fmt.css' },
+  woff: { wiki: 'woff', summaryKey: 'export.fmt.woff' },
+  eot: { wiki: 'eot', summaryKey: 'export.fmt.eot' },
+  js: { wiki: 'svg-symbol', summaryKey: 'export.fmt.js' },
+};
+
 function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const { t, i18n } = useTranslation();
 
@@ -56,6 +68,32 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     const lang = WIKI_LANG_MAP[i18n.language] || 'en';
     electronAPI.openExternal(`${WIKI_BASE}${lang}/${slug}.html`);
   };
+
+  /** Hovered format — fixed-position popover card */
+  const [hoveredFormat, setHoveredFormat] = useState<string | null>(null);
+  const [cardPos, setCardPos] = useState<{ x: number; y: number; w: number }>({
+    x: 0,
+    y: 0,
+    w: 300,
+  });
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const onFormatHover = (key: string, el: HTMLElement) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    const rect = el.getBoundingClientRect();
+    setCardPos({ x: rect.left, y: rect.bottom + 6, w: Math.max(280, rect.width) });
+    setHoveredFormat(key);
+  };
+  const onFormatLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => setHoveredFormat(null), 150);
+  };
+  const onCardEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  };
+  const onCardLeave = () => {
+    setHoveredFormat(null);
+  };
+
   // 导出进度
   const [exportPhase, setExportPhase] = useState<'config' | 'exporting' | 'done' | 'error'>(
     'config'
@@ -390,91 +428,316 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     ) : null;
 
   return (
-    <Dialog
-      open={visible}
-      onClose={handleCancel}
-      title={dialogTitle}
-      maskClosable={exportPhase === 'config' || exportPhase === 'done' || exportPhase === 'error'}
-      closable={exportPhase !== 'exporting'}
-      footer={dialogFooter}
-    >
-      {/* 配置阶段 */}
-      {exportPhase === 'config' && (
-        <div className="py-2">
-          <p className="text-sm text-foreground-muted leading-relaxed mb-4">
-            {t('export.description')}
-          </p>
+    <>
+      <Dialog
+        open={visible}
+        onClose={handleCancel}
+        title={dialogTitle}
+        maskClosable={exportPhase === 'config' || exportPhase === 'done' || exportPhase === 'error'}
+        closable={exportPhase !== 'exporting'}
+        footer={dialogFooter}
+      >
+        {/* 配置阶段 */}
+        {exportPhase === 'config' && (
+          <div className="py-2">
+            <p className="text-sm text-foreground-muted leading-relaxed mb-4">
+              {t('export.description')}
+            </p>
 
-          {/* 分组选择 — 内联折叠 */}
-          <div className="rounded-lg border border-border overflow-hidden">
-            <div
-              className="flex items-center justify-between px-3 py-2 bg-surface-muted cursor-pointer hover:bg-surface-accent transition-colors"
-              onClick={() => setExportGroupModelVisible(!exportGroupModelVisible)}
-            >
-              <span className="text-sm font-medium text-foreground">{t('export.groups')}</span>
-              <span className="text-xs text-foreground-muted">
-                {exportGroupCheckAll
-                  ? t('export.groupsAll', { groups: exportTotalGroups, icons: exportTotalIcons })
-                  : t('export.groupsPartial', {
-                      groups: exportGroupSelected.length,
-                      icons: exportSelectedIconCount,
-                    })}
-              </span>
-            </div>
-            {exportGroupModelVisible && (
-              <div className="px-3 py-2 max-h-[200px] overflow-y-auto border-t border-border">
-                <div className="border-b border-border pb-1.5 mb-1.5">
-                  <Checkbox
-                    indeterminate={exportGroupIndeterminate}
-                    onChange={onTargetGroupCheckAllChange}
-                    checked={exportGroupCheckAll}
-                  >
-                    {t('export.selectAll')}
-                  </Checkbox>
+            {/* 分组选择 — 内联折叠 */}
+            <div className="rounded-lg border border-border overflow-hidden">
+              <div
+                className="flex items-center justify-between px-3 py-2 bg-surface-muted cursor-pointer hover:bg-surface-accent transition-colors"
+                onClick={() => setExportGroupModelVisible(!exportGroupModelVisible)}
+              >
+                <span className="text-sm font-medium text-foreground">{t('export.groups')}</span>
+                <span className="text-xs text-foreground-muted">
+                  {exportGroupCheckAll
+                    ? t('export.groupsAll', { groups: exportTotalGroups, icons: exportTotalIcons })
+                    : t('export.groupsPartial', {
+                        groups: exportGroupSelected.length,
+                        icons: exportSelectedIconCount,
+                      })}
+                </span>
+              </div>
+              {exportGroupModelVisible && (
+                <div className="px-3 py-2 max-h-[200px] overflow-y-auto border-t border-border">
+                  <div className="border-b border-border pb-1.5 mb-1.5">
+                    <Checkbox
+                      indeterminate={exportGroupIndeterminate}
+                      onChange={onTargetGroupCheckAllChange}
+                      checked={exportGroupCheckAll}
+                    >
+                      {t('export.selectAll')}
+                    </Checkbox>
+                  </div>
+                  <CheckboxGroup
+                    options={exportGroupFullList}
+                    value={exportGroupSelected}
+                    onChange={onTargetGroupChange}
+                  />
                 </div>
-                <CheckboxGroup
-                  options={exportGroupFullList}
-                  value={exportGroupSelected}
-                  onChange={onTargetGroupChange}
+              )}
+            </div>
+
+            {/* 必选格式 */}
+            <div className="mt-3">
+              <div className="text-xs text-foreground-muted mb-1.5">
+                {t('export.requiredFormats')}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {(['svg', 'ttf', 'woff2', 'css'] as const).map((key) => (
+                  <span
+                    key={key}
+                    onMouseEnter={(e) => onFormatHover(key, e.currentTarget)}
+                    onMouseLeave={onFormatLeave}
+                    className={cn(
+                      'px-2 py-0.5 rounded text-xs font-mono cursor-default transition-colors',
+                      hoveredFormat === key
+                        ? 'bg-accent/15 text-accent'
+                        : 'bg-accent-subtle text-accent'
+                    )}
+                  >
+                    .{key}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* 可选格式 */}
+            <div className="mt-3">
+              <div className="text-xs text-foreground-muted mb-1.5">
+                {t('export.optionalFormats')}
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {(
+                  [
+                    { key: 'woff' as const, label: '.woff' },
+                    { key: 'eot' as const, label: '.eot' },
+                    { key: 'js' as const, label: '.js (Symbol)' },
+                  ] as const
+                ).map(({ key, label }) => (
+                  <label
+                    key={key}
+                    className="inline-flex items-center gap-1.5 text-xs cursor-pointer"
+                    onMouseEnter={(e) => onFormatHover(key, e.currentTarget)}
+                    onMouseLeave={onFormatLeave}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedFormats[key]}
+                      onChange={(e) =>
+                        setSelectedFormats((prev) => ({ ...prev, [key]: e.target.checked }))
+                      }
+                      className="rounded border-border"
+                    />
+                    <span
+                      className={cn(
+                        'font-mono',
+                        hoveredFormat === key ? 'text-accent' : 'text-foreground-muted'
+                      )}
+                    >
+                      {label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* 包含 HTML Demo 页面 */}
+            <div className="mt-3">
+              <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedFormats.html}
+                  onChange={(e) =>
+                    setSelectedFormats((prev) => ({ ...prev, html: e.target.checked }))
+                  }
+                  className="rounded border-border"
                 />
+                <span className="text-foreground">{t('export.includeDemo')}</span>
+                <span className="px-1.5 py-px rounded text-[10px] font-medium bg-accent-subtle text-accent">
+                  {t('export.recommended')}
+                </span>
+              </label>
+              <p className="text-xs text-foreground-muted mt-0.5 ml-5">
+                {t('export.includeDemoDesc')}
+              </p>
+            </div>
+
+            {/* 包含 .icp 项目文件 */}
+            <div className="mt-3">
+              <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedFormats.icp}
+                  onChange={(e) =>
+                    setSelectedFormats((prev) => ({ ...prev, icp: e.target.checked }))
+                  }
+                  className="rounded border-border"
+                />
+                <span className="text-foreground">{t('export.includeIcp')}</span>
+              </label>
+              <p className="text-xs text-foreground-muted mt-0.5 ml-5">
+                {t('export.includeIcpDesc')}
+              </p>
+            </div>
+
+            {/* 自动打包 ZIP */}
+            <div className="mt-3">
+              <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={zipEnabled}
+                  onChange={(e) => setZipEnabled(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <span className="text-foreground">{t('export.zip')}</span>
+              </label>
+              <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t('export.zipDesc')}</p>
+            </div>
+
+            {/* 导出位置 */}
+            <div className="mt-4 pt-3 border-t border-border">
+              <div className="text-xs text-foreground-muted mb-1.5">{t('export.location')}</div>
+              <div className="flex items-center gap-2">
+                <div
+                  className="flex-1 min-w-0 px-2.5 py-1.5 rounded border border-border bg-surface-muted text-xs text-foreground truncate font-mono cursor-pointer hover:border-accent/40 transition-colors"
+                  onClick={handleBrowseDir}
+                  title={exportParentDir || t('export.noDir')}
+                >
+                  {exportParentDir || t('export.noDir')}
+                </div>
+                <Button onClick={handleBrowseDir} className="shrink-0 text-xs">
+                  {t('export.browse')}
+                </Button>
+              </div>
+              {exportTargetDir && (
+                <p className="text-xs text-foreground-muted mt-1 truncate" title={exportTargetDir}>
+                  {t('export.targetPath')}
+                  {exportTargetDir}
+                  {zipEnabled ? '.zip' : '/'}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 导出进度阶段 */}
+        {(exportPhase === 'exporting' || exportPhase === 'done' || exportPhase === 'error') && (
+          <div className="py-2">
+            <Progress
+              percent={exportProgress}
+              status={
+                exportPhase === 'error'
+                  ? 'exception'
+                  : exportPhase === 'done'
+                    ? 'success'
+                    : 'active'
+              }
+            />
+            <div className="mt-3 rounded-lg border border-border bg-surface-muted p-3 font-mono text-xs leading-relaxed text-foreground-muted max-h-[180px] overflow-y-auto">
+              {exportLogs.map((log, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    log.startsWith('✓') && 'text-success font-semibold',
+                    log.startsWith('✗') && 'text-danger font-semibold'
+                  )}
+                >
+                  {log}
+                </div>
+              ))}
+              <div ref={exportLogsEndRef} />
+            </div>
+            {exportPhase === 'done' && exportedDirPath && (
+              <div className="mt-3 space-y-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedFormats.html && (
+                    <button
+                      onClick={() =>
+                        electronAPI.openPath(`${exportedDirPath}/${exportedProjectName}.html`)
+                      }
+                      className={cn(
+                        'px-2.5 py-1 rounded text-xs font-medium',
+                        'border border-border',
+                        'text-accent hover:bg-accent-subtle',
+                        'transition-colors duration-150 cursor-pointer'
+                      )}
+                    >
+                      {t('export.previewPage')}
+                    </button>
+                  )}
+                  {selectedFormats.icp && (
+                    <button
+                      onClick={() =>
+                        electronAPI.openPath(`${exportedDirPath}/${exportedProjectName}.icp`)
+                      }
+                      className={cn(
+                        'px-2.5 py-1 rounded text-xs font-medium',
+                        'border border-border',
+                        'text-accent hover:bg-accent-subtle',
+                        'transition-colors duration-150 cursor-pointer'
+                      )}
+                    >
+                      {t('export.projectFile')}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => electronAPI.openPath(exportedDirPath)}
+                    className={cn(
+                      'px-2.5 py-1 rounded text-xs font-medium',
+                      'border border-border',
+                      'text-accent hover:bg-accent-subtle',
+                      'transition-colors duration-150 cursor-pointer'
+                    )}
+                  >
+                    {t('export.openDir')}
+                  </button>
+                </div>
+                {selectedFormats.icp && (
+                  <p className="text-xs text-foreground-muted">{t('export.icpEditHint')}</p>
+                )}
               </div>
             )}
           </div>
+        )}
+      </Dialog>
 
-          {/* 迁移提示 */}
-          <div className="flex items-start gap-2 p-2.5 rounded-md bg-info-subtle text-info text-xs leading-relaxed mt-4">
-            <span className="shrink-0 mt-0.5">ℹ</span>
-            <span>
-              {t('export.icpMigrationHint', {
-                shortcut: platform() === 'darwin' ? '⌘S' : 'Ctrl+S',
-              })}
-            </span>
-          </div>
-
-          {/* 必选格式 */}
-          <div className="mt-3">
-            <div className="text-xs text-foreground-muted mb-1.5">
-              {t('export.requiredFormats')}
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {(
-                [
-                  { fmt: 'SVG', wiki: 'svg-font' },
-                  { fmt: 'TTF', wiki: 'ttf' },
-                  { fmt: 'WOFF2', wiki: 'woff2' },
-                  { fmt: 'CSS', wiki: 'css-font-face' },
-                ] as const
-              ).map(({ fmt, wiki }) => (
+      {/* 格式知识卡片 — portal 到 body, 在 Radix Dialog overlay 之上 */}
+      {hoveredFormat &&
+        FORMAT_INFO[hoveredFormat] &&
+        createPortal(
+          <div
+            className="fixed pointer-events-auto"
+            style={{
+              left: cardPos.x,
+              top: cardPos.y,
+              width: cardPos.w,
+              maxWidth: 340,
+              zIndex: 99999,
+            }}
+            onMouseEnter={onCardEnter}
+            onMouseLeave={onCardLeave}
+          >
+            <div className="px-3 py-2.5 rounded-lg border border-border bg-surface shadow-lg">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <span className="font-mono text-xs font-semibold text-accent">
+                    .{hoveredFormat}
+                  </span>
+                  <p className="text-[11px] leading-relaxed text-foreground-muted mt-0.5">
+                    {t(FORMAT_INFO[hoveredFormat].summaryKey)}
+                  </p>
+                </div>
                 <button
-                  key={fmt}
                   type="button"
-                  onClick={() => openWikiPage(wiki)}
-                  className="group inline-flex items-center gap-1 px-2 py-0.5 rounded bg-accent-subtle text-xs text-accent font-mono transition-colors hover:bg-accent/15"
-                  title={t('export.wikiHint')}
+                  onClick={() => openWikiPage(FORMAT_INFO[hoveredFormat!].wiki)}
+                  className="shrink-0 inline-flex items-center gap-1 mt-0.5 px-2 py-1 rounded text-[10px] font-medium text-accent hover:bg-accent-subtle transition-colors whitespace-nowrap"
                 >
-                  .{fmt.toLowerCase()}
+                  Wiki
                   <svg
-                    className="w-2.5 h-2.5 opacity-0 -translate-x-0.5 transition-all group-hover:opacity-70 group-hover:translate-x-0"
+                    className="w-2.5 h-2.5"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -486,234 +749,12 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     <path d="M7 7h10v10" />
                   </svg>
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 可选格式 */}
-          <div className="mt-3">
-            <div className="text-xs text-foreground-muted mb-1.5">
-              {t('export.optionalFormats')}
-            </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
-              {(
-                [
-                  { key: 'woff' as const, label: '.woff', wiki: 'woff' },
-                  { key: 'eot' as const, label: '.eot', wiki: 'eot' },
-                  { key: 'js' as const, label: '.js (Symbol)', wiki: 'svg-symbol' },
-                  { key: 'html' as const, label: '.html (Demo)', wiki: null },
-                ] as const
-              ).map(({ key, label, wiki }) => (
-                <label
-                  key={key}
-                  className="inline-flex items-center gap-1.5 text-xs cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedFormats[key]}
-                    onChange={(e) =>
-                      setSelectedFormats((prev) => ({ ...prev, [key]: e.target.checked }))
-                    }
-                    className="rounded border-border"
-                  />
-                  <span className="font-mono text-foreground-muted">{label}</span>
-                  {wiki && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        openWikiPage(wiki);
-                      }}
-                      className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-foreground-muted/40 hover:text-accent hover:bg-accent-subtle transition-colors"
-                      title={t('export.wikiHint')}
-                    >
-                      <svg
-                        className="w-2.5 h-2.5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
-                        <path d="M12 17h.01" />
-                      </svg>
-                    </button>
-                  )}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Wiki 知识库提示 */}
-          <div className="mt-3">
-            <button
-              type="button"
-              onClick={() => openWikiPage('export-guide')}
-              className="group inline-flex items-center gap-1.5 text-[11px] text-foreground-muted/60 hover:text-accent transition-colors"
-            >
-              <svg
-                className="w-3 h-3"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
-                <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
-              </svg>
-              <span>{t('export.wikiLink')}</span>
-              <svg
-                className="w-2.5 h-2.5 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14" />
-                <path d="M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          {/* 包含 .icp 项目文件 */}
-          <div className="mt-3">
-            <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
-              <input
-                type="checkbox"
-                checked={selectedFormats.icp}
-                onChange={(e) => setSelectedFormats((prev) => ({ ...prev, icp: e.target.checked }))}
-                className="rounded border-border"
-              />
-              <span className="text-foreground">{t('export.includeIcp')}</span>
-            </label>
-            <p className="text-xs text-foreground-muted mt-0.5 ml-5">
-              {t('export.includeIcpDesc')}
-            </p>
-          </div>
-
-          {/* 自动打包 ZIP */}
-          <div className="mt-3">
-            <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
-              <input
-                type="checkbox"
-                checked={zipEnabled}
-                onChange={(e) => setZipEnabled(e.target.checked)}
-                className="rounded border-border"
-              />
-              <span className="text-foreground">{t('export.zip')}</span>
-            </label>
-            <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t('export.zipDesc')}</p>
-          </div>
-
-          {/* 导出位置 */}
-          <div className="mt-4 pt-3 border-t border-border">
-            <div className="text-xs text-foreground-muted mb-1.5">{t('export.location')}</div>
-            <div className="flex items-center gap-2">
-              <div
-                className="flex-1 min-w-0 px-2.5 py-1.5 rounded border border-border bg-surface-muted text-xs text-foreground truncate font-mono cursor-pointer hover:border-accent/40 transition-colors"
-                onClick={handleBrowseDir}
-                title={exportParentDir || t('export.noDir')}
-              >
-                {exportParentDir || t('export.noDir')}
               </div>
-              <Button onClick={handleBrowseDir} className="shrink-0 text-xs">
-                {t('export.browse')}
-              </Button>
             </div>
-            {exportTargetDir && (
-              <p className="text-xs text-foreground-muted mt-1 truncate" title={exportTargetDir}>
-                {t('export.targetPath')}
-                {exportTargetDir}
-                {zipEnabled ? '.zip' : '/'}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 导出进度阶段 */}
-      {(exportPhase === 'exporting' || exportPhase === 'done' || exportPhase === 'error') && (
-        <div className="py-2">
-          <Progress
-            percent={exportProgress}
-            status={
-              exportPhase === 'error' ? 'exception' : exportPhase === 'done' ? 'success' : 'active'
-            }
-          />
-          <div className="mt-3 rounded-lg border border-border bg-surface-muted p-3 font-mono text-xs leading-relaxed text-foreground-muted max-h-[180px] overflow-y-auto">
-            {exportLogs.map((log, i) => (
-              <div
-                key={i}
-                className={cn(
-                  log.startsWith('✓') && 'text-success font-semibold',
-                  log.startsWith('✗') && 'text-danger font-semibold'
-                )}
-              >
-                {log}
-              </div>
-            ))}
-            <div ref={exportLogsEndRef} />
-          </div>
-          {exportPhase === 'done' && exportedDirPath && (
-            <div className="mt-3 space-y-2">
-              <div className="flex flex-wrap gap-1.5">
-                {selectedFormats.html && (
-                  <button
-                    onClick={() =>
-                      electronAPI.openPath(`${exportedDirPath}/${exportedProjectName}.html`)
-                    }
-                    className={cn(
-                      'px-2.5 py-1 rounded text-xs font-medium',
-                      'border border-border',
-                      'text-accent hover:bg-accent-subtle',
-                      'transition-colors duration-150 cursor-pointer'
-                    )}
-                  >
-                    {t('export.previewPage')}
-                  </button>
-                )}
-                {selectedFormats.icp && (
-                  <button
-                    onClick={() =>
-                      electronAPI.openPath(`${exportedDirPath}/${exportedProjectName}.icp`)
-                    }
-                    className={cn(
-                      'px-2.5 py-1 rounded text-xs font-medium',
-                      'border border-border',
-                      'text-accent hover:bg-accent-subtle',
-                      'transition-colors duration-150 cursor-pointer'
-                    )}
-                  >
-                    {t('export.projectFile')}
-                  </button>
-                )}
-                <button
-                  onClick={() => electronAPI.openPath(exportedDirPath)}
-                  className={cn(
-                    'px-2.5 py-1 rounded text-xs font-medium',
-                    'border border-border',
-                    'text-accent hover:bg-accent-subtle',
-                    'transition-colors duration-150 cursor-pointer'
-                  )}
-                >
-                  {t('export.openDir')}
-                </button>
-              </div>
-              {selectedFormats.icp && (
-                <p className="text-xs text-foreground-muted">{t('export.icpEditHint')}</p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-    </Dialog>
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
 
