@@ -309,13 +309,7 @@ const SideEditor = React.memo(function SideEditor({
     }
   };
   const handleEnsureIconGroupEdit = () => {
-    const guard = checkVariants(selectedIcon);
-
     if (iconGroupEditModelType === 'duplicate') {
-      // Copy does NOT include variants — just inform
-      if (guard.hasVariants) {
-        message.info(t('variant.copyNote', { count: guard.count }));
-      }
       db.duplicateIconGroup(selectedIcon, iconGroupEditModelTarget, () => {
         message.success(t('editor.copiedToGroup'));
         syncLeft();
@@ -323,10 +317,6 @@ const SideEditor = React.memo(function SideEditor({
       });
     }
     if (iconGroupEditModelType === 'move') {
-      // Move includes variants
-      if (guard.hasVariants) {
-        message.info(t('variant.moveNote', { count: guard.count }));
-      }
       db.moveIconWithVariants(selectedIcon, iconGroupEditModelTarget, () => {
         message.success(t('editor.movedToGroup'));
         syncLeft();
@@ -771,6 +761,19 @@ const SideEditor = React.memo(function SideEditor({
           {iconGroupEditModelType === 'duplicate' && (
             <p className="mb-2 text-xs text-foreground-muted">{t('editor.duplicateHint')}</p>
           )}
+          {/* Variant warning in copy/move dialog */}
+          {selectedIcon &&
+            (() => {
+              const guard = checkVariants(selectedIcon);
+              if (!guard.hasVariants) return null;
+              const key =
+                iconGroupEditModelType === 'duplicate' ? 'variant.copyNote' : 'variant.moveNote';
+              return (
+                <p className="mb-2 px-2.5 py-1.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-medium">
+                  ⚠ {t(key, { count: guard.count })}
+                </p>
+              );
+            })()}
           <RadioGroup onChange={onTargetGroupChange} value={iconGroupEditModelTarget}>
             {buildSelectableGroupList()}
           </RadioGroup>
