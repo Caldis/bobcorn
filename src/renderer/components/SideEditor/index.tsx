@@ -238,15 +238,31 @@ const SideEditor = React.memo(function SideEditor({
     });
   };
   const handleIconDelete = () => {
+    const variantCount = db.getVariantCount(selectedIcon);
+    const confirmContent =
+      variantCount > 0
+        ? t('variant.deleteConfirm', { count: variantCount })
+        : t('editor.deleteContent');
+
     confirm({
       title: t('editor.deleteTitle'),
-      content: t('editor.deleteContent'),
+      content: confirmContent,
+      okType: 'danger',
+      okText: t('common.delete'),
       onOk() {
-        db.delIcon(selectedIcon, () => {
-          message.success(t('editor.deleted'));
-          syncLeft();
-          selectIcon(null);
-        });
+        if (variantCount > 0) {
+          db.deleteIconWithVariants(selectedIcon, () => {
+            message.success(t('editor.deleted'));
+            syncLeft();
+            selectIcon(null);
+          });
+        } else {
+          db.delIcon(selectedIcon, () => {
+            message.success(t('editor.deleted'));
+            syncLeft();
+            selectIcon(null);
+          });
+        }
       },
     });
   };
@@ -279,7 +295,7 @@ const SideEditor = React.memo(function SideEditor({
       });
     }
     if (iconGroupEditModelType === 'move') {
-      db.moveIconGroup(selectedIcon, iconGroupEditModelTarget, () => {
+      db.moveIconWithVariants(selectedIcon, iconGroupEditModelTarget, () => {
         message.success(t('editor.movedToGroup'));
         syncLeft();
         selectIcon(null);
