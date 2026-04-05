@@ -7,7 +7,8 @@ export interface ViewBox {
   h: number;
 }
 
-export function parseViewBox(svgContent: string): ViewBox {
+export function parseViewBox(svgContent: string | undefined | null): ViewBox {
+  if (!svgContent) return { x: 0, y: 0, w: 24, h: 24 };
   const match = svgContent.match(/viewBox\s*=\s*"([^"]+)"/);
   if (!match) return { x: 0, y: 0, w: 24, h: 24 };
   const [x, y, w, h] = match[1].split(/\s+/).map(Number);
