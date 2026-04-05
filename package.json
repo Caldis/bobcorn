@@ -207,6 +207,7 @@
     "imagetracerjs": "^1.2.6",
     "lucide-react": "^0.577.0",
     "memory-fs": "^0.4.1",
+    "pdf-lib": "^1.17.1",
     "prop-types": "^15.6.2",
     "react": "^18.3.1",
     "react-colorful": "^5.6.1",
