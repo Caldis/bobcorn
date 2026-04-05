@@ -51,8 +51,12 @@ describe('buildFilename', () => {
     expect(buildFilename('home', { sizeMode: 'pixel', pixelSize: 48, format: 'png' })).toBe('home-48px.png');
   });
 
-  it('SVG always: home.svg (no size suffix)', () => {
-    expect(buildFilename('home', { sizeMode: 'scale', scale: 2, format: 'svg' })).toBe('home.svg');
+  it('SVG @1x: home.svg (no suffix)', () => {
+    expect(buildFilename('home', { sizeMode: 'scale', scale: 1, format: 'svg' })).toBe('home.svg');
+  });
+
+  it('SVG @2x: home@2x.svg (suffix to prevent overwrites)', () => {
+    expect(buildFilename('home', { sizeMode: 'scale', scale: 2, format: 'svg' })).toBe('home@2x.svg');
   });
 
   it('scale 1x omits suffix: home.png', () => {
@@ -67,8 +71,8 @@ describe('buildFilename', () => {
     expect(buildFilename('home', { sizeMode: 'pixel', pixelSize: 16, format: 'ico' })).toBe('home-16px.ico');
   });
 
-  it('SVG format ignores pixel mode too: home.svg', () => {
-    expect(buildFilename('home', { sizeMode: 'pixel', pixelSize: 48, format: 'svg' })).toBe('home.svg');
+  it('SVG pixel mode: home-48px.svg (suffix to prevent overwrites)', () => {
+    expect(buildFilename('home', { sizeMode: 'pixel', pixelSize: 48, format: 'svg' })).toBe('home-48px.svg');
   });
 
   it('PDF format with scale: home@2x.pdf', () => {

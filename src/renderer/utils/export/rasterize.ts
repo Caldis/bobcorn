@@ -22,9 +22,9 @@ export function prepareSvgForRender(svgContent: string, targetSize: number): str
   const h = aspect >= 1 ? Math.round(targetSize / aspect) : targetSize;
 
   let svg = svgContent;
-  // Remove existing width/height to avoid conflicts
-  svg = svg.replace(/<svg([^>]*)\s+width="[^"]*"/, '<svg$1');
-  svg = svg.replace(/<svg([^>]*)\s+height="[^"]*"/, '<svg$1');
+  // Remove existing width/height (both quote styles) to avoid conflicts
+  svg = svg.replace(/<svg([^>]*)\s+width=["'][^"']*["']/, '<svg$1');
+  svg = svg.replace(/<svg([^>]*)\s+height=["'][^"']*["']/, '<svg$1');
   // Inject target dimensions
   svg = svg.replace('<svg', `<svg width="${w}" height="${h}"`);
   return svg;

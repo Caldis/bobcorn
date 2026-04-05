@@ -73,7 +73,12 @@ export function buildFilename(
   iconName: string,
   row: Pick<ExportRowConfig, 'sizeMode' | 'scale' | 'format'> & { pixelSize?: number }
 ): string {
-  if (row.format === 'svg') return `${iconName}.svg`;
+  if (row.format === 'svg') {
+    // SVG is vector, size doesn't apply — but add suffix if scale != 1 to avoid overwrites
+    if (row.sizeMode === 'scale' && row.scale !== 1) return `${iconName}@${row.scale}x.svg`;
+    if (row.sizeMode === 'pixel' && row.pixelSize) return `${iconName}-${row.pixelSize}px.svg`;
+    return `${iconName}.svg`;
+  }
   if (row.sizeMode === 'scale') {
     const suffix = row.scale === 1 ? '' : `@${row.scale}x`;
     return `${iconName}${suffix}.${row.format}`;
