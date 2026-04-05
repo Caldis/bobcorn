@@ -196,7 +196,7 @@ async function startApp() {
 
 // ── Screenshot sequence for one language ────────────────────────
 
-async function captureSet(evaluate, windowId, lang) {
+async function captureSet(evaluate, lang, projectFile) {
   const dir = path.join(OPTS.out, lang === 'zh-CN' ? 'cn' : 'en');
   fs.mkdirSync(dir, { recursive: true });
   for (const f of fs.readdirSync(dir)) fs.unlinkSync(path.join(dir, f));
@@ -206,7 +206,7 @@ async function captureSet(evaluate, windowId, lang) {
     screencapture(windowId, path.join(dir, name));
   };
 
-  // Switch language + theme
+  // Switch language + theme, reload project
   await evaluate(`
     (async () => {
       const i18n = window.__BOBCORN_I18N__;
@@ -216,7 +216,31 @@ async function captureSet(evaluate, windowId, lang) {
       window.__BOBCORN_STORE__.getState().setThemeMode('${OPTS.theme}');
     })()
   `);
+  await sleep(500);
+  if (projectFile) {
+    await evaluate(`
+      (() => {
+        const data = window.electronAPI.readFileSync(${JSON.stringify(projectFile)});
+        window.__BOBCORN_DB__.initNewProjectFromData(new Uint8Array(data));
+        const s = window.__BOBCORN_STORE__.getState();
+        s.showSplashScreen(false);
+        s.markClean();
+        s.syncLeft();
+        s.selectGroup('resource-all');
+      })()
+    `);
+    await sleep(1500);
+  }
+
+  // Get window ID fresh (may change after splash/reload)
+  focusWindow();
   await sleep(1000);
+  let windowId;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try { windowId = getWindowId(); break; } catch { await sleep(1000); }
+  }
+  if (!windowId) throw new Error('Could not find window after retries');
+  console.log(`  Window ID: ${windowId}`);
 
   // 1. Welcome / Splash
   await evaluate(`window.__BOBCORN_STORE__.getState().showSplashScreen(true)`);
@@ -230,6 +254,7 @@ async function captureSet(evaluate, windowId, lang) {
       s.showSplashScreen(false);
       s.setSideMenuVisible(true);
       s.setSideEditorVisible(true);
+      s.syncLeft();
       s.selectGroup('resource-all');
     })()
   `);
@@ -264,6 +289,43 @@ async function captureSet(evaluate, windowId, lang) {
   shot('05-batch.png');
   await evaluate(`window.__BOBCORN_STORE__.getState().clearBatchSelection()`);
   await sleep(300);
+
+  // 6. Move to group dialog — need clean state first
+  // Close any lingering dialogs by reloading the project state
+  await evaluate(`
+    (() => {
+      // Remove all dialog portals
+      document.querySelectorAll('[data-radix-portal], [class*="dialog-overlay"], [class*="DialogOverlay"]').forEach(p => p.remove());
+      // Re-enter main view
+      const s = window.__BOBCORN_STORE__.getState();
+      s.showSplashScreen(false);
+      s.setSideMenuVisible(true);
+      s.setSideEditorVisible(true);
+      s.selectGroup('resource-all');
+    })()
+  `);
+  await sleep(800);
+  await evaluate(`document.querySelector('[data-testid="icon-block"]')?.click()`);
+  await sleep(600);
+  await evaluate(`window.dispatchEvent(new CustomEvent('bobcorn:open-move-dialog'))`);
+  await sleep(1000);
+  shot('06-move.png');
+  // Close move dialog via Cancel button (preserves React state)
+  await evaluate(`
+    (() => {
+      const btns = document.querySelectorAll('[role="dialog"] button');
+      const cancel = [...btns].find(b => b.textContent.trim().match(/cancel|取消/i));
+      if (cancel) cancel.click();
+    })()
+  `);
+  await sleep(800);
+
+  // 7. Copy to group dialog
+  await evaluate(`window.dispatchEvent(new CustomEvent('bobcorn:open-copy-dialog'))`);
+  await sleep(1000);
+  shot('07-copy.png');
+  await evaluate(`document.querySelectorAll('[data-radix-portal], [class*="dialog-overlay"], [class*="DialogOverlay"]').forEach(p => p.remove())`);
+  await sleep(500);
 
   console.log(`  ✅ ${lang} done\n`);
 }
@@ -315,17 +377,25 @@ async function main() {
     console.log('  Project loaded');
   }
 
-  // 5. Get window ID
-  focusWindow();
-  await sleep(500);
-  const windowId = getWindowId();
-  console.log(`  Window ID: ${windowId}\n`);
-
-  // 6. Capture
+  // 5. Capture — reload page between languages to ensure clean state
   const langs = OPTS.lang ? [OPTS.lang] : ['en', 'zh-CN'];
-  for (const lang of langs) {
-    console.log(`📷 Capturing ${lang}...`);
-    await captureSet(cdp.evaluate, windowId, lang);
+  for (let li = 0; li < langs.length; li++) {
+    if (li > 0) {
+      // Reload page for clean React state between languages
+      console.log('  Reloading page...');
+      await cdp.evaluate(`location.reload()`);
+      await sleep(3000);
+      for (let i = 0; i < 20; i++) {
+        const ok = await cdp
+          .evaluate(`typeof window.__BOBCORN_STORE__?.getState === 'function'`)
+          .catch(() => false);
+        if (ok) break;
+        await sleep(500);
+      }
+      await sleep(1000);
+    }
+    console.log(`📷 Capturing ${langs[li]}...`);
+    await captureSet(cdp.evaluate, langs[li], OPTS.project);
   }
 
   // 7. Cleanup

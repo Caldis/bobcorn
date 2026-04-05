@@ -57,6 +57,14 @@ Bobcorn is a free, open-source desktop application for **icon management** and *
   <img src="resources/screenshot/export.png" alt="Export icon font dialog — choose formats and output path" width="720">
 </p>
 
+### Organization
+- **Group management** — Create, reorder, copy, and move icons between groups
+- **Project files** — Save/reload `.icp` projects; pick up exactly where you left off
+
+<p align="center">
+  <img src="resources/screenshot/move.png" alt="Move icons to target group — select from groups like accessibility, arrows, automotive" width="720">
+</p>
+
 ### General
 - **Cross-platform** — Windows, macOS (Intel & Apple Silicon)
 - **Dark mode** — One-click toggle, persisted across sessions

@@ -298,6 +298,18 @@ const SideEditor = React.memo(function SideEditor({
     });
   };
 
+  // Custom events for screenshot automation
+  useEffect(() => {
+    const moveHandler = () => handleShowIconGroupEdit('move');
+    const copyHandler = () => handleShowIconGroupEdit('duplicate');
+    window.addEventListener('bobcorn:open-move-dialog', moveHandler);
+    window.addEventListener('bobcorn:open-copy-dialog', copyHandler);
+    return () => {
+      window.removeEventListener('bobcorn:open-move-dialog', moveHandler);
+      window.removeEventListener('bobcorn:open-copy-dialog', copyHandler);
+    };
+  });
+
   // 复制/移动图标相关
   const handleShowIconGroupEdit = (type: string) => {
     if (type === 'duplicate') {
