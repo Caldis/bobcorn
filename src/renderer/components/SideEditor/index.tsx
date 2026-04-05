@@ -769,7 +769,7 @@ const SideEditor = React.memo(function SideEditor({
               icon={<Download size={12} />}
               onClick={handleIconExport}
             >
-              {t('editor.exportSvg')}
+              {t('iconExport.export')}
             </Button>
           </div>
         </div>

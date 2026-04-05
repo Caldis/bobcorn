@@ -27,6 +27,15 @@ export const PRESETS: PresetDef[] = [
     ],
   },
   {
+    key: 'rn',
+    labelKey: 'iconExport.preset.rn',
+    rows: [
+      { sizeMode: 'scale', scale: 1, pixelSize: 0, format: 'png' },
+      { sizeMode: 'scale', scale: 2, pixelSize: 0, format: 'png' },
+      { sizeMode: 'scale', scale: 3, pixelSize: 0, format: 'png' },
+    ],
+  },
+  {
     key: 'android',
     labelKey: 'iconExport.preset.android',
     rows: [
