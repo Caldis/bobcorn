@@ -22,6 +22,7 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,json}\"",
     "test": "vitest run",
     "test:unit": "vitest run test/unit",
+    "test:cli": "npx tsup && vitest run test/cli/",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "screenshot": "node scripts/screenshot.mjs /Users/caldis/Desktop/sf-symbols-good.icp",
