@@ -57,10 +57,10 @@ export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps)
       )}
     >
       {/* @/px toggle */}
-      <div className="flex bg-surface-accent rounded overflow-hidden shrink-0">
+      <div className="flex items-stretch bg-surface-accent rounded overflow-hidden shrink-0">
         <button
           className={cn(
-            'px-2 py-0.5 text-xs transition-colors',
+            'px-2 py-1 text-xs leading-none flex items-center justify-center transition-colors',
             row.sizeMode === 'scale'
               ? 'bg-accent text-accent-foreground'
               : 'text-foreground-muted hover:text-foreground'
@@ -72,7 +72,7 @@ export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps)
         </button>
         <button
           className={cn(
-            'px-2 py-0.5 text-xs transition-colors',
+            'px-2 py-1 text-xs leading-none flex items-center justify-center transition-colors',
             row.sizeMode === 'pixel'
               ? 'bg-accent text-accent-foreground'
               : 'text-foreground-muted hover:text-foreground'
