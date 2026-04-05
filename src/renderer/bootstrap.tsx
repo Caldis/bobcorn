@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import MainContainer from './containers/MainContainer';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.create
 import db, { dbReady } from './database';
 import useAppStore from './store';
 import i18n from './i18n';

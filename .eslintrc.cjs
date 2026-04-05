@@ -35,5 +35,20 @@ module.exports = {
     '@typescript-eslint/no-this-alias': 'warn',
     'react/no-unescaped-entities': 'warn',
   },
+  overrides: [
+    {
+      // Core migration boundary: renderer files should import from @core/operations, not database directly.
+      // Using 'warn' during migration — once all legacy sites are migrated, switch to 'error'.
+      files: ['src/renderer/**/*.{ts,tsx,js,jsx}'],
+      rules: {
+        'no-restricted-imports': ['warn', {
+          patterns: [{
+            group: ['**/database', '**/database/**'],
+            message: 'Import from @core/operations instead. See docs/MIGRATION.md',
+          }],
+        }],
+      },
+    },
+  ],
   ignorePatterns: ['out/', 'node_modules/', 'dll/'],
 };

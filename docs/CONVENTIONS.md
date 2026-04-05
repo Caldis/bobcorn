@@ -164,3 +164,15 @@ label: t('menu.file.save')
 ### Adding a New Language
 
 See Contributing Translations section in README.md.
+
+## Core Operations Layer
+
+All user-facing operations MUST be implemented in `src/core/operations/` first.
+
+- Core operations receive `IoAdapter` as a parameter -- never import `fs`, `path`, `window`, or `electronAPI` directly
+- Store actions are thin wrappers: call core operation -> update UI state
+- Register operations in `src/core/registry.ts`
+- Add corresponding CLI commands in `src/cli/commands/`
+- Components must not import from `src/renderer/database/` -- go through operations or store
+
+See `docs/MIGRATION.md` for the full migration process.

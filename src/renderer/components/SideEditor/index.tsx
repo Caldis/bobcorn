@@ -27,6 +27,7 @@ import { extractSvgColors, replaceSvgColor, parseCssColor } from '../../utils/sv
 import { platform } from '../../utils/tools';
 import { checkVariants, buildVariantWarning } from '../../utils/variantGuard';
 // Database
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.rename, icon.delete, icon.set-code, icon.replace, icon.export-svg, icon.get-content
 import db from '../../database';
 // Images
 import selectedIconHint from '../../resources/imgs/nodata/selectedIconHint.png';

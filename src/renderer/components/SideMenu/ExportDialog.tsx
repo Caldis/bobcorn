@@ -21,6 +21,7 @@ import {
 } from '../../utils/generators/demopageGenerator';
 import { zipSync } from 'fflate';
 import { cn } from '../../lib/utils';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.set-name, project.set-prefix, export.font, export.svg
 import db from '../../database';
 import type { ExportGroupOption } from './types';
 

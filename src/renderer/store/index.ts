@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.import, group.list
 import db from '../database';
 import config, { getOption, setOption } from '../config';
 import { resolveTheme, applyThemeClass } from '../config/themes';

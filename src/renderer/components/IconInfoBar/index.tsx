@@ -18,6 +18,7 @@ import {
 // Components
 import GroupIconPreview from '../GroupIconPreview';
 // Database
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): search.query
 import db from '../../database';
 import { platform } from '../../utils/tools';
 // Store

@@ -16,6 +16,7 @@
  */
 
 import React from 'react';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.delete
 import db from '../database';
 
 export interface VariantGuardResult {

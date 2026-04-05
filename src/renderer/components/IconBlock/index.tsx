@@ -10,6 +10,7 @@ import { cn } from '../../lib/utils';
 // Store
 import useAppStore from '../../store';
 // Database — lazy content loading
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.set-favorite, icon.get-content
 import db from '../../database';
 
 interface IconData {
