@@ -34,6 +34,11 @@ describe('parseViewBox', () => {
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 28 28"><rect/></svg>';
     expect(parseViewBox(svg)).toEqual({ x: -2, y: -2, w: 28, h: 28 });
   });
+
+  it('parses single-quoted viewBox', () => {
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect/></svg>";
+    expect(parseViewBox(svg)).toEqual({ x: 0, y: 0, w: 32, h: 32 });
+  });
 });
 
 describe('prepareSvgForRender', () => {

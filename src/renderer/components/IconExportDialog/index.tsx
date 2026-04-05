@@ -128,6 +128,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
     if (rows.length === 0) return;
 
     let dirPath: string | null = null;
+    let singleFilePath: string | null = null;
     const baseName: string | null = null;
 
     if (isBatch) {
@@ -153,8 +154,10 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
       const fullPath = result.filePath;
       const lastSep = Math.max(fullPath.lastIndexOf('/'), fullPath.lastIndexOf('\\'));
       dirPath = fullPath.substring(0, lastSep);
-      // Use the original icon name as base (ignore what user typed for the name part)
-      // but use the directory they selected
+      if (rows.length === 1) {
+        // Single row: use user's exact chosen path
+        singleFilePath = fullPath;
+      }
     }
 
     setExporting(true);
@@ -178,7 +181,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
 
           if (row.format === 'svg') {
             // SVG: write raw content
-            const dest = `${dirPath}/${fname}`;
+            const dest = singleFilePath || `${dirPath}/${fname}`;
             await electronAPI.writeFile(dest, icon.iconContent);
           } else if (row.format === 'pdf') {
             // PDF: rasterize then embed in PDF
@@ -188,8 +191,11 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
               format: 'png',
               quality: 100,
             });
-            const pdfBuf = await buildPdfBuffer(pngBuf, targetSize, targetSize);
-            const dest = `${dirPath}/${fname}`;
+            const aspect = iconVb.w / iconVb.h;
+            const pdfW = aspect >= 1 ? targetSize : Math.round(targetSize * aspect);
+            const pdfH = aspect >= 1 ? Math.round(targetSize / aspect) : targetSize;
+            const pdfBuf = await buildPdfBuffer(pngBuf, pdfW, pdfH);
+            const dest = singleFilePath || `${dirPath}/${fname}`;
             await electronAPI.writeFile(dest, new Uint8Array(pdfBuf));
           } else if (row.format === 'ico') {
             if (showIcoMerge && icoMerge) {
@@ -200,7 +206,10 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
                 format: 'png',
                 quality: 100,
               });
-              icoBuffers.push({ pngData: pngBuf, width: targetSize, height: targetSize });
+              const icoAspect = iconVb.w / iconVb.h;
+              const icoW = icoAspect >= 1 ? targetSize : Math.round(targetSize * icoAspect);
+              const icoH = icoAspect >= 1 ? Math.round(targetSize / icoAspect) : targetSize;
+              icoBuffers.push({ pngData: pngBuf, width: icoW, height: icoH });
             } else {
               // Single-size ICO
               const pngBuf = await rasterizeSvgToArrayBuffer({
@@ -209,10 +218,11 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
                 format: 'png',
                 quality: 100,
               });
-              const icoBuf = buildIcoBuffer([
-                { pngData: pngBuf, width: targetSize, height: targetSize },
-              ]);
-              const dest = `${dirPath}/${fname}`;
+              const icoAspect = iconVb.w / iconVb.h;
+              const icoW = icoAspect >= 1 ? targetSize : Math.round(targetSize * icoAspect);
+              const icoH = icoAspect >= 1 ? Math.round(targetSize / icoAspect) : targetSize;
+              const icoBuf = buildIcoBuffer([{ pngData: pngBuf, width: icoW, height: icoH }]);
+              const dest = singleFilePath || `${dirPath}/${fname}`;
               await electronAPI.writeFile(dest, new Uint8Array(icoBuf));
             }
           } else {
@@ -224,7 +234,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
               quality,
               bgColor: row.format === 'jpg' ? bgColor : undefined,
             });
-            const dest = `${dirPath}/${fname}`;
+            const dest = singleFilePath || `${dirPath}/${fname}`;
             const arrayBuf = await blob.arrayBuffer();
             await electronAPI.writeFile(dest, new Uint8Array(arrayBuf));
           }
@@ -239,7 +249,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
         if (icoBuffers.length > 0) {
           const icoBuf = buildIcoBuffer(icoBuffers);
           const fname = `${icon.iconName}.ico`;
-          const dest = `${dirPath}/${fname}`;
+          const dest = singleFilePath || `${dirPath}/${fname}`;
           await electronAPI.writeFile(dest, new Uint8Array(icoBuf));
           current++;
           setProgress({ current, total });
