@@ -85,6 +85,7 @@ bobcorn/
 | `docs/HANDOFF.md` | Session 交接文档 (架构决策、已知问题、待做事项) |
 | `docs/PARALLEL_DEVELOPMENT.md` | 并行开发协作协议 |
 | `docs/DEPENDENCY_MAP.md` | 模块依赖与变更影响分析 |
+| `docs/MIGRATION.md` | Core 迁移指南 (进度、流程、规则) |
 | `src/renderer/store/README.md` | State tree + 使用模式 |
 | `src/renderer/database/README.md` | Schema + 异步初始化 + CRUD API |
 
@@ -146,3 +147,4 @@ CI 失败时：查看日志 → 修复 → 删 tag 重打 → 重新 push。
 - electron-vite CJS renderer: 自定义 `electronCjsHtmlPlugin` 处理 HTML
 - 不要手动编辑 `out/` 目录 — 它们是构建产物
 - **i18n 必须遵守**: 所有用户可见字符串必须使用 `t()` 函数（`react-i18next`），不允许硬编码中文或英文。新增功能时必须同时在 `src/locales/zh-CN.json` 和 `src/locales/en.json` 中添加翻译 key。详见 `docs/CONVENTIONS.md` 的 i18n 章节。
+- **core-first 开发**: 所有新增用户操作必须先在 `src/core/operations/` 实现，store action 仅做薄封装 (调用 core → 更新 UI state)。组件不允许直接导入 `database/`。详见 `docs/MIGRATION.md`。
