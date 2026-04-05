@@ -34,6 +34,9 @@ import selectedIconHint from '../../resources/imgs/nodata/selectedIconHint.png';
 import useAppStore from '../../store';
 // Variant panel
 import VariantPanel from './VariantPanel';
+// Export dialog
+import { IconExportDialog } from '../IconExportDialog';
+import type { IconExportTarget } from '../IconExportDialog';
 
 const radioStyle: React.CSSProperties = {};
 
@@ -78,6 +81,7 @@ const SideEditor = React.memo(function SideEditor({
   const [iconGroupEditModelTarget, setIconGroupEditModelTarget] = useState<string | null>(
     selectedGroup || null
   );
+  const [exportDialogVisible, setExportDialogVisible] = useState(false);
 
   const prevSelectedIconRef = useRef<string | null>(selectedIcon);
 
@@ -219,18 +223,7 @@ const SideEditor = React.memo(function SideEditor({
   };
 
   // 图标导出相关
-  const handleIconExport = async () => {
-    const result = await electronAPI.showSaveDialog({
-      title: t('editor.exportIcon'),
-      defaultPath: `${iconData.iconName}.${iconData.iconType}`,
-    });
-    if (!result.canceled && result.filePath) {
-      electronAPI
-        .writeFile(result.filePath, iconData.iconContent)
-        .then(() => message.success(t('editor.exported')))
-        .catch((err: Error) => message.error(t('editor.exportError', { error: err.message })));
-    }
-  };
+  const handleIconExport = () => setExportDialogVisible(true);
   const handleAllIconExport = async () => {
     const result = await electronAPI.showSaveDialog({
       title: t('editor.exportAllIcons'),
@@ -452,6 +445,14 @@ const SideEditor = React.memo(function SideEditor({
       isPickingRef.current = false;
     }
   }, [applyColor]);
+
+  const exportIcons: IconExportTarget[] = useMemo(
+    () =>
+      iconData
+        ? [{ id: iconData.id, iconName: iconData.iconName, iconContent: iconData.iconContent }]
+        : [],
+    [iconData]
+  );
 
   const colorChanged = originalIconContent !== null && iconData.iconContent !== originalIconContent;
 
@@ -831,6 +832,12 @@ const SideEditor = React.memo(function SideEditor({
           </RadioGroup>
         </div>
       </Dialog>
+
+      <IconExportDialog
+        visible={exportDialogVisible}
+        onClose={() => setExportDialogVisible(false)}
+        icons={exportIcons}
+      />
     </div>
   );
 });

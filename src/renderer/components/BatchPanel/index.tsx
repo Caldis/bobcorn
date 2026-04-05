@@ -10,6 +10,8 @@ import { allVariantCombinations, buildVariantName } from '../../utils/svg/varian
 import { bakeSvgVariant, buildVariantMeta } from '../../utils/svg/bake';
 import db from '../../database';
 import useAppStore from '../../store';
+import { IconExportDialog } from '../IconExportDialog';
+import type { IconExportTarget } from '../IconExportDialog';
 
 const { electronAPI } = window;
 
@@ -47,6 +49,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
   const [batchColor, setBatchColor] = useState('#000000');
   const [colorInputValue, setColorInputValue] = useState('#000000');
   const [colorInputError, setColorInputError] = useState(false);
+  const [exportDialogVisible, setExportDialogVisible] = useState(false);
 
   // --- Operations ---
   const handleMove = useCallback(
@@ -83,23 +86,18 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
     });
   }, [selectedIds]);
 
-  const handleExport = useCallback(async () => {
-    const result = await electronAPI.showSaveDialog({
-      title: t('batch.selectExportDir'),
-      properties: ['openDirectory'],
-    });
-    if (!result || result.canceled) return;
-    const dirPath = result.filePath || (result as any).filePaths?.[0];
-    if (!dirPath) return;
+  const handleExport = useCallback(() => setExportDialogVisible(true), []);
 
-    selectedIds.forEach((id: string) => {
-      const data = db.getIconData(id);
-      if (data) {
-        electronAPI.writeFileSync(`${dirPath}/${data.iconName}.svg`, data.iconContent);
-      }
-    });
-    message.success(t('batch.exportedSvg', { count: selectedIds.length }));
-  }, [selectedIds]);
+  const exportIcons: IconExportTarget[] = useMemo(
+    () =>
+      selectedIds
+        .map((id: string) => {
+          const data = db.getIconData(id);
+          return data ? { id, iconName: data.iconName, iconContent: data.iconContent } : null;
+        })
+        .filter(Boolean) as IconExportTarget[],
+    [selectedIds]
+  );
 
   const handleToggleFavorite = useCallback(() => {
     const newValue = allFavorited ? 0 : 1;
@@ -436,6 +434,12 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
           {t('batch.cancelSelection')}
         </button>
       </div>
+
+      <IconExportDialog
+        visible={exportDialogVisible}
+        onClose={() => setExportDialogVisible(false)}
+        icons={exportIcons}
+      />
     </div>
   );
 }
