@@ -80,7 +80,7 @@ export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps)
           onClick={() => handleSizeModeToggle('pixel')}
           disabled={isSvg}
         >
-          px
+          PX
         </button>
       </div>
 
@@ -158,32 +158,27 @@ export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps)
         ))}
       </select>
 
-      {/* Filename preview with middle truncation */}
-      <span className="flex-1 min-w-0 relative group">
-        <span className="block text-xs text-foreground-muted font-mono truncate-middle">
-          {(() => {
-            const maxLen = 28;
-            if (filename.length <= maxLen) return filename;
-            const keepEnd = 16; // keep suffix like @3x.png visible
-            const keepStart = maxLen - keepEnd - 3; // 3 for "..."
-            return filename.slice(0, keepStart) + '...' + filename.slice(-keepEnd);
-          })()}
+      {/* Filename preview — CSS fade truncation, shows start + end */}
+      <span className="flex-1 min-w-0 relative group" title={filename}>
+        <span
+          className="block text-xs text-foreground-muted font-mono whitespace-nowrap overflow-hidden"
+          style={{ textOverflow: 'ellipsis', direction: 'rtl', textAlign: 'left' }}
+        >
+          <bdo dir="ltr">{filename}</bdo>
         </span>
-        {/* Tooltip on hover showing full filename */}
-        {filename.length > 28 && (
-          <span
-            className={cn(
-              'absolute bottom-full left-1/2 -translate-x-1/2 mb-1',
-              'px-2 py-1 rounded text-xs',
-              'bg-foreground text-surface',
-              'whitespace-nowrap pointer-events-none',
-              'opacity-0 group-hover:opacity-100 transition-opacity',
-              'z-50'
-            )}
-          >
-            {filename}
-          </span>
-        )}
+        {/* Tooltip */}
+        <span
+          className={cn(
+            'absolute bottom-full left-1/2 -translate-x-1/2 mb-1',
+            'px-2 py-1 rounded text-xs',
+            'bg-foreground text-surface',
+            'whitespace-nowrap pointer-events-none',
+            'opacity-0 group-hover:opacity-100 transition-opacity',
+            'z-50'
+          )}
+        >
+          {filename}
+        </span>
       </span>
 
       {/* Delete */}
