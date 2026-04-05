@@ -140,6 +140,7 @@
   "iconExport.title": "Export Icon",
   "iconExport.titleBatch": "Export {{count}} Icons",
   "iconExport.preset.ios": "iOS",
+  "iconExport.preset.rn": "React Native",
   "iconExport.preset.android": "Android",
   "iconExport.preset.web": "Web @1x–2x",
   "iconExport.preset.favicon": "Favicon",
