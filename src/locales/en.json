@@ -426,7 +426,9 @@
   "settings.cli.uninstall": "Uninstall",
   "settings.cli.manualSetup": "Manual setup",
   "settings.cli.checking": "Checking...",
-  "settings.cli.restartHint": "Open a new terminal to use the bobcorn command.",
+  "settings.cli.restartHint": "Open a new terminal to use the {{command}} command.",
+  "settings.cli.installing": "Installing...",
+  "settings.cli.uninstalling": "Removing...",
   "settings.cli.installSuccess": "CLI installed successfully",
   "settings.cli.installError": "Failed to install CLI: {{error}}",
 

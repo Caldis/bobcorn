@@ -278,23 +278,99 @@ if (!gotLock) {
 
     // ── CLI management ──────────────────────────────────────────────
     ipcMain.handle('cli-detect-status', async () => {
+      // In dev, the CLI registers as `bobcorn-dev`; in prod as `bobcorn`
+      const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+      const cmd = isDev ? 'bobcorn-dev' : 'bobcorn';
+      const fs = require('fs');
+
+      // First: try running the command (works if PATH already has it)
       try {
         const { execSync } = require('child_process');
-        const version = execSync('bobcorn --version', { encoding: 'utf8', timeout: 5000 }).trim();
-        return { installed: true, version };
+        const version = execSync(`${cmd} --version`, {
+          encoding: 'utf8',
+          timeout: 5000,
+        }).trim();
+        return { installed: true, version, commandName: cmd };
       } catch {
-        return { installed: false, version: null };
+        // PATH might not have propagated yet — check if wrapper file exists
+        const ext = process.platform === 'win32' ? '.cmd' : '';
+        const wrapperDir =
+          process.platform === 'win32'
+            ? path.join(process.env.LOCALAPPDATA || '', 'Bobcorn', 'cli')
+            : path.join(os.homedir(), '.local', 'bin');
+        const wrapperPath = path.join(wrapperDir, cmd + ext);
+        if (fs.existsSync(wrapperPath)) {
+          // Wrapper exists but not in PATH yet — read version from our own package
+          const version = app.getVersion();
+          return { installed: true, version, commandName: cmd };
+        }
+        return { installed: false, version: null, commandName: cmd };
       }
     });
 
+    // Resolve CLI binary path — works in both dev and packaged
+    const resolveCliPath = (): string => {
+      const base = app.getAppPath().replace('app.asar', 'app.asar.unpacked');
+      return path.join(base, 'out', 'cli', 'index.cjs');
+    };
+
+    // Find system Node.js (not Electron) to run CLI scripts — async
+    const findNode = (): Promise<string> => {
+      const { execFile: ef } = require('child_process');
+      const fs = require('fs');
+      const which = process.platform === 'win32' ? 'where' : 'which';
+      return new Promise((resolve) => {
+        ef(which, ['node'], { encoding: 'utf8', timeout: 5000 }, (err: any, stdout: string) => {
+          if (err || !stdout) return resolve(process.execPath);
+          const candidates = stdout
+            .split('\n')
+            .map((l: string) => l.replace(/\r/g, '').trim())
+            .filter(Boolean);
+          for (const c of candidates) {
+            if (fs.existsSync(c)) return resolve(c);
+          }
+          resolve(candidates[0] || process.execPath);
+        });
+      });
+    };
+
+    // Run CLI command async — returns parsed JSON output
+    const runCli = (args: string[]): Promise<any> => {
+      const { execFile: ef } = require('child_process');
+      const fs = require('fs');
+      const cliPath = resolveCliPath();
+      if (!fs.existsSync(cliPath)) {
+        return Promise.resolve({
+          ok: false,
+          error: `CLI not built. Run "npx tsup" first.\n(${cliPath})`,
+        });
+      }
+      return findNode().then((nodeBin: string) => {
+        return new Promise((resolve) => {
+          ef(
+            nodeBin,
+            [cliPath, ...args, '--json'],
+            { encoding: 'utf8', timeout: 15000 },
+            (err: any, stdout: string) => {
+              try {
+                const text = (err?.stdout || stdout || '').trim();
+                if (text) return resolve(JSON.parse(text));
+                resolve({ ok: false, error: err?.message || 'No output' });
+              } catch {
+                resolve({ ok: false, error: err?.message || 'Parse error' });
+              }
+            }
+          );
+        });
+      });
+    };
+
     ipcMain.handle('cli-install', async () => {
       try {
-        const cliPath = path.join(app.getAppPath(), 'out', 'cli', 'index.cjs');
-        const installPath = cliPath
-          .replace('app.asar', 'app.asar.unpacked')
-          .replace(/index\.cjs$/, 'install');
-        const { install } = require(installPath);
-        return install();
+        const result: any = await runCli(['install']);
+        return result.ok
+          ? { success: true, message: 'installed', ...result.data }
+          : { success: false, message: result.error };
       } catch (err: any) {
         return { success: false, message: err.message };
       }
@@ -302,12 +378,10 @@ if (!gotLock) {
 
     ipcMain.handle('cli-uninstall', async () => {
       try {
-        const cliPath = path.join(app.getAppPath(), 'out', 'cli', 'index.cjs');
-        const installPath = cliPath
-          .replace('app.asar', 'app.asar.unpacked')
-          .replace(/index\.cjs$/, 'install');
-        const { uninstall } = require(installPath);
-        return uninstall();
+        const result: any = await runCli(['uninstall']);
+        return result.ok
+          ? { success: true, message: 'uninstalled', ...result.data }
+          : { success: false, message: result.error };
       } catch (err: any) {
         return { success: false, message: err.message };
       }

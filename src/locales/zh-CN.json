@@ -426,7 +426,9 @@
   "settings.cli.uninstall": "卸载",
   "settings.cli.manualSetup": "手动设置",
   "settings.cli.checking": "检测中...",
-  "settings.cli.restartHint": "安装后请打开新的终端窗口使用 bobcorn 命令。",
+  "settings.cli.restartHint": "请打开新的终端窗口使用 {{command}} 命令。",
+  "settings.cli.installing": "安装中...",
+  "settings.cli.uninstalling": "卸载中...",
   "settings.cli.installSuccess": "CLI 安装成功",
   "settings.cli.installError": "CLI 安装失败：{{error}}",
 

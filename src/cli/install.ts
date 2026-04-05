@@ -1,9 +1,13 @@
 /**
  * CLI install/uninstall logic.
  *
- * Handles PATH registration for the `bobcorn` command:
+ * Handles PATH registration:
+ * - Production: installs `bobcorn` command
+ * - Development: installs `bobcorn-dev` command
+ * Both can coexist simultaneously.
+ *
  * - macOS/Linux: wrapper script in ~/.local/bin
- * - Windows: bobcorn.cmd wrapper in %LOCALAPPDATA%\Bobcorn\cli + HKCU\Environment\Path
+ * - Windows: .cmd wrapper in %LOCALAPPDATA%\Bobcorn\cli + HKCU\Environment\Path
  */
 import fs from 'fs';
 import path from 'path';
@@ -15,6 +19,31 @@ export interface InstallResult {
   message: string;
   path: string;
   needsRestart: boolean;
+  commandName: string;
+}
+
+/** Detect if running in dev mode */
+function isDev(): boolean {
+  // In dev, the CLI source lives directly under the project (not inside app.asar)
+  const source = getCliSourcePath();
+  return !source.includes('app.asar') && !source.includes('resources');
+}
+
+/** Command name: `bobcorn` in prod, `bobcorn-dev` in dev */
+function commandName(): string {
+  return isDev() ? 'bobcorn-dev' : 'bobcorn';
+}
+
+/** Directory where CLI wrapper lives */
+function cliHome(): string {
+  if (os.platform() === 'win32') {
+    return path.join(
+      process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local'),
+      'Bobcorn',
+      'cli'
+    );
+  }
+  return path.join(os.homedir(), '.local', 'bin');
 }
 
 /**
@@ -26,29 +55,44 @@ export function getCliSourcePath(): string {
   return path.resolve(__dirname, 'index.cjs');
 }
 
+/** Find a usable Node.js binary (prefer system node over Electron) */
+function findNodeBin(): string {
+  if (!process.versions.electron) {
+    return process.execPath;
+  }
+  try {
+    const which = os.platform() === 'win32' ? 'where node' : 'which node';
+    return execSync(which, { encoding: 'utf8', timeout: 5000 }).trim().split('\n')[0];
+  } catch {
+    return process.execPath;
+  }
+}
+
 /**
- * Detect whether `bobcorn` is currently available on the system PATH.
+ * Detect whether the CLI command is available on the system PATH.
  */
 export function detectInstallStatus(): {
   installed: boolean;
   version: string | null;
   path: string | null;
+  commandName: string;
 } {
+  const cmd = commandName();
   try {
-    const result = execSync('bobcorn --version', {
+    const result = execSync(`${cmd} --version`, {
       encoding: 'utf8',
       timeout: 5000,
     }).trim();
-    const whichCmd = os.platform() === 'win32' ? 'where bobcorn' : 'which bobcorn';
+    const whichCmd = os.platform() === 'win32' ? `where ${cmd}` : `which ${cmd}`;
     const binPath = execSync(whichCmd, {
       encoding: 'utf8',
       timeout: 5000,
     })
       .trim()
       .split('\n')[0];
-    return { installed: true, version: result, path: binPath };
+    return { installed: true, version: result, path: binPath, commandName: cmd };
   } catch {
-    return { installed: false, version: null, path: null };
+    return { installed: false, version: null, path: null, commandName: cmd };
   }
 }
 
@@ -80,16 +124,13 @@ export function uninstall(): InstallResult {
 // ---------------------------------------------------------------------------
 
 function installWindows(source: string): InstallResult {
-  const cliDir = path.join(
-    process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local'),
-    'Bobcorn',
-    'cli'
-  );
+  const cmd = commandName();
+  const cliDir = cliHome();
   fs.mkdirSync(cliDir, { recursive: true });
 
-  // Write a .cmd wrapper that invokes node with the bundled CLI entry
-  const wrapperPath = path.join(cliDir, 'bobcorn.cmd');
-  fs.writeFileSync(wrapperPath, `@echo off\r\n"${process.execPath}" "${source}" %*\r\n`);
+  const nodeBin = findNodeBin();
+  const wrapperPath = path.join(cliDir, `${cmd}.cmd`);
+  fs.writeFileSync(wrapperPath, `@echo off\r\n"${nodeBin}" "${source}" %*\r\n`);
 
   // Add cliDir to User PATH if not already there
   try {
@@ -100,65 +141,66 @@ function installWindows(source: string): InstallResult {
       const pathValue = currentPath.match(/REG_(?:EXPAND_)?SZ\s+(.+)/)?.[1]?.trim() || '';
       const newPath = pathValue ? `${pathValue};${cliDir}` : cliDir;
       execSync(`reg add "HKCU\\Environment" /v Path /t REG_EXPAND_SZ /d "${newPath}" /f`);
-      // Broadcast WM_SETTINGCHANGE so other processes pick up the change
       execSync(
         "powershell -Command \"[Environment]::SetEnvironmentVariable('Path', [Environment]::GetEnvironmentVariable('Path', 'User'), 'User')\""
       );
     }
   } catch {
-    // PATH registry key might not exist yet — create it
     execSync(`reg add "HKCU\\Environment" /v Path /t REG_EXPAND_SZ /d "${cliDir}" /f`);
   }
 
   return {
     success: true,
-    message: 'CLI installed to PATH',
+    message: `CLI installed as "${cmd}"`,
     path: wrapperPath,
     needsRestart: true,
+    commandName: cmd,
   };
 }
 
 function uninstallWindows(): InstallResult {
-  const cliDir = path.join(
-    process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local'),
-    'Bobcorn',
-    'cli'
-  );
-  const wrapperPath = path.join(cliDir, 'bobcorn.cmd');
+  const cmd = commandName();
+  const cliDir = cliHome();
+  const wrapperPath = path.join(cliDir, `${cmd}.cmd`);
   try {
     fs.unlinkSync(wrapperPath);
   } catch {
     // Already removed or never existed
   }
 
-  // Remove cliDir from User PATH if present
-  try {
-    const currentPath = execSync('reg query "HKCU\\Environment" /v Path', {
-      encoding: 'utf8',
-    });
-    const pathValue = currentPath.match(/REG_(?:EXPAND_)?SZ\s+(.+)/)?.[1]?.trim() || '';
-    if (pathValue.includes(cliDir)) {
-      const newPath = pathValue
-        .split(';')
-        .filter((p) => p !== cliDir)
-        .join(';');
-      if (newPath) {
-        execSync(`reg add "HKCU\\Environment" /v Path /t REG_EXPAND_SZ /d "${newPath}" /f`);
+  // Only remove cliDir from PATH if no wrappers remain
+  const remaining = fs.existsSync(cliDir)
+    ? fs.readdirSync(cliDir).filter((f) => f.endsWith('.cmd'))
+    : [];
+  if (remaining.length === 0) {
+    try {
+      const currentPath = execSync('reg query "HKCU\\Environment" /v Path', {
+        encoding: 'utf8',
+      });
+      const pathValue = currentPath.match(/REG_(?:EXPAND_)?SZ\s+(.+)/)?.[1]?.trim() || '';
+      if (pathValue.includes(cliDir)) {
+        const newPath = pathValue
+          .split(';')
+          .filter((p) => p !== cliDir)
+          .join(';');
+        if (newPath) {
+          execSync(`reg add "HKCU\\Environment" /v Path /t REG_EXPAND_SZ /d "${newPath}" /f`);
+        }
+        execSync(
+          "powershell -Command \"[Environment]::SetEnvironmentVariable('Path', [Environment]::GetEnvironmentVariable('Path', 'User'), 'User')\""
+        );
       }
-      // Broadcast WM_SETTINGCHANGE
-      execSync(
-        "powershell -Command \"[Environment]::SetEnvironmentVariable('Path', [Environment]::GetEnvironmentVariable('Path', 'User'), 'User')\""
-      );
+    } catch {
+      // PATH key doesn't exist — nothing to clean
     }
-  } catch {
-    // If reg query fails, PATH key doesn't exist — nothing to clean
   }
 
   return {
     success: true,
-    message: 'CLI removed from PATH',
+    message: `"${cmd}" removed`,
     path: wrapperPath,
     needsRestart: true,
+    commandName: cmd,
   };
 }
 
@@ -169,10 +211,11 @@ function uninstallWindows(): InstallResult {
 function installUnix(source: string): InstallResult {
   const localBin = path.join(os.homedir(), '.local', 'bin');
   fs.mkdirSync(localBin, { recursive: true });
-  const linkPath = path.join(localBin, 'bobcorn');
 
-  // Create wrapper script (not symlink — handles node path correctly)
-  fs.writeFileSync(linkPath, `#!/bin/sh\nexec "${process.execPath}" "${source}" "$@"\n`);
+  const cmd = commandName();
+  const nodeBin = findNodeBin();
+  const linkPath = path.join(localBin, cmd);
+  fs.writeFileSync(linkPath, `#!/bin/sh\nexec "${nodeBin}" "${source}" "$@"\n`);
   fs.chmodSync(linkPath, 0o755);
 
   // Check if ~/.local/bin is in PATH, suggest shell RC update if not
@@ -198,7 +241,8 @@ function installUnix(source: string): InstallResult {
 }
 
 function uninstallUnix(): InstallResult {
-  const linkPath = path.join(os.homedir(), '.local', 'bin', 'bobcorn');
+  const cmd = commandName();
+  const linkPath = path.join(os.homedir(), '.local', 'bin', cmd);
   try {
     fs.unlinkSync(linkPath);
   } catch {
@@ -206,8 +250,9 @@ function uninstallUnix(): InstallResult {
   }
   return {
     success: true,
-    message: 'CLI removed',
+    message: `"${cmd}" removed`,
     path: linkPath,
     needsRestart: false,
+    commandName: cmd,
   };
 }
