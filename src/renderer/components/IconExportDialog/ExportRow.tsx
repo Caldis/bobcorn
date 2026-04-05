@@ -158,28 +158,33 @@ export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps)
         ))}
       </select>
 
-      {/* Filename preview — CSS fade truncation, shows start + end */}
-      <span className="flex-1 min-w-0 relative group" title={filename}>
-        <span
-          className="block text-xs text-foreground-muted font-mono whitespace-nowrap overflow-hidden"
-          style={{ textOverflow: 'ellipsis', direction: 'rtl', textAlign: 'left' }}
-        >
-          <bdo dir="ltr">{filename}</bdo>
-        </span>
-        {/* Tooltip */}
-        <span
-          className={cn(
-            'absolute bottom-full left-1/2 -translate-x-1/2 mb-1',
-            'px-2 py-1 rounded text-xs',
-            'bg-foreground text-surface',
-            'whitespace-nowrap pointer-events-none',
-            'opacity-0 group-hover:opacity-100 transition-opacity',
-            'z-50'
-          )}
-        >
-          {filename}
-        </span>
-      </span>
+      {/* Filename preview — flex dual-span: name truncates, suffix stays */}
+      {(() => {
+        const suffix = filename.slice(iconName.length);
+        return (
+          <span className="flex-1 min-w-0 relative group flex items-center">
+            <span className="text-xs text-foreground-muted font-mono truncate min-w-0">
+              {iconName}
+            </span>
+            <span className="text-xs text-foreground-muted font-mono shrink-0 whitespace-nowrap">
+              {suffix}
+            </span>
+            {/* Tooltip */}
+            <span
+              className={cn(
+                'absolute bottom-full left-1/2 -translate-x-1/2 mb-1',
+                'px-2 py-1 rounded text-xs',
+                'bg-foreground text-surface',
+                'whitespace-nowrap pointer-events-none',
+                'opacity-0 group-hover:opacity-100 transition-opacity',
+                'z-50'
+              )}
+            >
+              {filename}
+            </span>
+          </span>
+        );
+      })()}
 
       {/* Delete */}
       <button
