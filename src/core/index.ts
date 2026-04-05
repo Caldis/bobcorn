@@ -23,3 +23,12 @@ export type {
 // Operations registry
 export { OpStatus, OPERATIONS } from './registry';
 export type { OpEntry } from './registry';
+
+// Database
+export { ProjectDb, openProject, createEmptyProject, saveProject } from './database';
+
+// Operations
+export { createProject, inspectProject } from './operations/project';
+export type { InspectResult } from './operations/project';
+export { listIcons } from './operations/icon';
+export { listGroups } from './operations/group';

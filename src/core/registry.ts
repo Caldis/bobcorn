@@ -29,7 +29,8 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'project.create',
     description: 'Create a new .icp project file',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/project.ts#createProject',
     legacyPaths: ['src/renderer/database/index.ts#initDatabases'],
     cliCommand: 'project create',
   },
@@ -50,7 +51,8 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'project.inspect',
     description: 'Show project metadata, icon count, group list, and validation',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/project.ts#inspectProject',
     legacyPaths: ['src/renderer/database/index.ts#getProjectAttributes'],
     cliCommand: 'project inspect',
   },
@@ -87,7 +89,8 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'icon.list',
     description: 'List icons in project, optionally filtered by group',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/icon.ts#listIcons',
     legacyPaths: ['src/renderer/components/IconGridLocal/index.tsx'],
     cliCommand: 'icon list',
   },
@@ -174,7 +177,8 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'group.list',
     description: 'List all groups with icon counts',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/group.ts#listGroups',
     legacyPaths: [
       'src/renderer/store/index.ts#syncLeft',
       'src/renderer/components/SideMenu/GroupList.tsx',

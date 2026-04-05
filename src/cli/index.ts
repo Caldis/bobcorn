@@ -12,6 +12,12 @@ import { Command } from 'commander';
 import { nodeIo } from './io-node';
 import { jsonOutput, jsonError, printResult, type CliMeta } from './output';
 import { install, uninstall } from './install';
+import {
+  createProject as coreCreateProject,
+  inspectProject as coreInspectProject,
+} from '../core/operations/project';
+import { listIcons as coreListIcons } from '../core/operations/icon';
+import { listGroups as coreListGroups } from '../core/operations/group';
 
 // Read version from package.json at build time (tsup bundles it)
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -59,13 +65,26 @@ project
         printResult(result, jsonMode);
         process.exit(2);
       }
-      // TODO: wire to core.operations.project.inspect() when migration is complete
+      const info = await coreInspectProject(nodeIo, resolvedPath);
       meta.duration_ms = Date.now() - start;
-      const result = jsonOutput({ path: resolvedPath, status: 'valid' }, meta);
+      const result = jsonOutput(info, meta);
       printResult(result, jsonMode);
       if (!jsonMode) {
         console.log(`Project: ${resolvedPath}`);
-        console.log('Status: valid');
+        console.log(`Name:    ${info.name}`);
+        console.log(`Prefix:  ${info.prefix}`);
+        console.log(`Icons:   ${info.iconCount}`);
+        console.log(`Groups:  ${info.groupCount}`);
+        if (info.groups.length > 0) {
+          console.log('');
+          // Table header
+          const nameWidth = Math.max(4, ...info.groups.map((g) => g.name.length));
+          console.log(`  ${'Name'.padEnd(nameWidth)}  Icons`);
+          console.log(`  ${''.padEnd(nameWidth, '-')}  -----`);
+          for (const g of info.groups) {
+            console.log(`  ${g.name.padEnd(nameWidth)}  ${g.count}`);
+          }
+        }
       }
     } catch (err: any) {
       meta.duration_ms = Date.now() - start;
@@ -76,9 +95,29 @@ project
   });
 
 project
-  .command('create <name>')
-  .description('Create a new project')
-  .action(stubAction('project create'));
+  .command('create <path>')
+  .description('Create a new empty .icp project file')
+  .option('--name <name>', 'Project / font prefix name', 'iconfont')
+  .action(async (icpPath: string, opts: { name: string }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('project create', icpPath, start);
+    try {
+      const { projectPath } = await coreCreateProject(nodeIo, icpPath, opts.name);
+      meta.duration_ms = Date.now() - start;
+      meta.projectPath = projectPath;
+      const result = jsonOutput({ projectPath }, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Created project: ${projectPath}`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 project
   .command('set-name <icp> <name>')
@@ -95,7 +134,58 @@ project
 // ---------------------------------------------------------------------------
 const icon = program.command('icon').description('Icon operations');
 
-icon.command('list <icp>').description('List icons in project').action(stubAction('icon list'));
+icon
+  .command('list <icp>')
+  .description('List icons in project')
+  .option('--group <name>', 'Filter by group name')
+  .action(async (icpPath: string, opts: { group?: string }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon list', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const icons = await coreListIcons(nodeIo, resolvedPath, {
+        group: opts.group,
+      });
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(icons, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (icons.length === 0) {
+          console.log('No icons found.');
+        } else {
+          // Table output
+          const idWidth = Math.max(2, ...icons.map((i) => i.id.length));
+          const nameWidth = Math.max(4, ...icons.map((i) => i.iconName.length));
+          const codeWidth = Math.max(4, ...icons.map((i) => (i.iconCode || '').length));
+          const groupWidth = Math.max(5, ...icons.map((i) => i.iconGroup.length));
+          console.log(
+            `  ${'ID'.padEnd(idWidth)}  ${'Name'.padEnd(nameWidth)}  ${'Code'.padEnd(codeWidth)}  ${'Group'.padEnd(groupWidth)}`
+          );
+          console.log(
+            `  ${''.padEnd(idWidth, '-')}  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(codeWidth, '-')}  ${''.padEnd(groupWidth, '-')}`
+          );
+          for (const icon of icons) {
+            console.log(
+              `  ${icon.id.padEnd(idWidth)}  ${icon.iconName.padEnd(nameWidth)}  ${(icon.iconCode || '').padEnd(codeWidth)}  ${icon.iconGroup.padEnd(groupWidth)}`
+            );
+          }
+          console.log(`\n${icons.length} icon(s) total`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('import <icp> <svgs...>')
@@ -158,7 +248,48 @@ icon
 // ---------------------------------------------------------------------------
 const group = program.command('group').description('Group operations');
 
-group.command('list <icp>').description('List groups').action(stubAction('group list'));
+group
+  .command('list <icp>')
+  .description('List groups with icon counts')
+  .action(async (icpPath: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('group list', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const groups = await coreListGroups(nodeIo, resolvedPath);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(groups, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (groups.length === 0) {
+          console.log('No groups found.');
+        } else {
+          const nameWidth = Math.max(4, ...groups.map((g) => g.groupName.length));
+          const orderWidth = Math.max(5, ...groups.map((g) => String(g.groupOrder).length));
+          console.log(`  ${'Name'.padEnd(nameWidth)}  ${'Order'.padEnd(orderWidth)}`);
+          console.log(`  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(orderWidth, '-')}`);
+          for (const g of groups) {
+            console.log(
+              `  ${g.groupName.padEnd(nameWidth)}  ${String(g.groupOrder).padEnd(orderWidth)}`
+            );
+          }
+          console.log(`\n${groups.length} group(s) total`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 group.command('add <icp> <name>').description('Add a new group').action(stubAction('group add'));
 
