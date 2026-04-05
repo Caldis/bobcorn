@@ -95,7 +95,25 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
   }, []);
 
   const handleAddRow = useCallback(() => {
-    setRows((prev) => [...prev, makeDefaultRow()]);
+    setRows((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.sizeMode === 'scale') {
+        return [
+          ...prev,
+          {
+            id: newRowId(),
+            sizeMode: 'scale',
+            scale: last.scale + 1,
+            pixelSize: last.pixelSize,
+            format: last.format,
+          },
+        ];
+      }
+      if (last) {
+        return [...prev, { ...last, id: newRowId() }];
+      }
+      return [...prev, makeDefaultRow()];
+    });
     setActivePreset(null);
   }, []);
 
@@ -114,12 +132,12 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
     let filePath: string | null = null;
 
     if (needsDir) {
-      const result = await electronAPI.showSaveDialog({
+      const result = await electronAPI.showOpenDialog({
         title: t('iconExport.selectDir'),
-        properties: ['openDirectory'],
+        properties: ['openDirectory', 'createDirectory'],
       });
-      if (!result || result.canceled) return;
-      dirPath = result.filePath || result.filePaths?.[0];
+      if (!result || result.canceled || !result.filePaths?.length) return;
+      dirPath = result.filePaths[0];
       if (!dirPath) return;
     } else {
       const fname = buildFilename(firstIcon.iconName, rows[0]);
@@ -136,6 +154,11 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
     const total = totalFiles;
     let current = 0;
     setProgress({ current: 0, total });
+
+    // Ensure target directory exists
+    if (dirPath && !electronAPI.accessSync(dirPath)) {
+      electronAPI.mkdirSync(dirPath, { recursive: true });
+    }
 
     try {
       for (const icon of icons) {
