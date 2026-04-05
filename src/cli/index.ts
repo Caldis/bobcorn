@@ -11,6 +11,7 @@
 import { Command } from 'commander';
 import { nodeIo } from './io-node';
 import { jsonOutput, jsonError, printResult, type CliMeta } from './output';
+import { install, uninstall } from './install';
 
 // Read version from package.json at build time (tsup bundles it)
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -250,6 +251,36 @@ favorite
   .command('list <icp>')
   .description('List favorite icons')
   .action(stubAction('favorite list'));
+
+// ---------------------------------------------------------------------------
+// install / uninstall
+// ---------------------------------------------------------------------------
+program
+  .command('install')
+  .description('Install bobcorn CLI to system PATH')
+  .action(() => {
+    const result = install();
+    if (program.opts().json) {
+      process.stdout.write(JSON.stringify({ ok: result.success, data: result }) + '\n');
+    } else {
+      console.log(result.message);
+      if (result.needsRestart) {
+        console.log('Note: Open a new terminal to use the `bobcorn` command.');
+      }
+    }
+  });
+
+program
+  .command('uninstall')
+  .description('Remove bobcorn CLI from system PATH')
+  .action(() => {
+    const result = uninstall();
+    if (program.opts().json) {
+      process.stdout.write(JSON.stringify({ ok: result.success, data: result }) + '\n');
+    } else {
+      console.log(result.message);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // parse and execute
