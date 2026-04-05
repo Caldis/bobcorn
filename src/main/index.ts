@@ -276,6 +276,43 @@ if (!gotLock) {
       }
     );
 
+    // ── CLI management ──────────────────────────────────────────────
+    ipcMain.handle('cli-detect-status', async () => {
+      try {
+        const { execSync } = require('child_process');
+        const version = execSync('bobcorn --version', { encoding: 'utf8', timeout: 5000 }).trim();
+        return { installed: true, version };
+      } catch {
+        return { installed: false, version: null };
+      }
+    });
+
+    ipcMain.handle('cli-install', async () => {
+      try {
+        const cliPath = path.join(app.getAppPath(), 'out', 'cli', 'index.cjs');
+        const installPath = cliPath
+          .replace('app.asar', 'app.asar.unpacked')
+          .replace(/index\.cjs$/, 'install');
+        const { install } = require(installPath);
+        return install();
+      } catch (err: any) {
+        return { success: false, message: err.message };
+      }
+    });
+
+    ipcMain.handle('cli-uninstall', async () => {
+      try {
+        const cliPath = path.join(app.getAppPath(), 'out', 'cli', 'index.cjs');
+        const installPath = cliPath
+          .replace('app.asar', 'app.asar.unpacked')
+          .replace(/index\.cjs$/, 'install');
+        const { uninstall } = require(installPath);
+        return uninstall();
+      } catch (err: any) {
+        return { success: false, message: err.message };
+      }
+    });
+
     // Screen color picker
     registerPixelPicker();
 

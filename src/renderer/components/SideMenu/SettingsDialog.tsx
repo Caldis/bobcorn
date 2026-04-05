@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, Input } from '../ui';
 import { Switch } from '../ui/switch';
@@ -32,6 +32,71 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const [channel, setChannel] = useState<'stable' | 'beta'>(opts.updateChannel);
   const themeMode = useAppStore((s: any) => s.themeMode);
   const setThemeMode = useAppStore((s: any) => s.setThemeMode);
+
+  // CLI status
+  const [cliStatus, setCliStatus] = useState<'checking' | 'installed' | 'not-installed'>(
+    'checking'
+  );
+  const [cliVersion, setCliVersion] = useState<string | null>(null);
+  const [cliActionPending, setCliActionPending] = useState(false);
+  const [cliShowRestartHint, setCliShowRestartHint] = useState(false);
+
+  const detectCliStatus = useCallback(async () => {
+    setCliStatus('checking');
+    try {
+      const result = await (window as any).electronAPI.cliDetectStatus();
+      if (result.installed) {
+        setCliStatus('installed');
+        setCliVersion(result.version);
+      } else {
+        setCliStatus('not-installed');
+        setCliVersion(null);
+      }
+    } catch {
+      setCliStatus('not-installed');
+      setCliVersion(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (visible) {
+      detectCliStatus();
+      setCliShowRestartHint(false);
+    }
+  }, [visible, detectCliStatus]);
+
+  const handleCliInstall = async () => {
+    setCliActionPending(true);
+    try {
+      const result = await (window as any).electronAPI.cliInstall();
+      if (result.success) {
+        message.success(t('settings.cli.installSuccess'));
+        setCliShowRestartHint(true);
+        await detectCliStatus();
+      } else {
+        message.error(t('settings.cli.installError', { error: result.message }));
+      }
+    } catch (err: any) {
+      message.error(t('settings.cli.installError', { error: err.message }));
+    } finally {
+      setCliActionPending(false);
+    }
+  };
+
+  const handleCliUninstall = async () => {
+    setCliActionPending(true);
+    try {
+      const result = await (window as any).electronAPI.cliUninstall();
+      if (result.success) {
+        setCliShowRestartHint(false);
+        await detectCliStatus();
+      }
+    } catch {
+      // Silently handle errors
+    } finally {
+      setCliActionPending(false);
+    }
+  };
 
   const syncPrefsToMain = (updates: Partial<OptionData>) => {
     setOption(updates);
@@ -305,6 +370,156 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               </button>
             </div>
           </div>
+        </section>
+
+        {/* ── Divider ───────────────────────────────────── */}
+        <div className="border-t border-border" />
+
+        {/* ── Command Line Interface ─────────────────── */}
+        <section>
+          <h4
+            className={cn(
+              'text-[11px] font-semibold uppercase tracking-widest',
+              'text-foreground-muted/60 mb-2.5'
+            )}
+          >
+            {t('settings.cli.title')}
+          </h4>
+          <p className="text-[11px] text-foreground-muted/50 mb-3 leading-relaxed">
+            {t('settings.cli.description')}
+          </p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-foreground">{t('settings.cli.title')}</span>
+                {cliStatus === 'checking' && (
+                  <span className="text-[11px] text-foreground-muted/50 italic">
+                    {t('settings.cli.checking')}
+                  </span>
+                )}
+                {cliStatus === 'installed' && (
+                  <span
+                    className={cn(
+                      'text-[10px] px-1.5 py-0.5 rounded-full font-medium',
+                      'bg-accent/10 text-accent'
+                    )}
+                  >
+                    {t('settings.cli.statusInstalled', { version: cliVersion })}
+                  </span>
+                )}
+                {cliStatus === 'not-installed' && (
+                  <span className="text-[11px] text-foreground-muted/40">
+                    {t('settings.cli.statusNotInstalled')}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {cliStatus === 'installed' ? (
+                  <button
+                    disabled={cliActionPending}
+                    onClick={handleCliUninstall}
+                    className={cn(
+                      'px-3 py-1 rounded-md text-[11px] font-medium',
+                      'border border-border text-foreground-muted',
+                      'hover:bg-surface-accent hover:text-foreground',
+                      'transition-colors duration-150',
+                      'disabled:opacity-40 disabled:cursor-not-allowed'
+                    )}
+                  >
+                    {t('settings.cli.uninstall')}
+                  </button>
+                ) : cliStatus === 'not-installed' ? (
+                  <button
+                    disabled={cliActionPending}
+                    onClick={handleCliInstall}
+                    className={cn(
+                      'px-3 py-1 rounded-md text-[11px] font-medium',
+                      'bg-accent text-accent-foreground',
+                      'hover:bg-accent/90',
+                      'transition-colors duration-150',
+                      'disabled:opacity-40 disabled:cursor-not-allowed'
+                    )}
+                  >
+                    {t('settings.cli.install')}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <a
+                href="https://bobcorn.caldis.me/wiki/cli"
+                onClick={(e) => {
+                  e.preventDefault();
+                  (window as any).electronAPI.openExternal('https://bobcorn.caldis.me/wiki/cli');
+                }}
+                className="text-[11px] text-accent hover:text-accent/80 transition-colors duration-150 cursor-pointer"
+              >
+                {t('settings.cli.manualSetup')}
+              </a>
+            </div>
+            {cliShowRestartHint && (
+              <p className="text-[11px] text-accent/70 leading-relaxed">
+                {t('settings.cli.restartHint')}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* ── Divider ───────────────────────────────────── */}
+        <div className="border-t border-border" />
+
+        {/* ── Bobcorn AI ─────────────────────────────── */}
+        <section>
+          <div className="flex items-center gap-2 mb-2.5">
+            <h4
+              className={cn(
+                'text-[11px] font-semibold uppercase tracking-widest',
+                'text-foreground-muted/60'
+              )}
+            >
+              {t('settings.ai.title')}
+            </h4>
+            <span
+              className={cn(
+                'text-[9px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider',
+                'bg-gradient-to-r from-violet-500/15 to-fuchsia-500/15',
+                'text-violet-500 dark:text-violet-400',
+                'border border-violet-500/20'
+              )}
+            >
+              {t('settings.ai.comingSoon')}
+            </span>
+          </div>
+          <p className="text-[11px] text-foreground-muted/50 mb-3 leading-relaxed">
+            {t('settings.ai.description')}
+          </p>
+          <div className="space-y-1.5">
+            {(
+              [
+                ['smartGrouping', 'smartGroupingDesc'],
+                ['nameNormalization', 'nameNormalizationDesc'],
+                ['duplicateDetection', 'duplicateDetectionDesc'],
+                ['iconGeneration', 'iconGenerationDesc'],
+                ['styleCheck', 'styleCheckDesc'],
+                ['setCompletion', 'setCompletionDesc'],
+                ['a11yDescriptions', 'a11yDescriptionsDesc'],
+                ['smartUnicode', 'smartUnicodeDesc'],
+                ['variantIntelligence', 'variantIntelligenceDesc'],
+              ] as const
+            ).map(([name, desc]) => (
+              <div key={name} className="flex items-baseline gap-1.5 text-[11px] leading-relaxed">
+                <span className="text-foreground-muted/40 shrink-0">{'\u25B8'}</span>
+                <span>
+                  <span className="font-medium text-foreground/80">{t(`settings.ai.${name}`)}</span>
+                  <span className="text-foreground-muted/40 mx-1">&mdash;</span>
+                  <span className="text-foreground-muted/50">{t(`settings.ai.${desc}`)}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-foreground-muted/35 mt-3 italic">
+            {t('settings.ai.stayTuned')}
+          </p>
         </section>
 
         {/* ── Divider ───────────────────────────────────── */}

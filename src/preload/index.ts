@@ -204,6 +204,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   confirmClose: (): void => ipcRenderer.send('app:close-confirmed'),
   closeCancelled: (): void => ipcRenderer.send('app:close-cancelled'),
 
+  // ── CLI management ──────────────────────────────────────────────
+  cliDetectStatus: (): Promise<{ installed: boolean; version: string | null }> =>
+    ipcRenderer.invoke('cli-detect-status'),
+  cliInstall: (): Promise<{
+    success: boolean;
+    message: string;
+    path?: string;
+    needsRestart?: boolean;
+  }> => ipcRenderer.invoke('cli-install'),
+  cliUninstall: (): Promise<{ success: boolean; message: string }> =>
+    ipcRenderer.invoke('cli-uninstall'),
+
   // ── Language (i18n) ─────────────────────────────────────────────
   languageChanged: (lng: string): void => ipcRenderer.send('language-changed', lng),
   onLanguageRequest: (callback: () => void) => {
