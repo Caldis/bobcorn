@@ -1,7 +1,7 @@
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Dialog, Button, Checkbox, CheckboxGroup, Progress } from '../ui';
@@ -128,6 +128,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   });
   const [zipEnabled, setZipEnabled] = useState(false);
 
+  // Preview panel
+  const [previewVisible, setPreviewVisible] = useState(false);
+
   // 导出统计缓存 (避免渲染中反复查 DB)
   const [exportTotalIcons, setExportTotalIcons] = useState<number>(0);
   const [exportTotalGroups, setExportTotalGroups] = useState<number>(0);
@@ -156,6 +159,31 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     setExportTotalGroups(groups.length);
     setExportSelectedIconCount(totalIcons);
   };
+
+  // Generate preview HTML — 30 sample icons with inline SVG sprite (no font needed)
+  const previewHTML = useMemo(() => {
+    if (!previewVisible || !visible) return '';
+    try {
+      const groups = db.getGroupList();
+      groups.push({
+        id: 'resource-uncategorized',
+        groupName: t('nav.ungrouped'),
+        groupOrder: -1,
+        groupColor: '',
+      });
+      const allIcons = db.getIconList();
+      const sampleIcons = allIcons.slice(0, 30);
+      // Generate inline SVG symbol sprite so icons render without the font
+      const inlineSprite = iconfontSymbolGenerator(sampleIcons);
+      return demoHTMLGenerator(groups, sampleIcons, undefined, {
+        hasSymbol: true,
+        selectedFormats,
+        inlineSymbolSprite: inlineSprite,
+      });
+    } catch {
+      return '';
+    }
+  }, [previewVisible, visible, selectedFormats.js]);
 
   // 当 visible 变为 true 时初始化
   const prevVisibleRef = useRef(false);
@@ -578,13 +606,6 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                       infoKey: 'js',
                       recommended: true,
                     },
-                    {
-                      key: 'html' as const,
-                      labelKey: 'export.includeDemo',
-                      descKey: 'export.includeDemoDesc',
-                      infoKey: null,
-                      recommended: true,
-                    },
                   ] as const
                 ).map(({ key, labelKey, descKey, infoKey, recommended }) => (
                   <div key={key}>
@@ -613,6 +634,49 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t(descKey)}</p>
                   </div>
                 ))}
+                {/* HTML 演示页面 + 预览入口 */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedFormats.html}
+                        onChange={(e) =>
+                          setSelectedFormats((prev) => ({ ...prev, html: e.target.checked }))
+                        }
+                        className="rounded border-border"
+                      />
+                      <span className="text-foreground">{t('export.includeDemo')}</span>
+                      <span className="px-1.5 py-px rounded text-[10px] font-medium bg-accent-subtle text-accent">
+                        {t('export.recommended')}
+                      </span>
+                    </label>
+                    {selectedFormats.html && (
+                      <button
+                        type="button"
+                        onClick={() => setPreviewVisible(true)}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium text-accent hover:bg-accent-subtle transition-colors cursor-pointer"
+                      >
+                        <svg
+                          className="w-3 h-3"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        {t('export.previewDemoPage')}
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-xs text-foreground-muted mt-0.5 ml-5">
+                    {t('export.includeDemoDesc')}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -758,6 +822,94 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
           </div>
         )}
       </Dialog>
+
+      {/* 演示页面预览 — 独立弹窗，可自由缩放 */}
+      {previewVisible &&
+        createPortal(
+          <>
+            {/* Backdrop — closes on click, sits above Radix overlay.
+                pointer-events: auto overrides Radix's body pointer-events: none */}
+            <div
+              className="fixed inset-0 bg-black/40"
+              style={{ zIndex: 99990, pointerEvents: 'auto' }}
+              onClick={() => setPreviewVisible(false)}
+            />
+            {/* Window — sits above backdrop */}
+            <div
+              className="fixed bg-surface rounded-xl border border-border shadow-2xl flex flex-col overflow-hidden"
+              style={{
+                zIndex: 99991,
+                pointerEvents: 'auto',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '80vw',
+                height: '75vh',
+                maxWidth: 1200,
+                maxHeight: 900,
+                minWidth: 400,
+                minHeight: 300,
+                resize: 'both',
+              }}
+            >
+              {/* Title bar */}
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-surface-muted shrink-0">
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4 text-accent"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <span className="text-sm font-medium text-foreground">
+                    {t('export.previewDemoPage')}
+                  </span>
+                  <span className="text-[11px] text-foreground-muted">
+                    {t('export.previewHint')}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPreviewVisible(false)}
+                  className="w-7 h-7 flex items-center justify-center rounded-md text-foreground-muted hover:bg-surface-accent hover:text-foreground transition-colors cursor-pointer"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              {/* iframe */}
+              {previewHTML ? (
+                <iframe
+                  srcDoc={previewHTML}
+                  className="flex-1 w-full border-0"
+                  sandbox="allow-scripts"
+                  title={t('export.previewDemoPage')}
+                />
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-sm text-foreground-muted">
+                  {t('export.previewLoading')}
+                </div>
+              )}
+            </div>
+          </>,
+          document.body
+        )}
 
       {/* 格式知识卡片 — portal 到 body, 在 Radix Dialog overlay 之上 */}
       {hoveredFormat &&
