@@ -7,7 +7,7 @@
 import os from 'os';
 import path from 'path';
 import type { OpenDialogOptions, SaveDialogOptions } from 'electron';
-import { app, BrowserWindow, ipcMain, dialog, shell, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 import mainI18n from './i18n';
@@ -111,6 +111,7 @@ if (!gotLock) {
       hasShadow: true,
       // 窗口背景透明 (在非启用AERO的Win机器上会有窗口冻结的BUG
       transparent: false,
+      backgroundColor: '#18191b',
       // 无边框窗口
       frame: platform === 'darwin',
       // OSX下, 窗口按钮内置
@@ -160,17 +161,10 @@ if (!gotLock) {
 
     // Forward maximize/unmaximize events to renderer (for title bar button sync)
     mainWindow.on('maximize', () => {
-      // Detect the invisible border size (window extends beyond screen when maximized)
-      let border = 0;
-      if (mainWindow) {
-        const bounds = mainWindow.getBounds();
-        const display = screen.getDisplayMatching(bounds);
-        border = Math.max(0, display.workArea.x - bounds.x);
-      }
-      mainWindow?.webContents.send('window-maximized-change', true, border);
+      mainWindow?.webContents.send('window-maximized-change', true);
     });
     mainWindow.on('unmaximize', () => {
-      mainWindow?.webContents.send('window-maximized-change', false, 0);
+      mainWindow?.webContents.send('window-maximized-change', false);
     });
 
     // ── Close guard ────────────────────────────────────────────

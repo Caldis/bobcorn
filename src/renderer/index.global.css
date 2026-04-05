@@ -10,7 +10,7 @@ html, body {
 }
 
 body {
-    background-color: rgba(0,0,0,0);
+    background-color: hsl(var(--surface));
     overflow: hidden;
 }
 #root {

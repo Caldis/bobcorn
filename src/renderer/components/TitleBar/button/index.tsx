@@ -6,32 +6,26 @@ import useAppStore from '../../../store';
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 
-/** Apply or remove maximized-state styles on body/root */
-function applyMaximizedStyles(isMaximized: boolean, border: number) {
-  const body = document.querySelector('body')!;
+/** Apply or remove maximized-state styles on root */
+function applyMaximizedStyles(isMaximized: boolean) {
   const root = document.querySelector<HTMLElement>('#root')!;
   if (isMaximized) {
-    // Add padding to compensate for window extending beyond screen edges
-    body.style.padding = border > 0 ? `${border}px` : '0';
     root.style.borderRadius = '0';
   } else {
-    body.style.removeProperty('padding');
     root.style.removeProperty('border-radius');
   }
 }
 
 function TitleBarButtonGroup() {
   const [maximized, setMaximized] = useState(() => electronAPI.windowIsMaximized());
-  const [border, setBorder] = useState(0);
   const [pinned, setPinned] = useState(false);
   const sideEditorVisible = useAppStore((state: any) => state.sideEditorVisible);
 
   // Listen to ALL maximize/unmaximize events (button click, double-click title bar, Win+Up, etc.)
   useEffect(() => {
-    return electronAPI.onMaximizedChange((isMaximized, borderSize) => {
+    return electronAPI.onMaximizedChange((isMaximized) => {
       setMaximized(isMaximized);
-      setBorder(borderSize);
-      applyMaximizedStyles(isMaximized, borderSize);
+      applyMaximizedStyles(isMaximized);
     });
   }, []);
 
@@ -68,8 +62,7 @@ function TitleBarButtonGroup() {
   } as const;
 
   // Center buttons in the 58px safe area: (58-30)/2 = 14px from content edge
-  // When maximized, add border offset to compensate for window oversize
-  const offset = { top: border + 14, right: border + 14 };
+  const offset = { top: 14, right: 14 };
 
   return (
     <div
