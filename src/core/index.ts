@@ -19,3 +19,7 @@ export type {
   ExportRowConfig,
   PresetDef,
 } from './types';
+
+// Operations registry
+export { OpStatus, OPERATIONS } from './registry';
+export type { OpEntry } from './registry';
