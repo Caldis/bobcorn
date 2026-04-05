@@ -6,6 +6,7 @@ import { message } from '../ui/toast';
 import EnhanceInput from '../enhance/input';
 import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): group.add, group.rename, group.delete, group.set-description
 import db from '../../database';
 import useAppStore from '../../store';
 import type { GroupData } from './types';

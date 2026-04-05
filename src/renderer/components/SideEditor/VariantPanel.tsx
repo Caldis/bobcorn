@@ -17,6 +17,7 @@ import {
   applyScaleTransform,
 } from '../../utils/svg/variants';
 import { bakeSvgVariant, buildVariantMeta } from '../../utils/svg/bake';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): variant.generate, variant.list, variant.delete
 import db from '../../database';
 import useAppStore from '../../store';
 

@@ -1,4 +1,5 @@
 // Database
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.open-file
 import db from '../../../database';
 
 // 默认名称

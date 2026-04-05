@@ -13,6 +13,7 @@ import { Tags, Plus, Settings } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Dropdown } from '../ui';
 import GroupIconPreview from '../GroupIconPreview';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): group.list, group.reorder
 import db from '../../database';
 import useAppStore from '../../store';
 import addGroupHint from '../../resources/imgs/nodata/addGroupHint.png';

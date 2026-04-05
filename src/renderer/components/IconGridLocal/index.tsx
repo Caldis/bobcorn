@@ -16,6 +16,7 @@ import { computeIconGridViewModel, type IconItem } from './viewModel';
 // Utils
 import { cn } from '../../lib/utils';
 // Database
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.list, favorite.list
 import db from '../../database';
 // Config
 import config, { defOption, setOption, getOption, type OptionData } from '../../config';

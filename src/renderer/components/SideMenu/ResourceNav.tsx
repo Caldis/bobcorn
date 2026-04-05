@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BookOpen, Clock, FileWarning, Trash2, LayoutGrid, Star } from 'lucide-react';
 import { cn } from '../../lib/utils';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): group.list
 import db from '../../database';
 import useAppStore from '../../store';
 

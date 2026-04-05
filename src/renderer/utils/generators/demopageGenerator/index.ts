@@ -1,4 +1,5 @@
 // Database
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): export.demo-page
 import db from '../../../database';
 // Shared SVG utility
 import { flattenSvgUseRefs } from '../iconfontGenerator';

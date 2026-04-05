@@ -11,6 +11,7 @@ import style from './index.module.css';
 import { platform } from '../../utils/tools';
 import { iconImporter } from '../../utils/importer';
 // Database
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): group.list
 import db from '../../database';
 // Store
 import useAppStore from '../../store';

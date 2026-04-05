@@ -8,6 +8,7 @@ import { isnContainSpace } from '../../utils/tools';
 import { cn } from '../../lib/utils';
 import { getOption, setOption } from '../../config';
 import type { OptionData } from '../../config';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.inspect
 import db from '../../database';
 import useAppStore from '../../store';
 import appIcon from '../../resources/imgs/icon.png';

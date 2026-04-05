@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { sanitizeSVG } from '../utils/sanitize';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.get-content
 import db from '../database';
 import { cn } from '../lib/utils';
 

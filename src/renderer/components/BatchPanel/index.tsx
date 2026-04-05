@@ -8,6 +8,7 @@ import { parseCssColor } from '../../utils/svg/colors';
 import { message, confirm } from '../ui';
 import { allVariantCombinations, buildVariantName } from '../../utils/svg/variants';
 import { bakeSvgVariant, buildVariantMeta } from '../../utils/svg/bake';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.move, icon.copy, icon.delete, icon.set-color, group.move-icons
 import db from '../../database';
 import useAppStore from '../../store';
 import { IconExportDialog } from '../IconExportDialog';
@@ -413,7 +414,8 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               <Trash2 size={18} className="text-foreground-muted" /> {t('batch.delete')}
             </button>
             <button className={btnClass} onClick={handleExport}>
-              <Download size={18} className="text-foreground-muted" /> {t('iconExport.exportIconFiles')}
+              <Download size={18} className="text-foreground-muted" />{' '}
+              {t('iconExport.exportIconFiles')}
             </button>
             <button className={btnClass} onClick={() => setShowColorPicker(true)}>
               <Palette size={18} className="text-foreground-muted" /> {t('batch.unifyColor')}
