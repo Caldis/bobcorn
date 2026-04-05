@@ -249,8 +249,9 @@ export const OPERATIONS: OpEntry[] = [
   // ── Export ──────────────────────────────────────────────
   {
     id: 'export.font',
-    description: 'Generate iconfont files (SVG/TTF/WOFF/WOFF2/EOT) + CSS + demo page',
-    status: OpStatus.Legacy,
+    description: 'Generate iconfont files (SVG/TTF/WOFF/WOFF2/EOT) + CSS + JS symbol sprite',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/export-font.ts#exportFont',
     legacyPaths: [
       'src/renderer/components/SideMenu/ExportDialog.tsx',
       'src/renderer/utils/generators/',
@@ -271,7 +272,8 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'export.svg',
     description: 'Export all icons as individual SVG files',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/export-svg.ts#exportBatchSvg',
     legacyPaths: ['src/renderer/components/SideMenu/ExportDialog.tsx'],
     cliCommand: 'export svg',
   },

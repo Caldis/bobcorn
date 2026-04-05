@@ -40,6 +40,8 @@ import {
   setGroupDescription as coreSetGroupDescription,
 } from '../core/operations/group';
 import { setProjectName as coreSetProjectName } from '../core/operations/project';
+import { exportFont as coreExportFont } from '../core/operations/export-font';
+import { exportBatchSvg as coreExportBatchSvg } from '../core/operations/export-svg';
 
 // Read version from package.json at build time (tsup bundles it)
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -939,12 +941,92 @@ exp
   .option('--formats <formats>', 'Comma-separated: svg,ttf,woff,woff2,eot (default: all)')
   .option('--font-name <name>', 'Override font family name')
   .option('--prefix <prefix>', 'CSS class prefix')
-  .option('--css', 'Generate CSS @font-face file')
-  .option('--preview', 'Generate HTML preview page')
+  .option('--no-css', 'Disable CSS @font-face generation')
+  .option('--no-js', 'Disable JS symbol sprite generation')
+  .option('--preview', 'Generate HTML preview page (not available in CLI)')
   .description(
-    'Generate iconfont files from all icons. Supports SVG, TTF, WOFF, WOFF2, EOT. Optionally generates CSS and HTML preview.'
+    'Generate iconfont files from all icons. Supports SVG, TTF, WOFF, WOFF2, EOT. Also generates CSS @font-face and JS symbol sprite by default.'
   )
-  .action(stubAction('export font'));
+  .action(
+    async (
+      icpPath: string,
+      opts: {
+        out?: string;
+        formats?: string;
+        fontName?: string;
+        prefix?: string;
+        css: boolean;
+        js: boolean;
+        preview?: boolean;
+      }
+    ) => {
+      const start = Date.now();
+      const jsonMode = program.opts().json;
+      const meta = makeMeta('export font', icpPath, start);
+      try {
+        if (opts.preview) {
+          meta.duration_ms = Date.now() - start;
+          const msg =
+            'HTML preview generation is not available in CLI mode (requires DOM/Canvas). Use the GUI to generate preview pages.';
+          const result = jsonError(msg, 'NOT_IMPLEMENTED', meta);
+          printResult(result, jsonMode);
+          if (!jsonMode) console.error(msg);
+          process.exit(1);
+        }
+
+        const resolvedPath = nodeIo.resolve(icpPath);
+        if (!(await nodeIo.exists(resolvedPath))) {
+          meta.duration_ms = Date.now() - start;
+          const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+          printResult(result, jsonMode);
+          process.exit(2);
+        }
+
+        const outDir = opts.out ?? '.';
+        const formats = opts.formats
+          ? opts.formats.split(',').map((f) => f.trim().toLowerCase())
+          : undefined;
+
+        const exportResult = await coreExportFont(nodeIo, resolvedPath, {
+          outputDir: outDir,
+          fontName: opts.fontName ?? opts.prefix,
+          prefix: opts.prefix,
+          formats,
+          css: opts.css,
+          js: opts.js,
+        });
+
+        meta.duration_ms = Date.now() - start;
+        const result = jsonOutput(exportResult, meta);
+        printResult(result, jsonMode);
+        if (!jsonMode) {
+          console.log(
+            `Exported ${exportResult.iconCount} icons as "${exportResult.fontName}" font`
+          );
+          for (const f of exportResult.files) {
+            const sizeStr =
+              f.size >= 1024 * 1024
+                ? `${(f.size / (1024 * 1024)).toFixed(1)} MB`
+                : f.size >= 1024
+                  ? `${(f.size / 1024).toFixed(1)} KB`
+                  : `${f.size} B`;
+            console.log(`  ${f.name} (${sizeStr})`);
+          }
+          console.log(`\nDone in ${exportResult.duration_ms}ms`);
+        }
+      } catch (err: any) {
+        meta.duration_ms = Date.now() - start;
+        const code = err.message.includes('not found')
+          ? 'FILE_NOT_FOUND'
+          : err.message.includes('No icons')
+            ? 'NO_ICONS'
+            : 'EXPORT_ERROR';
+        const result = jsonError(err.message, code, meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+    }
+  );
 
 exp
   .command('icon <icp> <ids...>')
@@ -966,7 +1048,48 @@ exp
   .option('--out <dir>', 'Output directory (default: current directory)')
   .option('--group <name>', 'Export only icons from this group')
   .description('Export all icons as individual SVG files. Files are named by icon name.')
-  .action(stubAction('export svg'));
+  .action(async (icpPath: string, opts: { out?: string; group?: string }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('export svg', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+
+      const outDir = opts.out ?? '.';
+      const exportResult = await coreExportBatchSvg(nodeIo, resolvedPath, {
+        outputDir: outDir,
+        group: opts.group,
+      });
+
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(exportResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Exported ${exportResult.exported} SVG file(s)`);
+        if (exportResult.exported > 0 && exportResult.exported <= 20) {
+          for (const f of exportResult.files) {
+            console.log(`  ${f}`);
+          }
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found')
+        ? err.message.includes('Group')
+          ? 'GROUP_NOT_FOUND'
+          : 'FILE_NOT_FOUND'
+        : 'EXPORT_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // variant

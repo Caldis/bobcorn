@@ -271,6 +271,26 @@ export class ProjectDb {
     return rowsToObjects(result) as unknown as IconData[];
   }
 
+  /** Get all non-variant, non-deleted icons WITH iconContent (for font generation). */
+  getIconListWithContent(): IconData[] {
+    const result = this.db.exec(
+      `SELECT * FROM ${TABLE_ICON} WHERE iconGroup != 'resource-deleted' AND variantOf IS NULL`
+    );
+    return rowsToObjects(result) as unknown as IconData[];
+  }
+
+  /** Get icons in a specific group WITH iconContent (for font generation). */
+  getIconListFromGroupWithContent(groupId: string): IconData[] {
+    if (groupId === 'resource-all') {
+      const result = this.db.exec(`SELECT * FROM ${TABLE_ICON} WHERE variantOf IS NULL`);
+      return rowsToObjects(result) as unknown as IconData[];
+    }
+    const result = this.db.exec(
+      `SELECT * FROM ${TABLE_ICON} WHERE iconGroup = ${sf(groupId)} AND variantOf IS NULL`
+    );
+    return rowsToObjects(result) as unknown as IconData[];
+  }
+
   /** Get icons in a specific group (or all groups if groupId is 'resource-all') */
   getIconListFromGroup(groupId: string): IconData[] {
     if (groupId === 'resource-all') {
