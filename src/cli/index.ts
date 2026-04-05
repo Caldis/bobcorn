@@ -23,13 +23,23 @@ import {
   renameIcon as coreRenameIcon,
   moveIcons as coreMoveIcons,
   getIconContent as coreGetIconContent,
+  copyIcons as coreCopyIcons,
+  setIconCode as coreSetIconCode,
+  replaceIcon as coreReplaceIcon,
+  exportIconSvg as coreExportIconSvg,
+  setIconFavorite as coreSetIconFavorite,
+  searchIcons as coreSearchIcons,
+  listFavorites as coreListFavorites,
 } from '../core/operations/icon';
 import {
   listGroups as coreListGroups,
   addGroup as coreAddGroup,
   renameGroup as coreRenameGroup,
   deleteGroup as coreDeleteGroup,
+  reorderGroups as coreReorderGroups,
+  setGroupDescription as coreSetGroupDescription,
 } from '../core/operations/group';
+import { setProjectName as coreSetProjectName } from '../core/operations/project';
 
 // Read version from package.json at build time (tsup bundles it)
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -139,13 +149,67 @@ project
 
 project
   .command('set-name <icp> <name>')
-  .description('Set project name')
-  .action(stubAction('project set-name'));
+  .description(
+    'Set project name (also sets the font prefix, since projectName IS the prefix in Bobcorn).'
+  )
+  .action(async (icpPath: string, name: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('project set-name', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const setNameResult = await coreSetProjectName(nodeIo, resolvedPath, name);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(setNameResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Project name: "${setNameResult.oldName}" -> "${setNameResult.newName}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 project
   .command('set-prefix <icp> <prefix>')
-  .description('Set project font prefix')
-  .action(stubAction('project set-prefix'));
+  .description(
+    'Set project font prefix (alias for set-name, since projectName IS the prefix in Bobcorn).'
+  )
+  .action(async (icpPath: string, prefix: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('project set-prefix', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const setNameResult = await coreSetProjectName(nodeIo, resolvedPath, prefix);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(setNameResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Font prefix: "${setNameResult.oldName}" -> "${setNameResult.newName}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // icon
@@ -334,11 +398,46 @@ icon
 
 icon
   .command('copy <icp> <ids...>')
-  .option('--to <group>', 'Target group name (exact match)')
+  .option('--to <group>', 'Target group name (exact match, required)')
   .description(
-    'Copy one or more icons to a different group. Creates independent copies (not linked).'
+    'Copy one or more icons to a different group. Creates independent copies with new UUIDs and unicode codes. Variants are NOT copied.'
   )
-  .action(stubAction('icon copy'));
+  .action(async (icpPath: string, ids: string[], opts: { to?: string }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon copy', icpPath, start);
+    try {
+      if (!opts.to) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError('--to <group> is required', 'MISSING_OPTION', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const copyResult = await coreCopyIcons(nodeIo, resolvedPath, ids, opts.to);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(copyResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Copied ${copyResult.copied} icon(s) to "${copyResult.targetGroup}"`);
+        for (const icon of copyResult.icons) {
+          console.log(`  ${icon.name} (${icon.code}) -> ${icon.id}`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('delete <icp> <ids...>')
@@ -375,33 +474,168 @@ icon
 icon
   .command('set-code <icp> <id> <code>')
   .description(
-    'Set icon Unicode code point (hex, e.g. "E001"). Used for font generation glyph mapping.'
+    'Set icon Unicode code point (hex, e.g. "E001"). Must be in PUA range E000-F8FF. Used for font generation glyph mapping.'
   )
-  .action(stubAction('icon set-code'));
+  .action(async (icpPath: string, id: string, code: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon set-code', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const setCodeResult = await coreSetIconCode(nodeIo, resolvedPath, id, code);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(setCodeResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Code: ${setCodeResult.oldCode} -> ${setCodeResult.newCode}`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      let errCode = 'FILE_IO_ERROR';
+      if (err.message.includes('not found')) errCode = 'ICON_NOT_FOUND';
+      else if (err.message.includes('Invalid hex') || err.message.includes('outside the PUA'))
+        errCode = 'INVALID_CODE';
+      const result = jsonError(err.message, errCode, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('replace <icp> <id> <svg>')
   .description("Replace an icon's SVG content with a new SVG file. Clears any generated variants.")
-  .action(stubAction('icon replace'));
+  .action(async (icpPath: string, id: string, svgPath: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon replace', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const resolvedSvg = nodeIo.resolve(svgPath);
+      if (!(await nodeIo.exists(resolvedSvg))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`SVG file not found: ${svgPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const replaceResult = await coreReplaceIcon(nodeIo, resolvedPath, id, svgPath);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(replaceResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(
+          `Replaced SVG content for "${replaceResult.iconName}" (${replaceResult.newSize} bytes)`
+        );
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('export-svg <icp> <ids...>')
   .option('--out <dir>', 'Output directory (default: current directory)')
   .description('Export one or more icons as individual SVG files. Files are named by icon name.')
-  .action(stubAction('icon export-svg'));
+  .action(async (icpPath: string, ids: string[], opts: { out?: string }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon export-svg', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const outDir = opts.out ?? '.';
+      const exportResult = await coreExportIconSvg(nodeIo, resolvedPath, ids, outDir);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(exportResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Exported ${exportResult.exported} SVG file(s)`);
+        for (const f of exportResult.files) {
+          console.log(`  ${f.name}.svg -> ${f.path}`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('set-favorite <icp> <id>')
   .option('--off', 'Remove from favorites')
   .description('Mark or unmark an icon as favorite. Use --off to remove.')
-  .action(stubAction('icon set-favorite'));
+  .action(async (icpPath: string, id: string, opts: { off?: boolean }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon set-favorite', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const favorite = !opts.off;
+      const favResult = await coreSetIconFavorite(nodeIo, resolvedPath, id, favorite);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(favResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(
+          `${favResult.isFavorite ? 'Marked' : 'Unmarked'} "${favResult.iconName}" as favorite`
+        );
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('set-color <icp> <id> <color>')
   .description(
-    'Set icon display color (hex, e.g. "#FF5733"). Affects preview only, not SVG content.'
+    'Set icon display color (hex, e.g. "#FF5733"). In the GUI, this replaces SVG fill/stroke colors in the icon content. Not yet available in CLI — requires SVG color manipulation utilities.'
   )
-  .action(stubAction('icon set-color'));
+  .action((_icpPath: string, _id: string, _color: string) => {
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon set-color', _icpPath, Date.now());
+    const msg =
+      'icon set-color is not yet available in CLI. Color manipulation requires SVG parsing utilities that are GUI-only. Use the GUI to change icon colors, or edit the SVG file directly and use "icon replace".';
+    if (jsonMode) {
+      const result = jsonError(msg, 'NOT_IMPLEMENTED', meta);
+      printResult(result, jsonMode);
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
+  });
 
 icon
   .command('get-content <icp> <id>')
@@ -594,18 +828,101 @@ group
 
 group
   .command('reorder <icp> <names...>')
-  .description('Set group display order. Pass all group names in desired order.')
-  .action(stubAction('group reorder'));
+  .description(
+    'Set group display order. Pass all group names in desired order. Groups not listed keep their existing order.'
+  )
+  .action(async (icpPath: string, names: string[]) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('group reorder', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const reorderResult = await coreReorderGroups(nodeIo, resolvedPath, names);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(reorderResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Reordered ${reorderResult.reordered} group(s)`);
+        reorderResult.order.forEach((name, i) => {
+          console.log(`  ${i}: ${name}`);
+        });
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 group
   .command('set-description <icp> <name> <description>')
   .description('Set a text description for a group (shown in GUI sidebar).')
-  .action(stubAction('group set-description'));
+  .action(async (icpPath: string, name: string, description: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('group set-description', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const descResult = await coreSetGroupDescription(nodeIo, resolvedPath, name, description);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(descResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Set description for "${descResult.groupName}": "${descResult.description}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 group
   .command('move-icons <icp> <targetGroup> <ids...>')
   .description('Move icons by UUID into the target group. Equivalent to "icon move --to <group>".')
-  .action(stubAction('group move-icons'));
+  .action(async (icpPath: string, targetGroup: string, ids: string[]) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('group move-icons', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const moveResult = await coreMoveIcons(nodeIo, resolvedPath, ids, targetGroup);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(moveResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Moved ${moveResult.moved} icon(s) to "${moveResult.targetGroup}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // export
@@ -687,7 +1004,56 @@ program
   .description(
     'Search icons by name substring. Returns matching icons with ID, name, code, and group.'
   )
-  .action(stubAction('search'));
+  .action(async (icpPath: string, query: string, opts: { group?: string; limit?: string }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('search', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const limit = opts.limit ? parseInt(opts.limit, 10) : 50;
+      const icons = await coreSearchIcons(nodeIo, resolvedPath, query, {
+        group: opts.group,
+        limit,
+      });
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(icons, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (icons.length === 0) {
+          console.log(`No icons matching "${query}".`);
+        } else {
+          const idWidth = Math.max(2, ...icons.map((i) => i.id.length));
+          const nameWidth = Math.max(4, ...icons.map((i) => i.iconName.length));
+          const codeWidth = Math.max(4, ...icons.map((i) => (i.iconCode || '').length));
+          const groupWidth = Math.max(5, ...icons.map((i) => i.iconGroup.length));
+          console.log(
+            `  ${'ID'.padEnd(idWidth)}  ${'Name'.padEnd(nameWidth)}  ${'Code'.padEnd(codeWidth)}  ${'Group'.padEnd(groupWidth)}`
+          );
+          console.log(
+            `  ${''.padEnd(idWidth, '-')}  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(codeWidth, '-')}  ${''.padEnd(groupWidth, '-')}`
+          );
+          for (const icon of icons) {
+            console.log(
+              `  ${icon.id.padEnd(idWidth)}  ${icon.iconName.padEnd(nameWidth)}  ${(icon.iconCode || '').padEnd(codeWidth)}  ${icon.iconGroup.padEnd(groupWidth)}`
+            );
+          }
+          console.log(`\n${icons.length} result(s)`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // favorite
@@ -699,7 +1065,50 @@ const favorite = program
 favorite
   .command('list <icp>')
   .description('List all icons marked as favorite.')
-  .action(stubAction('favorite list'));
+  .action(async (icpPath: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('favorite list', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const icons = await coreListFavorites(nodeIo, resolvedPath);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(icons, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (icons.length === 0) {
+          console.log('No favorite icons.');
+        } else {
+          const idWidth = Math.max(2, ...icons.map((i) => i.id.length));
+          const nameWidth = Math.max(4, ...icons.map((i) => i.iconName.length));
+          const codeWidth = Math.max(4, ...icons.map((i) => (i.iconCode || '').length));
+          console.log(
+            `  ${'ID'.padEnd(idWidth)}  ${'Name'.padEnd(nameWidth)}  ${'Code'.padEnd(codeWidth)}`
+          );
+          console.log(
+            `  ${''.padEnd(idWidth, '-')}  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(codeWidth, '-')}`
+          );
+          for (const icon of icons) {
+            console.log(
+              `  ${icon.id.padEnd(idWidth)}  ${icon.iconName.padEnd(nameWidth)}  ${(icon.iconCode || '').padEnd(codeWidth)}`
+            );
+          }
+          console.log(`\n${icons.length} favorite(s)`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // install / uninstall

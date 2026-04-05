@@ -464,6 +464,105 @@ export class ProjectDb {
     });
     return obj;
   }
+
+  // ── Icon copy (duplicate) ──────────────────────────────────
+
+  /**
+   * Duplicate an icon into a target group with new UUID and unicode code.
+   * Does NOT copy variants.
+   * Returns the new icon's id and code.
+   */
+  copyIcon(
+    sourceId: string,
+    targetGroupId: string
+  ): { id: string; iconCode: string; iconName: string } {
+    const source = this.getIcon(sourceId);
+    if (!source) throw new Error(`Icon not found: ${sourceId}`);
+
+    const id = require('crypto').randomUUID();
+    const iconCode = this.getNewIconCode();
+    const group = targetGroupId === 'resource-all' ? 'resource-uncategorized' : targetGroupId;
+
+    this.db.run(
+      `INSERT INTO ${TABLE_ICON} (id, iconCode, iconName, iconGroup, iconSize, iconType, iconContent, iconContentOriginal) VALUES (${sf(id)}, ${sf(iconCode)}, ${sf(source.iconName as string)}, ${sf(group)}, ${source.iconSize}, ${sf(source.iconType as string)}, ${sf(source.iconContent as string)}, ${sf((source.iconContentOriginal ?? source.iconContent) as string)})`
+    );
+
+    return { id, iconCode, iconName: source.iconName as string };
+  }
+
+  // ── Icon code / favorite / content mutations ───────────────
+
+  /**
+   * Set the unicode code point for an icon.
+   */
+  setIconCode(id: string, code: string): void {
+    this.db.run(
+      `UPDATE ${TABLE_ICON} SET iconCode = ${sf(code.toUpperCase())} WHERE id = ${sf(id)}`
+    );
+  }
+
+  /**
+   * Replace an icon's SVG content. Sets both iconContent and iconContentOriginal.
+   * Also deletes any variants of this icon.
+   */
+  replaceIconContent(id: string, content: string): void {
+    const size = Buffer.byteLength(content, 'utf-8');
+    this.db.run(
+      `UPDATE ${TABLE_ICON} SET iconContent = ${sf(content)}, iconContentOriginal = ${sf(content)}, iconSize = ${size} WHERE id = ${sf(id)}`
+    );
+    // Delete variants
+    this.db.run(`DELETE FROM ${TABLE_ICON} WHERE variantOf = ${sf(id)}`);
+  }
+
+  /**
+   * Set or unset the favorite flag for an icon.
+   */
+  setIconFavorite(id: string, isFavorite: boolean): void {
+    this.db.run(`UPDATE ${TABLE_ICON} SET isFavorite = ${isFavorite ? 1 : 0} WHERE id = ${sf(id)}`);
+  }
+
+  /**
+   * Get all favorite icons (non-variant, non-deleted).
+   */
+  getFavoriteIcons(): IconData[] {
+    const result = this.db.exec(
+      `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE isFavorite = 1 AND iconGroup != 'resource-deleted' AND variantOf IS NULL`
+    );
+    return rowsToObjects(result) as unknown as IconData[];
+  }
+
+  /**
+   * Search icons by name substring. Optional group filter and limit.
+   */
+  searchIcons(query: string, opts?: { groupId?: string; limit?: number }): IconData[] {
+    let sql = `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE iconName LIKE ${sf('%' + query + '%')} AND variantOf IS NULL AND iconGroup != 'resource-deleted'`;
+    if (opts?.groupId) {
+      sql += ` AND iconGroup = ${sf(opts.groupId)}`;
+    }
+    if (opts?.limit && opts.limit > 0) {
+      sql += ` LIMIT ${opts.limit}`;
+    }
+    const result = this.db.exec(sql);
+    return rowsToObjects(result) as unknown as IconData[];
+  }
+
+  // ── Group order / description ──────────────────────────────
+
+  /**
+   * Set groupOrder for a group by id.
+   */
+  setGroupOrder(id: string, order: number): void {
+    this.db.run(`UPDATE ${TABLE_GROUP} SET groupOrder = ${order} WHERE id = ${sf(id)}`);
+  }
+
+  /**
+   * Set groupDescription for a group by id.
+   */
+  setGroupDescription(id: string, description: string): void {
+    this.db.run(
+      `UPDATE ${TABLE_GROUP} SET groupDescription = ${sf(description)} WHERE id = ${sf(id)}`
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------

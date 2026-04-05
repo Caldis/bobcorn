@@ -74,3 +74,38 @@ export async function inspectProject(io: IoAdapter, projectPath: string): Promis
     db.close();
   }
 }
+
+// ---------------------------------------------------------------------------
+// Set Name
+// ---------------------------------------------------------------------------
+
+export interface SetNameResult {
+  oldName: string;
+  newName: string;
+}
+
+/**
+ * Set the project name (which is also the font prefix in Bobcorn).
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param name - New project name
+ */
+export async function setProjectName(
+  io: IoAdapter,
+  projectPath: string,
+  name: string
+): Promise<SetNameResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const oldName = db.getProjectName();
+    db.setProjectName(name);
+    await saveProject(io, resolvedPath, db);
+
+    return { oldName, newName: name };
+  } finally {
+    db.close();
+  }
+}

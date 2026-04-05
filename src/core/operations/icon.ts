@@ -297,3 +297,317 @@ export async function getIconContent(
     db.close();
   }
 }
+
+// ---------------------------------------------------------------------------
+// Copy
+// ---------------------------------------------------------------------------
+
+export interface CopyResult {
+  copied: number;
+  icons: { id: string; name: string; code: string }[];
+  targetGroup: string;
+}
+
+/**
+ * Copy icons to a target group (duplicate with new UUID + unicode code).
+ * Does NOT copy variants.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param ids - Icon UUIDs to copy
+ * @param targetGroupName - Target group name
+ */
+export async function copyIcons(
+  io: IoAdapter,
+  projectPath: string,
+  ids: string[],
+  targetGroupName: string
+): Promise<CopyResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const group = db.findGroupByName(targetGroupName);
+    if (!group) {
+      throw new Error(`Group not found: ${targetGroupName}`);
+    }
+    const targetGroupId = group.id as string;
+
+    const copied: { id: string; name: string; code: string }[] = [];
+    for (const sourceId of ids) {
+      const result = db.copyIcon(sourceId, targetGroupId);
+      copied.push({ id: result.id, name: result.iconName, code: result.iconCode });
+    }
+
+    await saveProject(io, resolvedPath, db);
+
+    return { copied: copied.length, icons: copied, targetGroup: targetGroupName };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Set Code
+// ---------------------------------------------------------------------------
+
+export interface SetCodeResult {
+  id: string;
+  oldCode: string;
+  newCode: string;
+}
+
+/**
+ * Set the unicode code point for an icon.
+ * Validates hex format in the PUA range E000-F8FF.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param id - Icon UUID
+ * @param code - Hex code (e.g. "E001", "F000")
+ */
+export async function setIconCode(
+  io: IoAdapter,
+  projectPath: string,
+  id: string,
+  code: string
+): Promise<SetCodeResult> {
+  // Validate hex format
+  const normalized = code.toUpperCase();
+  if (!/^[0-9A-F]{4}$/.test(normalized)) {
+    throw new Error(`Invalid hex code: "${code}". Must be 4 hex digits (e.g. "E001").`);
+  }
+  const codeNum = parseInt(normalized, 16);
+  if (codeNum < 0xe000 || codeNum > 0xf8ff) {
+    throw new Error(`Code "${normalized}" is outside the PUA range (E000-F8FF).`);
+  }
+
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const icon = db.getIcon(id);
+    if (!icon) {
+      throw new Error(`Icon not found: ${id}`);
+    }
+    const oldCode = icon.iconCode as string;
+    db.setIconCode(id, normalized);
+    await saveProject(io, resolvedPath, db);
+
+    return { id, oldCode, newCode: normalized };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Replace
+// ---------------------------------------------------------------------------
+
+export interface ReplaceResult {
+  id: string;
+  iconName: string;
+  newSize: number;
+}
+
+/**
+ * Replace an icon's SVG content with a new SVG file.
+ * Deletes any variants of this icon.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param id - Icon UUID
+ * @param svgPath - Path to the new SVG file
+ */
+export async function replaceIcon(
+  io: IoAdapter,
+  projectPath: string,
+  id: string,
+  svgPath: string
+): Promise<ReplaceResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const resolvedSvg = io.resolve(svgPath);
+
+  const data = await io.readFile(resolvedSvg);
+  const content = Buffer.from(data).toString('utf-8');
+  const sanitized = sanitizeSvgForCli(content);
+
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const icon = db.getIcon(id);
+    if (!icon) {
+      throw new Error(`Icon not found: ${id}`);
+    }
+
+    db.replaceIconContent(id, sanitized);
+    await saveProject(io, resolvedPath, db);
+
+    return {
+      id,
+      iconName: icon.iconName as string,
+      newSize: Buffer.byteLength(sanitized, 'utf-8'),
+    };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Export SVG
+// ---------------------------------------------------------------------------
+
+export interface ExportSvgResult {
+  exported: number;
+  files: { id: string; name: string; path: string }[];
+}
+
+/**
+ * Export icons as individual SVG files.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param ids - Icon UUIDs to export
+ * @param outDir - Output directory
+ */
+export async function exportIconSvg(
+  io: IoAdapter,
+  projectPath: string,
+  ids: string[],
+  outDir: string
+): Promise<ExportSvgResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const resolvedOut = io.resolve(outDir);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    // Ensure output directory exists
+    if (!(await io.exists(resolvedOut))) {
+      await io.mkdir(resolvedOut, { recursive: true });
+    }
+
+    const files: { id: string; name: string; path: string }[] = [];
+
+    for (const id of ids) {
+      const icon = db.getIcon(id);
+      if (!icon) {
+        throw new Error(`Icon not found: ${id}`);
+      }
+      const content = db.getIconContent(id);
+      if (content === null) {
+        throw new Error(`Icon content not found: ${id}`);
+      }
+
+      const fileName = `${icon.iconName}.svg`;
+      const filePath = io.join(resolvedOut, fileName);
+      const data = new TextEncoder().encode(content);
+      await io.writeFile(filePath, data);
+
+      files.push({ id, name: icon.iconName as string, path: filePath });
+    }
+
+    return { exported: files.length, files };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Set Favorite
+// ---------------------------------------------------------------------------
+
+export interface SetFavoriteResult {
+  id: string;
+  iconName: string;
+  isFavorite: boolean;
+}
+
+/**
+ * Set or unset the favorite flag for an icon.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param id - Icon UUID
+ * @param favorite - true to mark as favorite, false to unmark
+ */
+export async function setIconFavorite(
+  io: IoAdapter,
+  projectPath: string,
+  id: string,
+  favorite: boolean
+): Promise<SetFavoriteResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const icon = db.getIcon(id);
+    if (!icon) {
+      throw new Error(`Icon not found: ${id}`);
+    }
+
+    db.setIconFavorite(id, favorite);
+    await saveProject(io, resolvedPath, db);
+
+    return { id, iconName: icon.iconName as string, isFavorite: favorite };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Search
+// ---------------------------------------------------------------------------
+
+/**
+ * Search icons by name substring.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param query - Search term (substring match on iconName)
+ * @param opts - Optional group filter and limit
+ */
+export async function searchIcons(
+  io: IoAdapter,
+  projectPath: string,
+  query: string,
+  opts?: { group?: string; limit?: number }
+): Promise<IconData[]> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    let groupId: string | undefined;
+    if (opts?.group) {
+      const group = db.findGroupByName(opts.group);
+      if (!group) {
+        throw new Error(`Group not found: ${opts.group}`);
+      }
+      groupId = group.id as string;
+    }
+
+    return db.searchIcons(query, { groupId, limit: opts?.limit });
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// List Favorites
+// ---------------------------------------------------------------------------
+
+/**
+ * List all icons marked as favorite.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ */
+export async function listFavorites(io: IoAdapter, projectPath: string): Promise<IconData[]> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    return db.getFavoriteIcons();
+  } finally {
+    db.close();
+  }
+}

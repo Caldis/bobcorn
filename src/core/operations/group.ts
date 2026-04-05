@@ -158,3 +158,87 @@ export async function deleteGroup(
     db.close();
   }
 }
+
+// ---------------------------------------------------------------------------
+// Reorder
+// ---------------------------------------------------------------------------
+
+export interface ReorderGroupsResult {
+  reordered: number;
+  order: string[];
+}
+
+/**
+ * Reorder groups by setting groupOrder for each group based on the order of names provided.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param names - Group names in desired order
+ */
+export async function reorderGroups(
+  io: IoAdapter,
+  projectPath: string,
+  names: string[]
+): Promise<ReorderGroupsResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    for (let i = 0; i < names.length; i++) {
+      const group = db.findGroupByName(names[i]);
+      if (!group) {
+        throw new Error(`Group not found: ${names[i]}`);
+      }
+      db.setGroupOrder(group.id as string, i);
+    }
+
+    await saveProject(io, resolvedPath, db);
+
+    return { reordered: names.length, order: names };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Set Description
+// ---------------------------------------------------------------------------
+
+export interface SetDescriptionResult {
+  id: string;
+  groupName: string;
+  description: string;
+}
+
+/**
+ * Set a text description for a group.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param name - Group name
+ * @param description - New description text
+ */
+export async function setGroupDescription(
+  io: IoAdapter,
+  projectPath: string,
+  name: string,
+  description: string
+): Promise<SetDescriptionResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const group = db.findGroupByName(name);
+    if (!group) {
+      throw new Error(`Group not found: ${name}`);
+    }
+
+    const id = group.id as string;
+    db.setGroupDescription(id, description);
+    await saveProject(io, resolvedPath, db);
+
+    return { id, groupName: name, description };
+  } finally {
+    db.close();
+  }
+}
