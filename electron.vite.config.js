@@ -51,6 +51,7 @@ export default defineConfig({
     ],
     resolve: {
       alias: [
+        { find: '@core', replacement: resolve(__dirname, 'src/core') },
         { find: '@', replacement: resolve(__dirname, 'src/renderer') },
         // Polyfill Node builtins for browser context
         { find: 'stream', replacement: 'stream-browserify' },
