@@ -9,6 +9,7 @@
  */
 import type { IoAdapter } from '../io';
 import type { IconData, GroupData, ProjectAttributes } from '../types';
+import crypto from 'crypto';
 
 // ---------------------------------------------------------------------------
 // sql.js types (no @types available for sql.js/dist/sql-asm.js)
@@ -479,7 +480,7 @@ export class ProjectDb {
     const source = this.getIcon(sourceId);
     if (!source) throw new Error(`Icon not found: ${sourceId}`);
 
-    const id = require('crypto').randomUUID();
+    const id = crypto.randomUUID();
     const iconCode = this.getNewIconCode();
     const group = targetGroupId === 'resource-all' ? 'resource-uncategorized' : targetGroupId;
 
@@ -506,7 +507,7 @@ export class ProjectDb {
    * Also deletes any variants of this icon.
    */
   replaceIconContent(id: string, content: string): void {
-    const size = Buffer.byteLength(content, 'utf-8');
+    const size = new TextEncoder().encode(content).length;
     this.db.run(
       `UPDATE ${TABLE_ICON} SET iconContent = ${sf(content)}, iconContentOriginal = ${sf(content)}, iconSize = ${size} WHERE id = ${sf(id)}`
     );
@@ -535,12 +536,14 @@ export class ProjectDb {
    * Search icons by name substring. Optional group filter and limit.
    */
   searchIcons(query: string, opts?: { groupId?: string; limit?: number }): IconData[] {
-    let sql = `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE iconName LIKE ${sf('%' + query + '%')} AND variantOf IS NULL AND iconGroup != 'resource-deleted'`;
+    // Escape LIKE metacharacters so '%' and '_' in query are treated literally
+    const escaped = query.replace(/%/g, '\\%').replace(/_/g, '\\_');
+    let sql = `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE iconName LIKE ${sf('%' + escaped + '%')} ESCAPE '\\' AND variantOf IS NULL AND iconGroup != 'resource-deleted'`;
     if (opts?.groupId) {
       sql += ` AND iconGroup = ${sf(opts.groupId)}`;
     }
     if (opts?.limit && opts.limit > 0) {
-      sql += ` LIMIT ${opts.limit}`;
+      sql += ` LIMIT ${Math.max(0, Math.floor(opts.limit))}`;
     }
     const result = this.db.exec(sql);
     return rowsToObjects(result) as unknown as IconData[];

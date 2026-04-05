@@ -9,6 +9,16 @@ import type { IconData } from '../types';
 import { openProject, saveProject } from '../database';
 import crypto from 'crypto';
 
+/** Environment-agnostic byte length (avoids Node-only Buffer) */
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+function byteLength(str: string): number {
+  return textEncoder.encode(str).length;
+}
+function uint8ToString(data: Uint8Array): string {
+  return textDecoder.decode(data);
+}
+
 // ---------------------------------------------------------------------------
 // SVG sanitization — CLI-safe (no DOMPurify / no DOM required)
 // ---------------------------------------------------------------------------
@@ -107,13 +117,13 @@ export async function importIcons(
     for (const svgPath of svgPaths) {
       const resolvedSvg = io.resolve(svgPath);
       const data = await io.readFile(resolvedSvg);
-      const content = Buffer.from(data).toString('utf-8');
+      const content = uint8ToString(data);
       const sanitized = sanitizeSvgForCli(content);
 
       const id = crypto.randomUUID();
       const iconCode = db.getNewIconCode();
       const iconName = io.basename(svgPath, io.extname(svgPath));
-      const iconSize = Buffer.byteLength(sanitized, 'utf-8');
+      const iconSize = byteLength(sanitized);
 
       db.addIcon({
         id,
@@ -429,7 +439,7 @@ export async function replaceIcon(
   const resolvedSvg = io.resolve(svgPath);
 
   const data = await io.readFile(resolvedSvg);
-  const content = Buffer.from(data).toString('utf-8');
+  const content = uint8ToString(data);
   const sanitized = sanitizeSvgForCli(content);
 
   const db = await openProject(io, resolvedPath);
@@ -446,7 +456,7 @@ export async function replaceIcon(
     return {
       id,
       iconName: icon.iconName as string,
-      newSize: Buffer.byteLength(sanitized, 'utf-8'),
+      newSize: byteLength(sanitized),
     };
   } finally {
     db.close();

@@ -229,14 +229,16 @@ function installUnix(source: string): InstallResult {
       message: `CLI installed. Add to PATH: echo 'export PATH="$HOME/.local/bin:$PATH"' >> ${rcFile}`,
       path: linkPath,
       needsRestart: true,
+      commandName: cmd,
     };
   }
 
   return {
     success: true,
-    message: 'CLI installed to PATH',
+    message: `CLI installed as "${cmd}"`,
     path: linkPath,
     needsRestart: false,
+    commandName: cmd,
   };
 }
 
