@@ -16,8 +16,20 @@ import {
   createProject as coreCreateProject,
   inspectProject as coreInspectProject,
 } from '../core/operations/project';
-import { listIcons as coreListIcons } from '../core/operations/icon';
-import { listGroups as coreListGroups } from '../core/operations/group';
+import {
+  listIcons as coreListIcons,
+  importIcons as coreImportIcons,
+  deleteIcons as coreDeleteIcons,
+  renameIcon as coreRenameIcon,
+  moveIcons as coreMoveIcons,
+  getIconContent as coreGetIconContent,
+} from '../core/operations/icon';
+import {
+  listGroups as coreListGroups,
+  addGroup as coreAddGroup,
+  renameGroup as coreRenameGroup,
+  deleteGroup as coreDeleteGroup,
+} from '../core/operations/group';
 
 // Read version from package.json at build time (tsup bundles it)
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -202,22 +214,123 @@ icon
 icon
   .command('import <icp> <svgs...>')
   .description(
-    'Import SVG files into project. Accepts glob patterns (e.g. "icons/*.svg"). SVGs are sanitized via DOMPurify before storage.'
+    'Import SVG files into a project. Each SVG is sanitized (scripts and event handlers removed), assigned a UUID and the next available PUA unicode code point (E000-F8FF), and inserted into the iconData table. Icons go to "uncategorized" by default. Use --group to specify a target group by name. The project file is saved after import.'
   )
-  .action(stubAction('icon import'));
+  .option('--group <name>', 'Target group name (exact match)')
+  .action(async (icpPath: string, svgs: string[], opts: { group?: string }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon import', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      // Verify all SVG files exist
+      for (const svg of svgs) {
+        const resolvedSvg = nodeIo.resolve(svg);
+        if (!(await nodeIo.exists(resolvedSvg))) {
+          meta.duration_ms = Date.now() - start;
+          const result = jsonError(`SVG file not found: ${svg}`, 'FILE_NOT_FOUND', meta);
+          printResult(result, jsonMode);
+          process.exit(2);
+        }
+      }
+      const importResult = await coreImportIcons(nodeIo, resolvedPath, svgs, {
+        group: opts.group,
+      });
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(importResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Imported ${importResult.imported} icon(s)`);
+        for (const icon of importResult.icons) {
+          console.log(`  ${icon.name} (${icon.code}) -> ${icon.id}`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'IMPORT_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('rename <icp> <id> <newName>')
-  .description('Rename an icon by its UUID. Get IDs from "icon list --json".')
-  .action(stubAction('icon rename'));
+  .description(
+    'Rename an icon by its UUID. The icon ID can be discovered via "icon list --json". Updates the iconName field in the database and saves the project.'
+  )
+  .action(async (icpPath: string, id: string, newName: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon rename', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const renameResult = await coreRenameIcon(nodeIo, resolvedPath, id, newName);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(renameResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Renamed: "${renameResult.oldName}" -> "${renameResult.newName}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('move <icp> <ids...>')
-  .option('--to <group>', 'Target group name (exact match)')
+  .option('--to <group>', 'Target group name (exact match, required)')
   .description(
-    'Move one or more icons to a different group. Pass multiple UUIDs for batch move. Variant icons are moved with their parent.'
+    'Move one or more icons to a different group by UUID. Pass multiple UUIDs for batch move. Variant icons follow their parent icon automatically. The --to flag specifies the target group name (exact match). The project is saved after the move.'
   )
-  .action(stubAction('icon move'));
+  .action(async (icpPath: string, ids: string[], opts: { to?: string }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon move', icpPath, start);
+    try {
+      if (!opts.to) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError('--to <group> is required', 'MISSING_OPTION', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const moveResult = await coreMoveIcons(nodeIo, resolvedPath, ids, opts.to);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(moveResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Moved ${moveResult.moved} icon(s) to "${moveResult.targetGroup}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('copy <icp> <ids...>')
@@ -230,9 +343,34 @@ icon
 icon
   .command('delete <icp> <ids...>')
   .description(
-    'Delete one or more icons by UUID. Variant icons are cascade-deleted with their parent.'
+    'Soft-delete one or more icons by UUID. Icons are moved to the internal "resource-deleted" group (not permanently removed). Variant icons are cascade-deleted (hard delete) when their parent is deleted. The project is saved after deletion.'
   )
-  .action(stubAction('icon delete'));
+  .action(async (icpPath: string, ids: string[]) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon delete', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const deleteResult = await coreDeleteIcons(nodeIo, resolvedPath, ids);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(deleteResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Deleted ${deleteResult.deleted} icon(s)`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 icon
   .command('set-code <icp> <id> <code>')
@@ -267,8 +405,38 @@ icon
 
 icon
   .command('get-content <icp> <id>')
-  .description('Output the raw SVG content of an icon to stdout. Useful for piping to other tools.')
-  .action(stubAction('icon get-content'));
+  .description(
+    'Output the raw SVG content of an icon to stdout. In human mode, outputs just the raw SVG string (ideal for piping to files or other tools). In --json mode, the SVG content is wrapped in the standard JSON envelope under data.content.'
+  )
+  .action(async (icpPath: string, id: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('icon get-content', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const content = await coreGetIconContent(nodeIo, resolvedPath, id);
+      meta.duration_ms = Date.now() - start;
+      if (jsonMode) {
+        const result = jsonOutput({ content }, meta);
+        printResult(result, jsonMode);
+      } else {
+        // Raw SVG to stdout — no JSON envelope, no trailing newline formatting
+        process.stdout.write(content);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // group
@@ -324,18 +492,105 @@ group
 
 group
   .command('add <icp> <name>')
-  .description('Create a new empty group with the given name.')
-  .action(stubAction('group add'));
+  .description(
+    'Create a new empty group with the given name. Generates a UUID for the group, assigns the next groupOrder value (max + 1), and saves the project. Fails if a group with the same name already exists.'
+  )
+  .action(async (icpPath: string, name: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('group add', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const addResult = await coreAddGroup(nodeIo, resolvedPath, name);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(addResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Created group: "${addResult.groupName}" (order: ${addResult.groupOrder})`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('already exists') ? 'GROUP_EXISTS' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 group
   .command('rename <icp> <oldName> <newName>')
-  .description('Rename an existing group. Icons in the group are preserved.')
-  .action(stubAction('group rename'));
+  .description(
+    'Rename an existing group by its current name. Icons in the group are preserved — only the group name changes. The project is saved after renaming. Fails if the old group name is not found.'
+  )
+  .action(async (icpPath: string, oldName: string, newName: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('group rename', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const renameResult = await coreRenameGroup(nodeIo, resolvedPath, oldName, newName);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(renameResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Renamed group: "${renameResult.oldName}" -> "${renameResult.newName}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 group
   .command('delete <icp> <name>')
-  .description('Delete a group. Icons in the group are moved to "uncategorized".')
-  .action(stubAction('group delete'));
+  .description(
+    'Delete a group by name. All icons in the group are moved to the "uncategorized" virtual group (resource-uncategorized). The group record is then removed. The project is saved after deletion. Fails if the group name is not found.'
+  )
+  .action(async (icpPath: string, name: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('group delete', icpPath, start);
+    try {
+      const resolvedPath = nodeIo.resolve(icpPath);
+      if (!(await nodeIo.exists(resolvedPath))) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+      const deleteResult = await coreDeleteGroup(nodeIo, resolvedPath, name);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(deleteResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Deleted group: "${deleteResult.name}"`);
+        if (deleteResult.iconsMovedToUncategorized > 0) {
+          console.log(`  ${deleteResult.iconsMovedToUncategorized} icon(s) moved to uncategorized`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 group
   .command('reorder <icp> <names...>')

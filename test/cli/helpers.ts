@@ -6,7 +6,7 @@
  * for JSON-mode output and temporary project scaffolding.
  */
 import { execFile } from 'node:child_process';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, writeFile, rm, copyFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -107,4 +107,23 @@ export async function writeSvg(
   const filePath = join(dir, name);
   await writeFile(filePath, svgContent, 'utf-8');
   return filePath;
+}
+
+/**
+ * Copy a fixture .icp file to a temp directory for write tests.
+ * Returns the temp dir, the .icp path inside it, and a cleanup function.
+ */
+export async function copyFixture(
+  fixturePath: string
+): Promise<{ dir: string; icp: string; cleanup: () => Promise<void> }> {
+  const dir = await mkdtemp(join(tmpdir(), 'bobcorn-fixture-'));
+  const icp = join(dir, 'test-copy.icp');
+  await copyFile(fixturePath, icp);
+  return {
+    dir,
+    icp,
+    cleanup: async () => {
+      await rm(dir, { recursive: true, force: true });
+    },
+  };
 }

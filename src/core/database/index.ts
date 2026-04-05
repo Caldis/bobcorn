@@ -293,6 +293,177 @@ export class ProjectDb {
     stmt.free();
     return count;
   }
+
+  // ── Icon content queries ─────────────────────────────────────
+
+  /** Get the raw SVG content of an icon by id */
+  getIconContent(id: string): string | null {
+    const result = this.db.exec(`SELECT iconContent FROM ${TABLE_ICON} WHERE id = ${sf(id)}`);
+    if (result.length === 0 || result[0].values.length === 0) return null;
+    return result[0].values[0][0] as string;
+  }
+
+  /** Get a single icon record by id (all columns) */
+  getIcon(id: string): Record<string, any> | null {
+    const result = this.db.exec(`SELECT * FROM ${TABLE_ICON} WHERE id = ${sf(id)}`);
+    if (result.length === 0 || result[0].values.length === 0) return null;
+    const cols = result[0].columns;
+    const row = result[0].values[0];
+    const obj: Record<string, any> = {};
+    row.forEach((val, i) => {
+      obj[cols[i]] = val;
+    });
+    return obj;
+  }
+
+  // ── Icon mutations ──────────────────────────────────────────
+
+  /**
+   * Get the next available unicode code point (hex string, e.g. "E000").
+   * Scans all existing codes in PUA range E000-F8FF and returns the first unused.
+   */
+  getNewIconCode(): string {
+    const PUA_MIN = 0xe000; // 57344
+    const PUA_MAX = 0xf8ff; // 63743
+
+    const result = this.db.exec(`SELECT iconCode FROM ${TABLE_ICON}`);
+    if (result.length === 0) {
+      return PUA_MIN.toString(16).toUpperCase();
+    }
+
+    const usedSet = new Set(result[0].values.map((row) => parseInt(row[0] as string, 16)));
+
+    for (let code = PUA_MIN; code <= PUA_MAX; code++) {
+      if (!usedSet.has(code)) {
+        return code.toString(16).toUpperCase();
+      }
+    }
+    // All codes exhausted — return min as fallback
+    return PUA_MIN.toString(16).toUpperCase();
+  }
+
+  /**
+   * Insert a new icon into the database.
+   */
+  addIcon(opts: {
+    id: string;
+    iconCode: string;
+    iconName: string;
+    iconGroup: string;
+    iconSize: number;
+    iconType: string;
+    iconContent: string;
+  }): void {
+    this.db.run(
+      `INSERT INTO ${TABLE_ICON} (id, iconCode, iconName, iconGroup, iconSize, iconType, iconContent, iconContentOriginal) VALUES (${sf(opts.id)}, ${sf(opts.iconCode)}, ${sf(opts.iconName)}, ${sf(opts.iconGroup)}, ${opts.iconSize}, ${sf(opts.iconType)}, ${sf(opts.iconContent)}, ${sf(opts.iconContent)})`
+    );
+  }
+
+  /**
+   * Soft-delete an icon by moving it to 'resource-deleted' group.
+   * Also cascade-deletes all variants (hard delete for variants).
+   */
+  deleteIcon(id: string): void {
+    // Hard-delete variants of this icon
+    this.db.run(`DELETE FROM ${TABLE_ICON} WHERE variantOf = ${sf(id)}`);
+    // Soft-delete the icon itself
+    this.db.run(`UPDATE ${TABLE_ICON} SET iconGroup = 'resource-deleted' WHERE id = ${sf(id)}`);
+  }
+
+  /**
+   * Soft-delete multiple icons (move to 'resource-deleted').
+   * Cascade-deletes variants for each icon.
+   */
+  deleteIcons(ids: string[]): void {
+    if (ids.length === 0) return;
+    const inClause = ids.map((id) => sf(id)).join(',');
+    // Hard-delete variants
+    this.db.run(`DELETE FROM ${TABLE_ICON} WHERE variantOf IN (${inClause})`);
+    // Soft-delete icons
+    this.db.run(
+      `UPDATE ${TABLE_ICON} SET iconGroup = 'resource-deleted' WHERE id IN (${inClause})`
+    );
+  }
+
+  /**
+   * Rename an icon by id.
+   */
+  setIconName(id: string, name: string): void {
+    this.db.run(`UPDATE ${TABLE_ICON} SET iconName = ${sf(name)} WHERE id = ${sf(id)}`);
+  }
+
+  /**
+   * Move a single icon (and its variants) to a new group.
+   */
+  moveIcon(id: string, targetGroupId: string): void {
+    const group = targetGroupId === 'resource-all' ? 'resource-uncategorized' : targetGroupId;
+    this.db.run(
+      `UPDATE ${TABLE_ICON} SET iconGroup = ${sf(group)} WHERE id = ${sf(id)} OR variantOf = ${sf(id)}`
+    );
+  }
+
+  /**
+   * Move multiple icons (and their variants) to a new group.
+   */
+  moveIcons(ids: string[], targetGroupId: string): void {
+    if (ids.length === 0) return;
+    const group = targetGroupId === 'resource-all' ? 'resource-uncategorized' : targetGroupId;
+    const inClause = ids.map((id) => sf(id)).join(',');
+    // Move icons themselves
+    this.db.run(`UPDATE ${TABLE_ICON} SET iconGroup = ${sf(group)} WHERE id IN (${inClause})`);
+    // Move their variants
+    this.db.run(
+      `UPDATE ${TABLE_ICON} SET iconGroup = ${sf(group)} WHERE variantOf IN (${inClause})`
+    );
+  }
+
+  // ── Group mutations ─────────────────────────────────────────
+
+  /**
+   * Add a new group. Returns the generated group data.
+   */
+  addGroup(id: string, name: string): { id: string; groupName: string; groupOrder: number } {
+    const orderResult = this.db.exec(`SELECT COUNT(*) FROM ${TABLE_GROUP}`);
+    const groupOrder = orderResult.length > 0 ? (orderResult[0].values[0][0] as number) : 0;
+    this.db.run(
+      `INSERT INTO ${TABLE_GROUP} (id, groupName, groupOrder, groupColor) VALUES (${sf(id)}, ${sf(name)}, ${groupOrder}, '')`
+    );
+    return { id, groupName: name, groupOrder };
+  }
+
+  /**
+   * Rename a group by id.
+   */
+  setGroupName(id: string, name: string): void {
+    this.db.run(`UPDATE ${TABLE_GROUP} SET groupName = ${sf(name)} WHERE id = ${sf(id)}`);
+  }
+
+  /**
+   * Delete a group by id. Moves all icons in the group to 'resource-uncategorized'.
+   */
+  deleteGroup(id: string): void {
+    // Move icons to uncategorized first
+    this.db.run(
+      `UPDATE ${TABLE_ICON} SET iconGroup = 'resource-uncategorized' WHERE iconGroup = ${sf(id)}`
+    );
+    // Delete the group
+    this.db.run(`DELETE FROM ${TABLE_GROUP} WHERE id = ${sf(id)}`);
+  }
+
+  /**
+   * Find a group by name. Returns null if not found.
+   */
+  findGroupByName(name: string): Record<string, any> | null {
+    const result = this.db.exec(`SELECT * FROM ${TABLE_GROUP} WHERE groupName = ${sf(name)}`);
+    if (result.length === 0 || result[0].values.length === 0) return null;
+    const cols = result[0].columns;
+    const row = result[0].values[0];
+    const obj: Record<string, any> = {};
+    row.forEach((val, i) => {
+      obj[cols[i]] = val;
+    });
+    return obj;
+  }
 }
 
 // ---------------------------------------------------------------------------

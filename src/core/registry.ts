@@ -82,7 +82,8 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'icon.import',
     description: 'Import SVG files into project (sanitize + insert)',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/icon.ts#importIcons',
     legacyPaths: ['src/renderer/store/index.ts#importIcons', 'src/renderer/utils/importer/'],
     cliCommand: 'icon import',
   },
@@ -97,14 +98,16 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'icon.rename',
     description: 'Rename an icon',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/icon.ts#renameIcon',
     legacyPaths: ['src/renderer/components/SideEditor/index.tsx'],
     cliCommand: 'icon rename',
   },
   {
     id: 'icon.move',
     description: 'Move icon(s) to a different group (batch)',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/icon.ts#moveIcons',
     legacyPaths: ['src/renderer/components/BatchPanel/index.tsx'],
     cliCommand: 'icon move',
   },
@@ -118,7 +121,8 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'icon.delete',
     description: 'Delete icon(s) with variant-safe cascade (batch)',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/icon.ts#deleteIcons',
     legacyPaths: [
       'src/renderer/components/SideEditor/index.tsx',
       'src/renderer/components/BatchPanel/index.tsx',
@@ -163,14 +167,15 @@ export const OPERATIONS: OpEntry[] = [
   },
   {
     id: 'icon.get-content',
-    description: 'Get SVG content of an icon (internal, used by editor/preview)',
-    status: OpStatus.Legacy,
+    description: 'Get SVG content of an icon',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/icon.ts#getIconContent',
     legacyPaths: [
       'src/renderer/components/IconBlock/index.tsx',
       'src/renderer/components/GroupIconPreview.tsx',
       'src/renderer/components/SideEditor/index.tsx',
     ],
-    cliCommand: null, // internal operation
+    cliCommand: 'icon get-content',
   },
 
   // ── Group ───────────────────────────────────────────────
@@ -188,21 +193,24 @@ export const OPERATIONS: OpEntry[] = [
   {
     id: 'group.add',
     description: 'Create a new group',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/group.ts#addGroup',
     legacyPaths: ['src/renderer/components/SideMenu/GroupDialogs.tsx'],
     cliCommand: 'group add',
   },
   {
     id: 'group.rename',
     description: 'Rename an existing group',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/group.ts#renameGroup',
     legacyPaths: ['src/renderer/components/SideMenu/GroupDialogs.tsx'],
     cliCommand: 'group rename',
   },
   {
     id: 'group.delete',
-    description: 'Delete a group and optionally its icons',
-    status: OpStatus.Legacy,
+    description: 'Delete a group (icons moved to uncategorized)',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/group.ts#deleteGroup',
     legacyPaths: ['src/renderer/components/SideMenu/GroupDialogs.tsx'],
     cliCommand: 'group delete',
   },
