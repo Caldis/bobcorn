@@ -26,11 +26,22 @@ export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps)
   };
 
   const handleSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value) || 0;
+    const val = parseFloat(e.target.value);
+    if (isNaN(val)) return;
     if (row.sizeMode === 'scale') {
       onChange(row.id, { scale: Math.max(0.5, Math.min(4, val)) });
     } else {
       onChange(row.id, { pixelSize: Math.max(1, Math.min(4096, Math.round(val))) });
+    }
+  };
+
+  const handleStep = (delta: number) => {
+    if (row.sizeMode === 'scale') {
+      const next = Math.max(0.5, Math.min(4, row.scale + delta));
+      onChange(row.id, { scale: next });
+    } else {
+      const next = Math.max(1, Math.min(4096, Math.round(row.pixelSize + delta)));
+      onChange(row.id, { pixelSize: next });
     }
   };
 
@@ -73,22 +84,62 @@ export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps)
         </button>
       </div>
 
-      {/* Size value */}
-      <input
-        type="number"
-        step={row.sizeMode === 'scale' ? 0.5 : 1}
-        min={row.sizeMode === 'scale' ? 0.5 : 1}
-        max={row.sizeMode === 'scale' ? 4 : 4096}
-        value={isSvg ? '' : row.sizeMode === 'scale' ? row.scale : row.pixelSize}
-        onChange={handleSizeChange}
-        disabled={isSvg}
+      {/* Size value with stepper */}
+      <div
         className={cn(
-          'w-16 px-2 py-1 text-center text-sm rounded border border-border bg-surface',
-          'focus:border-accent focus:ring-1 focus:ring-ring/30 outline-none',
+          'flex items-center rounded border border-border bg-surface overflow-hidden shrink-0',
+          'focus-within:border-accent focus-within:ring-1 focus-within:ring-ring/30',
+          'transition-colors duration-200',
           isSvg && 'opacity-40 cursor-not-allowed'
         )}
-        placeholder={isSvg ? '\u2014' : undefined}
-      />
+      >
+        <input
+          type="text"
+          inputMode="decimal"
+          value={isSvg ? '—' : row.sizeMode === 'scale' ? row.scale : row.pixelSize}
+          onChange={handleSizeChange}
+          onKeyDown={(e) => {
+            if (isSvg) return;
+            const step = row.sizeMode === 'scale' ? 0.5 : 1;
+            if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              handleStep(step);
+            }
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              handleStep(-step);
+            }
+          }}
+          disabled={isSvg}
+          className={cn(
+            'w-14 px-2 py-1 text-center text-sm bg-transparent text-foreground outline-none',
+            '[appearance:textfield]',
+            isSvg && 'cursor-not-allowed'
+          )}
+        />
+        <div className="flex flex-col border-l border-border">
+          <button
+            type="button"
+            onClick={() => handleStep(row.sizeMode === 'scale' ? 0.5 : 1)}
+            disabled={isSvg}
+            className="px-1 h-3.5 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-muted transition-colors"
+          >
+            <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor">
+              <path d="M4 0L7.5 4.5H0.5L4 0Z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleStep(row.sizeMode === 'scale' ? -0.5 : -1)}
+            disabled={isSvg}
+            className="px-1 h-3.5 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-muted border-t border-border transition-colors"
+          >
+            <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor">
+              <path d="M4 5L0.5 0.5H7.5L4 5Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
       {/* Format dropdown */}
       <select
@@ -107,12 +158,32 @@ export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps)
         ))}
       </select>
 
-      {/* Filename preview */}
-      <span
-        className={cn('flex-1 text-xs text-foreground-muted font-mono', 'truncate')}
-        title={filename}
-      >
-        {filename}
+      {/* Filename preview with middle truncation */}
+      <span className="flex-1 min-w-0 relative group">
+        <span className="block text-xs text-foreground-muted font-mono truncate-middle">
+          {(() => {
+            const maxLen = 28;
+            if (filename.length <= maxLen) return filename;
+            const keepEnd = 16; // keep suffix like @3x.png visible
+            const keepStart = maxLen - keepEnd - 3; // 3 for "..."
+            return filename.slice(0, keepStart) + '...' + filename.slice(-keepEnd);
+          })()}
+        </span>
+        {/* Tooltip on hover showing full filename */}
+        {filename.length > 28 && (
+          <span
+            className={cn(
+              'absolute bottom-full left-1/2 -translate-x-1/2 mb-1',
+              'px-2 py-1 rounded text-xs',
+              'bg-foreground text-surface',
+              'whitespace-nowrap pointer-events-none',
+              'opacity-0 group-hover:opacity-100 transition-opacity',
+              'z-50'
+            )}
+          >
+            {filename}
+          </span>
+        )}
       </span>
 
       {/* Delete */}

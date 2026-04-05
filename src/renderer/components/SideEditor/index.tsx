@@ -769,8 +769,11 @@ const SideEditor = React.memo(function SideEditor({
               icon={<Download size={12} />}
               onClick={handleIconExport}
             >
-              {t('iconExport.export')}
+              {t('iconExport.exportIconFiles')}
             </Button>
+            <p className="text-[11px] text-foreground-muted mt-1">
+              {t('iconExport.exportDescription')}
+            </p>
           </div>
         </div>
       ) : (

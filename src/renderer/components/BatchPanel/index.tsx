@@ -413,7 +413,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               <Trash2 size={18} className="text-foreground-muted" /> {t('batch.delete')}
             </button>
             <button className={btnClass} onClick={handleExport}>
-              <Download size={18} className="text-foreground-muted" /> {t('iconExport.export')}
+              <Download size={18} className="text-foreground-muted" /> {t('iconExport.exportIconFiles')}
             </button>
             <button className={btnClass} onClick={() => setShowColorPicker(true)}>
               <Palette size={18} className="text-foreground-muted" /> {t('batch.unifyColor')}

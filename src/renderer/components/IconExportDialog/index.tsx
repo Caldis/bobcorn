@@ -127,27 +127,33 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
   const handleExport = useCallback(async () => {
     if (rows.length === 0) return;
 
-    const needsDir = rows.length > 1 || isBatch;
     let dirPath: string | null = null;
-    let filePath: string | null = null;
+    let baseName: string | null = null;
 
-    if (needsDir) {
+    if (isBatch) {
+      // Batch: must pick a directory
       const result = await electronAPI.showOpenDialog({
         title: t('iconExport.selectDir'),
         properties: ['openDirectory', 'createDirectory'],
       });
       if (!result || result.canceled || !result.filePaths?.length) return;
       dirPath = result.filePaths[0];
-      if (!dirPath) return;
     } else {
-      const fname = buildFilename(firstIcon.iconName, rows[0]);
+      // Single icon: save dialog with base filename
+      const fname = rows.length === 1
+        ? buildFilename(firstIcon.iconName, rows[0])
+        : `${firstIcon.iconName}.png`;
       const result = await electronAPI.showSaveDialog({
         title: t('iconExport.title'),
         defaultPath: fname,
       });
-      if (!result || result.canceled) return;
-      filePath = result.filePath;
-      if (!filePath) return;
+      if (!result || result.canceled || !result.filePath) return;
+      // Extract directory and base name from chosen path
+      const fullPath = result.filePath;
+      const lastSep = Math.max(fullPath.lastIndexOf('/'), fullPath.lastIndexOf('\\'));
+      dirPath = fullPath.substring(0, lastSep);
+      // Use the original icon name as base (ignore what user typed for the name part)
+      // but use the directory they selected
     }
 
     setExporting(true);
@@ -171,7 +177,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
 
           if (row.format === 'svg') {
             // SVG: write raw content
-            const dest = dirPath ? `${dirPath}/${fname}` : filePath!;
+            const dest = `${dirPath}/${fname}`;
             await electronAPI.writeFile(dest, icon.iconContent);
           } else if (row.format === 'pdf') {
             // PDF: rasterize then embed in PDF
@@ -182,7 +188,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
               quality: 100,
             });
             const pdfBuf = await buildPdfBuffer(pngBuf, targetSize, targetSize);
-            const dest = dirPath ? `${dirPath}/${fname}` : filePath!;
+            const dest = `${dirPath}/${fname}`;
             await electronAPI.writeFile(dest, new Uint8Array(pdfBuf));
           } else if (row.format === 'ico') {
             if (showIcoMerge && icoMerge) {
@@ -205,7 +211,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
               const icoBuf = buildIcoBuffer([
                 { pngData: pngBuf, width: targetSize, height: targetSize },
               ]);
-              const dest = dirPath ? `${dirPath}/${fname}` : filePath!;
+              const dest = `${dirPath}/${fname}`;
               await electronAPI.writeFile(dest, new Uint8Array(icoBuf));
             }
           } else {
@@ -217,7 +223,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
               quality,
               bgColor: row.format === 'jpg' ? bgColor : undefined,
             });
-            const dest = dirPath ? `${dirPath}/${fname}` : filePath!;
+            const dest = `${dirPath}/${fname}`;
             const arrayBuf = await blob.arrayBuffer();
             await electronAPI.writeFile(dest, new Uint8Array(arrayBuf));
           }
@@ -232,7 +238,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
         if (icoBuffers.length > 0) {
           const icoBuf = buildIcoBuffer(icoBuffers);
           const fname = `${icon.iconName}.ico`;
-          const dest = dirPath ? `${dirPath}/${fname}` : filePath!;
+          const dest = `${dirPath}/${fname}`;
           await electronAPI.writeFile(dest, new Uint8Array(icoBuf));
           current++;
           setProgress({ current, total });
@@ -292,7 +298,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
       footer={footer}
       maskClosable={!exporting}
       closable={!exporting}
-      className="!max-w-lg"
+      className="!max-w-xl"
     >
       {/* Preview */}
       <div className="flex items-center gap-4 mb-4 pb-4 border-b border-border">
