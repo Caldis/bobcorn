@@ -48,11 +48,15 @@ const program = new Command()
 // ---------------------------------------------------------------------------
 // project
 // ---------------------------------------------------------------------------
-const project = program.command('project').description('Project operations');
+const project = program
+  .command('project')
+  .description('Manage .icp project files (create, inspect, configure)');
 
 project
   .command('inspect <icp>')
-  .description('Show project metadata and statistics')
+  .description(
+    'Show project metadata: name, prefix, icon/group counts, and per-group breakdown. Use --json for structured output.'
+  )
   .action(async (icpPath: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
@@ -96,7 +100,9 @@ project
 
 project
   .command('create <path>')
-  .description('Create a new empty .icp project file')
+  .description(
+    'Create a new empty .icp project file. Use --name to set the font family name (default: "iconfont").'
+  )
   .option('--name <name>', 'Project / font prefix name', 'iconfont')
   .action(async (icpPath: string, opts: { name: string }) => {
     const start = Date.now();
@@ -132,12 +138,18 @@ project
 // ---------------------------------------------------------------------------
 // icon
 // ---------------------------------------------------------------------------
-const icon = program.command('icon').description('Icon operations');
+const icon = program
+  .command('icon')
+  .description(
+    'Manage icons: import SVGs, list, rename, move, copy, delete, set unicode, export. All icon references use UUID (use "icon list --json" to discover IDs).'
+  );
 
 icon
   .command('list <icp>')
-  .description('List icons in project')
-  .option('--group <name>', 'Filter by group name')
+  .description(
+    'List all icons with ID, name, unicode code, and group. Filter by group name with --group. Returns JSON array with --json.'
+  )
+  .option('--group <name>', 'Filter by group name (exact match)')
   .action(async (icpPath: string, opts: { group?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
@@ -189,68 +201,87 @@ icon
 
 icon
   .command('import <icp> <svgs...>')
-  .description('Import SVG files')
+  .description(
+    'Import SVG files into project. Accepts glob patterns (e.g. "icons/*.svg"). SVGs are sanitized via DOMPurify before storage.'
+  )
   .action(stubAction('icon import'));
 
 icon
   .command('rename <icp> <id> <newName>')
-  .description('Rename an icon')
+  .description('Rename an icon by its UUID. Get IDs from "icon list --json".')
   .action(stubAction('icon rename'));
 
 icon
   .command('move <icp> <ids...>')
-  .option('--to <group>', 'Target group name')
-  .description('Move icons to a group')
+  .option('--to <group>', 'Target group name (exact match)')
+  .description(
+    'Move one or more icons to a different group. Pass multiple UUIDs for batch move. Variant icons are moved with their parent.'
+  )
   .action(stubAction('icon move'));
 
 icon
   .command('copy <icp> <ids...>')
-  .option('--to <group>', 'Target group name')
-  .description('Copy icons to a group')
+  .option('--to <group>', 'Target group name (exact match)')
+  .description(
+    'Copy one or more icons to a different group. Creates independent copies (not linked).'
+  )
   .action(stubAction('icon copy'));
 
-icon.command('delete <icp> <ids...>').description('Delete icons').action(stubAction('icon delete'));
+icon
+  .command('delete <icp> <ids...>')
+  .description(
+    'Delete one or more icons by UUID. Variant icons are cascade-deleted with their parent.'
+  )
+  .action(stubAction('icon delete'));
 
 icon
   .command('set-code <icp> <id> <code>')
-  .description('Set icon Unicode code point')
+  .description(
+    'Set icon Unicode code point (hex, e.g. "E001"). Used for font generation glyph mapping.'
+  )
   .action(stubAction('icon set-code'));
 
 icon
   .command('replace <icp> <id> <svg>')
-  .description('Replace icon SVG content')
+  .description("Replace an icon's SVG content with a new SVG file. Clears any generated variants.")
   .action(stubAction('icon replace'));
 
 icon
   .command('export-svg <icp> <ids...>')
-  .option('--out <dir>', 'Output directory')
-  .description('Export icon SVG files')
+  .option('--out <dir>', 'Output directory (default: current directory)')
+  .description('Export one or more icons as individual SVG files. Files are named by icon name.')
   .action(stubAction('icon export-svg'));
 
 icon
   .command('set-favorite <icp> <id>')
-  .option('--off', 'Remove favorite')
-  .description('Toggle icon favorite status')
+  .option('--off', 'Remove from favorites')
+  .description('Mark or unmark an icon as favorite. Use --off to remove.')
   .action(stubAction('icon set-favorite'));
 
 icon
   .command('set-color <icp> <id> <color>')
-  .description('Set icon color')
+  .description(
+    'Set icon display color (hex, e.g. "#FF5733"). Affects preview only, not SVG content.'
+  )
   .action(stubAction('icon set-color'));
 
 icon
   .command('get-content <icp> <id>')
-  .description('Get icon SVG content')
+  .description('Output the raw SVG content of an icon to stdout. Useful for piping to other tools.')
   .action(stubAction('icon get-content'));
 
 // ---------------------------------------------------------------------------
 // group
 // ---------------------------------------------------------------------------
-const group = program.command('group').description('Group operations');
+const group = program
+  .command('group')
+  .description(
+    'Manage icon groups: list, add, rename, delete, reorder. Groups organize icons into categories.'
+  );
 
 group
   .command('list <icp>')
-  .description('List groups with icon counts')
+  .description('List all groups with name and sort order. Returns JSON array with --json.')
   .action(async (icpPath: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
@@ -291,78 +322,104 @@ group
     }
   });
 
-group.command('add <icp> <name>').description('Add a new group').action(stubAction('group add'));
+group
+  .command('add <icp> <name>')
+  .description('Create a new empty group with the given name.')
+  .action(stubAction('group add'));
 
 group
   .command('rename <icp> <oldName> <newName>')
-  .description('Rename a group')
+  .description('Rename an existing group. Icons in the group are preserved.')
   .action(stubAction('group rename'));
 
 group
   .command('delete <icp> <name>')
-  .description('Delete a group')
+  .description('Delete a group. Icons in the group are moved to "uncategorized".')
   .action(stubAction('group delete'));
 
 group
   .command('reorder <icp> <names...>')
-  .description('Reorder groups')
+  .description('Set group display order. Pass all group names in desired order.')
   .action(stubAction('group reorder'));
 
 group
   .command('set-description <icp> <name> <description>')
-  .description('Set group description')
+  .description('Set a text description for a group (shown in GUI sidebar).')
   .action(stubAction('group set-description'));
 
 group
   .command('move-icons <icp> <targetGroup> <ids...>')
-  .description('Move icons to target group')
+  .description('Move icons by UUID into the target group. Equivalent to "icon move --to <group>".')
   .action(stubAction('group move-icons'));
 
 // ---------------------------------------------------------------------------
 // export
 // ---------------------------------------------------------------------------
-const exp = program.command('export').description('Export operations');
+const exp = program
+  .command('export')
+  .description(
+    'Export fonts (iconfont) or icon images (PNG/JPG/WebP/PDF/ICO). Two modes: "export font" for font files, "export icon" for raster/vector images.'
+  );
 
 exp
   .command('font <icp>')
-  .option('--out <dir>', 'Output directory')
-  .option('--formats <formats>', 'Comma-separated formats: svg,ttf,woff,woff2,eot')
-  .description('Export font files')
+  .option('--out <dir>', 'Output directory (default: current directory)')
+  .option('--formats <formats>', 'Comma-separated: svg,ttf,woff,woff2,eot (default: all)')
+  .option('--font-name <name>', 'Override font family name')
+  .option('--prefix <prefix>', 'CSS class prefix')
+  .option('--css', 'Generate CSS @font-face file')
+  .option('--preview', 'Generate HTML preview page')
+  .description(
+    'Generate iconfont files from all icons. Supports SVG, TTF, WOFF, WOFF2, EOT. Optionally generates CSS and HTML preview.'
+  )
   .action(stubAction('export font'));
 
 exp
   .command('icon <icp> <ids...>')
-  .option('--out <dir>', 'Output directory')
-  .option('--preset <name>', 'Export preset name')
-  .option('--format <format>', 'Export format: svg,png,jpg,webp,pdf,ico')
-  .option('--size <size>', 'Export size in pixels')
-  .description('Export icon image files')
+  .option('--out <dir>', 'Output directory (default: current directory)')
+  .option('--preset <name>', 'Platform preset: ios, android, rn, web, favicon')
+  .option('--format <format>', 'Output format: svg, png, jpg, webp, pdf, ico (default: png)')
+  .option('--size <size>', 'Size: "2x" (scale) or "48px" (pixel)')
+  .option('--quality <n>', 'JPG/WebP quality 1-100 (default: 92)')
+  .option('--bg-color <hex>', 'JPG background color (default: #FFFFFF)')
+  .option('--ico-merge', 'Merge multiple ICO sizes into single .ico file')
+  .option('--rows <spec>', 'Multi-row export: "2x:png,48px:jpg,3x:webp"')
+  .description(
+    'Export icons as image files. Use --preset for platform-specific sizes (iOS @1x-3x, Android mdpi-xxxhdpi, etc.) or --rows for custom multi-size export.'
+  )
   .action(stubAction('export icon'));
 
 exp
   .command('svg <icp>')
-  .option('--out <dir>', 'Output directory')
-  .description('Export all SVG files')
+  .option('--out <dir>', 'Output directory (default: current directory)')
+  .option('--group <name>', 'Export only icons from this group')
+  .description('Export all icons as individual SVG files. Files are named by icon name.')
   .action(stubAction('export svg'));
 
 // ---------------------------------------------------------------------------
 // variant
 // ---------------------------------------------------------------------------
-const variant = program.command('variant').description('Variant operations');
+const variant = program
+  .command('variant')
+  .description(
+    'Manage icon weight/scale variants (SF Symbols style). Generate multiple weights (thin→black) and scales (sm/md/lg) from a base icon.'
+  );
 
 variant
   .command('list <icp> <id>')
-  .description('List variants of an icon')
+  .description('List all generated variants of an icon, showing weight and scale parameters.')
   .action(stubAction('variant list'));
 
 variant
   .command('generate <icp> <id>')
-  .description('Generate a variant')
+  .option('--weights <list>', 'Weight levels 1-9, comma-separated (default: all)')
+  .option('--scales <list>', 'Scale levels: sm,md,lg (default: all)')
+  .description('Generate weight/scale variants for an icon using feMorphology SVG filters.')
   .action(stubAction('variant generate'));
 
 variant
   .command('delete <icp> <id>')
-  .description('Delete a variant')
+  .description('Delete all generated variants of an icon. The base icon is preserved.')
   .action(stubAction('variant delete'));
 
 // ---------------------------------------------------------------------------
@@ -370,17 +427,23 @@ variant
 // ---------------------------------------------------------------------------
 program
   .command('search <icp> <query>')
-  .description('Search icons by name or code')
+  .option('--group <name>', 'Search within a specific group')
+  .option('--limit <n>', 'Maximum results (default: 50)')
+  .description(
+    'Search icons by name substring. Returns matching icons with ID, name, code, and group.'
+  )
   .action(stubAction('search'));
 
 // ---------------------------------------------------------------------------
 // favorite
 // ---------------------------------------------------------------------------
-const favorite = program.command('favorite').description('Favorite operations');
+const favorite = program
+  .command('favorite')
+  .description('Manage favorited icons. Favorites are bookmarked icons for quick access.');
 
 favorite
   .command('list <icp>')
-  .description('List favorite icons')
+  .description('List all icons marked as favorite.')
   .action(stubAction('favorite list'));
 
 // ---------------------------------------------------------------------------

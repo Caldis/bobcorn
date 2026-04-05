@@ -259,9 +259,13 @@ export class ProjectDb {
   // ── Icon queries ────────────────────────────────────────────
 
   /** Get all non-variant icons (excludes deleted group) */
+  /** Columns returned by list queries (excludes iconContent/iconContentOriginal for performance) */
+  private static readonly LIST_COLS =
+    'id, iconCode, iconName, iconGroup, iconSize, iconType, createTime, updateTime, isFavorite, variantOf, variantMeta';
+
   getIconList(): IconData[] {
     const result = this.db.exec(
-      `SELECT * FROM ${TABLE_ICON} WHERE iconGroup != 'resource-deleted' AND variantOf IS NULL`
+      `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE iconGroup != 'resource-deleted' AND variantOf IS NULL`
     );
     return rowsToObjects(result) as unknown as IconData[];
   }
@@ -269,11 +273,13 @@ export class ProjectDb {
   /** Get icons in a specific group (or all groups if groupId is 'resource-all') */
   getIconListFromGroup(groupId: string): IconData[] {
     if (groupId === 'resource-all') {
-      const result = this.db.exec(`SELECT * FROM ${TABLE_ICON} WHERE variantOf IS NULL`);
+      const result = this.db.exec(
+        `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE variantOf IS NULL`
+      );
       return rowsToObjects(result) as unknown as IconData[];
     }
     const result = this.db.exec(
-      `SELECT * FROM ${TABLE_ICON} WHERE iconGroup = ${sf(groupId)} AND variantOf IS NULL`
+      `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE iconGroup = ${sf(groupId)} AND variantOf IS NULL`
     );
     return rowsToObjects(result) as unknown as IconData[];
   }

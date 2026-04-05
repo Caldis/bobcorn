@@ -31,7 +31,8 @@ export function run(args: string[], options?: { cwd?: string }): Promise<RunResu
       [CLI_BIN, ...args],
       {
         cwd: options?.cwd,
-        timeout: 15_000,
+        timeout: 30_000,
+        maxBuffer: 10 * 1024 * 1024, // 10MB — sf-symbols fixture returns ~2MB for full icon list
         windowsHide: true,
       },
       (error, stdout, stderr) => {
