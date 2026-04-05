@@ -1,0 +1,11 @@
+{
+  "version": "1.10.0",
+  "tag": "v1.10.0",
+  "repo": "Caldis/bobcorn",
+  "releasesUrl": "https://github.com/Caldis/bobcorn/releases",
+  "latestUrl": "https://github.com/Caldis/bobcorn/releases/latest",
+  "releaseUrl": "https://github.com/Caldis/bobcorn/releases/tag/v1.10.0",
+  "downloads": {
+    "default": "https://github.com/Caldis/bobcorn/releases/latest"
+  }
+}

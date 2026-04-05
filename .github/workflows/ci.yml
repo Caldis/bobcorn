@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Check docs release metadata
+        run: npm run docs:check
+
       - name: Lint (optional)
         run: npx eslint src/ --ext .js,.jsx,.ts,.tsx --max-warnings 999 || true
         continue-on-error: true

@@ -527,12 +527,12 @@
         "description": "Free, open-source desktop app to organize, manage, and generate icon fonts from SVG icons. Export to SVG, TTF, WOFF, WOFF2, EOT and more.",
         "applicationCategory": "DesignApplication",
         "operatingSystem": "Windows, macOS",
-        "softwareVersion": "1.7.0",
+        "softwareVersion": "1.10.0",
         "license": "https://opensource.org/licenses/MIT",
         "image": "https://bobcorn.caldis.me/icon.png",
         "screenshot": "https://bobcorn.caldis.me/screenshots/main.png",
-        "downloadUrl": "https://github.com/Caldis/bobcorn/releases",
-        "installUrl": "https://github.com/Caldis/bobcorn/releases",
+        "downloadUrl": "https://github.com/Caldis/bobcorn/releases/latest",
+        "installUrl": "https://github.com/Caldis/bobcorn/releases/latest",
         "featureList": [
             "SVG icon import and management",
             "Icon font generation (SVG, TTF, WOFF, WOFF2, EOT)",
@@ -581,7 +581,7 @@
         <!-- ─── Hero ─── -->
         <section class="hero">
             <div class="hero-version reveal">
-                <span class="tag" id="versionBadge">v1.7.0</span>
+                <span class="tag" id="versionBadge">v1.10.0</span>
                 <span data-i18n="hero.badge">Open source &middot; MIT License</span>
             </div>
 
@@ -592,7 +592,7 @@
             </p>
 
             <div class="hero-actions reveal">
-                <a id="downloadBtn" href="https://github.com/Caldis/bobcorn/releases" class="btn-download">
+                <a id="downloadBtn" href="https://github.com/Caldis/bobcorn/releases/latest" class="btn-download">
                     <span id="downloadLabel">Download</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </a>
@@ -831,9 +831,8 @@
         trigger.setAttribute('aria-expanded', 'false');
     }
 
-    /* ─── Platform detection + GitHub release fetch ─── */
+    /* ─── Platform detection + local release metadata ─── */
     (function() {
-        var REPO = 'Caldis/bobcorn';
         var ua = navigator.userAgent.toLowerCase();
 
         if (ua.indexOf('win') !== -1) {
@@ -867,29 +866,23 @@
             if (e.key === 'Escape') closePopover();
         });
 
-        fetch('https://api.github.com/repos/' + REPO + '/releases/latest')
-            .then(function(r) { return r.json(); })
+        fetch('release.json', { cache: 'no-cache' })
+            .then(function(r) {
+                if (!r.ok) throw new Error('Failed to load release metadata');
+                return r.json();
+            })
             .then(function(release) {
-                var version = release.tag_name.replace('v', '');
-                document.getElementById('versionBadge').textContent = 'v' + version;
-
-                var assets = release.assets || [];
-                var assetUrl = null;
-
-                for (var i = 0; i < assets.length; i++) {
-                    var name = assets[i].name;
-                    switch (detectedPlatform) {
-                        case 'windows':
-                            if (name.match(/Setup.*\.exe$/i) && !name.match(/blockmap/)) assetUrl = assets[i].browser_download_url;
-                            break;
-                        case 'mac-arm64':
-                            if (name.match(/arm64\.dmg$/) && !name.match(/blockmap/)) assetUrl = assets[i].browser_download_url;
-                            break;
-                        case 'mac':
-                            if (name.match(/\.dmg$/) && !name.match(/arm64/) && !name.match(/blockmap/)) assetUrl = assets[i].browser_download_url;
-                            break;
-                    }
+                if (release.version) {
+                    document.getElementById('versionBadge').textContent = 'v' + release.version;
                 }
+
+                var downloads = release.downloads || {};
+                var assetUrl =
+                    downloads[detectedPlatform] ||
+                    downloads.default ||
+                    release.latestUrl ||
+                    release.releaseUrl ||
+                    release.releasesUrl;
 
                 if (assetUrl) {
                     document.getElementById('downloadBtn').href = assetUrl;

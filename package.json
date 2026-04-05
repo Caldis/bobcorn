@@ -11,6 +11,8 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build && tsup",
     "build:cli": "tsup",
+    "docs:sync": "node scripts/sync-site-release.js",
+    "docs:check": "node scripts/check-site-release.js",
     "start": "electron-vite preview",
     "package": "electron-vite build && electron-builder --publish never",
     "package-all": "electron-vite build && electron-builder -mwl",
@@ -31,6 +33,7 @@
     "security-audit": "bash scripts/security-audit.sh",
     "release:patch": "npm version patch && git push origin main --follow-tags",
     "release:minor": "npm version minor && git push origin main --follow-tags",
+    "version": "npm run docs:sync && git add package.json docs/index.html docs/release.json",
     "prepare": "husky"
   },
   "browserslist": [

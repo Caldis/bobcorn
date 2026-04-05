@@ -15,6 +15,9 @@ git status  # should be clean
 # 2. Build
 npx electron-vite build
 
+# 2.5. Docs metadata
+npm run docs:check
+
 # 3. Unit tests (169 tests)
 npx vitest run
 
@@ -48,6 +51,8 @@ npm version major
 # Push triggers CI → multi-platform build → GitHub Releases
 git push origin master --follow-tags
 ```
+
+`npm version` 会自动执行 `npm run docs:sync`，同步官网首页版本徽章、SEO `softwareVersion` 和 `docs/release.json`。
 
 **发版后不要手动创建 `gh release`** — CI 会自动处理。手动创建会导致 CI 产物丢失。
 
