@@ -128,7 +128,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
     if (rows.length === 0) return;
 
     let dirPath: string | null = null;
-    let baseName: string | null = null;
+    const baseName: string | null = null;
 
     if (isBatch) {
       // Batch: must pick a directory
@@ -140,9 +140,10 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
       dirPath = result.filePaths[0];
     } else {
       // Single icon: save dialog with base filename
-      const fname = rows.length === 1
-        ? buildFilename(firstIcon.iconName, rows[0])
-        : `${firstIcon.iconName}.png`;
+      const fname =
+        rows.length === 1
+          ? buildFilename(firstIcon.iconName, rows[0])
+          : `${firstIcon.iconName}.png`;
       const result = await electronAPI.showSaveDialog({
         title: t('iconExport.title'),
         defaultPath: fname,
@@ -365,6 +366,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
               key={row.id}
               row={row}
               iconName={firstIcon?.iconName || 'icon'}
+              viewBoxSize={Math.max(viewBox.w, viewBox.h)}
               onChange={handleRowChange}
               onDelete={handleRowDelete}
             />

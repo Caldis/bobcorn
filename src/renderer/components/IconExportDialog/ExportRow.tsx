@@ -11,18 +11,28 @@ const FORMATS: ExportFormat[] = ['svg', 'png', 'jpg', 'webp', 'pdf', 'ico'];
 interface ExportRowProps {
   row: ExportRowConfig;
   iconName: string;
+  viewBoxSize: number;
   onChange: (id: string, updates: Partial<ExportRowConfig>) => void;
   onDelete: (id: string) => void;
 }
 
-export function ExportRow({ row, iconName, onChange, onDelete }: ExportRowProps) {
+export function ExportRow({ row, iconName, viewBoxSize, onChange, onDelete }: ExportRowProps) {
   const { t } = useTranslation();
   const isSvg = row.format === 'svg';
 
   const filename = useMemo(() => buildFilename(iconName, row), [iconName, row]);
 
   const handleSizeModeToggle = (mode: SizeMode) => {
-    onChange(row.id, { sizeMode: mode });
+    if (mode === row.sizeMode) return;
+    if (mode === 'pixel') {
+      // @ → PX: compute pixel size from scale × viewBox
+      const px = Math.round(row.scale * viewBoxSize);
+      onChange(row.id, { sizeMode: mode, pixelSize: Math.max(1, px) });
+    } else {
+      // PX → @: compute scale from pixel / viewBox
+      const scale = Math.round((row.pixelSize / viewBoxSize) * 2) / 2; // round to 0.5 step
+      onChange(row.id, { sizeMode: mode, scale: Math.max(0.5, scale || 1) });
+    }
   };
 
   const handleSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
