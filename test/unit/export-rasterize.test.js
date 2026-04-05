@@ -17,6 +17,23 @@ describe('parseViewBox', () => {
   it('parses non-square viewBox', () => {
     expect(parseViewBox(NONSQUARE_SVG)).toEqual({ x: 0, y: 0, w: 48, h: 24 });
   });
+
+  it('returns default 24x24 for null input', () => {
+    expect(parseViewBox(null)).toEqual({ x: 0, y: 0, w: 24, h: 24 });
+  });
+
+  it('returns default 24x24 for undefined input', () => {
+    expect(parseViewBox(undefined)).toEqual({ x: 0, y: 0, w: 24, h: 24 });
+  });
+
+  it('returns default 24x24 for empty string', () => {
+    expect(parseViewBox('')).toEqual({ x: 0, y: 0, w: 24, h: 24 });
+  });
+
+  it('parses viewBox with negative offset', () => {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 28 28"><rect/></svg>';
+    expect(parseViewBox(svg)).toEqual({ x: -2, y: -2, w: 28, h: 28 });
+  });
 });
 
 describe('prepareSvgForRender', () => {
@@ -37,5 +54,11 @@ describe('prepareSvgForRender', () => {
     const result = prepareSvgForRender(NONSQUARE_SVG, 64);
     expect(result).toContain('width="64"');
     expect(result).toContain('height="32"');
+  });
+
+  it('handles very small target (16px)', () => {
+    const result = prepareSvgForRender(SIMPLE_SVG, 16);
+    expect(result).toContain('width="16"');
+    expect(result).toContain('height="16"');
   });
 });

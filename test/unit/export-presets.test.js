@@ -31,6 +31,15 @@ describe('presets', () => {
     expect(fav.rows.filter((r) => r.format === 'png')).toHaveLength(3);
     expect(fav.icoMerge).toBe(true);
   });
+
+  it('React Native preset exists with 3 scale rows', () => {
+    const rn = PRESETS.find((p) => p.key === 'rn');
+    expect(rn).toBeDefined();
+    expect(rn.rows).toHaveLength(3);
+    expect(rn.rows.map((r) => r.scale)).toEqual([1, 2, 3]);
+    expect(rn.rows.every((r) => r.format === 'png')).toBe(true);
+    expect(rn.rows.every((r) => r.sizeMode === 'scale')).toBe(true);
+  });
 });
 
 describe('buildFilename', () => {
@@ -53,6 +62,18 @@ describe('buildFilename', () => {
   it('fractional scale: home@1.5x.png', () => {
     expect(buildFilename('home', { sizeMode: 'scale', scale: 1.5, format: 'png' })).toBe('home@1.5x.png');
   });
+
+  it('ICO format pixel mode: home-16px.ico', () => {
+    expect(buildFilename('home', { sizeMode: 'pixel', pixelSize: 16, format: 'ico' })).toBe('home-16px.ico');
+  });
+
+  it('SVG format ignores pixel mode too: home.svg', () => {
+    expect(buildFilename('home', { sizeMode: 'pixel', pixelSize: 48, format: 'svg' })).toBe('home.svg');
+  });
+
+  it('PDF format with scale: home@2x.pdf', () => {
+    expect(buildFilename('home', { sizeMode: 'scale', scale: 2, format: 'pdf' })).toBe('home@2x.pdf');
+  });
 });
 
 describe('computeOutputSize', () => {
@@ -66,5 +87,13 @@ describe('computeOutputSize', () => {
 
   it('non-square viewBox: uses longest side', () => {
     expect(computeOutputSize({ sizeMode: 'scale', scale: 2, pixelSize: 0 }, 24, 16)).toBe(48);
+  });
+
+  it('scale 0.5: viewBox 24 -> 12', () => {
+    expect(computeOutputSize({ sizeMode: 'scale', scale: 0.5, pixelSize: 0 }, 24)).toBe(12);
+  });
+
+  it('scale 1: returns viewBox size directly', () => {
+    expect(computeOutputSize({ sizeMode: 'scale', scale: 1, pixelSize: 0 }, 24)).toBe(24);
   });
 });
