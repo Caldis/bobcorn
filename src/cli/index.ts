@@ -788,20 +788,15 @@ const group = program
   );
 
 group
-  .command('list <icp>')
+  .command('list [icp]')
   .description('List all groups with name and sort order. Returns JSON array with --json.')
-  .action(async (icpPath: string) => {
+  .action(async (icpPath?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('group list', icpPath, start);
+    const meta = makeMeta('group list', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const groups = await coreListGroups(nodeIo, resolvedPath);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(groups, meta);
@@ -831,22 +826,19 @@ group
   });
 
 group
-  .command('add <icp> <name>')
+  .command('add <nameOrIcp> [name]')
   .description(
     'Create a new empty group with the given name. Generates a UUID for the group, assigns the next groupOrder value (max + 1), and saves the project. Fails if a group with the same name already exists.'
   )
-  .action(async (icpPath: string, name: string) => {
+  .action(async (arg1: string, arg2?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('group add', icpPath, start);
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const name = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('group add', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const addResult = await coreAddGroup(nodeIo, resolvedPath, name);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(addResult, meta);
@@ -864,22 +856,20 @@ group
   });
 
 group
-  .command('rename <icp> <oldName> <newName>')
+  .command('rename <oldNameOrIcp> <newNameOrOldName> [newName]')
   .description(
     'Rename an existing group by its current name. Icons in the group are preserved — only the group name changes. The project is saved after renaming. Fails if the old group name is not found.'
   )
-  .action(async (icpPath: string, oldName: string, newName: string) => {
+  .action(async (arg1: string, arg2: string, arg3?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('group rename', icpPath, start);
+    const icpPath = arg3 !== undefined ? arg1 : undefined;
+    const oldName = arg3 !== undefined ? arg2 : arg1;
+    const newName = arg3 !== undefined ? arg3 : arg2;
+    const meta = makeMeta('group rename', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const renameResult = await coreRenameGroup(nodeIo, resolvedPath, oldName, newName);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(renameResult, meta);
@@ -897,22 +887,19 @@ group
   });
 
 group
-  .command('delete <icp> <name>')
+  .command('delete <nameOrIcp> [name]')
   .description(
     'Delete a group by name. All icons in the group are moved to the "uncategorized" virtual group (resource-uncategorized). The group record is then removed. The project is saved after deletion. Fails if the group name is not found.'
   )
-  .action(async (icpPath: string, name: string) => {
+  .action(async (arg1: string, arg2?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('group delete', icpPath, start);
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const name = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('group delete', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const deleteResult = await coreDeleteGroup(nodeIo, resolvedPath, name);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(deleteResult, meta);
@@ -933,22 +920,25 @@ group
   });
 
 group
-  .command('reorder <icp> <names...>')
+  .command('reorder <namesOrIcp...>')
   .description(
     'Set group display order. Pass all group names in desired order. Groups not listed keep their existing order.'
   )
-  .action(async (icpPath: string, names: string[]) => {
+  .action(async (args: string[]) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('group reorder', icpPath, start);
+    let icpPath: string | undefined;
+    let names: string[];
+    if (args[0]?.endsWith('.icp')) {
+      icpPath = args[0];
+      names = args.slice(1);
+    } else {
+      names = args;
+    }
+    const meta = makeMeta('group reorder', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const reorderResult = await coreReorderGroups(nodeIo, resolvedPath, names);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(reorderResult, meta);
@@ -969,20 +959,18 @@ group
   });
 
 group
-  .command('set-description <icp> <name> <description>')
+  .command('set-description <nameOrIcp> <descOrName> [description]')
   .description('Set a text description for a group (shown in GUI sidebar).')
-  .action(async (icpPath: string, name: string, description: string) => {
+  .action(async (arg1: string, arg2: string, arg3?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('group set-description', icpPath, start);
+    const icpPath = arg3 !== undefined ? arg1 : undefined;
+    const name = arg3 !== undefined ? arg2 : arg1;
+    const description = arg3 !== undefined ? arg3 : arg2;
+    const meta = makeMeta('group set-description', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const descResult = await coreSetGroupDescription(nodeIo, resolvedPath, name, description);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(descResult, meta);
@@ -1000,20 +988,26 @@ group
   });
 
 group
-  .command('move-icons <icp> <targetGroup> <ids...>')
+  .command('move-icons <targetGroupOrIcp> <idsOrTargetGroup...>')
   .description('Move icons by UUID into the target group. Equivalent to "icon move --to <group>".')
-  .action(async (icpPath: string, targetGroup: string, ids: string[]) => {
+  .action(async (arg1: string, rest: string[]) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('group move-icons', icpPath, start);
+    let icpPath: string | undefined;
+    let targetGroup: string;
+    let ids: string[];
+    if (arg1.endsWith('.icp')) {
+      icpPath = arg1;
+      targetGroup = rest[0];
+      ids = rest.slice(1);
+    } else {
+      targetGroup = arg1;
+      ids = rest;
+    }
+    const meta = makeMeta('group move-icons', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const moveResult = await coreMoveIcons(nodeIo, resolvedPath, ids, targetGroup);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(moveResult, meta);
@@ -1040,7 +1034,7 @@ const exp = program
   );
 
 exp
-  .command('font <icp>')
+  .command('font [icp]')
   .option('--out <dir>', 'Output directory (default: current directory)')
   .option('--formats <formats>', 'Comma-separated: svg,ttf,woff,woff2,eot (default: all)')
   .option('--font-name <name>', 'Override font family name')
@@ -1053,7 +1047,7 @@ exp
   )
   .action(
     async (
-      icpPath: string,
+      icpPath: string | undefined,
       opts: {
         out?: string;
         formats?: string;
@@ -1066,7 +1060,7 @@ exp
     ) => {
       const start = Date.now();
       const jsonMode = program.opts().json;
-      const meta = makeMeta('export font', icpPath, start);
+      const meta = makeMeta('export font', icpPath ?? '', start);
       try {
         if (opts.preview) {
           meta.duration_ms = Date.now() - start;
@@ -1078,13 +1072,8 @@ exp
           process.exit(1);
         }
 
-        const resolvedPath = nodeIo.resolve(icpPath);
-        if (!(await nodeIo.exists(resolvedPath))) {
-          meta.duration_ms = Date.now() - start;
-          const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-          printResult(result, jsonMode);
-          process.exit(2);
-        }
+        const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+        meta.projectPath = resolvedPath;
 
         const outDir = opts.out ?? '.';
         const formats = opts.formats
@@ -1133,7 +1122,7 @@ exp
   );
 
 exp
-  .command('icon <icp> <ids...>')
+  .command('icon <idsOrIcp...>')
   .option('--out <dir>', 'Output directory (default: current directory)')
   .option('--preset <name>', 'Platform preset: ios, android, rn, web, favicon')
   .option('--format <format>', 'Output format: svg, png, jpg, webp, pdf, ico (default: png)')
@@ -1148,22 +1137,17 @@ exp
   .action(stubAction('export icon'));
 
 exp
-  .command('svg <icp>')
+  .command('svg [icp]')
   .option('--out <dir>', 'Output directory (default: current directory)')
   .option('--group <name>', 'Export only icons from this group')
   .description('Export all icons as individual SVG files. Files are named by icon name.')
-  .action(async (icpPath: string, opts: { out?: string; group?: string }) => {
+  .action(async (icpPath: string | undefined, opts: { out?: string; group?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('export svg', icpPath, start);
+    const meta = makeMeta('export svg', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
 
       const outDir = opts.out ?? '.';
       const exportResult = await coreExportBatchSvg(nodeIo, resolvedPath, {
@@ -1252,7 +1236,7 @@ variant
   });
 
 variant
-  .command('generate <icp> <id>')
+  .command('generate <idOrIcp> [id]')
   .option('--weights <list>', 'Weight levels 1-9, comma-separated (default: all)')
   .option('--scales <list>', 'Scale levels: sm,md,lg (default: all)')
   .description(
@@ -1312,62 +1296,61 @@ variant
 // search
 // ---------------------------------------------------------------------------
 program
-  .command('search <icp> <query>')
+  .command('search <queryOrIcp> [query]')
   .option('--group <name>', 'Search within a specific group')
   .option('--limit <n>', 'Maximum results (default: 50)')
   .description(
     'Search icons by name substring. Returns matching icons with ID, name, code, and group.'
   )
-  .action(async (icpPath: string, query: string, opts: { group?: string; limit?: string }) => {
-    const start = Date.now();
-    const jsonMode = program.opts().json;
-    const meta = makeMeta('search', icpPath, start);
-    try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
+  .action(
+    async (arg1: string, arg2: string | undefined, opts: { group?: string; limit?: string }) => {
+      const start = Date.now();
+      const jsonMode = program.opts().json;
+      const icpPath = arg2 !== undefined ? arg1 : undefined;
+      const query = arg2 !== undefined ? arg2 : arg1;
+      const meta = makeMeta('search', icpPath ?? '', start);
+      try {
+        const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+        meta.projectPath = resolvedPath;
+        const limit = opts.limit ? parseInt(opts.limit, 10) : 50;
+        const icons = await coreSearchIcons(nodeIo, resolvedPath, query, {
+          group: opts.group,
+          limit,
+        });
         meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        const result = jsonOutput(icons, meta);
+        printResult(result, jsonMode);
+        if (!jsonMode) {
+          if (icons.length === 0) {
+            console.log(`No icons matching "${query}".`);
+          } else {
+            const idWidth = Math.max(2, ...icons.map((i) => i.id.length));
+            const nameWidth = Math.max(4, ...icons.map((i) => i.iconName.length));
+            const codeWidth = Math.max(4, ...icons.map((i) => (i.iconCode || '').length));
+            const groupWidth = Math.max(5, ...icons.map((i) => i.iconGroup.length));
+            console.log(
+              `  ${'ID'.padEnd(idWidth)}  ${'Name'.padEnd(nameWidth)}  ${'Code'.padEnd(codeWidth)}  ${'Group'.padEnd(groupWidth)}`
+            );
+            console.log(
+              `  ${''.padEnd(idWidth, '-')}  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(codeWidth, '-')}  ${''.padEnd(groupWidth, '-')}`
+            );
+            for (const icon of icons) {
+              console.log(
+                `  ${icon.id.padEnd(idWidth)}  ${icon.iconName.padEnd(nameWidth)}  ${(icon.iconCode || '').padEnd(codeWidth)}  ${icon.iconGroup.padEnd(groupWidth)}`
+              );
+            }
+            console.log(`\n${icons.length} result(s)`);
+          }
+        }
+      } catch (err: any) {
+        meta.duration_ms = Date.now() - start;
+        const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+        const result = jsonError(err.message, code, meta);
         printResult(result, jsonMode);
         process.exit(2);
       }
-      const limit = opts.limit ? parseInt(opts.limit, 10) : 50;
-      const icons = await coreSearchIcons(nodeIo, resolvedPath, query, {
-        group: opts.group,
-        limit,
-      });
-      meta.duration_ms = Date.now() - start;
-      const result = jsonOutput(icons, meta);
-      printResult(result, jsonMode);
-      if (!jsonMode) {
-        if (icons.length === 0) {
-          console.log(`No icons matching "${query}".`);
-        } else {
-          const idWidth = Math.max(2, ...icons.map((i) => i.id.length));
-          const nameWidth = Math.max(4, ...icons.map((i) => i.iconName.length));
-          const codeWidth = Math.max(4, ...icons.map((i) => (i.iconCode || '').length));
-          const groupWidth = Math.max(5, ...icons.map((i) => i.iconGroup.length));
-          console.log(
-            `  ${'ID'.padEnd(idWidth)}  ${'Name'.padEnd(nameWidth)}  ${'Code'.padEnd(codeWidth)}  ${'Group'.padEnd(groupWidth)}`
-          );
-          console.log(
-            `  ${''.padEnd(idWidth, '-')}  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(codeWidth, '-')}  ${''.padEnd(groupWidth, '-')}`
-          );
-          for (const icon of icons) {
-            console.log(
-              `  ${icon.id.padEnd(idWidth)}  ${icon.iconName.padEnd(nameWidth)}  ${(icon.iconCode || '').padEnd(codeWidth)}  ${icon.iconGroup.padEnd(groupWidth)}`
-            );
-          }
-          console.log(`\n${icons.length} result(s)`);
-        }
-      }
-    } catch (err: any) {
-      meta.duration_ms = Date.now() - start;
-      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
-      const result = jsonError(err.message, code, meta);
-      printResult(result, jsonMode);
-      process.exit(2);
     }
-  });
+  );
 
 // ---------------------------------------------------------------------------
 // favorite
@@ -1377,20 +1360,15 @@ const favorite = program
   .description('Manage favorited icons. Favorites are bookmarked icons for quick access.');
 
 favorite
-  .command('list <icp>')
+  .command('list [icp]')
   .description('List all icons marked as favorite.')
-  .action(async (icpPath: string) => {
+  .action(async (icpPath?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('favorite list', icpPath, start);
+    const meta = makeMeta('favorite list', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const icons = await coreListFavorites(nodeIo, resolvedPath);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(icons, meta);
