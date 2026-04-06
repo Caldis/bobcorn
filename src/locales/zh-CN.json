@@ -425,6 +425,7 @@
   "settings.cli.install": "安装 CLI 到 PATH",
   "settings.cli.uninstall": "卸载",
   "settings.cli.manualSetup": "手动设置",
+  "settings.cli.docs": "使用说明",
   "settings.cli.checking": "检测中...",
   "settings.cli.restartHint": "请打开新的终端窗口使用 {{command}} 命令。",
   "settings.cli.installing": "安装中...",

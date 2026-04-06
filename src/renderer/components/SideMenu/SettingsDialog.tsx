@@ -410,8 +410,14 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
           </h4>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[11px] text-foreground-muted/50 shrink-0">
-                {t('settings.cli.description')}
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1 px-2 py-0.5 rounded',
+                  'bg-foreground/[0.04] border border-foreground/[0.06]'
+                )}
+              >
+                <span className="text-accent/60 text-xs font-mono select-none">$</span>
+                <code className="text-sm text-foreground font-mono">{cliCommandName}</code>
               </span>
               {cliStatus === 'checking' && (
                 <span className="inline-block w-3 h-3 border-[1.5px] border-foreground-muted/30 border-t-foreground-muted/60 rounded-full animate-spin shrink-0" />
@@ -473,101 +479,103 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               ) : null}
             </div>
           </div>
-          {(cliShowRestartHint || cliStatus === 'installed') && (
-            <div className="flex items-center gap-2 mt-2">
-              {cliShowRestartHint && (
-                <p className="text-[11px] text-accent/70">
-                  {t('settings.cli.restartHint', { command: cliCommandName })}
-                </p>
-              )}
-              {cliStatus === 'installed' && !cliShowRestartHint && (
-                <a
-                  href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli.html`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const lang = WIKI_LANG_MAP[i18n.language] || 'en';
-                    (window as any).electronAPI.openExternal(
-                      `https://bobcorn.caldis.me/wiki/${lang}/cli.html`
-                    );
-                  }}
-                  className="text-[10px] text-foreground-muted/30 hover:text-accent/80 transition-colors duration-150 cursor-pointer"
-                >
-                  {t('settings.cli.manualSetup')}
-                </a>
-              )}
-            </div>
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <p className="text-[11px] text-foreground-muted/40">{t('settings.cli.description')}</p>
+            <a
+              href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli.html`}
+              onClick={(e) => {
+                e.preventDefault();
+                const lang = WIKI_LANG_MAP[i18n.language] || 'en';
+                (window as any).electronAPI.openExternal(
+                  `https://bobcorn.caldis.me/wiki/${lang}/cli.html`
+                );
+              }}
+              className="text-[11px] text-accent hover:text-accent/80 transition-colors duration-150 cursor-pointer shrink-0"
+            >
+              {t('settings.cli.docs')} &rarr;
+            </a>
+            <span className="text-foreground-muted/15 text-[10px]">|</span>
+            <a
+              href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli.html#manual-setup`}
+              onClick={(e) => {
+                e.preventDefault();
+                const lang = WIKI_LANG_MAP[i18n.language] || 'en';
+                (window as any).electronAPI.openExternal(
+                  `https://bobcorn.caldis.me/wiki/${lang}/cli.html#manual-setup`
+                );
+              }}
+              className="text-[11px] text-foreground-muted/50 hover:text-accent/80 transition-colors duration-150 cursor-pointer shrink-0"
+            >
+              {t('settings.cli.manualSetup')}
+            </a>
+          </div>
+          {cliShowRestartHint && (
+            <p className="text-[11px] text-accent/70 mt-1.5">
+              {t('settings.cli.restartHint', { command: cliCommandName })}
+            </p>
           )}
         </section>
 
         {/* ── Divider ───────────────────────────────────── */}
         <div className="border-t border-border" />
 
-        {/* ── Bobcorn AI (hover card) ────────────────── */}
-        <section className="relative group/ai">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <h4
-                className={cn(
-                  'text-[11px] font-semibold uppercase tracking-widest',
-                  'text-foreground-muted/60'
-                )}
-              >
-                {t('settings.ai.title')}
-              </h4>
+        {/* ── Bobcorn AI ────────────────────────────── */}
+        <section>
+          <h4
+            className={cn(
+              'text-[11px] font-semibold uppercase tracking-widest',
+              'text-foreground-muted/60 mb-2.5'
+            )}
+          >
+            {t('settings.ai.title')}
+          </h4>
+          <div
+            className={cn(
+              'rounded-lg p-3',
+              'bg-gradient-to-br from-violet-500/[0.06] to-fuchsia-500/[0.04]',
+              'border border-violet-500/10'
+            )}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-foreground-muted/50">
+                {t('settings.ai.description')}
+              </span>
               <span
                 className={cn(
-                  'text-[9px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider',
-                  'bg-gradient-to-r from-violet-500/15 to-fuchsia-500/15',
-                  'text-violet-500 dark:text-violet-400',
-                  'border border-violet-500/20'
+                  'text-[9px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider shrink-0 ml-2',
+                  'bg-violet-500/10 text-violet-500 dark:text-violet-400',
+                  'border border-violet-500/15'
                 )}
               >
                 {t('settings.ai.comingSoon')}
               </span>
             </div>
-            <span className="text-[10px] text-foreground-muted/30 group-hover/ai:text-foreground-muted/50 transition-colors">
-              {t('settings.ai.description')}
-            </span>
-          </div>
-          {/* Hover card — appears on hover, positioned above to avoid overflow */}
-          <div
-            className={cn(
-              'absolute left-0 right-0 bottom-full mb-2 z-50',
-              'bg-surface border border-border rounded-lg shadow-xl',
-              'p-3 opacity-0 pointer-events-none scale-95',
-              'group-hover/ai:opacity-100 group-hover/ai:pointer-events-auto group-hover/ai:scale-100',
-              'transition-all duration-200 ease-out'
-            )}
-          >
-            <div className="space-y-1">
+            <div className="flex flex-wrap gap-1.5">
               {(
                 [
-                  ['smartGrouping', 'smartGroupingDesc'],
-                  ['nameNormalization', 'nameNormalizationDesc'],
-                  ['duplicateDetection', 'duplicateDetectionDesc'],
-                  ['iconGeneration', 'iconGenerationDesc'],
-                  ['styleCheck', 'styleCheckDesc'],
-                  ['setCompletion', 'setCompletionDesc'],
-                  ['a11yDescriptions', 'a11yDescriptionsDesc'],
-                  ['smartUnicode', 'smartUnicodeDesc'],
-                  ['variantIntelligence', 'variantIntelligenceDesc'],
+                  'smartGrouping',
+                  'nameNormalization',
+                  'duplicateDetection',
+                  'iconGeneration',
+                  'styleCheck',
+                  'setCompletion',
+                  'a11yDescriptions',
+                  'smartUnicode',
+                  'variantIntelligence',
                 ] as const
-              ).map(([name, desc]) => (
-                <div key={name} className="flex items-baseline gap-1.5 text-[11px] leading-relaxed">
-                  <span className="text-violet-500/40 shrink-0">{'\u25B8'}</span>
-                  <span>
-                    <span className="font-medium text-foreground/80">
-                      {t(`settings.ai.${name}`)}
-                    </span>
-                    <span className="text-foreground-muted/40 mx-1">&mdash;</span>
-                    <span className="text-foreground-muted/50">{t(`settings.ai.${desc}`)}</span>
-                  </span>
-                </div>
+              ).map((name) => (
+                <span
+                  key={name}
+                  className={cn(
+                    'text-[10px] px-2 py-0.5 rounded-full',
+                    'bg-foreground/[0.04] text-foreground-muted/50',
+                    'border border-foreground/[0.04]'
+                  )}
+                >
+                  {t(`settings.ai.${name}`)}
+                </span>
               ))}
             </div>
-            <p className="text-[10px] text-foreground-muted/35 mt-2 italic">
-              {t('settings.ai.stayTuned')}
-            </p>
           </div>
         </section>
 

@@ -425,6 +425,7 @@
   "settings.cli.install": "Install CLI to PATH",
   "settings.cli.uninstall": "Uninstall",
   "settings.cli.manualSetup": "Manual setup",
+  "settings.cli.docs": "Usage guide",
   "settings.cli.checking": "Checking...",
   "settings.cli.restartHint": "Open a new terminal to use the {{command}} command.",
   "settings.cli.installing": "Installing...",
