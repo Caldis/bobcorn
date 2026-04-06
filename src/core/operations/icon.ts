@@ -602,6 +602,229 @@ export async function searchIcons(
 }
 
 // ---------------------------------------------------------------------------
+// Set Color
+// ---------------------------------------------------------------------------
+
+// CSS named colors commonly used in SVGs
+const NAMED_COLORS: Record<string, string> = {
+  black: '#000000',
+  white: '#ffffff',
+  red: '#ff0000',
+  green: '#008000',
+  blue: '#0000ff',
+  yellow: '#ffff00',
+  orange: '#ffa500',
+  purple: '#800080',
+  gray: '#808080',
+  grey: '#808080',
+  silver: '#c0c0c0',
+  maroon: '#800000',
+  navy: '#000080',
+  teal: '#008080',
+  aqua: '#00ffff',
+  fuchsia: '#ff00ff',
+  lime: '#00ff00',
+  olive: '#808000',
+};
+
+const IGNORE_COLOR_VALUES = new Set([
+  'none',
+  'currentColor',
+  'currentcolor',
+  'inherit',
+  'transparent',
+]);
+
+/** Normalize a color value to lowercase hex. Returns null for non-color values. */
+function normalizeColor(raw: string): string | null {
+  const v = raw.trim().toLowerCase();
+  if (IGNORE_COLOR_VALUES.has(v) || !v) return null;
+
+  // Already hex
+  if (v.startsWith('#')) {
+    // #abc -> #aabbcc
+    if (v.length === 4) {
+      return `#${v[1]}${v[1]}${v[2]}${v[2]}${v[3]}${v[3]}`;
+    }
+    return v.length >= 7 ? v.slice(0, 7) : v;
+  }
+
+  // rgb(r, g, b)
+  const rgbMatch = v.match(/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/);
+  if (rgbMatch) {
+    const [, r, g, b] = rgbMatch;
+    return `#${Number(r).toString(16).padStart(2, '0')}${Number(g).toString(16).padStart(2, '0')}${Number(b).toString(16).padStart(2, '0')}`;
+  }
+
+  // Named color
+  if (NAMED_COLORS[v]) return NAMED_COLORS[v];
+
+  return null;
+}
+
+// SVG shape elements that default to black fill when no explicit fill is set
+const SHAPE_ELEMENTS = new Set([
+  'path',
+  'circle',
+  'ellipse',
+  'rect',
+  'polygon',
+  'polyline',
+  'line',
+  'text',
+  'tspan',
+]);
+
+/**
+ * Regex-based SVG color replacement — CLI-safe (no DOM/DOMParser needed).
+ *
+ * Replaces fill="oldColor" and stroke="oldColor" attribute values.
+ * Also handles inline style fill:/stroke: values.
+ * For shape elements with no explicit fill (implicit black), adds fill="newColor"
+ * when replacing black (#000000).
+ */
+function replaceSvgColorRegex(svg: string, oldColor: string, newColor: string): string {
+  const oldNorm = normalizeColor(oldColor);
+  if (!oldNorm) return svg;
+
+  let result = svg;
+
+  // Replace fill="..." and stroke="..." attributes
+  // Match fill="<color>" or stroke="<color>" where color normalizes to oldNorm
+  result = result.replace(/\b(fill|stroke)\s*=\s*"([^"]*)"/gi, (match, attr, value) => {
+    const norm = normalizeColor(value);
+    if (norm === oldNorm) {
+      return `${attr}="${newColor}"`;
+    }
+    return match;
+  });
+
+  // Replace fill='...' and stroke='...' (single-quote variant)
+  result = result.replace(/\b(fill|stroke)\s*=\s*'([^']*)'/gi, (match, attr, value) => {
+    const norm = normalizeColor(value);
+    if (norm === oldNorm) {
+      return `${attr}="${newColor}"`;
+    }
+    return match;
+  });
+
+  // Replace inline style fill:/stroke: values
+  result = result.replace(/\bstyle\s*=\s*"([^"]*)"/gi, (match, styleContent) => {
+    let newStyle = styleContent;
+    // Replace fill: <color>
+    newStyle = newStyle.replace(/fill\s*:\s*([^;]+)/gi, (fillMatch: string, fillVal: string) => {
+      const norm = normalizeColor(fillVal);
+      if (norm === oldNorm) {
+        return `fill: ${newColor}`;
+      }
+      return fillMatch;
+    });
+    // Replace stroke: <color>
+    newStyle = newStyle.replace(
+      /stroke\s*:\s*([^;]+)/gi,
+      (strokeMatch: string, strokeVal: string) => {
+        const norm = normalizeColor(strokeVal);
+        if (norm === oldNorm) {
+          return `stroke: ${newColor}`;
+        }
+        return strokeMatch;
+      }
+    );
+    if (newStyle !== styleContent) {
+      return `style="${newStyle}"`;
+    }
+    return match;
+  });
+
+  // For implicit black replacement: add fill="newColor" to shape elements with no fill
+  if (oldNorm === '#000000') {
+    const shapePattern = new RegExp(
+      `(<(?:${Array.from(SHAPE_ELEMENTS).join('|')})\\b)([^>]*?)(/?>)`,
+      'gi'
+    );
+    result = result.replace(shapePattern, (match, open, attrs, close) => {
+      // Check if this element already has a fill attribute
+      const hasFill = /\bfill\s*=/i.test(attrs);
+      // Check for fill in style
+      const hasStyleFill = /style\s*=\s*["'][^"']*fill\s*:/i.test(attrs);
+      // Check for currentColor fill (treated as implicit black)
+      const hasCurrentColor = /\bfill\s*=\s*["']currentColor["']/i.test(attrs);
+      if (!hasFill && !hasStyleFill) {
+        return `${open}${attrs} fill="${newColor}"${close}`;
+      }
+      if (hasCurrentColor) {
+        return match.replace(/\bfill\s*=\s*["']currentColor["']/i, `fill="${newColor}"`);
+      }
+      return match;
+    });
+  }
+
+  return result;
+}
+
+export interface SetColorResult {
+  updated: number;
+  ids: string[];
+  oldColor: string;
+  newColor: string;
+}
+
+/**
+ * Set the fill/stroke color on one or more icons.
+ * Replaces all occurrences of oldColor with newColor in the SVG content.
+ *
+ * Uses regex-based SVG color replacement (no DOM required).
+ * For complex SVGs with CSS classes or external stylesheets, the GUI's
+ * DOMParser-based approach may produce different results.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param ids - Icon UUIDs to update
+ * @param oldColor - Color to replace (hex, rgb, or named color)
+ * @param newColor - Replacement color (hex recommended)
+ */
+export async function setIconColor(
+  io: IoAdapter,
+  projectPath: string,
+  ids: string[],
+  oldColor: string,
+  newColor: string
+): Promise<SetColorResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const updated: string[] = [];
+
+    for (const id of ids) {
+      const content = db.getIconContent(id);
+      if (content === null) {
+        throw new Error(`Icon not found: ${id}`);
+      }
+
+      const newContent = replaceSvgColorRegex(content, oldColor, newColor);
+      if (newContent !== content) {
+        db.setIconContent(id, newContent);
+        updated.push(id);
+      }
+    }
+
+    if (updated.length > 0) {
+      await saveProject(io, resolvedPath, db);
+    }
+
+    return {
+      updated: updated.length,
+      ids: updated,
+      oldColor,
+      newColor,
+    };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
 // List Favorites
 // ---------------------------------------------------------------------------
 

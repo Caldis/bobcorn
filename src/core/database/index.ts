@@ -552,6 +552,51 @@ export class ProjectDb {
     return rowsToObjects(result) as unknown as IconData[];
   }
 
+  // ── Variant queries ──────────────────────────────────────
+
+  /**
+   * Get all variants of a parent icon, ordered by name.
+   */
+  getVariants(parentId: string): Record<string, any>[] {
+    const result = this.db.exec(
+      `SELECT * FROM ${TABLE_ICON} WHERE variantOf = ${sf(parentId)} ORDER BY iconName ASC`
+    );
+    return rowsToObjects(result);
+  }
+
+  /**
+   * Get count of variants for a parent icon.
+   */
+  getVariantCount(parentId: string): number {
+    const stmt = this.db.prepare(
+      `SELECT COUNT(*) FROM ${TABLE_ICON} WHERE variantOf = ${sf(parentId)}`
+    );
+    stmt.step();
+    const count = stmt.getAsObject()['COUNT(*)'] as number;
+    stmt.free();
+    return count;
+  }
+
+  /**
+   * Delete all variants of a parent icon (hard delete).
+   * Returns the number of deleted rows.
+   */
+  deleteVariants(parentId: string): number {
+    const count = this.getVariantCount(parentId);
+    this.db.run(`DELETE FROM ${TABLE_ICON} WHERE variantOf = ${sf(parentId)}`);
+    return count;
+  }
+
+  // ── Icon content mutations ──────────────────────────────
+
+  /**
+   * Update iconContent for an icon (without touching iconContentOriginal).
+   * Used for color changes and other non-destructive edits.
+   */
+  setIconContent(id: string, content: string): void {
+    this.db.run(`UPDATE ${TABLE_ICON} SET iconContent = ${sf(content)} WHERE id = ${sf(id)}`);
+  }
+
   /**
    * Search icons by name substring. Optional group filter and limit.
    */

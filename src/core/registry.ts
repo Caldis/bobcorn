@@ -42,11 +42,19 @@ export const OPERATIONS: OpEntry[] = [
     cliCommand: null, // implicit — every write command auto-saves
   },
   {
+    id: 'project.save-as',
+    description: 'Copy the project to a new .icp file (backup/clone)',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/project.ts#saveAsProject',
+    legacyPaths: [],
+    cliCommand: 'project save-as',
+  },
+  {
     id: 'project.open-file',
     description: 'Open an existing .icp project file',
     status: OpStatus.Legacy,
     legacyPaths: ['src/renderer/containers/MainContainer/index.tsx#handleOpen'],
-    cliCommand: null, // CLI opens project file implicitly per-command
+    cliCommand: null, // GUI-only: opens file dialog → loads into renderer state. CLI opens per-command.
   },
   {
     id: 'project.inspect',
@@ -77,7 +85,7 @@ export const OPERATIONS: OpEntry[] = [
     description: 'Reset project to empty state (clear all icons and groups)',
     status: OpStatus.Legacy,
     legacyPaths: ['src/renderer/containers/MainContainer/index.tsx#resetProject'],
-    cliCommand: null, // internal GUI operation
+    cliCommand: null, // GUI-only: resets in-memory state. For CLI, just create a new project.
   },
 
   // ── Icon ────────────────────────────────────────────────
@@ -167,8 +175,9 @@ export const OPERATIONS: OpEntry[] = [
   },
   {
     id: 'icon.set-color',
-    description: 'Batch set fill color on icon(s)',
-    status: OpStatus.Legacy,
+    description: 'Batch set fill/stroke color on icon(s) — regex-based SVG replacement',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/icon.ts#setIconColor',
     legacyPaths: ['src/renderer/components/BatchPanel/index.tsx'],
     cliCommand: 'icon set-color',
   },
@@ -267,7 +276,7 @@ export const OPERATIONS: OpEntry[] = [
       'src/renderer/utils/export/',
       'src/renderer/workers/exportRaster.worker.ts',
     ],
-    cliCommand: 'export icon',
+    cliCommand: 'export icon', // Legacy: requires Canvas for rasterization (PNG/JPG/WebP/ICO)
   },
   {
     id: 'export.svg',
@@ -282,28 +291,32 @@ export const OPERATIONS: OpEntry[] = [
     description: 'Generate HTML demo/preview page for the icon font',
     status: OpStatus.Legacy,
     legacyPaths: ['src/renderer/utils/generators/demopageGenerator/index.ts'],
-    cliCommand: null, // sub-operation of export.font --preview
+    cliCommand: null, // GUI-only: requires DOM for HTML template rendering. Sub-operation of export.font --preview.
   },
 
   // ── Variant ─────────────────────────────────────────────
   {
     id: 'variant.generate',
-    description: 'Generate weight/scale variants for an icon',
+    description:
+      'Generate weight/scale variants for an icon — NOT available in CLI headless mode. ' +
+      'Requires Canvas/DOM rendering context (feMorphology filter + rasterize + retrace pipeline).',
     status: OpStatus.Legacy,
     legacyPaths: ['src/renderer/components/SideEditor/VariantPanel.tsx'],
-    cliCommand: 'variant generate',
+    cliCommand: 'variant generate', // stub — prints NOT_AVAILABLE_HEADLESS error
   },
   {
     id: 'variant.list',
     description: 'List all variants of a given icon',
-    status: OpStatus.Legacy,
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/variant.ts#listVariants',
     legacyPaths: ['src/renderer/components/SideEditor/VariantPanel.tsx'],
     cliCommand: 'variant list',
   },
   {
     id: 'variant.delete',
-    description: 'Delete all variants of a given icon',
-    status: OpStatus.Legacy,
+    description: 'Delete all variants of a given icon (hard delete)',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/variant.ts#deleteVariants',
     legacyPaths: ['src/renderer/components/SideEditor/VariantPanel.tsx'],
     cliCommand: 'variant delete',
   },

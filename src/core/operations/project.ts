@@ -76,6 +76,53 @@ export async function inspectProject(io: IoAdapter, projectPath: string): Promis
 }
 
 // ---------------------------------------------------------------------------
+// Save As (copy project to new path)
+// ---------------------------------------------------------------------------
+
+export interface SaveAsResult {
+  sourcePath: string;
+  outputPath: string;
+  iconCount: number;
+  groupCount: number;
+}
+
+/**
+ * Copy a project to a new .icp file path.
+ * Opens the source project, exports its database binary, and writes to the output path.
+ * Useful for backups or creating a copy before major changes.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the source .icp file
+ * @param outputPath - Path where the copy will be written
+ */
+export async function saveAsProject(
+  io: IoAdapter,
+  projectPath: string,
+  outputPath: string
+): Promise<SaveAsResult> {
+  const resolvedSource = io.resolve(projectPath);
+  const resolvedOutput = io.resolve(outputPath);
+
+  const db = await openProject(io, resolvedSource);
+
+  try {
+    const iconCount = db.getIconCount();
+    const groupCount = db.getGroupCount();
+
+    await saveProject(io, resolvedOutput, db);
+
+    return {
+      sourcePath: resolvedSource,
+      outputPath: resolvedOutput,
+      iconCount,
+      groupCount,
+    };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Set Name
 // ---------------------------------------------------------------------------
 

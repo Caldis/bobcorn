@@ -11,6 +11,7 @@
 import { Command } from 'commander';
 import { nodeIo } from './io-node';
 import { jsonOutput, jsonError, printResult, type CliMeta } from './output';
+import { resolveProject, ProjectResolutionError } from './resolve-project';
 import { install, uninstall } from './install';
 import {
   createProject as coreCreateProject,
@@ -30,7 +31,12 @@ import {
   setIconFavorite as coreSetIconFavorite,
   searchIcons as coreSearchIcons,
   listFavorites as coreListFavorites,
+  setIconColor as coreSetIconColor,
 } from '../core/operations/icon';
+import {
+  listVariants as coreListVariants,
+  deleteVariants as coreDeleteVariants,
+} from '../core/operations/variant';
 import {
   listGroups as coreListGroups,
   addGroup as coreAddGroup,
@@ -39,7 +45,10 @@ import {
   reorderGroups as coreReorderGroups,
   setGroupDescription as coreSetGroupDescription,
 } from '../core/operations/group';
-import { setProjectName as coreSetProjectName } from '../core/operations/project';
+import {
+  setProjectName as coreSetProjectName,
+  saveAsProject as coreSaveAsProject,
+} from '../core/operations/project';
 import { exportFont as coreExportFont } from '../core/operations/export-font';
 import { exportBatchSvg as coreExportBatchSvg } from '../core/operations/export-svg';
 
@@ -65,9 +74,52 @@ function makeMeta(command: string, projectPath: string, start: number): CliMeta 
 
 const program = new Command()
   .name('bobcorn')
-  .description('Icon font manager and generator CLI \u2014 AI-agent friendly')
+  .description(
+    'Icon font manager CLI \u2014 AI-agent friendly. Project file (.icp) is auto-detected from current directory, or specify with --project flag.'
+  )
   .version(VERSION)
-  .option('--json', 'Structured JSON output');
+  .option('--json', 'Structured JSON output')
+  .option(
+    '--project <path>',
+    'Path to .icp project file (default: auto-detect in current directory)'
+  );
+
+/**
+ * Resolve the project path using the priority chain, with unified error handling.
+ * Also validates that the resolved file exists on disk.
+ * If resolution or existence check fails, prints the error and exits with code 2.
+ */
+async function resolveProjectOrExit(
+  explicit: string | undefined,
+  start: number,
+  jsonMode: boolean,
+  meta: CliMeta
+): Promise<string> {
+  let resolved: string;
+  try {
+    resolved = resolveProject(explicit, program.opts().project);
+  } catch (err: any) {
+    meta.duration_ms = Date.now() - start;
+    if (err instanceof ProjectResolutionError) {
+      const result = jsonError(err.message, 'PROJECT_NOT_FOUND', meta);
+      printResult(result, jsonMode);
+    } else {
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+    }
+    process.exit(2);
+  }
+
+  if (!(await nodeIo.exists(resolved))) {
+    meta.duration_ms = Date.now() - start;
+    const display = explicit || program.opts().project || resolved;
+    const result = jsonError(`File not found: ${display}`, 'FILE_NOT_FOUND', meta);
+    printResult(result, jsonMode);
+    process.exit(2);
+  }
+
+  return resolved;
+}
 
 // ---------------------------------------------------------------------------
 // project
@@ -77,22 +129,17 @@ const project = program
   .description('Manage .icp project files (create, inspect, configure)');
 
 project
-  .command('inspect <icp>')
+  .command('inspect [icp]')
   .description(
     'Show project metadata: name, prefix, icon/group counts, and per-group breakdown. Use --json for structured output.'
   )
-  .action(async (icpPath: string) => {
+  .action(async (icpPath?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('project inspect', icpPath, start);
+    const meta = makeMeta('project inspect', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const info = await coreInspectProject(nodeIo, resolvedPath);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(info, meta);
@@ -150,22 +197,21 @@ project
   });
 
 project
-  .command('set-name <icp> <name>')
+  .command('set-name <nameOrIcp> [name]')
   .description(
     'Set project name (also sets the font prefix, since projectName IS the prefix in Bobcorn).'
   )
-  .action(async (icpPath: string, name: string) => {
+  .action(async (arg1: string, arg2?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('project set-name', icpPath, start);
+    // 2 args: set-name <icp> <name> (backward compat)
+    // 1 arg:  set-name <name> (auto-discover project)
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const name = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('project set-name', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const setNameResult = await coreSetProjectName(nodeIo, resolvedPath, name);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(setNameResult, meta);
@@ -182,28 +228,58 @@ project
   });
 
 project
-  .command('set-prefix <icp> <prefix>')
+  .command('set-prefix <prefixOrIcp> [prefix]')
   .description(
     'Set project font prefix (alias for set-name, since projectName IS the prefix in Bobcorn).'
   )
-  .action(async (icpPath: string, prefix: string) => {
+  .action(async (arg1: string, arg2?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('project set-prefix', icpPath, start);
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const prefix = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('project set-prefix', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const setNameResult = await coreSetProjectName(nodeIo, resolvedPath, prefix);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(setNameResult, meta);
       printResult(result, jsonMode);
       if (!jsonMode) {
         console.log(`Font prefix: "${setNameResult.oldName}" -> "${setNameResult.newName}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
+
+project
+  .command('save-as [icp] <output>')
+  .description(
+    'Copy the project to a new .icp file. Useful for backups or creating a copy before major changes. The source project is unchanged.'
+  )
+  .action(async (icpOrOutput: string, maybeOutput?: string) => {
+    // Commander parses [icp] as optional. If only 1 arg, it's <output>.
+    const hasExplicitIcp = maybeOutput !== undefined;
+    const icpPath = hasExplicitIcp ? icpOrOutput : undefined;
+    const outputPath = hasExplicitIcp ? maybeOutput! : icpOrOutput;
+
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('project save-as', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const saveResult = await coreSaveAsProject(nodeIo, resolvedPath, outputPath);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(saveResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Saved copy to: ${saveResult.outputPath}`);
+        console.log(`  Icons: ${saveResult.iconCount}, Groups: ${saveResult.groupCount}`);
       }
     } catch (err: any) {
       meta.duration_ms = Date.now() - start;
@@ -223,23 +299,18 @@ const icon = program
   );
 
 icon
-  .command('list <icp>')
+  .command('list [icp]')
   .description(
     'List all icons with ID, name, unicode code, and group. Filter by group name with --group. Returns JSON array with --json.'
   )
   .option('--group <name>', 'Filter by group name (exact match)')
-  .action(async (icpPath: string, opts: { group?: string }) => {
+  .action(async (icpPath: string | undefined, opts: { group?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon list', icpPath, start);
+    const meta = makeMeta('icon list', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const icons = await coreListIcons(nodeIo, resolvedPath, {
         group: opts.group,
       });
@@ -278,20 +349,30 @@ icon
   });
 
 icon
-  .command('import <icp> <svgs...>')
+  .command('import <svgsOrIcp...>')
   .description(
     'Import SVG files into a project. Each SVG is sanitized (scripts and event handlers removed), assigned a UUID and the next available PUA unicode code point (E000-F8FF), and inserted into the iconData table. Icons go to "uncategorized" by default. Use --group to specify a target group by name. The project file is saved after import.'
   )
   .option('--group <name>', 'Target group name (exact match)')
-  .action(async (icpPath: string, svgs: string[], opts: { group?: string }) => {
+  .action(async (args: string[], opts: { group?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon import', icpPath, start);
+    // If the first arg ends with .icp, treat it as the project path (backward compat)
+    let icpPath: string | undefined;
+    let svgs: string[];
+    if (args[0]?.endsWith('.icp')) {
+      icpPath = args[0];
+      svgs = args.slice(1);
+    } else {
+      svgs = args;
+    }
+    const meta = makeMeta('icon import', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      if (svgs.length === 0) {
         meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
+        const result = jsonError('No SVG files specified', 'MISSING_ARGUMENT', meta);
         printResult(result, jsonMode);
         process.exit(2);
       }
@@ -326,22 +407,22 @@ icon
   });
 
 icon
-  .command('rename <icp> <id> <newName>')
+  .command('rename <idOrIcp> <newNameOrId> [newName]')
   .description(
     'Rename an icon by its UUID. The icon ID can be discovered via "icon list --json". Updates the iconName field in the database and saves the project.'
   )
-  .action(async (icpPath: string, id: string, newName: string) => {
+  .action(async (arg1: string, arg2: string, arg3?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon rename', icpPath, start);
+    // 3 args: rename <icp> <id> <newName> (backward compat)
+    // 2 args: rename <id> <newName> (auto-discover)
+    const icpPath = arg3 !== undefined ? arg1 : undefined;
+    const id = arg3 !== undefined ? arg2 : arg1;
+    const newName = arg3 !== undefined ? arg3 : arg2;
+    const meta = makeMeta('icon rename', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const renameResult = await coreRenameIcon(nodeIo, resolvedPath, id, newName);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(renameResult, meta);
@@ -359,15 +440,23 @@ icon
   });
 
 icon
-  .command('move <icp> <ids...>')
+  .command('move <idsOrIcp...>')
   .option('--to <group>', 'Target group name (exact match, required)')
   .description(
     'Move one or more icons to a different group by UUID. Pass multiple UUIDs for batch move. Variant icons follow their parent icon automatically. The --to flag specifies the target group name (exact match). The project is saved after the move.'
   )
-  .action(async (icpPath: string, ids: string[], opts: { to?: string }) => {
+  .action(async (args: string[], opts: { to?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon move', icpPath, start);
+    let icpPath: string | undefined;
+    let ids: string[];
+    if (args[0]?.endsWith('.icp')) {
+      icpPath = args[0];
+      ids = args.slice(1);
+    } else {
+      ids = args;
+    }
+    const meta = makeMeta('icon move', icpPath ?? '', start);
     try {
       if (!opts.to) {
         meta.duration_ms = Date.now() - start;
@@ -375,13 +464,8 @@ icon
         printResult(result, jsonMode);
         process.exit(2);
       }
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const moveResult = await coreMoveIcons(nodeIo, resolvedPath, ids, opts.to);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(moveResult, meta);
@@ -399,15 +483,23 @@ icon
   });
 
 icon
-  .command('copy <icp> <ids...>')
+  .command('copy <idsOrIcp...>')
   .option('--to <group>', 'Target group name (exact match, required)')
   .description(
     'Copy one or more icons to a different group. Creates independent copies with new UUIDs and unicode codes. Variants are NOT copied.'
   )
-  .action(async (icpPath: string, ids: string[], opts: { to?: string }) => {
+  .action(async (args: string[], opts: { to?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon copy', icpPath, start);
+    let icpPath: string | undefined;
+    let ids: string[];
+    if (args[0]?.endsWith('.icp')) {
+      icpPath = args[0];
+      ids = args.slice(1);
+    } else {
+      ids = args;
+    }
+    const meta = makeMeta('icon copy', icpPath ?? '', start);
     try {
       if (!opts.to) {
         meta.duration_ms = Date.now() - start;
@@ -415,13 +507,8 @@ icon
         printResult(result, jsonMode);
         process.exit(2);
       }
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const copyResult = await coreCopyIcons(nodeIo, resolvedPath, ids, opts.to);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(copyResult, meta);
@@ -442,22 +529,25 @@ icon
   });
 
 icon
-  .command('delete <icp> <ids...>')
+  .command('delete <idsOrIcp...>')
   .description(
     'Soft-delete one or more icons by UUID. Icons are moved to the internal "resource-deleted" group (not permanently removed). Variant icons are cascade-deleted (hard delete) when their parent is deleted. The project is saved after deletion.'
   )
-  .action(async (icpPath: string, ids: string[]) => {
+  .action(async (args: string[]) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon delete', icpPath, start);
+    let icpPath: string | undefined;
+    let ids: string[];
+    if (args[0]?.endsWith('.icp')) {
+      icpPath = args[0];
+      ids = args.slice(1);
+    } else {
+      ids = args;
+    }
+    const meta = makeMeta('icon delete', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const deleteResult = await coreDeleteIcons(nodeIo, resolvedPath, ids);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(deleteResult, meta);
@@ -474,22 +564,20 @@ icon
   });
 
 icon
-  .command('set-code <icp> <id> <code>')
+  .command('set-code <idOrIcp> <codeOrId> [code]')
   .description(
     'Set icon Unicode code point (hex, e.g. "E001"). Must be in PUA range E000-F8FF. Used for font generation glyph mapping.'
   )
-  .action(async (icpPath: string, id: string, code: string) => {
+  .action(async (arg1: string, arg2: string, arg3?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon set-code', icpPath, start);
+    const icpPath = arg3 !== undefined ? arg1 : undefined;
+    const id = arg3 !== undefined ? arg2 : arg1;
+    const code = arg3 !== undefined ? arg3 : arg2;
+    const meta = makeMeta('icon set-code', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const setCodeResult = await coreSetIconCode(nodeIo, resolvedPath, id, code);
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(setCodeResult, meta);
@@ -510,20 +598,18 @@ icon
   });
 
 icon
-  .command('replace <icp> <id> <svg>')
+  .command('replace <idOrIcp> <svgOrId> [svg]')
   .description("Replace an icon's SVG content with a new SVG file. Clears any generated variants.")
-  .action(async (icpPath: string, id: string, svgPath: string) => {
+  .action(async (arg1: string, arg2: string, arg3?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon replace', icpPath, start);
+    const icpPath = arg3 !== undefined ? arg1 : undefined;
+    const id = arg3 !== undefined ? arg2 : arg1;
+    const svgPath = arg3 !== undefined ? arg3 : arg2;
+    const meta = makeMeta('icon replace', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const resolvedSvg = nodeIo.resolve(svgPath);
       if (!(await nodeIo.exists(resolvedSvg))) {
         meta.duration_ms = Date.now() - start;
@@ -550,21 +636,24 @@ icon
   });
 
 icon
-  .command('export-svg <icp> <ids...>')
+  .command('export-svg <idsOrIcp...>')
   .option('--out <dir>', 'Output directory (default: current directory)')
   .description('Export one or more icons as individual SVG files. Files are named by icon name.')
-  .action(async (icpPath: string, ids: string[], opts: { out?: string }) => {
+  .action(async (args: string[], opts: { out?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon export-svg', icpPath, start);
+    let icpPath: string | undefined;
+    let ids: string[];
+    if (args[0]?.endsWith('.icp')) {
+      icpPath = args[0];
+      ids = args.slice(1);
+    } else {
+      ids = args;
+    }
+    const meta = makeMeta('icon export-svg', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const outDir = opts.out ?? '.';
       const exportResult = await coreExportIconSvg(nodeIo, resolvedPath, ids, outDir);
       meta.duration_ms = Date.now() - start;
@@ -586,21 +675,18 @@ icon
   });
 
 icon
-  .command('set-favorite <icp> <id>')
+  .command('set-favorite <idOrIcp> [id]')
   .option('--off', 'Remove from favorites')
   .description('Mark or unmark an icon as favorite. Use --off to remove.')
-  .action(async (icpPath: string, id: string, opts: { off?: boolean }) => {
+  .action(async (arg1: string, arg2: string | undefined, opts: { off?: boolean }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon set-favorite', icpPath, start);
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const id = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('icon set-favorite', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const favorite = !opts.off;
       const favResult = await coreSetIconFavorite(nodeIo, resolvedPath, id, favorite);
       meta.duration_ms = Date.now() - start;
@@ -621,41 +707,59 @@ icon
   });
 
 icon
-  .command('set-color <icp> <id> <color>')
+  .command('set-color <idsOrIcp...>')
+  .requiredOption('--from <color>', 'Color to replace (hex, e.g. "#000000", or named: "black")')
+  .requiredOption('--to <color>', 'Replacement color (hex, e.g. "#FF5733")')
   .description(
-    'Set icon display color (hex, e.g. "#FF5733"). In the GUI, this replaces SVG fill/stroke colors in the icon content. Not yet available in CLI — requires SVG color manipulation utilities.'
+    'Replace a fill/stroke color in one or more icons. Uses regex-based SVG color replacement (no DOM needed). For complex SVGs with CSS classes, the GUI may produce different results. Specify --from and --to colors.'
   )
-  .action((_icpPath: string, _id: string, _color: string) => {
+  .action(async (args: string[], opts: { from: string; to: string }) => {
+    const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon set-color', _icpPath, Date.now());
-    const msg =
-      'icon set-color is not yet available in CLI. Color manipulation requires SVG parsing utilities that are GUI-only. Use the GUI to change icon colors, or edit the SVG file directly and use "icon replace".';
-    if (jsonMode) {
-      const result = jsonError(msg, 'NOT_IMPLEMENTED', meta);
-      printResult(result, jsonMode);
+    let icpPath: string | undefined;
+    let ids: string[];
+    if (args[0]?.endsWith('.icp')) {
+      icpPath = args[0];
+      ids = args.slice(1);
     } else {
-      console.error(msg);
+      ids = args;
     }
-    process.exit(1);
+    const meta = makeMeta('icon set-color', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const colorResult = await coreSetIconColor(nodeIo, resolvedPath, ids, opts.from, opts.to);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(colorResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(
+          `Updated ${colorResult.updated} icon(s): "${colorResult.oldColor}" -> "${colorResult.newColor}"`
+        );
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
   });
 
 icon
-  .command('get-content <icp> <id>')
+  .command('get-content <idOrIcp> [id]')
   .description(
     'Output the raw SVG content of an icon to stdout. In human mode, outputs just the raw SVG string (ideal for piping to files or other tools). In --json mode, the SVG content is wrapped in the standard JSON envelope under data.content.'
   )
-  .action(async (icpPath: string, id: string) => {
+  .action(async (arg1: string, arg2?: string) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
-    const meta = makeMeta('icon get-content', icpPath, start);
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const id = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('icon get-content', icpPath ?? '', start);
     try {
-      const resolvedPath = nodeIo.resolve(icpPath);
-      if (!(await nodeIo.exists(resolvedPath))) {
-        meta.duration_ms = Date.now() - start;
-        const result = jsonError(`File not found: ${icpPath}`, 'FILE_NOT_FOUND', meta);
-        printResult(result, jsonMode);
-        process.exit(2);
-      }
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
       const content = await coreGetIconContent(nodeIo, resolvedPath, id);
       meta.duration_ms = Date.now() - start;
       if (jsonMode) {
@@ -1101,21 +1205,108 @@ const variant = program
   );
 
 variant
-  .command('list <icp> <id>')
-  .description('List all generated variants of an icon, showing weight and scale parameters.')
-  .action(stubAction('variant list'));
+  .command('list <idOrIcp> [id]')
+  .description(
+    'List all generated variants of a parent icon. Shows variant ID, name, weight/scale metadata. Returns empty array if no variants exist.'
+  )
+  .action(async (arg1: string, arg2?: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const id = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('variant list', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const listResult = await coreListVariants(nodeIo, resolvedPath, id);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(listResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Parent: ${listResult.parentName} (${listResult.parentId})`);
+        if (listResult.variants.length === 0) {
+          console.log('No variants.');
+        } else {
+          for (const v of listResult.variants) {
+            let metaStr = '';
+            if (v.variantMeta) {
+              try {
+                const parsed = JSON.parse(v.variantMeta);
+                metaStr = ` [weight=${parsed.weight || '?'}, scale=${parsed.scale || '?'}]`;
+              } catch {
+                metaStr = '';
+              }
+            }
+            console.log(`  ${v.id}  ${v.iconName}${metaStr}`);
+          }
+          console.log(`\n${listResult.variants.length} variant(s)`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 variant
   .command('generate <icp> <id>')
   .option('--weights <list>', 'Weight levels 1-9, comma-separated (default: all)')
   .option('--scales <list>', 'Scale levels: sm,md,lg (default: all)')
-  .description('Generate weight/scale variants for an icon using feMorphology SVG filters.')
-  .action(stubAction('variant generate'));
+  .description(
+    'Generate weight/scale variants for an icon using feMorphology SVG filters. ' +
+      'NOT AVAILABLE in CLI headless mode — variant generation requires a Canvas/DOM rendering ' +
+      'context (feMorphology filter + rasterize + retrace pipeline). Use the Bobcorn GUI instead.'
+  )
+  .action((_icpPath: string, _id: string) => {
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('variant generate', _icpPath, Date.now());
+    const msg =
+      'variant generate is not available in CLI headless mode. ' +
+      'The variant generation pipeline requires Canvas/DOM rendering context ' +
+      '(feMorphology SVG filter → rasterize → retrace). ' +
+      'Use the Bobcorn GUI to generate variants, or create variants manually ' +
+      'and import them with "icon import".';
+    if (jsonMode) {
+      const result = jsonError(msg, 'NOT_AVAILABLE_HEADLESS', meta);
+      printResult(result, jsonMode);
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
+  });
 
 variant
-  .command('delete <icp> <id>')
-  .description('Delete all generated variants of an icon. The base icon is preserved.')
-  .action(stubAction('variant delete'));
+  .command('delete <idOrIcp> [id]')
+  .description(
+    'Delete all generated variants of a parent icon (hard delete). The base icon is preserved. Safe to call even when no variants exist.'
+  )
+  .action(async (arg1: string, arg2?: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const id = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('variant delete', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const deleteResult = await coreDeleteVariants(nodeIo, resolvedPath, id);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(deleteResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Deleted ${deleteResult.deleted} variant(s) of "${deleteResult.parentName}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // search
