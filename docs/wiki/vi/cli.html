@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giao dien dong lenh — Bobcorn Wiki</title>
+    <meta name="description" content="Su dung Bobcorn tu terminal. CLI than thien voi AI agent de tu dong hoa, viet script va tich hop.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/vi/cli.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/cli.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/cli.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/cli.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/cli.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/cli.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/cli.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/cli.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/cli.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/cli.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/cli.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/cli.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/cli.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/cli.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/cli.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/cli.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/vi/cli.html">
+    <meta property="og:title" content="Giao dien dong lenh — Bobcorn Wiki">
+    <meta property="og:description" content="Su dung Bobcorn tu terminal. CLI than thien voi AI agent de tu dong hoa, viet script va tich hop.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Giao dien dong lenh — Bobcorn Wiki">
+    <meta name="twitter:description" content="Su dung Bobcorn tu terminal. CLI than thien voi AI agent de tu dong hoa, viet script va tich hop.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Giao dien dong lenh — Bobcorn Wiki",
+                "description": "Su dung Bobcorn tu terminal. CLI than thien voi AI agent de tu dong hoa, viet script va tich hop.",
+                "url": "https://bobcorn.caldis.me/wiki/vi/cli.html",
+                "inLanguage": "vi",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Giao dien dong lenh — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/vi/cli.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Giao dien dong lenh</h1>
+                <p class="lead reveal">Su dung Bobcorn tu terminal. CLI than thien voi AI agent de tu dong hoa, viet script va tich hop.</p>
+
+                <!-- Getting Started -->
+                <h2 class="reveal">Bat dau</h2>
+                <div class="reveal">
+                    <p>Bobcorn CLI cho phep ban quan ly du an font bieu tuong hoan toan tu terminal. Cai dat tu bang <strong>Cai dat</strong> trong ung dung Bobcorn — nhan nut <strong>Cai dat</strong> trong phan "Giao dien dong lenh".</p>
+                    <p>Trong che do phat trien, lenh duoc dang ky la <code>bobcorn-dev</code>; ban build san pham cai dat la <code>bobcorn</code>. Sau khi cai dat, mo <strong>terminal moi</strong> va xac minh:</p>
+
+                    <span class="code-label">Xac minh cai dat</span>
+<pre><code>bobcorn --version</code></pre>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Meo</div>
+                        Neu khong tim thay lenh sau khi cai dat, hay mo cua so terminal moi. Thay doi PATH chi co hieu luc trong phien shell moi.
+                    </div>
+                </div>
+
+                <!-- Project Auto-Discovery -->
+                <h2 class="reveal">Tu dong phat hien du an</h2>
+                <div class="reveal">
+                    <p>CLI tu dong phat hien cac tap tin du an <code>.icp</code> trong thu muc hien tai. Ban cung co the chi dinh duong dan ro rang. Thu tu uu tien:</p>
+                    <ol>
+                        <li><strong>Doi so duong dan ro rang</strong> — truyen truc tiep cho lenh</li>
+                        <li><strong>Co <code>--project</code></strong> — tuy chon toan cuc cho tat ca cac lenh</li>
+                        <li><strong>Tu dong phat hien</strong> — quet thu muc hien tai tim tap tin <code>.icp</code></li>
+                    </ol>
+
+                    <span class="code-label">Ba cach chi dinh du an</span>
+<pre><code><span class="code-cmt"># 1. Doi so duong dan ro rang</span>
+bobcorn project inspect my-icons.icp
+
+<span class="code-cmt"># 2. Co toan cuc --project</span>
+bobcorn --project my-icons.icp icon list
+
+<span class="code-cmt"># 3. Tu dong phat hien (chay tu thu muc chua tap tin .icp)</span>
+cd my-project/
+bobcorn icon list</code></pre>
+                </div>
+
+                <!-- Output Formats -->
+                <h2 class="reveal">Dinh dang dau ra</h2>
+                <div class="reveal">
+                    <p>Mac dinh CLI xuat van ban doc duoc. Them <code>--json</code> de co dau ra JSON co cau truc, ly tuong cho script va tich hop AI agent.</p>
+
+                    <h3>Cau truc phong bi JSON</h3>
+                    <p>Moi phan hoi JSON theo mot phong bi nhat quan:</p>
+
+                    <span class="code-label">Phong bi JSON</span>
+<pre><code>{
+  "ok": true,
+  "data": { ... },
+  "meta": {
+    "command": "icon list",
+    "projectPath": "/path/to/project.icp",
+    "duration_ms": 42,
+    "version": "1.0.0"
+  }
+}</code></pre>
+
+                    <h3>Ba trang thai phan hoi</h3>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Trang thai</th><th><code>ok</code></th><th>Mo ta</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td>Thanh cong hoan toan</td><td><code>true</code></td><td>Thao tac hoan tat. Du lieu trong truong <code>data</code>.</td></tr>
+                                <tr><td>That bai mot phan</td><td><code>true</code></td><td>Mot so muc thanh cong. Kiem tra mang <code>warnings</code>.</td></tr>
+                                <tr><td>That bai hoan toan</td><td><code>false</code></td><td>Thao tac that bai. Loi trong truong <code>error</code> voi <code>code</code>.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Command Reference -->
+                <h2 class="reveal">Tham chieu lenh</h2>
+
+                <h3 class="reveal">Du an</h3>
+                <div class="reveal">
+                    <p>Tao, kiem tra va cau hinh tap tin du an <code>.icp</code>.</p>
+                    <span class="code-label">Lenh du an</span>
+<pre><code><span class="code-cmt"># Create a new empty project</span>
+bobcorn project create my-icons.icp --name "App Icons"
+
+<span class="code-cmt"># Inspect project metadata</span>
+bobcorn project inspect
+
+<span class="code-cmt"># Set project name / font prefix</span>
+bobcorn project set-name "New Name"
+
+<span class="code-cmt"># Set font prefix (alias)</span>
+bobcorn project set-prefix "MyIcons"
+
+<span class="code-cmt"># Save a copy</span>
+bobcorn project save-as backup.icp</code></pre>
+                </div>
+
+                <h3 class="reveal">Bieu tuong</h3>
+                <div class="reveal">
+                    <p>Nhap, liet ke, doi ten, di chuyen, sao chep, xoa va cau hinh bieu tuong. Tat ca tham chieu su dung UUID — dung <code>icon list --json</code> de tim ID.</p>
+                    <span class="code-label">Lenh bieu tuong</span>
+<pre><code>bobcorn icon import *.svg --group Navigation
+bobcorn icon list
+bobcorn icon list --group Navigation --json
+bobcorn icon rename &lt;id&gt; new-name
+bobcorn icon move &lt;id1&gt; &lt;id2&gt; --to "Other Group"
+bobcorn icon copy &lt;id&gt; --to "Backup"
+bobcorn icon delete &lt;id&gt;
+bobcorn icon set-code &lt;id&gt; E100
+bobcorn icon replace &lt;id&gt; new-icon.svg
+bobcorn icon export-svg &lt;id&gt; --out ./exports
+bobcorn icon set-favorite &lt;id&gt;
+bobcorn icon set-favorite &lt;id&gt; --off
+bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
+bobcorn icon get-content &lt;id&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">Nhom</h3>
+                <div class="reveal">
+                    <p>To chuc bieu tuong thanh cac nhom duoc dat ten. Nhom kiem soat thu tu hien thi trong thanh ben va co the dung de loc xuat.</p>
+                    <span class="code-label">Lenh nhom</span>
+<pre><code>bobcorn group list
+bobcorn group add "New Category"
+bobcorn group rename "Old Name" "New Name"
+bobcorn group delete "Empty Group"
+bobcorn group reorder Navigation Actions Settings
+bobcorn group set-description Navigation "Main nav icons"
+bobcorn group move-icons Navigation &lt;id1&gt; &lt;id2&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">Xuat</h3>
+                <div class="reveal">
+                    <p>Tao tap tin font va xuat SVG. Ho tro SVG, TTF, WOFF, WOFF2 va EOT voi tap tin CSS va JS tuy chon.</p>
+                    <span class="code-label">Lenh xuat</span>
+<pre><code>bobcorn export font --out ./dist --formats woff2,ttf
+bobcorn export font --out ./dist --font-name "MyIcons" --css --js
+bobcorn export svg --out ./svg-icons
+bobcorn export svg --out ./svg-icons --group Navigation</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Luu y</div>
+                        Lenh <code>export icon</code> (xuat raster: PNG, JPG, WebP, PDF, ICO) co san voi preset nen tang (<code>--preset ios</code>, <code>--preset android</code>, v.v.) nhung chua duoc trien khai day du trong che do CLI.
+                    </div>
+                </div>
+
+                <h3 class="reveal">Tim kiem va yeu thich</h3>
+                <div class="reveal">
+                    <p>Tim bieu tuong theo ten va quan ly danh sach yeu thich.</p>
+                    <span class="code-label">Tim kiem va yeu thich</span>
+<pre><code>bobcorn search "arrow"
+bobcorn search "home" --group Navigation --limit 10
+bobcorn favorite list</code></pre>
+                </div>
+
+                <h3 class="reveal">Bien the</h3>
+                <div class="reveal">
+                    <p>Quan ly bien the trong luong va ti le cua bieu tuong (kieu SF Symbols). Tao bien the can GUI Bobcorn, nhung ban co the liet ke va xoa bien the tu CLI.</p>
+                    <span class="code-label">Lenh bien the</span>
+<pre><code>bobcorn variant list &lt;id&gt;
+bobcorn variant delete &lt;id&gt;</code></pre>
+                </div>
+
+                <!-- AI Agent Integration -->
+                <h2 class="reveal">Tich hop AI Agent</h2>
+                <div class="reveal">
+                    <p>Bobcorn CLI duoc thiet ke de hoat dong lien mach voi cac AI coding agent nhu Claude Code, Codex, Cursor va nhieu hon. Su dung <code>--json</code> cho dau ra co cau truc ma agent co the phan tich dang tin cay.</p>
+                    <h3>Nguyen tac chinh</h3>
+                    <ul>
+                        <li>Moi lenh ho tro <code>--json</code> cho dau ra may doc duoc</li>
+                        <li>Phong bi JSON nhat quan tren tat ca lenh — agent co the dua vao cau truc <code>ok</code> / <code>error</code> / <code>data</code></li>
+                        <li>Tu dong phat hien du an cho phep agent chi can <code>cd</code> vao thu muc du an va chay lenh ma khong can chi dinh duong dan</li>
+                        <li>Ma loi co the du doan: <code>ICON_NOT_FOUND</code>, <code>GROUP_NOT_FOUND</code>, <code>FILE_IO_ERROR</code>, v.v.</li>
+                    </ul>
+
+                    <h3>Vi du quy trinh lam viec cua Agent</h3>
+                    <span class="code-label">Quy trinh lam viec AI Agent</span>
+<pre><code>bobcorn project create app-icons.icp --name "MyApp" --json
+bobcorn icon import ./design/*.svg --json
+bobcorn group add "Navigation" --json
+bobcorn group add "Actions" --json
+NAV_IDS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+bobcorn icon move $NAV_IDS --to "Navigation" --json
+bobcorn export font --out ./src/fonts --formats woff2 --json</code></pre>
+                </div>
+
+                <!-- Complete Workflow -->
+                <h2 class="reveal">Vi du quy trinh lam viec day du</h2>
+                <div class="reveal">
+                    <p>Day la script bash day du minh hoa quy trinh lam viec font bieu tuong dien hinh:</p>
+                    <span class="code-label">Script quy trinh lam viec day du</span>
+<pre><code>#!/bin/bash
+set -e
+
+bobcorn project create my-app-icons.icp --name "MyApp"
+bobcorn icon import ./design/icons/*.svg
+bobcorn group add "Navigation"
+bobcorn group add "Actions"
+bobcorn group add "Status"
+
+NAV_ICONS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+for id in $NAV_ICONS; do
+  bobcorn icon move "$id" --to "Navigation"
+done
+
+bobcorn group reorder Navigation Actions Status
+bobcorn export font --out ./src/fonts --formats woff2 --css
+bobcorn export svg --out ./docs/icons
+
+echo "Hoan tat! Tap tin font nam trong ./src/fonts"</code></pre>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Trong Bobcorn</div>
+                    CLI su dung cung tap tin du an <code>.icp</code> nhu ung dung desktop. Thay doi qua CLI hien thi khi mo du an trong GUI va nguoc lai. Dieu nay giup ban de dang su dung GUI cho thiet ke truc quan va CLI cho tu dong hoa va duong ong CI/CD.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">Truoc do</div>
+                        <div class="page-nav-title">Huong dan xuat</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

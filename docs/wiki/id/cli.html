@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antarmuka Baris Perintah — Bobcorn Wiki</title>
+    <meta name="description" content="Gunakan Bobcorn dari terminal. CLI yang ramah AI agent untuk otomasi, skrip, dan integrasi.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/id/cli.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/cli.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/cli.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/cli.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/cli.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/cli.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/cli.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/cli.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/cli.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/cli.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/cli.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/cli.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/cli.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/cli.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/cli.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/cli.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/id/cli.html">
+    <meta property="og:title" content="Antarmuka Baris Perintah — Bobcorn Wiki">
+    <meta property="og:description" content="Gunakan Bobcorn dari terminal. CLI yang ramah AI agent untuk otomasi, skrip, dan integrasi.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Antarmuka Baris Perintah — Bobcorn Wiki">
+    <meta name="twitter:description" content="Gunakan Bobcorn dari terminal. CLI yang ramah AI agent untuk otomasi, skrip, dan integrasi.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Antarmuka Baris Perintah — Bobcorn Wiki",
+                "description": "Gunakan Bobcorn dari terminal. CLI yang ramah AI agent untuk otomasi, skrip, dan integrasi.",
+                "url": "https://bobcorn.caldis.me/wiki/id/cli.html",
+                "inLanguage": "id",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/id/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Antarmuka Baris Perintah — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/id/cli.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Antarmuka Baris Perintah</h1>
+                <p class="lead reveal">Gunakan Bobcorn dari terminal. CLI yang ramah AI agent untuk otomasi, skrip, dan integrasi.</p>
+
+                <!-- Getting Started -->
+                <h2 class="reveal">Memulai</h2>
+                <div class="reveal">
+                    <p>CLI Bobcorn memungkinkan Anda mengelola proyek font ikon sepenuhnya dari terminal. Instal dari panel <strong>Pengaturan</strong> di aplikasi Bobcorn — klik tombol <strong>Instal</strong> di bagian "Antarmuka Baris Perintah".</p>
+                    <p>Dalam mode pengembangan, perintah didaftarkan sebagai <code>bobcorn-dev</code>; build produksi menginstal sebagai <code>bobcorn</code>. Setelah instalasi, buka <strong>terminal baru</strong> dan verifikasi:</p>
+
+                    <span class="code-label">Verifikasi instalasi</span>
+<pre><code>bobcorn --version</code></pre>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tips</div>
+                        Jika perintah tidak ditemukan setelah instalasi, buka jendela terminal baru. Perubahan PATH hanya berlaku di sesi shell baru.
+                    </div>
+                </div>
+
+                <!-- Project Auto-Discovery -->
+                <h2 class="reveal">Penemuan proyek otomatis</h2>
+                <div class="reveal">
+                    <p>CLI secara otomatis mendeteksi file proyek <code>.icp</code> di direktori saat ini. Anda juga dapat menentukan path secara eksplisit. Prioritas resolusi:</p>
+                    <ol>
+                        <li><strong>Argumen path eksplisit</strong> — diteruskan langsung ke perintah</li>
+                        <li><strong>Flag <code>--project</code></strong> — opsi global untuk semua perintah</li>
+                        <li><strong>Penemuan otomatis</strong> — memindai direktori saat ini untuk file <code>.icp</code></li>
+                    </ol>
+
+                    <span class="code-label">Tiga cara menentukan proyek</span>
+<pre><code><span class="code-cmt"># 1. Argumen path eksplisit</span>
+bobcorn project inspect my-icons.icp
+
+<span class="code-cmt"># 2. Flag global --project</span>
+bobcorn --project my-icons.icp icon list
+
+<span class="code-cmt"># 3. Penemuan otomatis (jalankan dari direktori yang berisi file .icp)</span>
+cd my-project/
+bobcorn icon list</code></pre>
+                </div>
+
+                <!-- Output Formats -->
+                <h2 class="reveal">Format output</h2>
+                <div class="reveal">
+                    <p>Secara default CLI menghasilkan teks yang dapat dibaca. Tambahkan <code>--json</code> untuk output JSON terstruktur, ideal untuk skrip dan integrasi AI agent.</p>
+
+                    <h3>Struktur amplop JSON</h3>
+                    <p>Setiap respons JSON mengikuti amplop yang konsisten:</p>
+
+                    <span class="code-label">Amplop JSON</span>
+<pre><code>{
+  "ok": true,
+  "data": { ... },
+  "meta": {
+    "command": "icon list",
+    "projectPath": "/path/to/project.icp",
+    "duration_ms": 42,
+    "version": "1.0.0"
+  }
+}</code></pre>
+
+                    <h3>Tiga status respons</h3>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Status</th><th><code>ok</code></th><th>Deskripsi</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td>Sukses penuh</td><td><code>true</code></td><td>Operasi selesai. Data di field <code>data</code>.</td></tr>
+                                <tr><td>Gagal sebagian</td><td><code>true</code></td><td>Beberapa item berhasil. Periksa array <code>warnings</code>.</td></tr>
+                                <tr><td>Gagal total</td><td><code>false</code></td><td>Operasi gagal. Error di field <code>error</code> dengan <code>code</code>.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Command Reference -->
+                <h2 class="reveal">Referensi perintah</h2>
+
+                <h3 class="reveal">Proyek</h3>
+                <div class="reveal">
+                    <p>Membuat, memeriksa, dan mengkonfigurasi file proyek <code>.icp</code>.</p>
+                    <span class="code-label">Perintah proyek</span>
+<pre><code><span class="code-cmt"># Create a new empty project</span>
+bobcorn project create my-icons.icp --name "App Icons"
+
+<span class="code-cmt"># Inspect project metadata</span>
+bobcorn project inspect
+
+<span class="code-cmt"># Set project name / font prefix</span>
+bobcorn project set-name "New Name"
+
+<span class="code-cmt"># Set font prefix (alias)</span>
+bobcorn project set-prefix "MyIcons"
+
+<span class="code-cmt"># Save a copy</span>
+bobcorn project save-as backup.icp</code></pre>
+                </div>
+
+                <h3 class="reveal">Ikon</h3>
+                <div class="reveal">
+                    <p>Impor, daftar, ganti nama, pindahkan, salin, hapus, dan konfigurasi ikon. Semua referensi ikon menggunakan UUID — gunakan <code>icon list --json</code> untuk menemukan ID.</p>
+                    <span class="code-label">Perintah ikon</span>
+<pre><code>bobcorn icon import *.svg --group Navigation
+bobcorn icon list
+bobcorn icon list --group Navigation --json
+bobcorn icon rename &lt;id&gt; new-name
+bobcorn icon move &lt;id1&gt; &lt;id2&gt; --to "Other Group"
+bobcorn icon copy &lt;id&gt; --to "Backup"
+bobcorn icon delete &lt;id&gt;
+bobcorn icon set-code &lt;id&gt; E100
+bobcorn icon replace &lt;id&gt; new-icon.svg
+bobcorn icon export-svg &lt;id&gt; --out ./exports
+bobcorn icon set-favorite &lt;id&gt;
+bobcorn icon set-favorite &lt;id&gt; --off
+bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
+bobcorn icon get-content &lt;id&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">Grup</h3>
+                <div class="reveal">
+                    <p>Atur ikon ke dalam grup bernama. Grup mengontrol urutan tampilan di sidebar dan dapat digunakan untuk memfilter ekspor.</p>
+                    <span class="code-label">Perintah grup</span>
+<pre><code>bobcorn group list
+bobcorn group add "New Category"
+bobcorn group rename "Old Name" "New Name"
+bobcorn group delete "Empty Group"
+bobcorn group reorder Navigation Actions Settings
+bobcorn group set-description Navigation "Main nav icons"
+bobcorn group move-icons Navigation &lt;id1&gt; &lt;id2&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">Ekspor</h3>
+                <div class="reveal">
+                    <p>Buat file font dan ekspor SVG. Mendukung SVG, TTF, WOFF, WOFF2, dan EOT dengan file CSS dan JS opsional.</p>
+                    <span class="code-label">Perintah ekspor</span>
+<pre><code>bobcorn export font --out ./dist --formats woff2,ttf
+bobcorn export font --out ./dist --font-name "MyIcons" --css --js
+bobcorn export svg --out ./svg-icons
+bobcorn export svg --out ./svg-icons --group Navigation</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Catatan</div>
+                        Perintah <code>export icon</code> (ekspor raster: PNG, JPG, WebP, PDF, ICO) tersedia dengan preset platform (<code>--preset ios</code>, <code>--preset android</code>, dll.) tetapi belum sepenuhnya diimplementasikan dalam mode CLI.
+                    </div>
+                </div>
+
+                <h3 class="reveal">Pencarian dan favorit</h3>
+                <div class="reveal">
+                    <p>Cari ikon berdasarkan nama dan kelola favorit yang ditandai.</p>
+                    <span class="code-label">Pencarian dan favorit</span>
+<pre><code>bobcorn search "arrow"
+bobcorn search "home" --group Navigation --limit 10
+bobcorn favorite list</code></pre>
+                </div>
+
+                <h3 class="reveal">Varian</h3>
+                <div class="reveal">
+                    <p>Kelola varian bobot dan skala ikon (gaya SF Symbols). Pembuatan varian memerlukan GUI Bobcorn, tetapi Anda dapat mendaftar dan menghapus varian dari CLI.</p>
+                    <span class="code-label">Perintah varian</span>
+<pre><code>bobcorn variant list &lt;id&gt;
+bobcorn variant delete &lt;id&gt;</code></pre>
+                </div>
+
+                <!-- AI Agent Integration -->
+                <h2 class="reveal">Integrasi AI Agent</h2>
+                <div class="reveal">
+                    <p>CLI Bobcorn dirancang untuk bekerja mulus dengan AI coding agent seperti Claude Code, Codex, Cursor, dan lainnya. Gunakan <code>--json</code> untuk output terstruktur yang dapat diurai agent secara andal.</p>
+                    <h3>Prinsip utama</h3>
+                    <ul>
+                        <li>Setiap perintah mendukung <code>--json</code> untuk output yang dapat dibaca mesin</li>
+                        <li>Amplop JSON konsisten di semua perintah — agent dapat mengandalkan struktur <code>ok</code> / <code>error</code> / <code>data</code></li>
+                        <li>Penemuan otomatis proyek memungkinkan agent cukup <code>cd</code> ke direktori proyek dan menjalankan perintah tanpa menentukan path</li>
+                        <li>Kode error dapat diprediksi: <code>ICON_NOT_FOUND</code>, <code>GROUP_NOT_FOUND</code>, <code>FILE_IO_ERROR</code>, dll.</li>
+                    </ul>
+
+                    <h3>Contoh alur kerja Agent</h3>
+                    <span class="code-label">Alur kerja AI Agent</span>
+<pre><code>bobcorn project create app-icons.icp --name "MyApp" --json
+bobcorn icon import ./design/*.svg --json
+bobcorn group add "Navigation" --json
+bobcorn group add "Actions" --json
+NAV_IDS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+bobcorn icon move $NAV_IDS --to "Navigation" --json
+bobcorn export font --out ./src/fonts --formats woff2 --json</code></pre>
+                </div>
+
+                <!-- Complete Workflow -->
+                <h2 class="reveal">Contoh alur kerja lengkap</h2>
+                <div class="reveal">
+                    <p>Berikut adalah skrip bash lengkap end-to-end yang menunjukkan alur kerja font ikon yang khas:</p>
+                    <span class="code-label">Skrip alur kerja lengkap</span>
+<pre><code>#!/bin/bash
+set -e
+
+bobcorn project create my-app-icons.icp --name "MyApp"
+bobcorn icon import ./design/icons/*.svg
+bobcorn group add "Navigation"
+bobcorn group add "Actions"
+bobcorn group add "Status"
+
+NAV_ICONS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+for id in $NAV_ICONS; do
+  bobcorn icon move "$id" --to "Navigation"
+done
+
+bobcorn group reorder Navigation Actions Status
+bobcorn export font --out ./src/fonts --formats woff2 --css
+bobcorn export svg --out ./docs/icons
+
+echo "Selesai! File font ada di ./src/fonts"</code></pre>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Di Bobcorn</div>
+                    CLI menggunakan file proyek <code>.icp</code> yang sama dengan aplikasi desktop. Perubahan melalui CLI terlihat saat Anda membuka proyek di GUI, dan sebaliknya. Ini memudahkan penggunaan GUI untuk pekerjaan desain visual dan CLI untuk otomasi dan pipeline CI/CD.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">Sebelumnya</div>
+                        <div class="page-nav-title">Panduan Ekspor</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

@@ -238,6 +238,32 @@
         "vi": "complete",
         "id": "complete"
       }
+    },
+    {
+      "id": "cli",
+      "file": "cli.html",
+      "titleKey": "nav.cli",
+      "section": "bobcorn",
+      "contentVersion": "1.0.0",
+      "lastUpdated": "2026-04-06",
+      "translationStatus": {
+        "en": "complete",
+        "zh-CN": "complete",
+        "ja": "complete",
+        "ko": "complete",
+        "fr": "complete",
+        "de": "complete",
+        "es": "complete",
+        "pt-BR": "complete",
+        "it": "complete",
+        "nl": "complete",
+        "ru": "complete",
+        "tr": "complete",
+        "ar": "complete",
+        "th": "complete",
+        "vi": "complete",
+        "id": "complete"
+      }
     }
   ],
   "sections": [

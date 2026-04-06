@@ -15,6 +15,25 @@ import appIcon from '../../resources/imgs/icon.png';
 import i18n from '../../i18n';
 import { supportedLanguages } from '../../../locales';
 
+/** Wiki language mapping — maps i18n language code to wiki path segment */
+const WIKI_LANG_MAP: Record<string, string> = {
+  'zh-CN': 'zh-CN',
+  ja: 'ja',
+  ko: 'ko',
+  fr: 'fr',
+  de: 'de',
+  es: 'es',
+  'pt-BR': 'pt-BR',
+  it: 'it',
+  nl: 'nl',
+  ru: 'ru',
+  tr: 'tr',
+  ar: 'ar',
+  th: 'th',
+  vi: 'vi',
+  id: 'id',
+};
+
 interface SettingsDialogProps {
   visible: boolean;
   onClose: () => void;
@@ -463,10 +482,13 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               )}
               {cliStatus === 'installed' && !cliShowRestartHint && (
                 <a
-                  href="https://bobcorn.caldis.me/wiki/cli"
+                  href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli.html`}
                   onClick={(e) => {
                     e.preventDefault();
-                    (window as any).electronAPI.openExternal('https://bobcorn.caldis.me/wiki/cli');
+                    const lang = WIKI_LANG_MAP[i18n.language] || 'en';
+                    (window as any).electronAPI.openExternal(
+                      `https://bobcorn.caldis.me/wiki/${lang}/cli.html`
+                    );
                   }}
                   className="text-[10px] text-foreground-muted/30 hover:text-accent/80 transition-colors duration-150 cursor-pointer"
                 >

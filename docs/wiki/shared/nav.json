@@ -44,7 +44,8 @@
     {
       "labelKey": "nav.bobcorn",
       "items": [
-        { "page": "export-guide.html", "titleKey": "nav.exportGuide" }
+        { "page": "export-guide.html", "titleKey": "nav.exportGuide" },
+        { "page": "cli.html", "titleKey": "nav.cli" }
       ]
     }
   ],
@@ -63,6 +64,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Export Guide",
+      "nav.cli": "CLI Reference",
       "nav.prev": "Previous",
       "nav.next": "Next",
       "wiki": "Wiki"
@@ -81,6 +83,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "导出指南",
+      "nav.cli": "命令行参考",
       "nav.prev": "上一页",
       "nav.next": "下一页",
       "wiki": "知识库"
@@ -99,6 +102,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "エクスポートガイド",
+      "nav.cli": "CLI リファレンス",
       "nav.prev": "前へ",
       "nav.next": "次へ",
       "wiki": "Wiki"
@@ -117,6 +121,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "내보내기 가이드",
+      "nav.cli": "CLI 레퍼런스",
       "nav.prev": "이전",
       "nav.next": "다음",
       "wiki": "Wiki"
@@ -135,6 +140,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Guide d'exportation",
+      "nav.cli": "Référence CLI",
       "nav.prev": "Précédent",
       "nav.next": "Suivant",
       "wiki": "Wiki"
@@ -153,6 +159,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Export-Leitfaden",
+      "nav.cli": "CLI-Referenz",
       "nav.prev": "Zurück",
       "nav.next": "Weiter",
       "wiki": "Wiki"
@@ -171,6 +178,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Guía de exportación",
+      "nav.cli": "Referencia CLI",
       "nav.prev": "Anterior",
       "nav.next": "Siguiente",
       "wiki": "Wiki"
@@ -189,6 +197,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Guia de exportação",
+      "nav.cli": "Referência CLI",
       "nav.prev": "Anterior",
       "nav.next": "Próximo",
       "wiki": "Wiki"
@@ -207,6 +216,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Guida all'esportazione",
+      "nav.cli": "Riferimento CLI",
       "nav.prev": "Precedente",
       "nav.next": "Successivo",
       "wiki": "Wiki"
@@ -225,6 +235,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Exportgids",
+      "nav.cli": "CLI-referentie",
       "nav.prev": "Vorige",
       "nav.next": "Volgende",
       "wiki": "Wiki"
@@ -243,6 +254,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Руководство по экспорту",
+      "nav.cli": "Справочник CLI",
       "nav.prev": "Назад",
       "nav.next": "Далее",
       "wiki": "Wiki"
@@ -261,6 +273,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Dışa Aktarma Rehberi",
+      "nav.cli": "CLI Referansı",
       "nav.prev": "Önceki",
       "nav.next": "Sonraki",
       "wiki": "Wiki"
@@ -279,6 +292,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "دليل التصدير",
+      "nav.cli": "مرجع CLI",
       "nav.prev": "السابق",
       "nav.next": "التالي",
       "wiki": "ويكي"
@@ -297,6 +311,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "คู่มือการส่งออก",
+      "nav.cli": "ข้อมูลอ้างอิง CLI",
       "nav.prev": "ก่อนหน้า",
       "nav.next": "ถัดไป",
       "wiki": "Wiki"
@@ -315,6 +330,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Hướng dẫn xuất",
+      "nav.cli": "Tham chiếu CLI",
       "nav.prev": "Trước",
       "nav.next": "Tiếp",
       "wiki": "Wiki"
@@ -333,6 +349,7 @@
       "nav.svgSymbol": "SVG Symbol",
       "nav.bobcorn": "Bobcorn",
       "nav.exportGuide": "Panduan Ekspor",
+      "nav.cli": "Referensi CLI",
       "nav.prev": "Sebelumnya",
       "nav.next": "Berikutnya",
       "wiki": "Wiki"

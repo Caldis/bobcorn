@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>อินเทอร์เฟซบรรทัดคำสั่ง — Bobcorn Wiki</title>
+    <meta name="description" content="ใช้ Bobcorn จากเทอร์มินัล CLI ที่เป็นมิตรกับ AI agent สำหรับการอัตโนมัติ สคริปต์ และการรวมระบบ">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/th/cli.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/cli.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/cli.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/cli.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/cli.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/cli.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/cli.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/cli.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/cli.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/cli.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/cli.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/cli.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/cli.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/cli.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/cli.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/cli.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/th/cli.html">
+    <meta property="og:title" content="อินเทอร์เฟซบรรทัดคำสั่ง — Bobcorn Wiki">
+    <meta property="og:description" content="ใช้ Bobcorn จากเทอร์มินัล CLI ที่เป็นมิตรกับ AI agent สำหรับการอัตโนมัติ สคริปต์ และการรวมระบบ">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="อินเทอร์เฟซบรรทัดคำสั่ง — Bobcorn Wiki">
+    <meta name="twitter:description" content="ใช้ Bobcorn จากเทอร์มินัล CLI ที่เป็นมิตรกับ AI agent สำหรับการอัตโนมัติ สคริปต์ และการรวมระบบ">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "อินเทอร์เฟซบรรทัดคำสั่ง — Bobcorn Wiki",
+                "description": "ใช้ Bobcorn จากเทอร์มินัล CLI ที่เป็นมิตรกับ AI agent สำหรับการอัตโนมัติ สคริปต์ และการรวมระบบ",
+                "url": "https://bobcorn.caldis.me/wiki/th/cli.html",
+                "inLanguage": "th",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/th/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "อินเทอร์เฟซบรรทัดคำสั่ง — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/th/cli.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">อินเทอร์เฟซบรรทัดคำสั่ง</h1>
+                <p class="lead reveal">ใช้ Bobcorn จากเทอร์มินัล CLI ที่เป็นมิตรกับ AI agent สำหรับการอัตโนมัติ สคริปต์ และการรวมระบบ</p>
+
+                <!-- Getting Started -->
+                <h2 class="reveal">เริ่มต้นใช้งาน</h2>
+                <div class="reveal">
+                    <p>Bobcorn CLI ช่วยให้คุณจัดการโปรเจกต์ไอคอนฟอนต์จากเทอร์มินัลได้ทั้งหมด ติดตั้งจากแผง<strong>การตั้งค่า</strong>ในแอป Bobcorn — คลิกปุ่ม<strong>ติดตั้ง</strong>ในส่วน "อินเทอร์เฟซบรรทัดคำสั่ง"</p>
+                    <p>ในโหมดพัฒนา คำสั่งจะลงทะเบียนเป็น <code>bobcorn-dev</code>; บิลด์โปรดักชันจะติดตั้งเป็น <code>bobcorn</code> หลังติดตั้ง ให้เปิด<strong>เทอร์มินัลใหม่</strong>แล้วตรวจสอบ:</p>
+
+                    <span class="code-label">ตรวจสอบการติดตั้ง</span>
+<pre><code>bobcorn --version</code></pre>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">เคล็ดลับ</div>
+                        หากไม่พบคำสั่งหลังติดตั้ง ให้เปิดหน้าต่างเทอร์มินัลใหม่ การเปลี่ยนแปลง PATH จะมีผลเฉพาะในเซสชัน shell ใหม่เท่านั้น
+                    </div>
+                </div>
+
+                <!-- Project Auto-Discovery -->
+                <h2 class="reveal">การค้นพบโปรเจกต์อัตโนมัติ</h2>
+                <div class="reveal">
+                    <p>CLI จะตรวจจับไฟล์โปรเจกต์ <code>.icp</code> ในไดเรกทอรีปัจจุบันโดยอัตโนมัติ คุณสามารถระบุพาธได้อย่างชัดเจน ลำดับความสำคัญ:</p>
+                    <ol>
+                        <li><strong>อาร์กิวเมนต์พาธที่ชัดเจน</strong> — ส่งตรงไปยังคำสั่ง</li>
+                        <li><strong>แฟล็ก <code>--project</code></strong> — ตัวเลือกทั่วไปสำหรับทุกคำสั่ง</li>
+                        <li><strong>ค้นพบอัตโนมัติ</strong> — สแกนไดเรกทอรีปัจจุบันหาไฟล์ <code>.icp</code></li>
+                    </ol>
+
+                    <span class="code-label">สามวิธีในการระบุโปรเจกต์</span>
+<pre><code><span class="code-cmt"># 1. อาร์กิวเมนต์พาธที่ชัดเจน</span>
+bobcorn project inspect my-icons.icp
+
+<span class="code-cmt"># 2. แฟล็กทั่วไป --project</span>
+bobcorn --project my-icons.icp icon list
+
+<span class="code-cmt"># 3. ค้นพบอัตโนมัติ (รันจากไดเรกทอรีที่มีไฟล์ .icp)</span>
+cd my-project/
+bobcorn icon list</code></pre>
+                </div>
+
+                <!-- Output Formats -->
+                <h2 class="reveal">รูปแบบเอาต์พุต</h2>
+                <div class="reveal">
+                    <p>โดยค่าเริ่มต้น CLI จะแสดงข้อความที่อ่านได้ เพิ่ม <code>--json</code> สำหรับเอาต์พุต JSON ที่มีโครงสร้าง เหมาะสำหรับสคริปต์และการรวม AI agent</p>
+
+                    <h3>โครงสร้างซอง JSON</h3>
+                    <p>ทุกการตอบกลับ JSON ใช้ซองที่สม่ำเสมอ:</p>
+
+                    <span class="code-label">ซอง JSON</span>
+<pre><code>{
+  "ok": true,
+  "data": { ... },
+  "meta": {
+    "command": "icon list",
+    "projectPath": "/path/to/project.icp",
+    "duration_ms": 42,
+    "version": "1.0.0"
+  }
+}</code></pre>
+
+                    <h3>สามสถานะการตอบกลับ</h3>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>สถานะ</th><th><code>ok</code></th><th>คำอธิบาย</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td>สำเร็จทั้งหมด</td><td><code>true</code></td><td>ดำเนินการเสร็จ ข้อมูลในฟิลด์ <code>data</code></td></tr>
+                                <tr><td>ล้มเหลวบางส่วน</td><td><code>true</code></td><td>บางรายการสำเร็จ ตรวจสอบอาร์เรย์ <code>warnings</code></td></tr>
+                                <tr><td>ล้มเหลวทั้งหมด</td><td><code>false</code></td><td>ดำเนินการล้มเหลว ข้อผิดพลาดในฟิลด์ <code>error</code> พร้อม <code>code</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Command Reference -->
+                <h2 class="reveal">อ้างอิงคำสั่ง</h2>
+
+                <h3 class="reveal">โปรเจกต์</h3>
+                <div class="reveal">
+                    <p>สร้าง ตรวจสอบ และกำหนดค่าไฟล์โปรเจกต์ <code>.icp</code></p>
+                    <span class="code-label">คำสั่งโปรเจกต์</span>
+<pre><code><span class="code-cmt"># Create a new empty project</span>
+bobcorn project create my-icons.icp --name "App Icons"
+
+<span class="code-cmt"># Inspect project metadata</span>
+bobcorn project inspect
+
+<span class="code-cmt"># Set project name / font prefix</span>
+bobcorn project set-name "New Name"
+
+<span class="code-cmt"># Set font prefix (alias)</span>
+bobcorn project set-prefix "MyIcons"
+
+<span class="code-cmt"># Save a copy</span>
+bobcorn project save-as backup.icp</code></pre>
+                </div>
+
+                <h3 class="reveal">ไอคอน</h3>
+                <div class="reveal">
+                    <p>นำเข้า แสดงรายการ เปลี่ยนชื่อ ย้าย คัดลอก ลบ และกำหนดค่าไอคอน การอ้างอิงทั้งหมดใช้ UUID — ใช้ <code>icon list --json</code> เพื่อค้นหา ID</p>
+                    <span class="code-label">คำสั่งไอคอน</span>
+<pre><code>bobcorn icon import *.svg --group Navigation
+bobcorn icon list
+bobcorn icon list --group Navigation --json
+bobcorn icon rename &lt;id&gt; new-name
+bobcorn icon move &lt;id1&gt; &lt;id2&gt; --to "Other Group"
+bobcorn icon copy &lt;id&gt; --to "Backup"
+bobcorn icon delete &lt;id&gt;
+bobcorn icon set-code &lt;id&gt; E100
+bobcorn icon replace &lt;id&gt; new-icon.svg
+bobcorn icon export-svg &lt;id&gt; --out ./exports
+bobcorn icon set-favorite &lt;id&gt;
+bobcorn icon set-favorite &lt;id&gt; --off
+bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
+bobcorn icon get-content &lt;id&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">กลุ่ม</h3>
+                <div class="reveal">
+                    <p>จัดระเบียบไอคอนเป็นกลุ่มที่มีชื่อ กลุ่มควบคุมลำดับการแสดงผลในแถบด้านข้างและใช้กรองการส่งออกได้</p>
+                    <span class="code-label">คำสั่งกลุ่ม</span>
+<pre><code>bobcorn group list
+bobcorn group add "New Category"
+bobcorn group rename "Old Name" "New Name"
+bobcorn group delete "Empty Group"
+bobcorn group reorder Navigation Actions Settings
+bobcorn group set-description Navigation "Main nav icons"
+bobcorn group move-icons Navigation &lt;id1&gt; &lt;id2&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">ส่งออก</h3>
+                <div class="reveal">
+                    <p>สร้างไฟล์ฟอนต์และส่งออก SVG รองรับ SVG, TTF, WOFF, WOFF2 และ EOT พร้อมไฟล์ CSS และ JS เสริม</p>
+                    <span class="code-label">คำสั่งส่งออก</span>
+<pre><code>bobcorn export font --out ./dist --formats woff2,ttf
+bobcorn export font --out ./dist --font-name "MyIcons" --css --js
+bobcorn export svg --out ./svg-icons
+bobcorn export svg --out ./svg-icons --group Navigation</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">หมายเหตุ</div>
+                        คำสั่ง <code>export icon</code> (ส่งออกแรสเตอร์: PNG, JPG, WebP, PDF, ICO) ใช้ได้กับพรีเซ็ตแพลตฟอร์ม (<code>--preset ios</code>, <code>--preset android</code> ฯลฯ) แต่ยังไม่ได้ใช้งานเต็มรูปแบบในโหมด CLI
+                    </div>
+                </div>
+
+                <h3 class="reveal">ค้นหาและรายการโปรด</h3>
+                <div class="reveal">
+                    <p>ค้นหาไอคอนตามชื่อและจัดการรายการโปรดที่บุ๊กมาร์กไว้</p>
+                    <span class="code-label">ค้นหาและรายการโปรด</span>
+<pre><code>bobcorn search "arrow"
+bobcorn search "home" --group Navigation --limit 10
+bobcorn favorite list</code></pre>
+                </div>
+
+                <h3 class="reveal">ตัวแปร</h3>
+                <div class="reveal">
+                    <p>จัดการตัวแปรน้ำหนักและขนาดของไอคอน (สไตล์ SF Symbols) การสร้างตัวแปรต้องใช้ Bobcorn GUI แต่สามารถแสดงรายการและลบตัวแปรจาก CLI ได้</p>
+                    <span class="code-label">คำสั่งตัวแปร</span>
+<pre><code>bobcorn variant list &lt;id&gt;
+bobcorn variant delete &lt;id&gt;</code></pre>
+                </div>
+
+                <!-- AI Agent Integration -->
+                <h2 class="reveal">การรวม AI Agent</h2>
+                <div class="reveal">
+                    <p>Bobcorn CLI ออกแบบมาเพื่อทำงานร่วมกับ AI coding agent เช่น Claude Code, Codex, Cursor และอื่น ๆ ได้อย่างราบรื่น ใช้ <code>--json</code> สำหรับเอาต์พุตที่มีโครงสร้างซึ่ง agent สามารถแยกวิเคราะห์ได้อย่างน่าเชื่อถือ</p>
+                    <h3>หลักการสำคัญ</h3>
+                    <ul>
+                        <li>ทุกคำสั่งรองรับ <code>--json</code> สำหรับเอาต์พุตที่เครื่องอ่านได้</li>
+                        <li>ซอง JSON สม่ำเสมอในทุกคำสั่ง — agent สามารถพึ่งพาโครงสร้าง <code>ok</code> / <code>error</code> / <code>data</code></li>
+                        <li>การค้นพบอัตโนมัติหมายความว่า agent แค่ <code>cd</code> ไปยังไดเรกทอรีโปรเจกต์แล้วรันคำสั่งได้โดยไม่ต้องระบุพาธ</li>
+                        <li>รหัสข้อผิดพลาดคาดเดาได้: <code>ICON_NOT_FOUND</code>, <code>GROUP_NOT_FOUND</code>, <code>FILE_IO_ERROR</code> ฯลฯ</li>
+                    </ul>
+
+                    <h3>ตัวอย่างเวิร์กโฟลว์ของ Agent</h3>
+                    <span class="code-label">เวิร์กโฟลว์ AI Agent</span>
+<pre><code>bobcorn project create app-icons.icp --name "MyApp" --json
+bobcorn icon import ./design/*.svg --json
+bobcorn group add "Navigation" --json
+bobcorn group add "Actions" --json
+NAV_IDS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+bobcorn icon move $NAV_IDS --to "Navigation" --json
+bobcorn export font --out ./src/fonts --formats woff2 --json</code></pre>
+                </div>
+
+                <!-- Complete Workflow -->
+                <h2 class="reveal">ตัวอย่างเวิร์กโฟลว์แบบเต็ม</h2>
+                <div class="reveal">
+                    <p>นี่คือสคริปต์ bash แบบเต็มที่แสดงเวิร์กโฟลว์ไอคอนฟอนต์ทั่วไป:</p>
+                    <span class="code-label">สคริปต์เวิร์กโฟลว์แบบเต็ม</span>
+<pre><code>#!/bin/bash
+set -e
+
+bobcorn project create my-app-icons.icp --name "MyApp"
+bobcorn icon import ./design/icons/*.svg
+bobcorn group add "Navigation"
+bobcorn group add "Actions"
+bobcorn group add "Status"
+
+NAV_ICONS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+for id in $NAV_ICONS; do
+  bobcorn icon move "$id" --to "Navigation"
+done
+
+bobcorn group reorder Navigation Actions Status
+bobcorn export font --out ./src/fonts --formats woff2 --css
+bobcorn export svg --out ./docs/icons
+
+echo "เสร็จแล้ว! ไฟล์ฟอนต์อยู่ใน ./src/fonts"</code></pre>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">ใน Bobcorn</div>
+                    CLI ใช้ไฟล์โปรเจกต์ <code>.icp</code> เดียวกับแอปเดสก์ท็อป การเปลี่ยนแปลงผ่าน CLI จะมองเห็นได้เมื่อเปิดโปรเจกต์ใน GUI และในทางกลับกัน ทำให้ใช้ GUI สำหรับงานออกแบบภาพและ CLI สำหรับการอัตโนมัติและไปป์ไลน์ CI/CD ได้ง่าย
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">ก่อนหน้า</div>
+                        <div class="page-nav-title">คู่มือการส่งออก</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

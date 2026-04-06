@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コマンドラインインターフェース — Bobcorn Wiki</title>
+    <meta name="description" content="ターミナルから Bobcorn を使用。自動化、スクリプト、統合のための AI エージェント対応 CLI。">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ja/cli.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/cli.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/cli.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/cli.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/cli.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/cli.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/cli.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/cli.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/cli.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/cli.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/cli.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/cli.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/cli.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/cli.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/cli.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/cli.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ja/cli.html">
+    <meta property="og:title" content="コマンドラインインターフェース — Bobcorn Wiki">
+    <meta property="og:description" content="ターミナルから Bobcorn を使用。自動化、スクリプト、統合のための AI エージェント対応 CLI。">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="コマンドラインインターフェース — Bobcorn Wiki">
+    <meta name="twitter:description" content="ターミナルから Bobcorn を使用。自動化、スクリプト、統合のための AI エージェント対応 CLI。">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "コマンドラインインターフェース — Bobcorn Wiki",
+                "description": "ターミナルから Bobcorn を使用。自動化、スクリプト、統合のための AI エージェント対応 CLI。",
+                "url": "https://bobcorn.caldis.me/wiki/ja/cli.html",
+                "inLanguage": "ja",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "コマンドラインインターフェース — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ja/cli.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">コマンドラインインターフェース</h1>
+                <p class="lead reveal">ターミナルから Bobcorn を使用。自動化、スクリプト、統合のための AI エージェント対応 CLI。</p>
+
+                <!-- Getting Started -->
+                <h2 class="reveal">はじめに</h2>
+                <div class="reveal">
+                    <p>Bobcorn CLI を使えば、ターミナルから完全にアイコンフォントプロジェクトを管理できます。Bobcorn アプリの<strong>設定</strong>パネルからインストールします — 「コマンドラインインターフェース」セクションの<strong>インストール</strong>ボタンをクリックしてください。</p>
+                    <p>開発モードではコマンドは <code>bobcorn-dev</code> として登録されます。プロダクションビルドでは <code>bobcorn</code> としてインストールされます。インストール後、<strong>新しいターミナル</strong>を開いて確認：</p>
+
+                    <span class="code-label">インストールの確認</span>
+<pre><code>bobcorn --version</code></pre>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">ヒント</div>
+                        インストール後にコマンドが見つからない場合は、新しいターミナルウィンドウを開いてください。PATH の変更は新しいシェルセッションでのみ有効になります。
+                    </div>
+                </div>
+
+                <!-- Project Auto-Discovery -->
+                <h2 class="reveal">プロジェクトの自動検出</h2>
+                <div class="reveal">
+                    <p>CLI は現在のディレクトリにある <code>.icp</code> プロジェクトファイルを自動的に検出します。パスを明示的に指定することもできます。解決の優先順位は：</p>
+                    <ol>
+                        <li><strong>明示的なパス引数</strong> — コマンドに直接渡す</li>
+                        <li><strong><code>--project</code> フラグ</strong> — すべてのコマンドのグローバルオプション</li>
+                        <li><strong>自動検出</strong> — 現在のディレクトリで <code>.icp</code> ファイルをスキャン</li>
+                    </ol>
+
+                    <span class="code-label">プロジェクトを指定する3つの方法</span>
+<pre><code><span class="code-cmt"># 1. 明示的なパス引数</span>
+bobcorn project inspect my-icons.icp
+
+<span class="code-cmt"># 2. グローバル --project フラグ</span>
+bobcorn --project my-icons.icp icon list
+
+<span class="code-cmt"># 3. 自動検出（.icp ファイルを含むディレクトリから実行）</span>
+cd my-project/
+bobcorn icon list</code></pre>
+                </div>
+
+                <!-- Output Formats -->
+                <h2 class="reveal">出力形式</h2>
+                <div class="reveal">
+                    <p>デフォルトでは CLI は人間が読めるテキストを出力します。<code>--json</code> を追加すると構造化 JSON 出力が得られ、スクリプトや AI エージェント統合に最適です。</p>
+
+                    <h3>JSON エンベロープ構造</h3>
+                    <p>すべての JSON レスポンスは一貫したエンベロープに従います：</p>
+
+                    <span class="code-label">JSON エンベロープ</span>
+<pre><code>{
+  "ok": true,
+  "data": { ... },
+  "meta": {
+    "command": "icon list",
+    "projectPath": "/path/to/project.icp",
+    "duration_ms": 42,
+    "version": "1.0.0"
+  }
+}</code></pre>
+
+                    <h3>3つのレスポンス状態</h3>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>状態</th><th><code>ok</code></th><th>説明</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td>完全成功</td><td><code>true</code></td><td>操作完了。データは <code>data</code> フィールドにあります。</td></tr>
+                                <tr><td>部分的失敗</td><td><code>true</code></td><td>一部成功。<code>warnings</code> 配列で詳細を確認。</td></tr>
+                                <tr><td>完全失敗</td><td><code>false</code></td><td>操作失敗。<code>error</code> フィールドに <code>code</code> 付き。</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Command Reference -->
+                <h2 class="reveal">コマンドリファレンス</h2>
+
+                <h3 class="reveal">プロジェクト</h3>
+                <div class="reveal">
+                    <p><code>.icp</code> プロジェクトファイルの作成、検査、設定。</p>
+                    <span class="code-label">プロジェクトコマンド</span>
+<pre><code><span class="code-cmt"># Create a new empty project</span>
+bobcorn project create my-icons.icp --name "App Icons"
+
+<span class="code-cmt"># Inspect project metadata</span>
+bobcorn project inspect
+
+<span class="code-cmt"># Set project name / font prefix</span>
+bobcorn project set-name "New Name"
+
+<span class="code-cmt"># Set font prefix (alias)</span>
+bobcorn project set-prefix "MyIcons"
+
+<span class="code-cmt"># Save a copy</span>
+bobcorn project save-as backup.icp</code></pre>
+                </div>
+
+                <h3 class="reveal">アイコン</h3>
+                <div class="reveal">
+                    <p>アイコンのインポート、一覧、名前変更、移動、コピー、削除、設定。すべてのアイコン参照は UUID を使用 — <code>icon list --json</code> で ID を確認。</p>
+                    <span class="code-label">アイコンコマンド</span>
+<pre><code>bobcorn icon import *.svg --group Navigation
+bobcorn icon list
+bobcorn icon list --group Navigation --json
+bobcorn icon rename &lt;id&gt; new-name
+bobcorn icon move &lt;id1&gt; &lt;id2&gt; --to "Other Group"
+bobcorn icon copy &lt;id&gt; --to "Backup"
+bobcorn icon delete &lt;id&gt;
+bobcorn icon set-code &lt;id&gt; E100
+bobcorn icon replace &lt;id&gt; new-icon.svg
+bobcorn icon export-svg &lt;id&gt; --out ./exports
+bobcorn icon set-favorite &lt;id&gt;
+bobcorn icon set-favorite &lt;id&gt; --off
+bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
+bobcorn icon get-content &lt;id&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">グループ</h3>
+                <div class="reveal">
+                    <p>アイコンを名前付きグループに整理。グループはサイドバーの表示順序を制御し、エクスポートのフィルタリングに使用できます。</p>
+                    <span class="code-label">グループコマンド</span>
+<pre><code>bobcorn group list
+bobcorn group add "New Category"
+bobcorn group rename "Old Name" "New Name"
+bobcorn group delete "Empty Group"
+bobcorn group reorder Navigation Actions Settings
+bobcorn group set-description Navigation "Main nav icons"
+bobcorn group move-icons Navigation &lt;id1&gt; &lt;id2&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">エクスポート</h3>
+                <div class="reveal">
+                    <p>フォントファイルの生成と SVG のエクスポート。SVG、TTF、WOFF、WOFF2、EOT 形式をサポートし、オプションで CSS と JS の付随ファイルを生成。</p>
+                    <span class="code-label">エクスポートコマンド</span>
+<pre><code>bobcorn export font --out ./dist --formats woff2,ttf
+bobcorn export font --out ./dist --font-name "MyIcons" --css --js
+bobcorn export svg --out ./svg-icons
+bobcorn export svg --out ./svg-icons --group Navigation</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">注意</div>
+                        <code>export icon</code> コマンド（ラスターエクスポート：PNG、JPG、WebP、PDF、ICO）はプラットフォームプリセット（<code>--preset ios</code>、<code>--preset android</code> 等）で利用可能ですが、CLI モードではまだ完全に実装されていません。
+                    </div>
+                </div>
+
+                <h3 class="reveal">検索とお気に入り</h3>
+                <div class="reveal">
+                    <p>名前でアイコンを検索し、ブックマークしたお気に入りを管理。</p>
+                    <span class="code-label">検索とお気に入り</span>
+<pre><code>bobcorn search "arrow"
+bobcorn search "home" --group Navigation --limit 10
+bobcorn favorite list</code></pre>
+                </div>
+
+                <h3 class="reveal">バリアント</h3>
+                <div class="reveal">
+                    <p>アイコンの太さとスケールバリアント（SF Symbols スタイル）を管理。バリアント生成には Bobcorn GUI が必要ですが、CLI から一覧表示と削除が可能です。</p>
+                    <span class="code-label">バリアントコマンド</span>
+<pre><code>bobcorn variant list &lt;id&gt;
+bobcorn variant delete &lt;id&gt;</code></pre>
+                </div>
+
+                <!-- AI Agent Integration -->
+                <h2 class="reveal">AI エージェント統合</h2>
+                <div class="reveal">
+                    <p>Bobcorn CLI は Claude Code、Codex、Cursor などの AI コーディングエージェントとシームレスに連携するよう設計されています。<code>--json</code> で確実に解析できる構造化出力を取得。</p>
+                    <h3>主要原則</h3>
+                    <ul>
+                        <li>すべてのコマンドが <code>--json</code> をサポートし機械可読な出力を提供</li>
+                        <li>JSON エンベロープはすべてのコマンドで一貫 — エージェントは <code>ok</code> / <code>error</code> / <code>data</code> 構造に依存可能</li>
+                        <li>プロジェクト自動検出により、エージェントはプロジェクトディレクトリに <code>cd</code> するだけでコマンド実行可能</li>
+                        <li>エラーコードは予測可能：<code>ICON_NOT_FOUND</code>、<code>GROUP_NOT_FOUND</code>、<code>FILE_IO_ERROR</code> 等</li>
+                    </ul>
+
+                    <h3>エージェントワークフロー例</h3>
+                    <span class="code-label">AI エージェントワークフロー</span>
+<pre><code>bobcorn project create app-icons.icp --name "MyApp" --json
+bobcorn icon import ./design/*.svg --json
+bobcorn group add "Navigation" --json
+bobcorn group add "Actions" --json
+NAV_IDS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+bobcorn icon move $NAV_IDS --to "Navigation" --json
+bobcorn export font --out ./src/fonts --formats woff2 --json</code></pre>
+                </div>
+
+                <!-- Complete Workflow -->
+                <h2 class="reveal">完全なワークフロー例</h2>
+                <div class="reveal">
+                    <p>以下は典型的なアイコンフォントワークフローを示す完全なエンドツーエンドの bash スクリプトです：</p>
+                    <span class="code-label">完全なワークフロースクリプト</span>
+<pre><code>#!/bin/bash
+set -e
+
+bobcorn project create my-app-icons.icp --name "MyApp"
+bobcorn icon import ./design/icons/*.svg
+bobcorn group add "Navigation"
+bobcorn group add "Actions"
+bobcorn group add "Status"
+
+NAV_ICONS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+for id in $NAV_ICONS; do
+  bobcorn icon move "$id" --to "Navigation"
+done
+
+bobcorn group reorder Navigation Actions Status
+bobcorn export font --out ./src/fonts --formats woff2 --css
+bobcorn export svg --out ./docs/icons
+
+echo "完了！フォントファイルは ./src/fonts にあります"</code></pre>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">Bobcorn について</div>
+                    CLI はデスクトップアプリと同じ <code>.icp</code> プロジェクトファイルを使用します。CLI での変更は GUI で開くと表示され、逆も同様。ビジュアルデザインには GUI、自動化や CI/CD パイプラインには CLI を使い分けできます。
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">前へ</div>
+                        <div class="page-nav-title">エクスポートガイド</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

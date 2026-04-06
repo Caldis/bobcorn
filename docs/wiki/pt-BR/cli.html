@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface de Linha de Comando — Bobcorn Wiki</title>
+    <meta name="description" content="Use o Bobcorn pelo terminal. CLI compativel com agentes de IA para automacao, scripts e integracao.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/pt-BR/cli.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/cli.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/cli.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/cli.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/cli.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/cli.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/cli.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/cli.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/cli.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/cli.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/cli.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/cli.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/cli.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/cli.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/cli.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/cli.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/pt-BR/cli.html">
+    <meta property="og:title" content="Interface de Linha de Comando — Bobcorn Wiki">
+    <meta property="og:description" content="Use o Bobcorn pelo terminal. CLI compativel com agentes de IA para automacao, scripts e integracao.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Interface de Linha de Comando — Bobcorn Wiki">
+    <meta name="twitter:description" content="Use o Bobcorn pelo terminal. CLI compativel com agentes de IA para automacao, scripts e integracao.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Interface de Linha de Comando — Bobcorn Wiki",
+                "description": "Use o Bobcorn pelo terminal. CLI compativel com agentes de IA para automacao, scripts e integracao.",
+                "url": "https://bobcorn.caldis.me/wiki/pt-BR/cli.html",
+                "inLanguage": "pt-BR",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/pt-BR/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Interface de Linha de Comando — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/pt-BR/cli.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Interface de Linha de Comando</h1>
+                <p class="lead reveal">Use o Bobcorn pelo terminal. CLI compativel com agentes de IA para automacao, scripts e integracao.</p>
+
+                <!-- Getting Started -->
+                <h2 class="reveal">Primeiros passos</h2>
+                <div class="reveal">
+                    <p>O CLI do Bobcorn permite gerenciar projetos de fontes de icones inteiramente pelo terminal. Instale-o no painel de <strong>Configuracoes</strong> do aplicativo Bobcorn — clique no botao <strong>Instalar</strong> na secao "Interface de Linha de Comando".</p>
+                    <p>No modo de desenvolvimento, o comando e registrado como <code>bobcorn-dev</code>; builds de producao instalam <code>bobcorn</code>. Apos a instalacao, abra um <strong>novo terminal</strong> e verifique:</p>
+
+                    <span class="code-label">Verificar instalacao</span>
+<pre><code>bobcorn --version</code></pre>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Dica</div>
+                        Se o comando nao for encontrado apos a instalacao, abra uma nova janela do terminal. A alteracao do PATH so tem efeito em novas sessoes do shell.
+                    </div>
+                </div>
+
+                <!-- Project Auto-Discovery -->
+                <h2 class="reveal">Descoberta automatica do projeto</h2>
+                <div class="reveal">
+                    <p>O CLI detecta automaticamente arquivos de projeto <code>.icp</code> no diretorio atual. Voce tambem pode especificar um caminho explicitamente. A prioridade de resolucao e:</p>
+                    <ol>
+                        <li><strong>Argumento de caminho explicito</strong> — passado diretamente ao comando</li>
+                        <li><strong>Flag <code>--project</code></strong> — opcao global para todos os comandos</li>
+                        <li><strong>Descoberta automatica</strong> — escaneia o diretorio atual em busca de um arquivo <code>.icp</code></li>
+                    </ol>
+
+                    <span class="code-label">Tres formas de especificar um projeto</span>
+<pre><code><span class="code-cmt"># 1. Argumento de caminho explicito</span>
+bobcorn project inspect my-icons.icp
+
+<span class="code-cmt"># 2. Flag global --project</span>
+bobcorn --project my-icons.icp icon list
+
+<span class="code-cmt"># 3. Descoberta automatica (execute a partir do diretorio contendo o .icp)</span>
+cd my-project/
+bobcorn icon list</code></pre>
+                </div>
+
+                <!-- Output Formats -->
+                <h2 class="reveal">Formatos de saida</h2>
+                <div class="reveal">
+                    <p>Por padrao, o CLI produz texto legivel. Adicione <code>--json</code> para saida JSON estruturada, ideal para scripts e integracao com agentes de IA.</p>
+
+                    <h3>Estrutura do envelope JSON</h3>
+                    <p>Toda resposta JSON segue um envelope consistente:</p>
+
+                    <span class="code-label">Envelope JSON</span>
+<pre><code>{
+  "ok": true,
+  "data": { ... },
+  "meta": {
+    "command": "icon list",
+    "projectPath": "/path/to/project.icp",
+    "duration_ms": 42,
+    "version": "1.0.0"
+  }
+}</code></pre>
+
+                    <h3>Tres estados de resposta</h3>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>Estado</th><th><code>ok</code></th><th>Descricao</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td>Sucesso completo</td><td><code>true</code></td><td>Operacao concluida. Dados no campo <code>data</code>.</td></tr>
+                                <tr><td>Falha parcial</td><td><code>true</code></td><td>Alguns itens bem-sucedidos. Verifique o array <code>warnings</code>.</td></tr>
+                                <tr><td>Falha total</td><td><code>false</code></td><td>Operacao falhou. Erro no campo <code>error</code> com <code>code</code>.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Command Reference -->
+                <h2 class="reveal">Referencia de comandos</h2>
+
+                <h3 class="reveal">Projeto</h3>
+                <div class="reveal">
+                    <p>Criar, inspecionar e configurar arquivos de projeto <code>.icp</code>.</p>
+                    <span class="code-label">Comandos de projeto</span>
+<pre><code><span class="code-cmt"># Create a new empty project</span>
+bobcorn project create my-icons.icp --name "App Icons"
+
+<span class="code-cmt"># Inspect project metadata</span>
+bobcorn project inspect
+
+<span class="code-cmt"># Set project name / font prefix</span>
+bobcorn project set-name "New Name"
+
+<span class="code-cmt"># Set font prefix (alias)</span>
+bobcorn project set-prefix "MyIcons"
+
+<span class="code-cmt"># Save a copy</span>
+bobcorn project save-as backup.icp</code></pre>
+                </div>
+
+                <h3 class="reveal">Icone</h3>
+                <div class="reveal">
+                    <p>Importar, listar, renomear, mover, copiar, excluir e configurar icones. Todas as referencias usam UUID — use <code>icon list --json</code> para descobrir IDs.</p>
+                    <span class="code-label">Comandos de icones</span>
+<pre><code>bobcorn icon import *.svg --group Navigation
+bobcorn icon list
+bobcorn icon list --group Navigation --json
+bobcorn icon rename &lt;id&gt; new-name
+bobcorn icon move &lt;id1&gt; &lt;id2&gt; --to "Other Group"
+bobcorn icon copy &lt;id&gt; --to "Backup"
+bobcorn icon delete &lt;id&gt;
+bobcorn icon set-code &lt;id&gt; E100
+bobcorn icon replace &lt;id&gt; new-icon.svg
+bobcorn icon export-svg &lt;id&gt; --out ./exports
+bobcorn icon set-favorite &lt;id&gt;
+bobcorn icon set-favorite &lt;id&gt; --off
+bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
+bobcorn icon get-content &lt;id&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">Grupo</h3>
+                <div class="reveal">
+                    <p>Organize icones em grupos nomeados. Grupos controlam a ordem de exibicao na barra lateral e podem ser usados para filtrar exportacoes.</p>
+                    <span class="code-label">Comandos de grupos</span>
+<pre><code>bobcorn group list
+bobcorn group add "New Category"
+bobcorn group rename "Old Name" "New Name"
+bobcorn group delete "Empty Group"
+bobcorn group reorder Navigation Actions Settings
+bobcorn group set-description Navigation "Main nav icons"
+bobcorn group move-icons Navigation &lt;id1&gt; &lt;id2&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">Exportacao</h3>
+                <div class="reveal">
+                    <p>Gere arquivos de fonte e exporte SVGs. Suporta SVG, TTF, WOFF, WOFF2 e EOT com arquivos CSS e JS opcionais.</p>
+                    <span class="code-label">Comandos de exportacao</span>
+<pre><code>bobcorn export font --out ./dist --formats woff2,ttf
+bobcorn export font --out ./dist --font-name "MyIcons" --css --js
+bobcorn export svg --out ./svg-icons
+bobcorn export svg --out ./svg-icons --group Navigation</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Nota</div>
+                        O comando <code>export icon</code> (exportacao raster: PNG, JPG, WebP, PDF, ICO) esta disponivel com presets de plataforma (<code>--preset ios</code>, <code>--preset android</code>, etc.) mas ainda nao esta totalmente implementado no modo CLI.
+                    </div>
+                </div>
+
+                <h3 class="reveal">Busca e favoritos</h3>
+                <div class="reveal">
+                    <p>Busque icones por nome e gerencie favoritos marcados.</p>
+                    <span class="code-label">Busca e favoritos</span>
+<pre><code>bobcorn search "arrow"
+bobcorn search "home" --group Navigation --limit 10
+bobcorn favorite list</code></pre>
+                </div>
+
+                <h3 class="reveal">Variantes</h3>
+                <div class="reveal">
+                    <p>Gerencie variantes de peso e escala de icones (estilo SF Symbols). A geracao de variantes requer o GUI do Bobcorn, mas voce pode listar e excluir variantes pelo CLI.</p>
+                    <span class="code-label">Comandos de variantes</span>
+<pre><code>bobcorn variant list &lt;id&gt;
+bobcorn variant delete &lt;id&gt;</code></pre>
+                </div>
+
+                <!-- AI Agent Integration -->
+                <h2 class="reveal">Integracao com agentes de IA</h2>
+                <div class="reveal">
+                    <p>O CLI do Bobcorn foi projetado para funcionar perfeitamente com agentes de codificacao de IA como Claude Code, Codex, Cursor e outros. Use <code>--json</code> para saida estruturada que os agentes possam analisar com seguranca.</p>
+                    <h3>Principios-chave</h3>
+                    <ul>
+                        <li>Todo comando suporta <code>--json</code> para saida legivel por maquina</li>
+                        <li>O envelope JSON e consistente em todos os comandos — agentes podem confiar na estrutura <code>ok</code> / <code>error</code> / <code>data</code></li>
+                        <li>A descoberta automatica permite que agentes simplesmente facam <code>cd</code> para o diretorio do projeto e executem comandos sem especificar caminhos</li>
+                        <li>Codigos de erro sao previsiveis: <code>ICON_NOT_FOUND</code>, <code>GROUP_NOT_FOUND</code>, <code>FILE_IO_ERROR</code>, etc.</li>
+                    </ul>
+
+                    <h3>Exemplo de fluxo de trabalho do agente</h3>
+                    <span class="code-label">Fluxo de trabalho do agente de IA</span>
+<pre><code>bobcorn project create app-icons.icp --name "MyApp" --json
+bobcorn icon import ./design/*.svg --json
+bobcorn group add "Navigation" --json
+bobcorn group add "Actions" --json
+NAV_IDS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+bobcorn icon move $NAV_IDS --to "Navigation" --json
+bobcorn export font --out ./src/fonts --formats woff2 --json</code></pre>
+                </div>
+
+                <!-- Complete Workflow -->
+                <h2 class="reveal">Exemplo de fluxo de trabalho completo</h2>
+                <div class="reveal">
+                    <p>Aqui esta um script bash completo de ponta a ponta mostrando um fluxo de trabalho tipico:</p>
+                    <span class="code-label">Script de fluxo de trabalho completo</span>
+<pre><code>#!/bin/bash
+set -e
+
+bobcorn project create my-app-icons.icp --name "MyApp"
+bobcorn icon import ./design/icons/*.svg
+bobcorn group add "Navigation"
+bobcorn group add "Actions"
+bobcorn group add "Status"
+
+NAV_ICONS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+for id in $NAV_ICONS; do
+  bobcorn icon move "$id" --to "Navigation"
+done
+
+bobcorn group reorder Navigation Actions Status
+bobcorn export font --out ./src/fonts --formats woff2 --css
+bobcorn export svg --out ./docs/icons
+
+echo "Pronto! Os arquivos de fonte estao em ./src/fonts"</code></pre>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">No Bobcorn</div>
+                    O CLI usa os mesmos arquivos de projeto <code>.icp</code> que o aplicativo desktop. Alteracoes feitas via CLI sao visiveis ao abrir o projeto no GUI e vice-versa. Isso facilita usar o GUI para trabalho de design visual e o CLI para automacao e pipelines CI/CD.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">Anterior</div>
+                        <div class="page-nav-title">Guia de exportacao</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

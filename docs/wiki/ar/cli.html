@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واجهة سطر الأوامر — Bobcorn Wiki</title>
+    <meta name="description" content="استخدم Bobcorn من الطرفية. واجهة CLI متوافقة مع وكلاء الذكاء الاصطناعي للأتمتة والبرمجة والتكامل.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/ar/cli.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/cli.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/cli.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/cli.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/cli.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/cli.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/cli.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/cli.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/cli.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/cli.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/cli.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/cli.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/cli.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/cli.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/cli.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/cli.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/cli.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/ar/cli.html">
+    <meta property="og:title" content="واجهة سطر الأوامر — Bobcorn Wiki">
+    <meta property="og:description" content="استخدم Bobcorn من الطرفية. واجهة CLI متوافقة مع وكلاء الذكاء الاصطناعي للأتمتة والبرمجة والتكامل.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="واجهة سطر الأوامر — Bobcorn Wiki">
+    <meta name="twitter:description" content="استخدم Bobcorn من الطرفية. واجهة CLI متوافقة مع وكلاء الذكاء الاصطناعي للأتمتة والبرمجة والتكامل.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "واجهة سطر الأوامر — Bobcorn Wiki",
+                "description": "استخدم Bobcorn من الطرفية. واجهة CLI متوافقة مع وكلاء الذكاء الاصطناعي للأتمتة والبرمجة والتكامل.",
+                "url": "https://bobcorn.caldis.me/wiki/ar/cli.html",
+                "inLanguage": "ar",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ar/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "واجهة سطر الأوامر — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/ar/cli.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">واجهة سطر الأوامر</h1>
+                <p class="lead reveal">استخدم Bobcorn من الطرفية. واجهة CLI متوافقة مع وكلاء الذكاء الاصطناعي للأتمتة والبرمجة والتكامل.</p>
+
+                <!-- Getting Started -->
+                <h2 class="reveal">البدء</h2>
+                <div class="reveal">
+                    <p>يتيح لك CLI الخاص بـ Bobcorn إدارة مشاريع خطوط الأيقونات بالكامل من الطرفية. قم بتثبيته من لوحة <strong>الإعدادات</strong> في تطبيق Bobcorn — انقر على زر <strong>تثبيت</strong> في قسم "واجهة سطر الأوامر".</p>
+                    <p>في وضع التطوير، يتم تسجيل الأمر كـ <code>bobcorn-dev</code>؛ إصدارات الإنتاج تُثبت <code>bobcorn</code>. بعد التثبيت، افتح <strong>طرفية جديدة</strong> وتحقق:</p>
+
+                    <span class="code-label">التحقق من التثبيت</span>
+<pre><code>bobcorn --version</code></pre>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">نصيحة</div>
+                        إذا لم يُعثر على الأمر بعد التثبيت، افتح نافذة طرفية جديدة. تغيير PATH يسري فقط في جلسات shell الجديدة.
+                    </div>
+                </div>
+
+                <!-- Project Auto-Discovery -->
+                <h2 class="reveal">الاكتشاف التلقائي للمشروع</h2>
+                <div class="reveal">
+                    <p>يكتشف CLI تلقائيًا ملفات المشروع <code>.icp</code> في الدليل الحالي. يمكنك أيضًا تحديد المسار صراحةً. أولوية الحل:</p>
+                    <ol>
+                        <li><strong>وسيطة المسار الصريحة</strong> — تُمرر مباشرة إلى الأمر</li>
+                        <li><strong>علامة <code>--project</code></strong> — خيار عام لجميع الأوامر</li>
+                        <li><strong>الاكتشاف التلقائي</strong> — يفحص الدليل الحالي بحثًا عن ملف <code>.icp</code></li>
+                    </ol>
+
+                    <span class="code-label">ثلاث طرق لتحديد المشروع</span>
+<pre><code><span class="code-cmt"># 1. وسيطة المسار الصريحة</span>
+bobcorn project inspect my-icons.icp
+
+<span class="code-cmt"># 2. علامة --project العامة</span>
+bobcorn --project my-icons.icp icon list
+
+<span class="code-cmt"># 3. الاكتشاف التلقائي (تشغيل من الدليل الذي يحتوي على ملف .icp)</span>
+cd my-project/
+bobcorn icon list</code></pre>
+                </div>
+
+                <!-- Output Formats -->
+                <h2 class="reveal">تنسيقات الإخراج</h2>
+                <div class="reveal">
+                    <p>افتراضيًا يُخرج CLI نصًا قابلًا للقراءة. أضف <code>--json</code> للحصول على إخراج JSON منظم، مثالي للبرمجة والتكامل مع وكلاء الذكاء الاصطناعي.</p>
+
+                    <h3>هيكل مغلف JSON</h3>
+                    <p>كل استجابة JSON تتبع مغلفًا متسقًا:</p>
+
+                    <span class="code-label">مغلف JSON</span>
+<pre><code>{
+  "ok": true,
+  "data": { ... },
+  "meta": {
+    "command": "icon list",
+    "projectPath": "/path/to/project.icp",
+    "duration_ms": 42,
+    "version": "1.0.0"
+  }
+}</code></pre>
+
+                    <h3>ثلاث حالات استجابة</h3>
+                    <div class="wiki-table-wrap">
+                        <table class="wiki-table">
+                            <thead><tr>
+                                <th>الحالة</th><th><code>ok</code></th><th>الوصف</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td>نجاح كامل</td><td><code>true</code></td><td>اكتملت العملية. البيانات في حقل <code>data</code>.</td></tr>
+                                <tr><td>فشل جزئي</td><td><code>true</code></td><td>نجحت بعض العناصر. تحقق من مصفوفة <code>warnings</code>.</td></tr>
+                                <tr><td>فشل كامل</td><td><code>false</code></td><td>فشلت العملية. الخطأ في حقل <code>error</code> مع <code>code</code>.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Command Reference -->
+                <h2 class="reveal">مرجع الأوامر</h2>
+
+                <h3 class="reveal">المشروع</h3>
+                <div class="reveal">
+                    <p>إنشاء وفحص وتكوين ملفات المشروع <code>.icp</code>.</p>
+                    <span class="code-label">أوامر المشروع</span>
+<pre><code><span class="code-cmt"># Create a new empty project</span>
+bobcorn project create my-icons.icp --name "App Icons"
+
+<span class="code-cmt"># Inspect project metadata</span>
+bobcorn project inspect
+
+<span class="code-cmt"># Set project name / font prefix</span>
+bobcorn project set-name "New Name"
+
+<span class="code-cmt"># Set font prefix (alias)</span>
+bobcorn project set-prefix "MyIcons"
+
+<span class="code-cmt"># Save a copy</span>
+bobcorn project save-as backup.icp</code></pre>
+                </div>
+
+                <h3 class="reveal">الأيقونة</h3>
+                <div class="reveal">
+                    <p>استيراد وعرض وإعادة تسمية ونقل ونسخ وحذف وتكوين الأيقونات. جميع المراجع تستخدم UUID — استخدم <code>icon list --json</code> لاكتشاف المعرفات.</p>
+                    <span class="code-label">أوامر الأيقونات</span>
+<pre><code>bobcorn icon import *.svg --group Navigation
+bobcorn icon list
+bobcorn icon list --group Navigation --json
+bobcorn icon rename &lt;id&gt; new-name
+bobcorn icon move &lt;id1&gt; &lt;id2&gt; --to "Other Group"
+bobcorn icon copy &lt;id&gt; --to "Backup"
+bobcorn icon delete &lt;id&gt;
+bobcorn icon set-code &lt;id&gt; E100
+bobcorn icon replace &lt;id&gt; new-icon.svg
+bobcorn icon export-svg &lt;id&gt; --out ./exports
+bobcorn icon set-favorite &lt;id&gt;
+bobcorn icon set-favorite &lt;id&gt; --off
+bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
+bobcorn icon get-content &lt;id&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">المجموعة</h3>
+                <div class="reveal">
+                    <p>نظّم الأيقونات في مجموعات مسماة. تتحكم المجموعات في ترتيب العرض في الشريط الجانبي ويمكن استخدامها لتصفية التصدير.</p>
+                    <span class="code-label">أوامر المجموعات</span>
+<pre><code>bobcorn group list
+bobcorn group add "New Category"
+bobcorn group rename "Old Name" "New Name"
+bobcorn group delete "Empty Group"
+bobcorn group reorder Navigation Actions Settings
+bobcorn group set-description Navigation "Main nav icons"
+bobcorn group move-icons Navigation &lt;id1&gt; &lt;id2&gt;</code></pre>
+                </div>
+
+                <h3 class="reveal">التصدير</h3>
+                <div class="reveal">
+                    <p>إنشاء ملفات الخطوط وتصدير SVG. يدعم SVG وTTF وWOFF وWOFF2 وEOT مع ملفات CSS وJS اختيارية.</p>
+                    <span class="code-label">أوامر التصدير</span>
+<pre><code>bobcorn export font --out ./dist --formats woff2,ttf
+bobcorn export font --out ./dist --font-name "MyIcons" --css --js
+bobcorn export svg --out ./svg-icons
+bobcorn export svg --out ./svg-icons --group Navigation</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">ملاحظة</div>
+                        أمر <code>export icon</code> (تصدير نقطي: PNG وJPG وWebP وPDF وICO) متاح مع إعدادات المنصات (<code>--preset ios</code> و<code>--preset android</code> وغيرها) لكنه لم يُطبق بالكامل في وضع CLI بعد.
+                    </div>
+                </div>
+
+                <h3 class="reveal">البحث والمفضلة</h3>
+                <div class="reveal">
+                    <p>ابحث عن الأيقونات بالاسم وأدر المفضلات المحفوظة.</p>
+                    <span class="code-label">البحث والمفضلة</span>
+<pre><code>bobcorn search "arrow"
+bobcorn search "home" --group Navigation --limit 10
+bobcorn favorite list</code></pre>
+                </div>
+
+                <h3 class="reveal">المتغيرات</h3>
+                <div class="reveal">
+                    <p>إدارة متغيرات الوزن والمقياس للأيقونات (نمط SF Symbols). يتطلب إنشاء المتغيرات واجهة Bobcorn الرسومية، لكن يمكنك عرض وحذف المتغيرات من CLI.</p>
+                    <span class="code-label">أوامر المتغيرات</span>
+<pre><code>bobcorn variant list &lt;id&gt;
+bobcorn variant delete &lt;id&gt;</code></pre>
+                </div>
+
+                <!-- AI Agent Integration -->
+                <h2 class="reveal">التكامل مع وكلاء الذكاء الاصطناعي</h2>
+                <div class="reveal">
+                    <p>صُمم CLI الخاص بـ Bobcorn للعمل بسلاسة مع وكلاء البرمجة بالذكاء الاصطناعي مثل Claude Code وCodex وCursor وغيرها. استخدم <code>--json</code> للحصول على إخراج منظم يمكن للوكلاء تحليله بشكل موثوق.</p>
+                    <h3>المبادئ الأساسية</h3>
+                    <ul>
+                        <li>كل أمر يدعم <code>--json</code> للإخراج القابل للقراءة آليًا</li>
+                        <li>مغلف JSON متسق عبر جميع الأوامر — يمكن للوكلاء الاعتماد على بنية <code>ok</code> / <code>error</code> / <code>data</code></li>
+                        <li>الاكتشاف التلقائي يعني أن الوكلاء يمكنهم ببساطة <code>cd</code> إلى دليل المشروع وتشغيل الأوامر بدون تحديد مسارات</li>
+                        <li>رموز الخطأ قابلة للتنبؤ: <code>ICON_NOT_FOUND</code> و<code>GROUP_NOT_FOUND</code> و<code>FILE_IO_ERROR</code> إلخ.</li>
+                    </ul>
+
+                    <h3>مثال سير عمل الوكيل</h3>
+                    <span class="code-label">سير عمل وكيل الذكاء الاصطناعي</span>
+<pre><code>bobcorn project create app-icons.icp --name "MyApp" --json
+bobcorn icon import ./design/*.svg --json
+bobcorn group add "Navigation" --json
+bobcorn group add "Actions" --json
+NAV_IDS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+bobcorn icon move $NAV_IDS --to "Navigation" --json
+bobcorn export font --out ./src/fonts --formats woff2 --json</code></pre>
+                </div>
+
+                <!-- Complete Workflow -->
+                <h2 class="reveal">مثال سير عمل كامل</h2>
+                <div class="reveal">
+                    <p>إليك سكريبت bash كامل يوضح سير عمل نموذجي:</p>
+                    <span class="code-label">سكريبت سير عمل كامل</span>
+<pre><code>#!/bin/bash
+set -e
+
+bobcorn project create my-app-icons.icp --name "MyApp"
+bobcorn icon import ./design/icons/*.svg
+bobcorn group add "Navigation"
+bobcorn group add "Actions"
+bobcorn group add "Status"
+
+NAV_ICONS=$(bobcorn search "nav" --json | jq -r '.data[].id')
+for id in $NAV_ICONS; do
+  bobcorn icon move "$id" --to "Navigation"
+done
+
+bobcorn group reorder Navigation Actions Status
+bobcorn export font --out ./src/fonts --formats woff2 --css
+bobcorn export svg --out ./docs/icons
+
+echo "تم! ملفات الخطوط في ./src/fonts"</code></pre>
+                </div>
+
+                <div class="callout callout-bobcorn reveal">
+                    <div class="callout-label">في Bobcorn</div>
+                    يستخدم CLI نفس ملفات المشروع <code>.icp</code> مثل تطبيق سطح المكتب. التغييرات عبر CLI مرئية عند فتح المشروع في الواجهة الرسومية والعكس. هذا يسهل استخدام الواجهة الرسومية للتصميم المرئي وCLI للأتمتة وخطوط أنابيب CI/CD.
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="export-guide.html" class="page-nav-link">
+                        <div class="page-nav-dir">السابق</div>
+                        <div class="page-nav-title">دليل التصدير</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>
