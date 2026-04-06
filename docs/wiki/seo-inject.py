@@ -36,6 +36,7 @@ PAGES = [
     "svg-symbol.html",
     "export-guide.html",
     "cli.html",
+    "cli-setup.html",
 ]
 
 WIKI_DIR = Path(__file__).parent  # D:\Code\bobcorn-wiki\docs\wiki

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>อินเทอร์เฟซบรรทัดคำสั่ง — Bobcorn Wiki</title>
-    <meta name="description" content="ใช้ Bobcorn จากเทอร์มินัล CLI ที่เป็นมิตรกับ AI agent สำหรับการอัตโนมัติ สคริปต์ และการรวมระบบ">
+    <meta name="description" content="ให้ AI agent ของคุณจัดการไอคอนฟอนต์ Bobcorn CLI ออกแบบมาเพื่อเวิร์กโฟลว์ AI-first — agent ของคุณสามารถสร้างโปรเจกต์ นำเข้าไอคอน จัดกลุ่ม และส่งออกฟอนต์โดยไม่ต้องเปิด GUI">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,13 +118,12 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">อินเทอร์เฟซบรรทัดคำสั่ง</h1>
-                <p class="lead reveal">ใช้ Bobcorn จากเทอร์มินัล CLI ที่เป็นมิตรกับ AI agent สำหรับการอัตโนมัติ สคริปต์ และการรวมระบบ</p>
+                <p class="lead reveal">ให้ AI agent ของคุณจัดการไอคอนฟอนต์ Bobcorn CLI ออกแบบมาเพื่อเวิร์กโฟลว์ AI-first — agent ของคุณสามารถสร้างโปรเจกต์ นำเข้าไอคอน จัดกลุ่ม และส่งออกฟอนต์โดยไม่ต้องเปิด GUI</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">เริ่มต้นใช้งาน</h2>
                 <div class="reveal">
                     <p>Bobcorn CLI ช่วยให้คุณจัดการโปรเจกต์ไอคอนฟอนต์จากเทอร์มินัลได้ทั้งหมด ติดตั้งจากแผง<strong>การตั้งค่า</strong>ในแอป Bobcorn — คลิกปุ่ม<strong>ติดตั้ง</strong>ในส่วน "อินเทอร์เฟซบรรทัดคำสั่ง"</p>
-                    <p>ในโหมดพัฒนา คำสั่งจะลงทะเบียนเป็น <code>bobcorn-dev</code>; บิลด์โปรดักชันจะติดตั้งเป็น <code>bobcorn</code> หลังติดตั้ง ให้เปิด<strong>เทอร์มินัลใหม่</strong>แล้วตรวจสอบ:</p>
 
                     <span class="code-label">ตรวจสอบการติดตั้ง</span>
 <pre><code>bobcorn --version</code></pre>
@@ -133,40 +132,9 @@
                         <div class="callout-label">เคล็ดลับ</div>
                         หากไม่พบคำสั่งหลังติดตั้ง ให้เปิดหน้าต่างเทอร์มินัลใหม่ การเปลี่ยนแปลง PATH จะมีผลเฉพาะในเซสชัน shell ใหม่เท่านั้น
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">การตั้งค่าด้วยตนเอง</h2>
-                <div class="reveal">
-                    <p>หากคุณไม่ต้องการใช้แผงการตั้งค่า คุณสามารถตั้งค่า CLI ด้วยตนเองได้</p>
-
-                    <h3>ตัวเลือก A: ติดตั้งด้วยตนเองจากไฟล์ไบนารี CLI</h3>
-                    <p>ค้นหาไฟล์ไบนารี CLI ภายในแพ็คเกจแอปพลิเคชัน Bobcorn และรันคำสั่ง <code>install</code> โดยตรง:</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>คำสั่งนี้จะลงทะเบียนคำสั่ง <code>bobcorn</code> ลงใน PATH ของคุณโดยอัตโนมัติ</p>
-
-                    <h3>ตัวเลือก B: เพิ่มลงใน PATH ด้วยตนเอง</h3>
-                    <p>สร้างสคริปต์ wrapper ที่เรียกใช้ไฟล์ไบนารี CLI ด้วย Node.js:</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>ตรวจสอบให้แน่ใจว่าไดเรกทอรีของ wrapper อยู่ใน <code>PATH</code> ของคุณ บน macOS/Linux ให้เพิ่ม <code>~/.local/bin</code> ลงในโปรไฟล์เชลล์ของคุณ บน Windows ให้เพิ่มไดเรกทอรีของ wrapper ลงในตัวแปรสภาพแวดล้อม PATH ของผู้ใช้</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">เคล็ดลับ</div>
-                        ระบบของคุณต้องติดตั้ง Node.js เพื่อรัน CLI หากยังไม่มี ดาวน์โหลดได้จาก <a href="https://nodejs.org">nodejs.org</a>
+                        <div class="callout-label">ผู้ใช้ AI Agent</div>
+                        เพียงติดตั้ง CLI จากแผงการตั้งค่าของ Bobcorn แล้วบอก AI agent (Claude Code, Cursor, Copilot ฯลฯ) ให้รัน <code>bobcorn --help --json</code> เพื่อค้นหาคำสั่งทั้งหมด Agent จะจัดการส่วนที่เหลือเอง
                     </div>
                 </div>
 
@@ -375,7 +343,10 @@ echo "เสร็จแล้ว! ไฟล์ฟอนต์อยู่ใน
                         <div class="page-nav-dir">ก่อนหน้า</div>
                         <div class="page-nav-title">คู่มือการส่งออก</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">ถัดไป</div>
+                        <div class="page-nav-title">การติดตั้ง CLI ด้วยตนเอง</div>
+                    </a>
                 </nav>
 
             </article>

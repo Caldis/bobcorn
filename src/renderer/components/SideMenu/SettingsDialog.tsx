@@ -434,6 +434,19 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0 ml-3">
+              <a
+                href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli-setup.html`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const lang = WIKI_LANG_MAP[i18n.language] || 'en';
+                  (window as any).electronAPI.openExternal(
+                    `https://bobcorn.caldis.me/wiki/${lang}/cli-setup.html`
+                  );
+                }}
+                className="text-[11px] text-foreground-muted/30 hover:text-foreground-muted/60 transition-colors duration-150 cursor-pointer"
+              >
+                {t('settings.cli.manualSetup')}
+              </a>
               {cliStatus === 'installed' ? (
                 <button
                   disabled={cliActionPending}
@@ -479,36 +492,32 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               ) : null}
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <p className="text-[11px] text-foreground-muted/40">{t('settings.cli.description')}</p>
-            <a
-              href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli.html`}
-              onClick={(e) => {
-                e.preventDefault();
-                const lang = WIKI_LANG_MAP[i18n.language] || 'en';
-                (window as any).electronAPI.openExternal(
-                  `https://bobcorn.caldis.me/wiki/${lang}/cli.html`
-                );
-              }}
-              className="text-[11px] text-accent hover:text-accent/80 transition-colors duration-150 cursor-pointer shrink-0"
-            >
-              {t('settings.cli.docs')} &rarr;
-            </a>
-            <span className="text-foreground-muted/15 text-[10px]">|</span>
-            <a
-              href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli.html#manual-setup`}
-              onClick={(e) => {
-                e.preventDefault();
-                const lang = WIKI_LANG_MAP[i18n.language] || 'en';
-                (window as any).electronAPI.openExternal(
-                  `https://bobcorn.caldis.me/wiki/${lang}/cli.html#manual-setup`
-                );
-              }}
-              className="text-[11px] text-foreground-muted/50 hover:text-accent/80 transition-colors duration-150 cursor-pointer shrink-0"
-            >
-              {t('settings.cli.manualSetup')}
-            </a>
-          </div>
+          <p className="text-[11px] text-foreground-muted/40 mt-1">
+            {t('settings.cli.description')}
+          </p>
+          {/* Usage guide — prominent, own line */}
+          <a
+            href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli.html`}
+            onClick={(e) => {
+              e.preventDefault();
+              const lang = WIKI_LANG_MAP[i18n.language] || 'en';
+              (window as any).electronAPI.openExternal(
+                `https://bobcorn.caldis.me/wiki/${lang}/cli.html`
+              );
+            }}
+            className={cn(
+              'flex items-center justify-between mt-2 px-3 py-2 rounded-md cursor-pointer',
+              'bg-accent/[0.06] border border-accent/10',
+              'hover:bg-accent/10 transition-colors duration-150 group/docs'
+            )}
+          >
+            <span className="text-[12px] text-foreground/80 group-hover/docs:text-foreground transition-colors">
+              {t('settings.cli.docs')}
+            </span>
+            <span className="text-accent/60 group-hover/docs:text-accent transition-colors text-xs">
+              &rarr;
+            </span>
+          </a>
           {cliShowRestartHint && (
             <p className="text-[11px] text-accent/70 mt-1.5">
               {t('settings.cli.restartHint', { command: cliCommandName })}

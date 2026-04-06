@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Интерфейс командной строки — Bobcorn Wiki</title>
-    <meta name="description" content="Используйте Bobcorn из терминала. CLI для ИИ-агентов, автоматизации, скриптов и интеграции.">
+    <meta name="description" content="Позвольте вашему ИИ-агенту управлять вашими иконочными шрифтами. Bobcorn CLI создан для рабочих процессов с приоритетом ИИ — ваш агент может создавать проекты, импортировать иконки, организовывать группы и экспортировать шрифты без открытия GUI.">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,7 +118,7 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">Интерфейс командной строки</h1>
-                <p class="lead reveal">Используйте Bobcorn из терминала. CLI для ИИ-агентов, автоматизации, скриптов и интеграции.</p>
+                <p class="lead reveal">Позвольте вашему ИИ-агенту управлять вашими иконочными шрифтами. Bobcorn CLI создан для рабочих процессов с приоритетом ИИ — ваш агент может создавать проекты, импортировать иконки, организовывать группы и экспортировать шрифты без открытия GUI.</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">Начало работы</h2>
@@ -133,40 +133,9 @@
                         <div class="callout-label">Совет</div>
                         Если команда не найдена после установки, откройте новое окно терминала. Изменение PATH вступает в силу только в новых сеансах оболочки.
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">Ручная настройка</h2>
-                <div class="reveal">
-                    <p>Если вы предпочитаете не использовать панель настроек, CLI можно настроить вручную.</p>
-
-                    <h3>Вариант A: Самоустановка из бинарного файла CLI</h3>
-                    <p>Найдите бинарный файл CLI в пакете приложения Bobcorn и выполните команду <code>install</code> напрямую:</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>Это автоматически регистрирует команду <code>bobcorn</code> в вашем PATH.</p>
-
-                    <h3>Вариант B: Добавить в PATH вручную</h3>
-                    <p>Создайте скрипт-обёртку, который вызывает бинарный файл CLI через Node.js:</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>Убедитесь, что каталог обёртки находится в вашем <code>PATH</code>. На macOS/Linux добавьте <code>~/.local/bin</code> в профиль оболочки. На Windows добавьте каталог обёртки в пользовательскую переменную среды PATH.</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">Совет</div>
-                        Для запуска CLI в системе должен быть установлен Node.js. Если у вас его нет, скачайте с <a href="https://nodejs.org">nodejs.org</a>.
+                        <div class="callout-label">Пользователям ИИ-агентов</div>
+                        Просто установите CLI из панели Настроек Bobcorn, затем попросите вашего ИИ-агента (Claude Code, Cursor, Copilot и т.д.) выполнить <code>bobcorn --help --json</code> для обнаружения всех доступных команд. Остальное агент сделает сам.
                     </div>
                 </div>
 
@@ -375,7 +344,10 @@ echo "Готово! Файлы шрифтов в ./src/fonts"</code></pre>
                         <div class="page-nav-dir">Назад</div>
                         <div class="page-nav-title">Руководство по экспорту</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">Далее</div>
+                        <div class="page-nav-title">Ручная настройка CLI</div>
+                    </a>
                 </nav>
 
             </article>

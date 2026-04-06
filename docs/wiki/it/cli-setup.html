@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurazione manuale CLI — Bobcorn Wiki</title>
+    <meta name="description" content="Installazione manuale e configurazione PATH per Bobcorn CLI.">
+    <link rel="icon" type="image/png" href="../../icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/wiki.css">
+
+    <!-- SEO metadata (auto-injected by seo-inject.py) -->
+    <link rel="canonical" href="https://bobcorn.caldis.me/wiki/it/cli-setup.html">
+    <link rel="alternate" hreflang="x-default" href="https://bobcorn.caldis.me/wiki/en/cli-setup.html">
+    <link rel="alternate" hreflang="en" href="https://bobcorn.caldis.me/wiki/en/cli-setup.html">
+    <link rel="alternate" hreflang="zh-CN" href="https://bobcorn.caldis.me/wiki/zh-CN/cli-setup.html">
+    <link rel="alternate" hreflang="ja" href="https://bobcorn.caldis.me/wiki/ja/cli-setup.html">
+    <link rel="alternate" hreflang="ko" href="https://bobcorn.caldis.me/wiki/ko/cli-setup.html">
+    <link rel="alternate" hreflang="fr" href="https://bobcorn.caldis.me/wiki/fr/cli-setup.html">
+    <link rel="alternate" hreflang="de" href="https://bobcorn.caldis.me/wiki/de/cli-setup.html">
+    <link rel="alternate" hreflang="es" href="https://bobcorn.caldis.me/wiki/es/cli-setup.html">
+    <link rel="alternate" hreflang="pt-BR" href="https://bobcorn.caldis.me/wiki/pt-BR/cli-setup.html">
+    <link rel="alternate" hreflang="it" href="https://bobcorn.caldis.me/wiki/it/cli-setup.html">
+    <link rel="alternate" hreflang="nl" href="https://bobcorn.caldis.me/wiki/nl/cli-setup.html">
+    <link rel="alternate" hreflang="ru" href="https://bobcorn.caldis.me/wiki/ru/cli-setup.html">
+    <link rel="alternate" hreflang="tr" href="https://bobcorn.caldis.me/wiki/tr/cli-setup.html">
+    <link rel="alternate" hreflang="ar" href="https://bobcorn.caldis.me/wiki/ar/cli-setup.html">
+    <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/wiki/th/cli-setup.html">
+    <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/wiki/vi/cli-setup.html">
+    <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/wiki/id/cli-setup.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://bobcorn.caldis.me/wiki/it/cli-setup.html">
+    <meta property="og:title" content="Configurazione manuale CLI — Bobcorn Wiki">
+    <meta property="og:description" content="Installazione manuale e configurazione PATH per Bobcorn CLI.">
+    <meta property="og:site_name" content="Bobcorn Wiki">
+    <meta property="og:image" content="https://bobcorn.caldis.me/icon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Configurazione manuale CLI — Bobcorn Wiki">
+    <meta name="twitter:description" content="Installazione manuale e configurazione PATH per Bobcorn CLI.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Article",
+                "headline": "Configurazione manuale CLI — Bobcorn Wiki",
+                "description": "Installazione manuale e configurazione PATH per Bobcorn CLI.",
+                "url": "https://bobcorn.caldis.me/wiki/it/cli-setup.html",
+                "inLanguage": "it",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "Bobcorn",
+                    "url": "https://bobcorn.caldis.me/"
+                },
+                "publisher": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/it/index.html"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Configurazione manuale CLI — Bobcorn Wiki",
+                        "item": "https://bobcorn.caldis.me/wiki/it/cli-setup.html"
+                    }
+                ]
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <nav class="wiki-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="../../" class="topbar-back">
+                <img src="../../icon.png" alt="Bobcorn" width="24" height="24">
+                <span>Bobcorn</span>
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-title">Wiki</span>
+        </div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button class="lang-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-overlay"></div>
+    <div class="wiki-layout">
+        <aside class="wiki-sidebar"></aside>
+        <main class="wiki-main">
+            <article class="wiki-article">
+
+                <!-- Hero -->
+                <h1 class="reveal">Configurazione manuale CLI</h1>
+                <p class="lead reveal">Installazione manuale e configurazione PATH per Bobcorn CLI.</p>
+
+                <!-- Manual Setup -->
+                <h2 class="reveal" id="manual-setup">Configurazione manuale</h2>
+                <div class="reveal">
+                    <p>Se preferisci non usare il pannello Impostazioni, puoi configurare il CLI manualmente.</p>
+
+                    <h3>Opzione A: Auto-installazione dal binario CLI</h3>
+                    <p>Individua il binario CLI all'interno del bundle dell'applicazione Bobcorn ed esegui direttamente il comando <code>install</code>:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>Questo registra automaticamente il comando <code>bobcorn</code> nel tuo PATH.</p>
+
+                    <h3>Opzione B: Aggiungere al PATH manualmente</h3>
+                    <p>Crea uno script wrapper che invoca il binario CLI con Node.js:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>Assicurati che la directory del wrapper sia nel tuo <code>PATH</code>. Su macOS/Linux, aggiungi <code>~/.local/bin</code> al tuo profilo shell. Su Windows, aggiungi la directory del wrapper alla variabile d'ambiente PATH dell'utente.</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Suggerimento</div>
+                        Node.js deve essere installato sul tuo sistema per eseguire il CLI. Se non lo hai, scaricalo da <a href="https://nodejs.org">nodejs.org</a>.
+                    </div>
+                </div>
+
+
+                <!-- Page Navigation -->
+                <nav class="page-nav">
+                    <a href="cli.html" class="page-nav-link">
+                        <div class="page-nav-dir">Precedente</div>
+                        <div class="page-nav-title">Riferimento CLI</div>
+                    </a>
+                    <span></span>
+                </nav>
+
+            </article>
+        </main>
+    </div>
+    <script src="../shared/wiki.js"></script>
+</body>
+</html>

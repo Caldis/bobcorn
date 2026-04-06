@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>命令行界面 — Bobcorn Wiki</title>
-    <meta name="description" content="从终端使用 Bobcorn。适合 AI 代理的 CLI，用于自动化、脚本和集成。">
+    <meta name="description" content="让你的 AI 代理管理你的图标字体。Bobcorn CLI 专为 AI 优先工作流设计 — 你的代理可以创建项目、导入图标、组织分组并导出字体，无需打开 GUI。">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,13 +118,13 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">命令行界面</h1>
-                <p class="lead reveal">从终端使用 Bobcorn。适合 AI 代理的 CLI，用于自动化、脚本和集成。</p>
+                <p class="lead reveal">让你的 AI 代理管理你的图标字体。Bobcorn CLI 专为 AI 优先工作流设计 — 你的代理可以创建项目、导入图标、组织分组并导出字体，无需打开 GUI。</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">快速开始</h2>
                 <div class="reveal">
                     <p>Bobcorn CLI 让你可以完全通过终端管理图标字体项目。在 Bobcorn 应用的<strong>设置</strong>面板中安装——点击"命令行界面"部分的<strong>安装</strong>按钮。</p>
-                    <p>开发模式下命令注册为 <code>bobcorn-dev</code>；生产版本安装为 <code>bobcorn</code>。安装后，打开一个<strong>新终端</strong>并验证：</p>
+                    <p>安装后，打开一个<strong>新终端</strong>并验证：</p>
 
                     <span class="code-label">验证安装</span>
 <pre><code>bobcorn --version</code></pre>
@@ -133,40 +133,9 @@
                         <div class="callout-label">提示</div>
                         如果安装后找不到命令，请打开新的终端窗口。PATH 更改仅在新的 shell 会话中生效。
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">手动设置</h2>
-                <div class="reveal">
-                    <p>如果你不想通过设置面板安装，也可以手动设置 CLI。</p>
-
-                    <h3>方式 A：通过 CLI 二进制文件自行安装</h3>
-                    <p>找到 Bobcorn 应用包内的 CLI 二进制文件，直接运行 <code>install</code> 命令：</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>这会自动将 <code>bobcorn</code> 命令注册到你的 PATH 中。</p>
-
-                    <h3>方式 B：手动添加到 PATH</h3>
-                    <p>创建一个调用 CLI 二进制文件的包装脚本：</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>确保包装脚本所在目录已添加到 <code>PATH</code>。macOS/Linux 请将 <code>~/.local/bin</code> 添加到 shell 配置文件中。Windows 请将包装脚本目录添加到用户 PATH 环境变量。</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">提示</div>
-                        运行 CLI 需要系统已安装 Node.js。如未安装，请从 <a href="https://nodejs.org">nodejs.org</a> 下载。
+                        <div class="callout-label">AI 代理用户</div>
+                        只需从 Bobcorn 的设置面板安装 CLI，然后告诉你的 AI 代理（Claude Code、Cursor、Copilot 等）运行 <code>bobcorn --help --json</code> 来发现所有可用命令。其余的交给代理处理。
                     </div>
                 </div>
 
@@ -475,7 +444,10 @@ echo "完成！字体文件在 ./src/fonts"</code></pre>
                         <div class="page-nav-dir">上一页</div>
                         <div class="page-nav-title">导出指南</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">下一页</div>
+                        <div class="page-nav-title">CLI 手动设置</div>
+                    </a>
                 </nav>
 
             </article>

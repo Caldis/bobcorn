@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Antarmuka Baris Perintah — Bobcorn Wiki</title>
-    <meta name="description" content="Gunakan Bobcorn dari terminal. CLI yang ramah AI agent untuk otomasi, skrip, dan integrasi.">
+    <meta name="description" content="Biarkan AI agent Anda mengelola font ikon. Bobcorn CLI dirancang untuk alur kerja AI-first — agent Anda dapat membuat proyek, mengimpor ikon, mengatur grup, dan mengekspor font tanpa membuka GUI.">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,13 +118,12 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">Antarmuka Baris Perintah</h1>
-                <p class="lead reveal">Gunakan Bobcorn dari terminal. CLI yang ramah AI agent untuk otomasi, skrip, dan integrasi.</p>
+                <p class="lead reveal">Biarkan AI agent Anda mengelola font ikon. Bobcorn CLI dirancang untuk alur kerja AI-first — agent Anda dapat membuat proyek, mengimpor ikon, mengatur grup, dan mengekspor font tanpa membuka GUI.</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">Memulai</h2>
                 <div class="reveal">
                     <p>CLI Bobcorn memungkinkan Anda mengelola proyek font ikon sepenuhnya dari terminal. Instal dari panel <strong>Pengaturan</strong> di aplikasi Bobcorn — klik tombol <strong>Instal</strong> di bagian "Antarmuka Baris Perintah".</p>
-                    <p>Dalam mode pengembangan, perintah didaftarkan sebagai <code>bobcorn-dev</code>; build produksi menginstal sebagai <code>bobcorn</code>. Setelah instalasi, buka <strong>terminal baru</strong> dan verifikasi:</p>
 
                     <span class="code-label">Verifikasi instalasi</span>
 <pre><code>bobcorn --version</code></pre>
@@ -133,40 +132,9 @@
                         <div class="callout-label">Tips</div>
                         Jika perintah tidak ditemukan setelah instalasi, buka jendela terminal baru. Perubahan PATH hanya berlaku di sesi shell baru.
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">Pengaturan manual</h2>
-                <div class="reveal">
-                    <p>Jika Anda lebih suka tidak menggunakan panel Pengaturan, Anda dapat mengatur CLI secara manual.</p>
-
-                    <h3>Opsi A: Instalasi mandiri dari biner CLI</h3>
-                    <p>Temukan biner CLI di dalam bundel aplikasi Bobcorn dan jalankan perintah <code>install</code> secara langsung:</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>Ini secara otomatis mendaftarkan perintah <code>bobcorn</code> ke PATH Anda.</p>
-
-                    <h3>Opsi B: Tambahkan ke PATH secara manual</h3>
-                    <p>Buat skrip wrapper yang memanggil biner CLI dengan Node.js:</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>Pastikan direktori wrapper ada di <code>PATH</code> Anda. Di macOS/Linux, tambahkan <code>~/.local/bin</code> ke profil shell Anda. Di Windows, tambahkan direktori wrapper ke variabel lingkungan PATH pengguna.</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">Tips</div>
-                        Node.js harus terinstal di sistem Anda untuk menjalankan CLI. Jika belum memilikinya, unduh dari <a href="https://nodejs.org">nodejs.org</a>.
+                        <div class="callout-label">Pengguna AI Agent</div>
+                        Cukup instal CLI dari panel Pengaturan Bobcorn, lalu minta AI agent Anda (Claude Code, Cursor, Copilot, dll.) untuk menjalankan <code>bobcorn --help --json</code> untuk menemukan semua perintah yang tersedia. Agent mengurus sisanya.
                     </div>
                 </div>
 
@@ -375,7 +343,10 @@ echo "Selesai! File font ada di ./src/fonts"</code></pre>
                         <div class="page-nav-dir">Sebelumnya</div>
                         <div class="page-nav-title">Panduan Ekspor</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">Berikutnya</div>
+                        <div class="page-nav-title">Pengaturan CLI Manual</div>
+                    </a>
                 </nav>
 
             </article>

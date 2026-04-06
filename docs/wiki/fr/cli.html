@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interface en ligne de commande — Bobcorn Wiki</title>
-    <meta name="description" content="Utilisez Bobcorn depuis le terminal. CLI compatible avec les agents IA pour l'automatisation, les scripts et l'integration.">
+    <meta name="description" content="Laissez votre agent IA gerer vos polices d'icones. Bobcorn CLI est concu pour les workflows IA-first — votre agent peut creer des projets, importer des icones, organiser des groupes et exporter des polices sans ouvrir le GUI.">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,13 +118,12 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">Interface en ligne de commande</h1>
-                <p class="lead reveal">Utilisez Bobcorn depuis le terminal. CLI compatible avec les agents IA pour l'automatisation, les scripts et l'integration.</p>
+                <p class="lead reveal">Laissez votre agent IA gerer vos polices d'icones. Bobcorn CLI est concu pour les workflows IA-first — votre agent peut creer des projets, importer des icones, organiser des groupes et exporter des polices sans ouvrir le GUI.</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">Pour commencer</h2>
                 <div class="reveal">
                     <p>Le CLI Bobcorn vous permet de gerer entierement vos projets de polices d'icones depuis le terminal. Installez-le depuis le panneau <strong>Parametres</strong> dans l'application Bobcorn — cliquez sur le bouton <strong>Installer</strong> dans la section "Interface en ligne de commande".</p>
-                    <p>En mode developpement, la commande est enregistree sous <code>bobcorn-dev</code> ; les builds de production installent <code>bobcorn</code>. Apres installation, ouvrez un <strong>nouveau terminal</strong> et verifiez :</p>
 
                     <span class="code-label">Verifier l'installation</span>
 <pre><code>bobcorn --version</code></pre>
@@ -133,40 +132,9 @@
                         <div class="callout-label">Astuce</div>
                         Si la commande n'est pas trouvee apres l'installation, ouvrez une nouvelle fenetre de terminal. La modification du PATH ne prend effet que dans les nouvelles sessions shell.
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">Configuration manuelle</h2>
-                <div class="reveal">
-                    <p>Si vous preferez ne pas utiliser le panneau Parametres, vous pouvez configurer le CLI manuellement.</p>
-
-                    <h3>Option A : Auto-installation depuis le binaire CLI</h3>
-                    <p>Localisez le binaire CLI dans le bundle de l'application Bobcorn et executez directement la commande <code>install</code> :</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>Cela enregistre automatiquement la commande <code>bobcorn</code> dans votre PATH.</p>
-
-                    <h3>Option B : Ajouter au PATH manuellement</h3>
-                    <p>Creez un script wrapper qui invoque le binaire CLI avec Node.js :</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>Assurez-vous que le repertoire du wrapper est dans votre <code>PATH</code>. Sur macOS/Linux, ajoutez <code>~/.local/bin</code> a votre profil shell. Sur Windows, ajoutez le repertoire du wrapper a votre variable d'environnement PATH utilisateur.</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">Astuce</div>
-                        Node.js doit etre installe sur votre systeme pour executer le CLI. Si vous ne l'avez pas, telechargez-le depuis <a href="https://nodejs.org">nodejs.org</a>.
+                        <div class="callout-label">Utilisateurs d'agents IA</div>
+                        Installez simplement le CLI depuis le panneau Parametres de Bobcorn, puis demandez a votre agent IA (Claude Code, Cursor, Copilot, etc.) d'executer <code>bobcorn --help --json</code> pour decouvrir toutes les commandes. L'agent s'occupe du reste.
                     </div>
                 </div>
 
@@ -375,7 +343,10 @@ echo "Termine ! Les fichiers de police sont dans ./src/fonts"</code></pre>
                         <div class="page-nav-dir">Precedent</div>
                         <div class="page-nav-title">Guide d'exportation</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">Suivant</div>
+                        <div class="page-nav-title">Installation manuelle CLI</div>
+                    </a>
                 </nav>
 
             </article>

@@ -85,6 +85,7 @@ bobcorn/
 | `docs/HANDOFF.md` | Session 交接文档 (架构决策、已知问题、待做事项) |
 | `docs/PARALLEL_DEVELOPMENT.md` | 并行开发协作协议 |
 | `docs/DEPENDENCY_MAP.md` | 模块依赖与变更影响分析 |
+| `docs/CLI.md` | CLI 维护指南 (新增/修改/删除功能的收口流程) |
 | `docs/MIGRATION.md` | Core 迁移指南 (进度、流程、规则) |
 | `src/renderer/store/README.md` | State tree + 使用模式 |
 | `src/renderer/database/README.md` | Schema + 异步初始化 + CRUD API |

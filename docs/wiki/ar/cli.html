@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>واجهة سطر الأوامر — Bobcorn Wiki</title>
-    <meta name="description" content="استخدم Bobcorn من الطرفية. واجهة CLI متوافقة مع وكلاء الذكاء الاصطناعي للأتمتة والبرمجة والتكامل.">
+    <meta name="description" content="دع وكيل الذكاء الاصطناعي يدير خطوط الأيقونات الخاصة بك. Bobcorn CLI مصمم لسير عمل الذكاء الاصطناعي أولاً — يمكن لوكيلك إنشاء المشاريع واستيراد الأيقونات وتنظيم المجموعات وتصدير الخطوط دون فتح الواجهة الرسومية.">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,13 +118,12 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">واجهة سطر الأوامر</h1>
-                <p class="lead reveal">استخدم Bobcorn من الطرفية. واجهة CLI متوافقة مع وكلاء الذكاء الاصطناعي للأتمتة والبرمجة والتكامل.</p>
+                <p class="lead reveal">دع وكيل الذكاء الاصطناعي يدير خطوط الأيقونات الخاصة بك. Bobcorn CLI مصمم لسير عمل الذكاء الاصطناعي أولاً — يمكن لوكيلك إنشاء المشاريع واستيراد الأيقونات وتنظيم المجموعات وتصدير الخطوط دون فتح الواجهة الرسومية.</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">البدء</h2>
                 <div class="reveal">
                     <p>يتيح لك CLI الخاص بـ Bobcorn إدارة مشاريع خطوط الأيقونات بالكامل من الطرفية. قم بتثبيته من لوحة <strong>الإعدادات</strong> في تطبيق Bobcorn — انقر على زر <strong>تثبيت</strong> في قسم "واجهة سطر الأوامر".</p>
-                    <p>في وضع التطوير، يتم تسجيل الأمر كـ <code>bobcorn-dev</code>؛ إصدارات الإنتاج تُثبت <code>bobcorn</code>. بعد التثبيت، افتح <strong>طرفية جديدة</strong> وتحقق:</p>
 
                     <span class="code-label">التحقق من التثبيت</span>
 <pre><code>bobcorn --version</code></pre>
@@ -133,40 +132,9 @@
                         <div class="callout-label">نصيحة</div>
                         إذا لم يُعثر على الأمر بعد التثبيت، افتح نافذة طرفية جديدة. تغيير PATH يسري فقط في جلسات shell الجديدة.
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">الإعداد اليدوي</h2>
-                <div class="reveal">
-                    <p>إذا كنت تفضل عدم استخدام لوحة الإعدادات، يمكنك إعداد CLI يدويًا.</p>
-
-                    <h3>الخيار أ: التثبيت الذاتي من ملف CLI الثنائي</h3>
-                    <p>حدد موقع ملف CLI الثنائي داخل حزمة تطبيق Bobcorn وقم بتشغيل أمر <code>install</code> مباشرة:</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>يؤدي هذا إلى تسجيل أمر <code>bobcorn</code> في PATH تلقائيًا.</p>
-
-                    <h3>الخيار ب: الإضافة إلى PATH يدويًا</h3>
-                    <p>أنشئ سكريبت مُغلِّف يستدعي ملف CLI الثنائي باستخدام Node.js:</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>تأكد من أن مجلد المُغلِّف موجود في <code>PATH</code>. على macOS/Linux، أضف <code>~/.local/bin</code> إلى ملف تعريف الصدفة. على Windows، أضف مجلد المُغلِّف إلى متغير بيئة PATH الخاص بالمستخدم.</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">تلميح</div>
-                        يجب أن يكون Node.js مثبتًا على نظامك لتشغيل CLI. إذا لم يكن لديك، قم بتنزيله من <a href="https://nodejs.org">nodejs.org</a>.
+                        <div class="callout-label">مستخدمو وكلاء الذكاء الاصطناعي</div>
+                        قم بتثبيت CLI من لوحة الإعدادات في Bobcorn، ثم أخبر وكيل الذكاء الاصطناعي (Claude Code، Cursor، Copilot وغيرها) بتشغيل <code>bobcorn --help --json</code> لاكتشاف جميع الأوامر المتاحة. الوكيل يتولى الباقي.
                     </div>
                 </div>
 
@@ -375,7 +343,10 @@ echo "تم! ملفات الخطوط في ./src/fonts"</code></pre>
                         <div class="page-nav-dir">السابق</div>
                         <div class="page-nav-title">دليل التصدير</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">التالي</div>
+                        <div class="page-nav-title">إعداد CLI يدوي</div>
+                    </a>
                 </nav>
 
             </article>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Opdrachtregelinterface — Bobcorn Wiki</title>
-    <meta name="description" content="Gebruik Bobcorn vanuit de terminal. AI-agent-vriendelijke CLI voor automatisering, scripting en integratie.">
+    <meta name="description" content="Laat je AI-agent je icon-fonts beheren. Bobcorn CLI is ontworpen voor AI-first workflows — je agent kan projecten aanmaken, iconen importeren, groepen organiseren en fonts exporteren zonder de GUI te openen.">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,13 +118,12 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">Opdrachtregelinterface</h1>
-                <p class="lead reveal">Gebruik Bobcorn vanuit de terminal. AI-agent-vriendelijke CLI voor automatisering, scripting en integratie.</p>
+                <p class="lead reveal">Laat je AI-agent je icon-fonts beheren. Bobcorn CLI is ontworpen voor AI-first workflows — je agent kan projecten aanmaken, iconen importeren, groepen organiseren en fonts exporteren zonder de GUI te openen.</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">Aan de slag</h2>
                 <div class="reveal">
                     <p>Met de Bobcorn CLI kun je icon-font-projecten volledig vanuit de terminal beheren. Installeer het vanuit het <strong>Instellingen</strong>-paneel in de Bobcorn-app — klik op de <strong>Installeren</strong>-knop in het gedeelte "Opdrachtregelinterface".</p>
-                    <p>In ontwikkelmodus wordt het commando geregistreerd als <code>bobcorn-dev</code>; productiebouws installeren <code>bobcorn</code>. Open na installatie een <strong>nieuw terminalvenster</strong> en verifieer:</p>
 
                     <span class="code-label">Installatie verifieren</span>
 <pre><code>bobcorn --version</code></pre>
@@ -133,40 +132,9 @@
                         <div class="callout-label">Tip</div>
                         Als het commando niet gevonden wordt na installatie, open dan een nieuw terminalvenster. De PATH-wijziging wordt pas van kracht in nieuwe shell-sessies.
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">Handmatige configuratie</h2>
-                <div class="reveal">
-                    <p>Als je het Instellingenpaneel liever niet gebruikt, kun je de CLI handmatig configureren.</p>
-
-                    <h3>Optie A: Zelfinstallatie vanuit het CLI-binary</h3>
-                    <p>Zoek het CLI-binary in de Bobcorn-applicatiebundel en voer het <code>install</code>-commando direct uit:</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>Dit registreert automatisch het <code>bobcorn</code>-commando in je PATH.</p>
-
-                    <h3>Optie B: Handmatig aan PATH toevoegen</h3>
-                    <p>Maak een wrapper-script dat het CLI-binary aanroept met Node.js:</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>Zorg ervoor dat de wrapper-map in je <code>PATH</code> staat. Op macOS/Linux voeg je <code>~/.local/bin</code> toe aan je shell-profiel. Op Windows voeg je de wrapper-map toe aan je gebruikers-PATH-omgevingsvariabele.</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">Tip</div>
-                        Node.js moet op je systeem geinstalleerd zijn om de CLI uit te voeren. Als je het nog niet hebt, download het dan van <a href="https://nodejs.org">nodejs.org</a>.
+                        <div class="callout-label">AI-agent gebruikers</div>
+                        Installeer gewoon de CLI vanuit het Instellingen-paneel van Bobcorn en laat je AI-agent (Claude Code, Cursor, Copilot, etc.) <code>bobcorn --help --json</code> uitvoeren om alle beschikbare commando's te ontdekken. De agent regelt de rest.
                     </div>
                 </div>
 
@@ -375,7 +343,10 @@ echo "Klaar! Fontbestanden staan in ./src/fonts"</code></pre>
                         <div class="page-nav-dir">Vorige</div>
                         <div class="page-nav-title">Exportgids</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">Volgende</div>
+                        <div class="page-nav-title">CLI handmatige installatie</div>
+                    </a>
                 </nav>
 
             </article>

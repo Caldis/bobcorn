@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giao dien dong lenh — Bobcorn Wiki</title>
-    <meta name="description" content="Su dung Bobcorn tu terminal. CLI than thien voi AI agent de tu dong hoa, viet script va tich hop.">
+    <meta name="description" content="De AI agent cua ban quan ly font bieu tuong. Bobcorn CLI duoc thiet ke cho quy trinh lam viec AI-first — agent cua ban co the tao du an, nhap icon, to chuc nhom va xuat font ma khong can mo GUI.">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,13 +118,12 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">Giao dien dong lenh</h1>
-                <p class="lead reveal">Su dung Bobcorn tu terminal. CLI than thien voi AI agent de tu dong hoa, viet script va tich hop.</p>
+                <p class="lead reveal">De AI agent cua ban quan ly font bieu tuong. Bobcorn CLI duoc thiet ke cho quy trinh lam viec AI-first — agent cua ban co the tao du an, nhap icon, to chuc nhom va xuat font ma khong can mo GUI.</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">Bat dau</h2>
                 <div class="reveal">
                     <p>Bobcorn CLI cho phep ban quan ly du an font bieu tuong hoan toan tu terminal. Cai dat tu bang <strong>Cai dat</strong> trong ung dung Bobcorn — nhan nut <strong>Cai dat</strong> trong phan "Giao dien dong lenh".</p>
-                    <p>Trong che do phat trien, lenh duoc dang ky la <code>bobcorn-dev</code>; ban build san pham cai dat la <code>bobcorn</code>. Sau khi cai dat, mo <strong>terminal moi</strong> va xac minh:</p>
 
                     <span class="code-label">Xac minh cai dat</span>
 <pre><code>bobcorn --version</code></pre>
@@ -133,40 +132,9 @@
                         <div class="callout-label">Meo</div>
                         Neu khong tim thay lenh sau khi cai dat, hay mo cua so terminal moi. Thay doi PATH chi co hieu luc trong phien shell moi.
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">Cai dat thu cong</h2>
-                <div class="reveal">
-                    <p>Neu ban khong muon su dung bang Cai dat, ban co the cai dat CLI thu cong.</p>
-
-                    <h3>Phuong an A: Tu cai dat tu tap tin nhi phan CLI</h3>
-                    <p>Tim tap tin nhi phan CLI ben trong goi ung dung Bobcorn va chay truc tiep lenh <code>install</code>:</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>Lenh nay tu dong dang ky lenh <code>bobcorn</code> vao PATH cua ban.</p>
-
-                    <h3>Phuong an B: Them vao PATH thu cong</h3>
-                    <p>Tao mot script wrapper goi tap tin nhi phan CLI bang Node.js:</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>Dam bao thu muc wrapper nam trong <code>PATH</code> cua ban. Tren macOS/Linux, them <code>~/.local/bin</code> vao ho so shell cua ban. Tren Windows, them thu muc wrapper vao bien moi truong PATH cua nguoi dung.</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">Meo</div>
-                        Node.js phai duoc cai dat tren he thong cua ban de chay CLI. Neu ban chua co, tai ve tu <a href="https://nodejs.org">nodejs.org</a>.
+                        <div class="callout-label">Nguoi dung AI Agent</div>
+                        Chi can cai dat CLI tu bang Cai dat cua Bobcorn, sau do bao AI agent (Claude Code, Cursor, Copilot, v.v.) chay <code>bobcorn --help --json</code> de kham pha tat ca cac lenh co san. Agent se xu ly phan con lai.
                     </div>
                 </div>
 
@@ -375,7 +343,10 @@ echo "Hoan tat! Tap tin font nam trong ./src/fonts"</code></pre>
                         <div class="page-nav-dir">Truoc do</div>
                         <div class="page-nav-title">Huong dan xuat</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">Tiep</div>
+                        <div class="page-nav-title">Cai dat CLI thu cong</div>
+                    </a>
                 </nav>
 
             </article>

@@ -2,7 +2,24 @@
   "$schema": "./manifest.schema.json",
   "version": "1.0.0",
   "baseUrl": "https://bobcorn.caldis.me/wiki/",
-  "languages": ["en", "zh-CN", "ja", "ko", "fr", "de", "es", "pt-BR", "it", "nl", "ru", "tr", "ar", "th", "vi", "id"],
+  "languages": [
+    "en",
+    "zh-CN",
+    "ja",
+    "ko",
+    "fr",
+    "de",
+    "es",
+    "pt-BR",
+    "it",
+    "nl",
+    "ru",
+    "tr",
+    "ar",
+    "th",
+    "vi",
+    "id"
+  ],
   "defaultLanguage": "en",
   "pages": [
     {
@@ -264,12 +281,50 @@
         "vi": "complete",
         "id": "complete"
       }
+    },
+    {
+      "id": "cli-setup",
+      "file": "cli-setup.html",
+      "titleKey": "nav.cliSetup",
+      "section": "bobcorn",
+      "contentVersion": "1.0.0",
+      "lastUpdated": "2026-04-06",
+      "translationStatus": {
+        "en": "complete",
+        "zh-CN": "complete",
+        "ja": "complete",
+        "ko": "complete",
+        "fr": "complete",
+        "de": "complete",
+        "es": "complete",
+        "pt-BR": "complete",
+        "it": "complete",
+        "nl": "complete",
+        "ru": "complete",
+        "tr": "complete",
+        "ar": "complete",
+        "th": "complete",
+        "vi": "complete",
+        "id": "complete"
+      }
     }
   ],
   "sections": [
-    { "id": "overview", "order": 1 },
-    { "id": "formats", "order": 2 },
-    { "id": "usage", "order": 3 },
-    { "id": "bobcorn", "order": 4 }
+    {
+      "id": "overview",
+      "order": 1
+    },
+    {
+      "id": "formats",
+      "order": 2
+    },
+    {
+      "id": "usage",
+      "order": 3
+    },
+    {
+      "id": "bobcorn",
+      "order": 4
+    }
   ]
 }

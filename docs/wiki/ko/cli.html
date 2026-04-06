@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>명령줄 인터페이스 — Bobcorn Wiki</title>
-    <meta name="description" content="터미널에서 Bobcorn을 사용하세요. 자동화, 스크립팅 및 통합을 위한 AI 에이전트 친화적 CLI.">
+    <meta name="description" content="AI 에이전트가 아이콘 폰트를 관리하게 하세요. Bobcorn CLI는 AI 우선 워크플로를 위해 설계되었습니다 — 에이전트가 GUI를 열지 않고 프로젝트 생성, 아이콘 가져오기, 그룹 구성, 폰트 내보내기가 가능합니다.">
     <link rel="icon" type="image/png" href="../../icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,13 +118,12 @@
 
                 <!-- Hero -->
                 <h1 class="reveal">명령줄 인터페이스</h1>
-                <p class="lead reveal">터미널에서 Bobcorn을 사용하세요. 자동화, 스크립팅 및 통합을 위한 AI 에이전트 친화적 CLI.</p>
+                <p class="lead reveal">AI 에이전트가 아이콘 폰트를 관리하게 하세요. Bobcorn CLI는 AI 우선 워크플로를 위해 설계되었습니다 — 에이전트가 GUI를 열지 않고 프로젝트 생성, 아이콘 가져오기, 그룹 구성, 폰트 내보내기가 가능합니다.</p>
 
                 <!-- Getting Started -->
                 <h2 class="reveal">시작하기</h2>
                 <div class="reveal">
                     <p>Bobcorn CLI를 사용하면 터미널에서 아이콘 폰트 프로젝트를 완전히 관리할 수 있습니다. Bobcorn 앱의 <strong>설정</strong> 패널에서 설치하세요 — "명령줄 인터페이스" 섹션의 <strong>설치</strong> 버튼을 클릭합니다.</p>
-                    <p>개발 모드에서는 명령이 <code>bobcorn-dev</code>로 등록됩니다. 프로덕션 빌드에서는 <code>bobcorn</code>으로 설치됩니다. 설치 후 <strong>새 터미널</strong>을 열고 확인:</p>
 
                     <span class="code-label">설치 확인</span>
 <pre><code>bobcorn --version</code></pre>
@@ -133,40 +132,9 @@
                         <div class="callout-label">팁</div>
                         설치 후 명령을 찾을 수 없는 경우 새 터미널 창을 열어주세요. PATH 변경은 새 셸 세션에서만 적용됩니다.
                     </div>
-                </div>
-
-                <!-- Manual Setup -->
-                <h2 class="reveal" id="manual-setup">수동 설정</h2>
-                <div class="reveal">
-                    <p>설정 패널을 사용하지 않으려면 CLI를 수동으로 설정할 수 있습니다.</p>
-
-                    <h3>옵션 A: CLI 바이너리에서 자체 설치</h3>
-                    <p>Bobcorn 애플리케이션 번들 내부의 CLI 바이너리를 찾아 <code>install</code> 명령을 직접 실행합니다:</p>
-
-                    <span class="code-label">macOS</span>
-<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
-
-                    <span class="code-label">Windows (PowerShell)</span>
-<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
-
-                    <p>이렇게 하면 <code>bobcorn</code> 명령이 자동으로 PATH에 등록됩니다.</p>
-
-                    <h3>옵션 B: PATH에 수동으로 추가</h3>
-                    <p>Node.js로 CLI 바이너리를 호출하는 래퍼 스크립트를 만듭니다:</p>
-
-                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
-<pre><code>#!/bin/sh
-exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
-
-                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
-<pre><code>@echo off
-node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
-
-                    <p>래퍼 디렉토리가 <code>PATH</code>에 포함되어 있는지 확인하세요. macOS/Linux에서는 셸 프로필에 <code>~/.local/bin</code>을 추가하세요. Windows에서는 사용자 PATH 환경 변수에 래퍼 디렉토리를 추가하세요.</p>
-
                     <div class="callout callout-tip">
-                        <div class="callout-label">팁</div>
-                        CLI를 실행하려면 시스템에 Node.js가 설치되어 있어야 합니다. 설치되어 있지 않다면 <a href="https://nodejs.org">nodejs.org</a>에서 다운로드하세요.
+                        <div class="callout-label">AI 에이전트 사용자</div>
+                        Bobcorn의 설정 패널에서 CLI를 설치한 다음, AI 에이전트(Claude Code, Cursor, Copilot 등)에게 <code>bobcorn --help --json</code>을 실행하도록 지시하여 사용 가능한 모든 명령을 확인하세요. 나머지는 에이전트가 처리합니다.
                     </div>
                 </div>
 
@@ -375,7 +343,10 @@ echo "완료! 폰트 파일은 ./src/fonts에 있습니다"</code></pre>
                         <div class="page-nav-dir">이전</div>
                         <div class="page-nav-title">내보내기 가이드</div>
                     </a>
-                    <span></span>
+                    <a href="cli-setup.html" class="page-nav-link">
+                        <div class="page-nav-dir">다음</div>
+                        <div class="page-nav-title">CLI 수동 설정</div>
+                    </a>
                 </nav>
 
             </article>

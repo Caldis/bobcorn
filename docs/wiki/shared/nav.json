@@ -1,51 +1,134 @@
 {
   "languages": [
-    { "code": "en", "label": "English" },
-    { "code": "zh-CN", "label": "简体中文" },
-    { "code": "ja", "label": "日本語" },
-    { "code": "ko", "label": "한국어" },
-    { "code": "fr", "label": "Français" },
-    { "code": "de", "label": "Deutsch" },
-    { "code": "es", "label": "Español" },
-    { "code": "pt-BR", "label": "Português" },
-    { "code": "it", "label": "Italiano" },
-    { "code": "nl", "label": "Nederlands" },
-    { "code": "ru", "label": "Русский" },
-    { "code": "tr", "label": "Türkçe" },
-    { "code": "ar", "label": "العربية", "dir": "rtl" },
-    { "code": "th", "label": "ไทย" },
-    { "code": "vi", "label": "Tiếng Việt" },
-    { "code": "id", "label": "Bahasa Indonesia" }
+    {
+      "code": "en",
+      "label": "English"
+    },
+    {
+      "code": "zh-CN",
+      "label": "简体中文"
+    },
+    {
+      "code": "ja",
+      "label": "日本語"
+    },
+    {
+      "code": "ko",
+      "label": "한국어"
+    },
+    {
+      "code": "fr",
+      "label": "Français"
+    },
+    {
+      "code": "de",
+      "label": "Deutsch"
+    },
+    {
+      "code": "es",
+      "label": "Español"
+    },
+    {
+      "code": "pt-BR",
+      "label": "Português"
+    },
+    {
+      "code": "it",
+      "label": "Italiano"
+    },
+    {
+      "code": "nl",
+      "label": "Nederlands"
+    },
+    {
+      "code": "ru",
+      "label": "Русский"
+    },
+    {
+      "code": "tr",
+      "label": "Türkçe"
+    },
+    {
+      "code": "ar",
+      "label": "العربية",
+      "dir": "rtl"
+    },
+    {
+      "code": "th",
+      "label": "ไทย"
+    },
+    {
+      "code": "vi",
+      "label": "Tiếng Việt"
+    },
+    {
+      "code": "id",
+      "label": "Bahasa Indonesia"
+    }
   ],
   "sections": [
     {
       "labelKey": "nav.overview",
       "items": [
-        { "page": "index.html", "titleKey": "nav.introduction" }
+        {
+          "page": "index.html",
+          "titleKey": "nav.introduction"
+        }
       ]
     },
     {
       "labelKey": "nav.formats",
       "items": [
-        { "page": "svg-font.html", "titleKey": "nav.svgFont" },
-        { "page": "ttf.html", "titleKey": "nav.ttf" },
-        { "page": "woff.html", "titleKey": "nav.woff" },
-        { "page": "woff2.html", "titleKey": "nav.woff2" },
-        { "page": "eot.html", "titleKey": "nav.eot" }
+        {
+          "page": "svg-font.html",
+          "titleKey": "nav.svgFont"
+        },
+        {
+          "page": "ttf.html",
+          "titleKey": "nav.ttf"
+        },
+        {
+          "page": "woff.html",
+          "titleKey": "nav.woff"
+        },
+        {
+          "page": "woff2.html",
+          "titleKey": "nav.woff2"
+        },
+        {
+          "page": "eot.html",
+          "titleKey": "nav.eot"
+        }
       ]
     },
     {
       "labelKey": "nav.usage",
       "items": [
-        { "page": "css-font-face.html", "titleKey": "nav.cssFontFace" },
-        { "page": "svg-symbol.html", "titleKey": "nav.svgSymbol" }
+        {
+          "page": "css-font-face.html",
+          "titleKey": "nav.cssFontFace"
+        },
+        {
+          "page": "svg-symbol.html",
+          "titleKey": "nav.svgSymbol"
+        }
       ]
     },
     {
       "labelKey": "nav.bobcorn",
       "items": [
-        { "page": "export-guide.html", "titleKey": "nav.exportGuide" },
-        { "page": "cli.html", "titleKey": "nav.cli" }
+        {
+          "page": "export-guide.html",
+          "titleKey": "nav.exportGuide"
+        },
+        {
+          "page": "cli.html",
+          "titleKey": "nav.cli"
+        },
+        {
+          "page": "cli-setup.html",
+          "titleKey": "nav.cliSetup"
+        }
       ]
     }
   ],
@@ -67,7 +150,8 @@
       "nav.cli": "CLI Reference",
       "nav.prev": "Previous",
       "nav.next": "Next",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "CLI Manual Setup"
     },
     "zh-CN": {
       "nav.overview": "概述",
@@ -86,7 +170,8 @@
       "nav.cli": "命令行参考",
       "nav.prev": "上一页",
       "nav.next": "下一页",
-      "wiki": "知识库"
+      "wiki": "知识库",
+      "nav.cliSetup": "CLI 手动设置"
     },
     "ja": {
       "nav.overview": "概要",
@@ -105,7 +190,8 @@
       "nav.cli": "CLI リファレンス",
       "nav.prev": "前へ",
       "nav.next": "次へ",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "CLI 手動セットアップ"
     },
     "ko": {
       "nav.overview": "개요",
@@ -124,7 +210,8 @@
       "nav.cli": "CLI 레퍼런스",
       "nav.prev": "이전",
       "nav.next": "다음",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "CLI 수동 설정"
     },
     "fr": {
       "nav.overview": "Aperçu",
@@ -143,7 +230,8 @@
       "nav.cli": "Référence CLI",
       "nav.prev": "Précédent",
       "nav.next": "Suivant",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "Installation manuelle CLI"
     },
     "de": {
       "nav.overview": "Überblick",
@@ -162,7 +250,8 @@
       "nav.cli": "CLI-Referenz",
       "nav.prev": "Zurück",
       "nav.next": "Weiter",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "CLI manuelle Einrichtung"
     },
     "es": {
       "nav.overview": "Resumen",
@@ -181,7 +270,8 @@
       "nav.cli": "Referencia CLI",
       "nav.prev": "Anterior",
       "nav.next": "Siguiente",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "Configuracion manual CLI"
     },
     "pt-BR": {
       "nav.overview": "Visão geral",
@@ -200,7 +290,8 @@
       "nav.cli": "Referência CLI",
       "nav.prev": "Anterior",
       "nav.next": "Próximo",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "Configuracao manual CLI"
     },
     "it": {
       "nav.overview": "Panoramica",
@@ -219,7 +310,8 @@
       "nav.cli": "Riferimento CLI",
       "nav.prev": "Precedente",
       "nav.next": "Successivo",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "Configurazione manuale CLI"
     },
     "nl": {
       "nav.overview": "Overzicht",
@@ -238,7 +330,8 @@
       "nav.cli": "CLI-referentie",
       "nav.prev": "Vorige",
       "nav.next": "Volgende",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "CLI handmatige installatie"
     },
     "ru": {
       "nav.overview": "Обзор",
@@ -257,7 +350,8 @@
       "nav.cli": "Справочник CLI",
       "nav.prev": "Назад",
       "nav.next": "Далее",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "Ручная настройка CLI"
     },
     "tr": {
       "nav.overview": "Genel Bakış",
@@ -276,7 +370,8 @@
       "nav.cli": "CLI Referansı",
       "nav.prev": "Önceki",
       "nav.next": "Sonraki",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "CLI Manuel Kurulum"
     },
     "ar": {
       "nav.overview": "نظرة عامة",
@@ -295,7 +390,8 @@
       "nav.cli": "مرجع CLI",
       "nav.prev": "السابق",
       "nav.next": "التالي",
-      "wiki": "ويكي"
+      "wiki": "ويكي",
+      "nav.cliSetup": "إعداد CLI يدوي"
     },
     "th": {
       "nav.overview": "ภาพรวม",
@@ -314,7 +410,8 @@
       "nav.cli": "ข้อมูลอ้างอิง CLI",
       "nav.prev": "ก่อนหน้า",
       "nav.next": "ถัดไป",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "การติดตั้ง CLI ด้วยตนเอง"
     },
     "vi": {
       "nav.overview": "Tổng quan",
@@ -333,7 +430,8 @@
       "nav.cli": "Tham chiếu CLI",
       "nav.prev": "Trước",
       "nav.next": "Tiếp",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "Cai dat CLI thu cong"
     },
     "id": {
       "nav.overview": "Ikhtisar",
@@ -352,7 +450,8 @@
       "nav.cli": "Referensi CLI",
       "nav.prev": "Sebelumnya",
       "nav.next": "Berikutnya",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "nav.cliSetup": "Pengaturan CLI Manual"
     }
   }
 }
