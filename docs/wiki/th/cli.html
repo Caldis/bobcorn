@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">การตั้งค่าด้วยตนเอง</h2>
+                <div class="reveal">
+                    <p>หากคุณไม่ต้องการใช้แผงการตั้งค่า คุณสามารถตั้งค่า CLI ด้วยตนเองได้</p>
+
+                    <h3>ตัวเลือก A: ติดตั้งด้วยตนเองจากไฟล์ไบนารี CLI</h3>
+                    <p>ค้นหาไฟล์ไบนารี CLI ภายในแพ็คเกจแอปพลิเคชัน Bobcorn และรันคำสั่ง <code>install</code> โดยตรง:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>คำสั่งนี้จะลงทะเบียนคำสั่ง <code>bobcorn</code> ลงใน PATH ของคุณโดยอัตโนมัติ</p>
+
+                    <h3>ตัวเลือก B: เพิ่มลงใน PATH ด้วยตนเอง</h3>
+                    <p>สร้างสคริปต์ wrapper ที่เรียกใช้ไฟล์ไบนารี CLI ด้วย Node.js:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>ตรวจสอบให้แน่ใจว่าไดเรกทอรีของ wrapper อยู่ใน <code>PATH</code> ของคุณ บน macOS/Linux ให้เพิ่ม <code>~/.local/bin</code> ลงในโปรไฟล์เชลล์ของคุณ บน Windows ให้เพิ่มไดเรกทอรีของ wrapper ลงในตัวแปรสภาพแวดล้อม PATH ของผู้ใช้</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">เคล็ดลับ</div>
+                        ระบบของคุณต้องติดตั้ง Node.js เพื่อรัน CLI หากยังไม่มี ดาวน์โหลดได้จาก <a href="https://nodejs.org">nodejs.org</a>
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">การค้นพบโปรเจกต์อัตโนมัติ</h2>
                 <div class="reveal">

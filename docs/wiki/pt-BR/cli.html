@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">Configuracao manual</h2>
+                <div class="reveal">
+                    <p>Se preferir nao usar o painel de Configuracoes, voce pode configurar o CLI manualmente.</p>
+
+                    <h3>Opcao A: Autoinstalacao a partir do binario do CLI</h3>
+                    <p>Localize o binario do CLI dentro do pacote do aplicativo Bobcorn e execute o comando <code>install</code> diretamente:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>Isso registra automaticamente o comando <code>bobcorn</code> no seu PATH.</p>
+
+                    <h3>Opcao B: Adicionar ao PATH manualmente</h3>
+                    <p>Crie um script wrapper que invoque o binario do CLI com o Node.js:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>Certifique-se de que o diretorio do wrapper esteja no seu <code>PATH</code>. No macOS/Linux, adicione <code>~/.local/bin</code> ao seu perfil de shell. No Windows, adicione o diretorio do wrapper a variavel de ambiente PATH do usuario.</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Dica</div>
+                        O Node.js deve estar instalado no seu sistema para executar o CLI. Se voce nao o tem, baixe-o em <a href="https://nodejs.org">nodejs.org</a>.
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">Descoberta automatica do projeto</h2>
                 <div class="reveal">

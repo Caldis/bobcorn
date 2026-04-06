@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">Handmatige configuratie</h2>
+                <div class="reveal">
+                    <p>Als je het Instellingenpaneel liever niet gebruikt, kun je de CLI handmatig configureren.</p>
+
+                    <h3>Optie A: Zelfinstallatie vanuit het CLI-binary</h3>
+                    <p>Zoek het CLI-binary in de Bobcorn-applicatiebundel en voer het <code>install</code>-commando direct uit:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>Dit registreert automatisch het <code>bobcorn</code>-commando in je PATH.</p>
+
+                    <h3>Optie B: Handmatig aan PATH toevoegen</h3>
+                    <p>Maak een wrapper-script dat het CLI-binary aanroept met Node.js:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>Zorg ervoor dat de wrapper-map in je <code>PATH</code> staat. Op macOS/Linux voeg je <code>~/.local/bin</code> toe aan je shell-profiel. Op Windows voeg je de wrapper-map toe aan je gebruikers-PATH-omgevingsvariabele.</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tip</div>
+                        Node.js moet op je systeem geinstalleerd zijn om de CLI uit te voeren. Als je het nog niet hebt, download het dan van <a href="https://nodejs.org">nodejs.org</a>.
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">Automatische projectdetectie</h2>
                 <div class="reveal">

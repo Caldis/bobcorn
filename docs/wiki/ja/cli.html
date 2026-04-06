@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">手動セットアップ</h2>
+                <div class="reveal">
+                    <p>設定パネルを使用したくない場合は、CLI を手動でセットアップできます。</p>
+
+                    <h3>オプション A: CLI バイナリからセルフインストール</h3>
+                    <p>Bobcorn アプリケーションバンドル内の CLI バイナリを見つけて、<code>install</code> コマンドを直接実行します：</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>これにより、<code>bobcorn</code> コマンドが自動的に PATH に登録されます。</p>
+
+                    <h3>オプション B: PATH に手動で追加</h3>
+                    <p>Node.js で CLI バイナリを呼び出すラッパースクリプトを作成します：</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>ラッパーのディレクトリが <code>PATH</code> に含まれていることを確認してください。macOS/Linux では、シェルプロファイルに <code>~/.local/bin</code> を追加します。Windows では、ユーザー PATH 環境変数にラッパーディレクトリを追加します。</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">ヒント</div>
+                        CLI を実行するには、システムに Node.js がインストールされている必要があります。まだインストールしていない場合は、<a href="https://nodejs.org">nodejs.org</a> からダウンロードしてください。
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">プロジェクトの自動検出</h2>
                 <div class="reveal">

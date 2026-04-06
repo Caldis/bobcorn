@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">الإعداد اليدوي</h2>
+                <div class="reveal">
+                    <p>إذا كنت تفضل عدم استخدام لوحة الإعدادات، يمكنك إعداد CLI يدويًا.</p>
+
+                    <h3>الخيار أ: التثبيت الذاتي من ملف CLI الثنائي</h3>
+                    <p>حدد موقع ملف CLI الثنائي داخل حزمة تطبيق Bobcorn وقم بتشغيل أمر <code>install</code> مباشرة:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>يؤدي هذا إلى تسجيل أمر <code>bobcorn</code> في PATH تلقائيًا.</p>
+
+                    <h3>الخيار ب: الإضافة إلى PATH يدويًا</h3>
+                    <p>أنشئ سكريبت مُغلِّف يستدعي ملف CLI الثنائي باستخدام Node.js:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>تأكد من أن مجلد المُغلِّف موجود في <code>PATH</code>. على macOS/Linux، أضف <code>~/.local/bin</code> إلى ملف تعريف الصدفة. على Windows، أضف مجلد المُغلِّف إلى متغير بيئة PATH الخاص بالمستخدم.</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">تلميح</div>
+                        يجب أن يكون Node.js مثبتًا على نظامك لتشغيل CLI. إذا لم يكن لديك، قم بتنزيله من <a href="https://nodejs.org">nodejs.org</a>.
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">الاكتشاف التلقائي للمشروع</h2>
                 <div class="reveal">

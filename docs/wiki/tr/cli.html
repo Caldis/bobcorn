@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">Manuel kurulum</h2>
+                <div class="reveal">
+                    <p>Ayarlar panelini kullanmak istemiyorsaniz, CLI'yi manuel olarak kurabilirsiniz.</p>
+
+                    <h3>Secenek A: CLI ikili dosyasindan kendi kendine kurulum</h3>
+                    <p>Bobcorn uygulama paketi icindeki CLI ikili dosyasini bulun ve <code>install</code> komutunu dogrudan calistirin:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>Bu, <code>bobcorn</code> komutunu otomatik olarak PATH'inize kaydeder.</p>
+
+                    <h3>Secenek B: PATH'e manuel olarak ekleme</h3>
+                    <p>CLI ikili dosyasini Node.js ile cagiran bir wrapper betigi olusturun:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>Wrapper dizininin <code>PATH</code>'inizde oldugundan emin olun. macOS/Linux'ta kabuk profilinize <code>~/.local/bin</code> ekleyin. Windows'ta wrapper dizinini kullanici PATH ortam degiskenine ekleyin.</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Ipucu</div>
+                        CLI'yi calistirmak icin sisteminizde Node.js yuklu olmalidir. Yuklu degilse <a href="https://nodejs.org">nodejs.org</a> adresinden indirin.
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">Otomatik proje kesfetme</h2>
                 <div class="reveal">

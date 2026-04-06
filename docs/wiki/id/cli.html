@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">Pengaturan manual</h2>
+                <div class="reveal">
+                    <p>Jika Anda lebih suka tidak menggunakan panel Pengaturan, Anda dapat mengatur CLI secara manual.</p>
+
+                    <h3>Opsi A: Instalasi mandiri dari biner CLI</h3>
+                    <p>Temukan biner CLI di dalam bundel aplikasi Bobcorn dan jalankan perintah <code>install</code> secara langsung:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>Ini secara otomatis mendaftarkan perintah <code>bobcorn</code> ke PATH Anda.</p>
+
+                    <h3>Opsi B: Tambahkan ke PATH secara manual</h3>
+                    <p>Buat skrip wrapper yang memanggil biner CLI dengan Node.js:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>Pastikan direktori wrapper ada di <code>PATH</code> Anda. Di macOS/Linux, tambahkan <code>~/.local/bin</code> ke profil shell Anda. Di Windows, tambahkan direktori wrapper ke variabel lingkungan PATH pengguna.</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Tips</div>
+                        Node.js harus terinstal di sistem Anda untuk menjalankan CLI. Jika belum memilikinya, unduh dari <a href="https://nodejs.org">nodejs.org</a>.
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">Penemuan proyek otomatis</h2>
                 <div class="reveal">

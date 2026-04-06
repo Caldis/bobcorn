@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal" id="manual-setup">手动设置</h2>
+                <div class="reveal">
+                    <p>如果你不想通过设置面板安装，也可以手动设置 CLI。</p>
+
+                    <h3>方式 A：通过 CLI 二进制文件自行安装</h3>
+                    <p>找到 Bobcorn 应用包内的 CLI 二进制文件，直接运行 <code>install</code> 命令：</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>这会自动将 <code>bobcorn</code> 命令注册到你的 PATH 中。</p>
+
+                    <h3>方式 B：手动添加到 PATH</h3>
+                    <p>创建一个调用 CLI 二进制文件的包装脚本：</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>确保包装脚本所在目录已添加到 <code>PATH</code>。macOS/Linux 请将 <code>~/.local/bin</code> 添加到 shell 配置文件中。Windows 请将包装脚本目录添加到用户 PATH 环境变量。</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">提示</div>
+                        运行 CLI 需要系统已安装 Node.js。如未安装，请从 <a href="https://nodejs.org">nodejs.org</a> 下载。
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">项目自动发现</h2>
                 <div class="reveal">

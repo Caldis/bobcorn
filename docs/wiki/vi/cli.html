@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">Cai dat thu cong</h2>
+                <div class="reveal">
+                    <p>Neu ban khong muon su dung bang Cai dat, ban co the cai dat CLI thu cong.</p>
+
+                    <h3>Phuong an A: Tu cai dat tu tap tin nhi phan CLI</h3>
+                    <p>Tim tap tin nhi phan CLI ben trong goi ung dung Bobcorn va chay truc tiep lenh <code>install</code>:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>Lenh nay tu dong dang ky lenh <code>bobcorn</code> vao PATH cua ban.</p>
+
+                    <h3>Phuong an B: Them vao PATH thu cong</h3>
+                    <p>Tao mot script wrapper goi tap tin nhi phan CLI bang Node.js:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>Dam bao thu muc wrapper nam trong <code>PATH</code> cua ban. Tren macOS/Linux, them <code>~/.local/bin</code> vao ho so shell cua ban. Tren Windows, them thu muc wrapper vao bien moi truong PATH cua nguoi dung.</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Meo</div>
+                        Node.js phai duoc cai dat tren he thong cua ban de chay CLI. Neu ban chua co, tai ve tu <a href="https://nodejs.org">nodejs.org</a>.
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">Tu dong phat hien du an</h2>
                 <div class="reveal">

@@ -135,6 +135,41 @@
                     </div>
                 </div>
 
+                <!-- Manual Setup -->
+                <h2 class="reveal">Ручная настройка</h2>
+                <div class="reveal">
+                    <p>Если вы предпочитаете не использовать панель настроек, CLI можно настроить вручную.</p>
+
+                    <h3>Вариант A: Самоустановка из бинарного файла CLI</h3>
+                    <p>Найдите бинарный файл CLI в пакете приложения Bobcorn и выполните команду <code>install</code> напрямую:</p>
+
+                    <span class="code-label">macOS</span>
+<pre><code>node /Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs install</code></pre>
+
+                    <span class="code-label">Windows (PowerShell)</span>
+<pre><code>node "$env:LOCALAPPDATA\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" install</code></pre>
+
+                    <p>Это автоматически регистрирует команду <code>bobcorn</code> в вашем PATH.</p>
+
+                    <h3>Вариант B: Добавить в PATH вручную</h3>
+                    <p>Создайте скрипт-обёртку, который вызывает бинарный файл CLI через Node.js:</p>
+
+                    <span class="code-label">macOS / Linux (~/.local/bin/bobcorn)</span>
+<pre><code>#!/bin/sh
+exec node "/Applications/Bobcorn.app/Contents/Resources/app.asar.unpacked/out/cli/index.cjs" "$@"</code></pre>
+
+                    <span class="code-label">Windows (%LOCALAPPDATA%\Bobcorn\cli\bobcorn.cmd)</span>
+<pre><code>@echo off
+node "%LOCALAPPDATA%\Programs\Bobcorn\resources\app.asar.unpacked\out\cli\index.cjs" %*</code></pre>
+
+                    <p>Убедитесь, что каталог обёртки находится в вашем <code>PATH</code>. На macOS/Linux добавьте <code>~/.local/bin</code> в профиль оболочки. На Windows добавьте каталог обёртки в пользовательскую переменную среды PATH.</p>
+
+                    <div class="callout callout-tip">
+                        <div class="callout-label">Совет</div>
+                        Для запуска CLI в системе должен быть установлен Node.js. Если у вас его нет, скачайте с <a href="https://nodejs.org">nodejs.org</a>.
+                    </div>
+                </div>
+
                 <!-- Project Auto-Discovery -->
                 <h2 class="reveal">Автообнаружение проекта</h2>
                 <div class="reveal">
