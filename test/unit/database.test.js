@@ -229,7 +229,7 @@ class TestDatabase {
     );
 
     this.db.run(
-      `CREATE TABLE ${T_GROUP} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`,
+      `CREATE TABLE ${T_GROUP} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupIcon TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`,
     );
     this.db.run(
       `CREATE TRIGGER groupDataTimeRenewTrigger AFTER UPDATE ON ${T_GROUP} FOR EACH ROW BEGIN UPDATE ${T_GROUP} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`,
@@ -240,6 +240,14 @@ class TestDatabase {
     );
     this.db.run(
       `CREATE TRIGGER iconDataTimeRenewTrigger AFTER UPDATE ON ${T_ICON} FOR EACH ROW BEGIN UPDATE ${T_ICON} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`,
+    );
+
+    // Cleanup triggers: auto-NULL groupIcon when referenced icon is deleted or moved out
+    this.db.run(
+      `CREATE TRIGGER cleanupGroupIconOnDelete AFTER DELETE ON ${T_ICON} FOR EACH ROW BEGIN UPDATE ${T_GROUP} SET groupIcon = NULL WHERE groupIcon = OLD.id; END`,
+    );
+    this.db.run(
+      `CREATE TRIGGER cleanupGroupIconOnMove AFTER UPDATE OF iconGroup ON ${T_ICON} WHEN OLD.iconGroup != NEW.iconGroup BEGIN UPDATE ${T_GROUP} SET groupIcon = NULL WHERE groupIcon = OLD.id AND id = OLD.iconGroup; END`,
     );
   }
 
@@ -256,6 +264,18 @@ class TestDatabase {
   initNewProjectFromData(data) {
     this.destroyDatabase();
     this.initDatabases(data);
+  }
+
+  migrateGroupIconCleanup() {
+    const cols = this.db.exec(`PRAGMA table_info(${T_GROUP})`);
+    const has = cols.length > 0 && cols[0].values.some((row) => row[1] === 'groupIcon');
+    if (!has) {
+      this.db.run(`ALTER TABLE ${T_GROUP} ADD COLUMN groupIcon TEXT`);
+    }
+    // Repair orphaned references
+    this.db.run(
+      `UPDATE ${T_GROUP} SET groupIcon = NULL WHERE groupIcon IS NOT NULL AND groupIcon NOT IN (SELECT id FROM ${T_ICON})`,
+    );
   }
 
   // -- project attributes ---------------------------------------------------
@@ -1173,5 +1193,67 @@ describe('favorites', () => {
     newDb.initDatabases(data);
     const icon = newDb.getDataOfTable(T_ICON, { id: sf('old-icon') }, { single: true, where: true });
     expect(icon.isFavorite).toBe(0);
+  });
+});
+
+// ===========================================================================
+// groupIcon cleanup triggers
+// ===========================================================================
+describe('groupIcon cleanup triggers', () => {
+  test('deleting an icon NULLs groupIcon references', () => {
+    let groupId;
+    db.addGroup('G', (g) => { groupId = g.id; });
+    const icon = insertIcon({ iconGroup: groupId });
+    // Set groupIcon via raw SQL
+    db.db.run(`UPDATE ${T_GROUP} SET groupIcon = '${icon.id}' WHERE id = '${groupId}'`);
+    // Verify it was set
+    const before = db.getGroupData(groupId);
+    expect(before.groupIcon).toBe(icon.id);
+    // Delete the icon — trigger should NULL the reference
+    db.delIcon(icon.id);
+    const after = db.getGroupData(groupId);
+    expect(after.groupIcon).toBeNull();
+  });
+
+  test('moving icon to different group NULLs groupIcon in source group', () => {
+    let groupA, groupB;
+    db.addGroup('A', (g) => { groupA = g.id; });
+    db.addGroup('B', (g) => { groupB = g.id; });
+    const icon = insertIcon({ iconGroup: groupA });
+    // Set groupA's groupIcon to this icon
+    db.db.run(`UPDATE ${T_GROUP} SET groupIcon = '${icon.id}' WHERE id = '${groupA}'`);
+    const before = db.getGroupData(groupA);
+    expect(before.groupIcon).toBe(icon.id);
+    // Move icon to groupB
+    db.moveIconGroup(icon.id, groupB);
+    const after = db.getGroupData(groupA);
+    expect(after.groupIcon).toBeNull();
+  });
+
+  test('moving icon within same group keeps groupIcon', () => {
+    let groupId;
+    db.addGroup('G', (g) => { groupId = g.id; });
+    const icon = insertIcon({ iconGroup: groupId });
+    // Set groupIcon
+    db.db.run(`UPDATE ${T_GROUP} SET groupIcon = '${icon.id}' WHERE id = '${groupId}'`);
+    const before = db.getGroupData(groupId);
+    expect(before.groupIcon).toBe(icon.id);
+    // "Move" icon to the same group (trigger WHEN clause should skip)
+    db.moveIconGroup(icon.id, groupId);
+    const after = db.getGroupData(groupId);
+    expect(after.groupIcon).toBe(icon.id);
+  });
+
+  test('migration repairs orphaned groupIcon references', () => {
+    let groupId;
+    db.addGroup('G', (g) => { groupId = g.id; });
+    // Set groupIcon to a non-existent icon id via raw SQL
+    db.db.run(`UPDATE ${T_GROUP} SET groupIcon = 'ghost-icon-id' WHERE id = '${groupId}'`);
+    const before = db.getGroupData(groupId);
+    expect(before.groupIcon).toBe('ghost-icon-id');
+    // Run migration — should repair orphaned reference
+    db.migrateGroupIconCleanup();
+    const after = db.getGroupData(groupId);
+    expect(after.groupIcon).toBeNull();
   });
 });

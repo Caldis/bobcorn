@@ -69,6 +69,7 @@ export interface GroupData {
   groupOrder: number;
   groupColor?: string;
   groupDescription?: string;
+  groupIcon?: string;
   createTime?: string;
   updateTime?: string;
 }
@@ -464,7 +465,7 @@ class Database {
     ); // 默认Prefix为iconfont
     // 创建分组数据表, 并配置触发器自动更新时间戳, 再初始化数据
     this.db!.run(
-      `CREATE TABLE ${groupData} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${groupData} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, groupIcon TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db!.run(
       `CREATE TRIGGER ${groupDataTimeRenewTrigger} AFTER UPDATE ON ${groupData} FOR EACH ROW BEGIN UPDATE ${groupData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -478,6 +479,14 @@ class Database {
     );
     // Index for variant queries (filter variantOf IS NULL, count by variantOf)
     this.db!.run(`CREATE INDEX IF NOT EXISTS idx_iconData_variantOf ON ${iconData} (variantOf)`);
+
+    // Cleanup triggers: auto-NULL groupIcon when referenced icon is deleted or moved out
+    this.db!.run(
+      `CREATE TRIGGER cleanupGroupIconOnDelete AFTER DELETE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon = OLD.id; END`
+    );
+    this.db!.run(
+      `CREATE TRIGGER cleanupGroupIconOnMove AFTER UPDATE OF iconGroup ON ${iconData} WHEN OLD.iconGroup != NEW.iconGroup BEGIN UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon = OLD.id AND id = OLD.iconGroup; END`
+    );
   };
   // 从文件初始化新项目
   initNewProjectFromData = (data: ArrayLike<number>): void => {
@@ -486,6 +495,7 @@ class Database {
     this.initDatabases(data);
     // Migrate: add variant columns if missing (backward compat with old .icp files)
     this.migrateVariantColumns();
+    this.ensureGroupIconColumn();
   };
 
   private migrateVariantColumns = (): void => {
@@ -674,6 +684,21 @@ class Database {
         this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupIcon TEXT`);
         dev && console.log('Lazy migration: added groupIcon column');
       }
+
+      // Ensure cleanup triggers exist (drop + create for idempotency)
+      this.db!.run(`DROP TRIGGER IF EXISTS cleanupGroupIconOnDelete`);
+      this.db!.run(
+        `CREATE TRIGGER cleanupGroupIconOnDelete AFTER DELETE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon = OLD.id; END`
+      );
+      this.db!.run(`DROP TRIGGER IF EXISTS cleanupGroupIconOnMove`);
+      this.db!.run(
+        `CREATE TRIGGER cleanupGroupIconOnMove AFTER UPDATE OF iconGroup ON ${iconData} WHEN OLD.iconGroup != NEW.iconGroup BEGIN UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon = OLD.id AND id = OLD.iconGroup; END`
+      );
+
+      // One-time repair: clean up orphaned references
+      this.db!.run(
+        `UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon IS NOT NULL AND groupIcon NOT IN (SELECT id FROM ${iconData})`
+      );
     } catch (_) {
       /* column already exists */
     }
