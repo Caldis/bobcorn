@@ -33,6 +33,8 @@ export interface State {
 
   // Project
   projectName: string;
+  projectDisplayName: string | null;
+  projectColor: string | null;
 
   // File state
   currentFilePath: string | null;
@@ -116,6 +118,8 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // Project
   projectName: 'iconfont',
+  projectDisplayName: null,
+  projectColor: null,
 
   // File state
   currentFilePath: (getOption('currentFilePath') as string | null) ?? null,
@@ -224,16 +228,35 @@ const useAppStore = create<State & Actions>((set, get) => ({
     set({ lastClickedIconId: id });
   },
 
+  // 项目元数据轻同步：只刷新 projectName/displayName/color，不触发分组列表/图标重载
+  syncProjectMeta: () => {
+    let projectName = 'iconfont';
+    let projectDisplayName: string | null = null;
+    let projectColor: string | null = null;
+    try {
+      projectName = (db as any).getProjectName() || 'iconfont';
+      projectDisplayName = (db as any).getProjectDisplayName?.() ?? null;
+      projectColor = (db as any).getProjectColor?.() ?? null;
+    } catch {
+      /* db not initialized yet */
+    }
+    set({ projectName, projectDisplayName, projectColor });
+  },
+
   // 重同步：刷新分组列表（触发 ResourceNav 计数 + GroupList 计数 + IconGridLocal 重载）
   syncLeft: () => {
     const data = (db as any).getGroupList();
     let projectName = 'iconfont';
+    let projectDisplayName: string | null = null;
+    let projectColor: string | null = null;
     try {
       projectName = (db as any).getProjectName() || 'iconfont';
+      projectDisplayName = (db as any).getProjectDisplayName?.() ?? null;
+      projectColor = (db as any).getProjectColor?.() ?? null;
     } catch {
       /* db not initialized yet */
     }
-    set({ groupData: data, projectName });
+    set({ groupData: data, projectName, projectDisplayName, projectColor });
   },
 
   // 轻同步：只通知图标内容变了（不触发分组列表/计数/网格重载）

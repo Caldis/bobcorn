@@ -3,7 +3,7 @@ import { cn } from '../lib/utils';
 
 // ── Avatar colors & helpers ────────────────────────────────────────
 
-const AVATAR_COLORS = [
+export const AVATAR_COLORS = [
   '#6366f1',
   '#8b5cf6',
   '#ec4899',
@@ -35,8 +35,16 @@ function getInitials(name: string): string {
 
 // ── Project Avatar ─────────────────────────────────────────────────
 
-export function ProjectAvatar({ name, size }: { name: string; size: number }) {
-  const color = AVATAR_COLORS[hashString(name) % AVATAR_COLORS.length];
+export function ProjectAvatar({
+  name,
+  size,
+  color: colorOverride,
+}: {
+  name: string;
+  size: number;
+  color?: string | null;
+}) {
+  const color = colorOverride || AVATAR_COLORS[hashString(name) % AVATAR_COLORS.length];
   const initials = getInitials(name);
 
   return (
@@ -82,7 +90,7 @@ export function ProjectItem({
   return (
     <div
       className={cn(
-        'group flex items-center gap-2.5 w-full px-3 py-1.5',
+        'group flex items-center gap-2.5 w-full px-2 py-1.5',
         'transition-colors duration-75',
         'hover:bg-surface-accent rounded-md'
       )}

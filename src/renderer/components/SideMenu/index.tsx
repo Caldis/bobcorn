@@ -22,6 +22,7 @@ import FileMenuBar from './FileMenuBar';
 import ExportDialog from './ExportDialog';
 import GroupDialogs from './GroupDialogs';
 import SettingsDialog from './SettingsDialog';
+import ProjectSettingsDialog from './ProjectSettingsDialog';
 // Types
 import type { GroupData } from './types';
 
@@ -44,6 +45,7 @@ const SideMenu = React.memo(function SideMenu({
   const [renameGroupData, setRenameGroupData] = useState<GroupData | null>(null);
   const [renameGroupVisible, setRenameGroupVisible] = useState(false);
   const [prefixVisible, setPrefixVisible] = useState(false);
+  const [projectSettingsVisible, setProjectSettingsVisible] = useState(false);
   const [exportVisible, setExportVisible] = useState(false);
 
   const sideMenuWrapperRef = useRef<HTMLDivElement>(null);
@@ -104,13 +106,16 @@ const SideMenu = React.memo(function SideMenu({
     const exportHandler = () => setExportVisible(true);
     const importHandler = () => handleFileMenuAction('import-icons');
     const settingsHandler = () => setPrefixVisible(true);
+    const projectSettingsHandler = () => setProjectSettingsVisible(true);
     window.addEventListener('bobcorn:open-export', exportHandler);
     window.addEventListener('bobcorn:import-icons', importHandler);
     window.addEventListener('bobcorn:open-settings', settingsHandler);
+    window.addEventListener('bobcorn:open-project-settings', projectSettingsHandler);
     return () => {
       window.removeEventListener('bobcorn:open-export', exportHandler);
       window.removeEventListener('bobcorn:import-icons', importHandler);
       window.removeEventListener('bobcorn:open-settings', settingsHandler);
+      window.removeEventListener('bobcorn:open-project-settings', projectSettingsHandler);
     };
   }, [handleFileMenuAction]);
 
@@ -178,6 +183,12 @@ const SideMenu = React.memo(function SideMenu({
 
       {/* 设置对话框 */}
       <SettingsDialog visible={prefixVisible} onClose={() => setPrefixVisible(false)} />
+
+      {/* 项目设置对话框 */}
+      <ProjectSettingsDialog
+        visible={projectSettingsVisible}
+        onClose={() => setProjectSettingsVisible(false)}
+      />
 
       {/* 导出对话框 */}
       <ExportDialog visible={exportVisible} onClose={() => setExportVisible(false)} />

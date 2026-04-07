@@ -10,8 +10,12 @@ import useAppStore from '../../store';
 const ProjectSwitcher = React.memo(function ProjectSwitcher() {
   const { t } = useTranslation();
   const projectName = useAppStore((s: any) => s.projectName);
+  const projectDisplayName = useAppStore((s: any) => s.projectDisplayName);
+  const projectColor = useAppStore((s: any) => s.projectColor);
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
   const { histProj, removeHistItem, refresh } = useRecentProjects();
+
+  const displayName = projectDisplayName || projectName;
 
   const [open, setOpen] = useState(false);
   const [posReady, setPosReady] = useState(false);
@@ -69,7 +73,7 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
 
   const handleSettingsClick = useCallback(() => {
     setOpen(false);
-    window.dispatchEvent(new CustomEvent('bobcorn:open-settings'));
+    window.dispatchEvent(new CustomEvent('bobcorn:open-project-settings'));
   }, []);
 
   return (
@@ -86,8 +90,8 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
           open && 'bg-surface-accent text-foreground'
         )}
       >
-        <ProjectAvatar name={projectName} size={20} />
-        <span className="truncate">{projectName}</span>
+        <ProjectAvatar name={displayName} size={20} color={projectColor} />
+        <span className="truncate">{displayName}</span>
         <svg
           width="10"
           height="10"
@@ -123,10 +127,10 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
             {/* ── Current project ─────────────────────── */}
             <div className="px-3 py-2.5">
               <div className="flex items-center gap-2.5">
-                <ProjectAvatar name={projectName} size={28} />
+                <ProjectAvatar name={displayName} size={28} color={projectColor} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[13px] font-semibold text-foreground truncate">
-                    {projectName}
+                    {displayName}
                   </div>
                   {currentFilePath && (
                     <div
@@ -143,11 +147,11 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
             <div className="mx-2 h-px bg-border" />
 
             {/* ── Project settings ────────────────────── */}
-            <div className="py-1">
+            <div className="py-1 px-1">
               <button
                 onClick={handleSettingsClick}
                 className={cn(
-                  'w-full text-left px-3 py-1.5',
+                  'w-full text-left px-2 py-1.5 rounded-md',
                   'flex items-center gap-2.5',
                   'text-[13px] text-foreground-muted',
                   'transition-colors duration-75',
@@ -166,8 +170,8 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
             <div className="mx-2 h-px bg-border" />
 
             {/* ── Recent projects ─────────────────────── */}
-            <div className="py-1">
-              <div className="px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground-muted/50">
+            <div className="py-1 px-1">
+              <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground-muted/50">
                 {t('project.recent')}
               </div>
 

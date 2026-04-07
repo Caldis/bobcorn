@@ -140,14 +140,14 @@ const FileMenuBar = React.memo(function FileMenuBar({
 
   return (
     <>
-      <div className="flex shrink-0 items-center border-t border-border px-1.5 h-[49px] pb-1 gap-0.5">
+      <div className="flex shrink-0 items-center border-t border-border px-2 h-[49px] pb-1 gap-1">
         {/* File menu trigger — icon only */}
         <button
           ref={triggerRef}
           onClick={() => setOpen(!open)}
           data-testid="file-menu-btn"
           className={cn(
-            'inline-flex items-center justify-center w-8 h-8 rounded-md shrink-0',
+            'inline-flex items-center justify-center w-7 h-7 rounded-md shrink-0',
             'text-foreground-muted',
             'transition-colors duration-100',
             'hover:bg-surface-accent hover:text-foreground',
@@ -155,8 +155,8 @@ const FileMenuBar = React.memo(function FileMenuBar({
           )}
         >
           <svg
-            width="15"
-            height="15"
+            width="16"
+            height="16"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -175,19 +175,19 @@ const FileMenuBar = React.memo(function FileMenuBar({
         </div>
 
         {/* Update indicator + Settings */}
-        <div className="flex items-center shrink-0">
+        <div className="flex items-center shrink-0 gap-0.5">
           <UpdateIndicator onInstall={onInstallUpdate} />
           <button
             onClick={onSettingsClick}
             data-testid="settings-btn"
             className={cn(
-              'inline-flex items-center justify-center w-8 h-8 rounded-md',
+              'inline-flex items-center justify-center w-7 h-7 rounded-md',
               'text-foreground-muted',
               'transition-colors duration-100',
               'hover:bg-surface-accent hover:text-foreground'
             )}
           >
-            <Settings size={15} />
+            <Settings size={16} />
           </button>
         </div>
       </div>
