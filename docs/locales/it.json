@@ -23,6 +23,8 @@
   "story3.desc": "Sposta le icone tra i gruppi in pochi secondi. Crea, riordina e annida gruppi per adattarli alla struttura del tuo progetto. Salva tutto come file di progetto .icp e riprendi esattamente da dove avevi lasciato.",
   "changelog.title": "Novità",
   "changelog.allReleases": "Tutte le versioni →",
+  "changelog.fullTitle": "Registro delle modifiche",
+  "changelog.fullDesc": "Tutti gli aggiornamenti e i miglioramenti di ogni versione.",
   "footer.releases": "Versioni",
   "meta.title": "Bobcorn — Gestore di icone e generatore di font di icone per Windows e macOS",
   "meta.desc": "App desktop gratuita e open source per organizzare, gestire e generare font di icone. Importa SVG, raggruppa e cerca migliaia di icone, modifica i colori ed esporta in SVG, TTF, WOFF, WOFF2, EOT — tutto con un clic. Disponibile per Windows e macOS."

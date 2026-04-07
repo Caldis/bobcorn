@@ -23,6 +23,8 @@
   "story3.desc": "Verschiebe Icons zwischen Gruppen in Sekunden. Erstelle, sortiere und verschachtele Gruppen passend zu deiner Projektstruktur. Speichere alles als .icp-Projektdatei und mache genau dort weiter, wo du aufgehört hast.",
   "changelog.title": "Neuigkeiten",
   "changelog.allReleases": "Alle Versionen →",
+  "changelog.fullTitle": "Änderungsprotokoll",
+  "changelog.fullDesc": "Alle Updates und Verbesserungen jeder Version.",
   "footer.releases": "Versionen",
   "meta.title": "Bobcorn — Icon-Manager & Icon-Font-Generator für Windows und macOS",
   "meta.desc": "Kostenlose Open-Source-Desktop-App zum Organisieren, Verwalten und Generieren von Icon-Fonts. Importiere SVGs, gruppiere und durchsuche Tausende Icons, bearbeite Farben und exportiere in SVG, TTF, WOFF, WOFF2, EOT — alles mit einem Klick. Verfügbar für Windows und macOS."

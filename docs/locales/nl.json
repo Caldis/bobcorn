@@ -23,6 +23,8 @@
   "story3.desc": "Verplaats iconen tussen groepen in enkele seconden. Maak groepen aan, herorden en nest ze om je projectstructuur te volgen. Sla alles op als .icp-projectbestand en ga verder waar je gebleven was.",
   "changelog.title": "Nieuw",
   "changelog.allReleases": "Alle versies →",
+  "changelog.fullTitle": "Wijzigingslogboek",
+  "changelog.fullDesc": "Alle updates en verbeteringen van elke versie.",
   "footer.releases": "Versies",
   "meta.title": "Bobcorn — Iconenbeheerder & iconlettertypegenerator voor Windows & macOS",
   "meta.desc": "Gratis, open-source desktopapp om iconlettertypen te organiseren, beheren en genereren. Importeer SVG's, groepeer en doorzoek duizenden iconen, bewerk kleuren en exporteer naar SVG, TTF, WOFF, WOFF2, EOT — alles met één klik. Beschikbaar voor Windows en macOS."

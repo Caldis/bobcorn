@@ -23,6 +23,8 @@
   "story3.desc": "数秒内在分组间移动图标。创建、排序和嵌套分组以匹配项目结构。保存为 .icp 项目文件，下次打开无缝衔接。",
   "changelog.title": "最近更新",
   "changelog.allReleases": "所有版本 →",
+  "changelog.fullTitle": "更新日志",
+  "changelog.fullDesc": "每个版本的功能更新与改进。",
   "footer.releases": "版本发布",
   "meta.title": "Bobcorn — 图标管理器与图标字体生成工具",
   "meta.desc": "免费开源桌面应用，管理、整理 SVG 图标并生成图标字体。支持导入 SVG，分组搜索数千图标，编辑颜色，一键导出 SVG、TTF、WOFF、WOFF2、EOT。支持 Windows 和 macOS。"

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog — Bobcorn</title>
+    <meta name="description" content="Full version history and release notes for Bobcorn.">
+    <meta name="theme-color" content="#FAFAF5">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'GT Canon VF Variable L Black';
+            src: url('fonts/GT-Canon-VF-Variable-L-Black.woff2') format('woff2');
+            font-weight: 900; font-style: normal; font-display: swap;
+        }
+
+        :root {
+            --bg: #FAFAF5;
+            --text: #1A1917;
+            --text-secondary: #82817A;
+            --accent: #F06830;
+            --accent-hover: #DD5B25;
+            --divider: #E0DED2;
+            --pill-bg: rgba(160, 158, 148, 0.12);
+            --serif: 'GT Canon VF Variable L Black', Georgia, serif;
+            --sans: 'Outfit', system-ui, sans-serif;
+            --mono: 'Space Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── Header ─── */
+        .page-header {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 64px 48px 0;
+        }
+
+        .page-header nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+
+        .page-header nav a {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .page-header nav a:hover { color: var(--text); }
+
+        .page-header nav .sep {
+            color: var(--divider);
+            font-size: 14px;
+            user-select: none;
+        }
+
+        .page-header h1 {
+            font-family: var(--serif);
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        .page-header p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 48px;
+        }
+
+        /* ─── Changelog ─── */
+        .changelog {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 48px 80px;
+        }
+
+        .changelog-entry {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 32px;
+            padding: 32px 0;
+            border-top: 1px solid var(--divider);
+        }
+
+        .changelog-meta {
+            position: sticky;
+            top: 24px;
+            align-self: start;
+        }
+
+        .changelog-version {
+            font-family: var(--mono);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .changelog-date {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .changelog-items {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 4px;
+        }
+
+        .changelog-items li {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .changelog-items li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.6;
+        }
+
+        /* ─── Footer ─── */
+        footer {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 24px 48px 48px;
+            border-top: 1px solid var(--divider);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-brand {
+            font-family: var(--serif);
+            font-size: 18px;
+            color: var(--text);
+        }
+
+        .footer-links { display: flex; align-items: center; gap: 24px; }
+
+        .footer-links a {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--text); }
+
+        /* ─── Language ─── */
+        .lang-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: none;
+            background: none;
+            transition: color 0.2s, background 0.2s;
+            position: relative;
+        }
+
+        .lang-trigger:hover { color: var(--text); background: var(--pill-bg); }
+        .lang-trigger svg { width: 15px; height: 15px; opacity: 0.55; }
+
+        .lang-popover {
+            position: absolute;
+            bottom: calc(100% + 12px);
+            right: 0;
+            background: var(--bg);
+            border: 1px solid var(--divider);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px 28px;
+            opacity: 0;
+            transform: translateY(6px);
+            pointer-events: none;
+            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 32px rgba(26, 25, 23, 0.08);
+            z-index: 200;
+            min-width: 300px;
+        }
+
+        .lang-popover.open {
+            opacity: 1; transform: translateY(0); pointer-events: auto;
+        }
+
+        .lang-popover a {
+            font-family: var(--sans);
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 7px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: color 0.15s, background 0.15s;
+            white-space: nowrap;
+        }
+
+        .lang-popover a:hover { color: var(--text); background: var(--pill-bg); }
+        .lang-popover a.active { color: var(--accent); }
+
+        @media (max-width: 680px) {
+            .page-header { padding: 40px 20px 0; }
+            .page-header nav { margin-bottom: 32px; }
+            .changelog { padding: 0 20px 48px; }
+            .changelog-entry { grid-template-columns: 1fr; gap: 12px; }
+            .changelog-meta { position: static; }
+            footer { padding: 24px 20px 36px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <nav>
+            <a href="./">Bobcorn</a>
+            <span class="sep">/</span>
+            <a href="changelog.html" data-i18n="changelog.title">Changelog</a>
+        </nav>
+        <h1 data-i18n="changelog.fullTitle">Changelog</h1>
+        <p data-i18n="changelog.fullDesc">All updates and improvements across every release.</p>
+    </div>
+
+    <div class="changelog" id="changelogList"></div>
+
+    <footer>
+        <div class="footer-brand">Bobcorn</div>
+        <div class="footer-links">
+            <a href="./">Home</a>
+            <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+            <button class="lang-trigger" id="langTrigger" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span id="langLabel">EN</span>
+                <div class="lang-popover" id="langPopover"></div>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+    var LANGS = [
+        { code: 'en',    label: 'English' },
+        { code: 'zh-CN', label: '简体中文' },
+        { code: 'zh-TW', label: '繁體中文' },
+        { code: 'zh-HK', label: '繁體中文(港)' },
+        { code: 'ja',    label: '日本語' },
+        { code: 'ko',    label: '한국어' },
+        { code: 'fr',    label: 'Français' },
+        { code: 'de',    label: 'Deutsch' },
+        { code: 'es',    label: 'Español' },
+        { code: 'pt-BR', label: 'Português' },
+        { code: 'it',    label: 'Italiano' },
+        { code: 'nl',    label: 'Nederlands' },
+        { code: 'ru',    label: 'Русский' },
+        { code: 'tr',    label: 'Türkçe' },
+        { code: 'ar',    label: 'العربية' },
+        { code: 'th',    label: 'ไทย' },
+        { code: 'vi',    label: 'Tiếng Việt' },
+        { code: 'id',    label: 'Indonesia' }
+    ];
+
+    var currentLang = 'en';
+    var loadedStrings = {};
+    var changelogEntries = [];
+
+    function detectLang() {
+        var params = new URLSearchParams(location.search);
+        if (params.has('lang')) return params.get('lang');
+        var saved = localStorage.getItem('site-language');
+        if (saved) return saved;
+        var nav = (navigator.language || '').toLowerCase();
+        if (nav.startsWith('zh')) {
+            if (nav === 'zh-tw' || nav === 'zh-hant') return 'zh-TW';
+            if (nav === 'zh-hk') return 'zh-HK';
+            return 'zh-CN';
+        }
+        var base = nav.split('-')[0];
+        var match = LANGS.find(function(l) { return l.code.toLowerCase().startsWith(base); });
+        return match ? match.code : 'en';
+    }
+
+    function loadLang(lang) {
+        if (loadedStrings[lang]) return Promise.resolve(loadedStrings[lang]);
+        var cached = sessionStorage.getItem('i18n-' + lang);
+        if (cached) { loadedStrings[lang] = JSON.parse(cached); return Promise.resolve(loadedStrings[lang]); }
+        return fetch('locales/' + lang + '.json')
+            .then(function(r) { return r.json(); })
+            .then(function(s) { loadedStrings[lang] = s; sessionStorage.setItem('i18n-' + lang, JSON.stringify(s)); return s; });
+    }
+
+    function renderChangelog(lang) {
+        var container = document.getElementById('changelogList');
+        if (!container || !changelogEntries.length) return;
+        var lk = lang.startsWith('zh') ? 'zh' : 'en';
+
+        container.innerHTML = '';
+        changelogEntries.forEach(function(entry) {
+            var items = (entry.changes && (entry.changes[lk] || entry.changes.en)) || [];
+            var el = document.createElement('div');
+            el.className = 'changelog-entry';
+            el.innerHTML =
+                '<div class="changelog-meta">' +
+                    '<div class="changelog-version">' + entry.version + '</div>' +
+                    '<div class="changelog-date">' + entry.date + '</div>' +
+                '</div>' +
+                '<ul class="changelog-items">' +
+                    items.map(function(t) { return '<li>' + t + '</li>'; }).join('') +
+                '</ul>';
+            container.appendChild(el);
+        });
+    }
+
+    function applyLang(lang) {
+        return loadLang(lang).then(function(strings) {
+            currentLang = lang;
+            localStorage.setItem('site-language', lang);
+
+            var url = new URL(location.href);
+            if (lang === 'en') url.searchParams.delete('lang');
+            else url.searchParams.set('lang', lang);
+            history.replaceState(null, '', url);
+
+            document.querySelectorAll('[data-i18n]').forEach(function(el) {
+                var key = el.getAttribute('data-i18n');
+                if (strings[key]) el.textContent = strings[key];
+            });
+
+            if (strings['meta.title']) document.title = (strings['changelog.fullTitle'] || 'Changelog') + ' — Bobcorn';
+
+            var entry = LANGS.find(function(l) { return l.code === lang; });
+            var label = document.getElementById('langLabel');
+            if (label && entry) label.textContent = entry.label;
+
+            document.querySelectorAll('.lang-popover a[data-lang]').forEach(function(a) {
+                a.classList.toggle('active', a.getAttribute('data-lang') === lang);
+            });
+
+            renderChangelog(lang);
+        }).catch(function() {});
+    }
+
+    // Build language popover
+    var popover = document.getElementById('langPopover');
+    LANGS.forEach(function(l) {
+        var a = document.createElement('a');
+        a.href = '#';
+        a.setAttribute('data-lang', l.code);
+        a.textContent = l.label;
+        a.addEventListener('click', function(e) {
+            e.preventDefault();
+            applyLang(l.code);
+            popover.classList.remove('open');
+        });
+        popover.appendChild(a);
+    });
+
+    document.getElementById('langTrigger').addEventListener('click', function(e) {
+        e.stopPropagation();
+        popover.classList.toggle('open');
+    });
+    document.addEventListener('click', function() { popover.classList.remove('open'); });
+
+    // Load changelog data, then apply language
+    fetch('changelog.json', { cache: 'no-cache' })
+        .then(function(r) { return r.json(); })
+        .then(function(entries) {
+            changelogEntries = entries;
+            applyLang(detectLang());
+        })
+        .catch(function() {
+            applyLang(detectLang());
+        });
+    </script>
+
+</body>
+</html>

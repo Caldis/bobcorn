@@ -23,6 +23,8 @@
   "story3.desc": "グループ間のアイコン移動は数秒で完了。プロジェクト構成に合わせてグループを作成・並べ替え・ネスト。.icp プロジェクトファイルに保存すれば、次回もそのまま作業を再開できます。",
   "changelog.title": "最新情報",
   "changelog.allReleases": "すべてのリリース →",
+  "changelog.fullTitle": "変更履歴",
+  "changelog.fullDesc": "すべてのリリースの更新と改善。",
   "footer.releases": "リリース",
   "meta.title": "Bobcorn — Windows & macOS 対応アイコン管理・アイコンフォント生成ツール",
   "meta.desc": "無料・オープンソースのデスクトップアプリで、アイコンの管理・整理・フォント生成をまとめて実現。SVG インポート、数千アイコンのグループ管理と検索、カラー編集、SVG・TTF・WOFF・WOFF2・EOT へのワンクリック書き出しに対応。Windows・macOS で利用できます。"

@@ -21,7 +21,7 @@
   },
   {
     "version": "1.12.0",
-    "date": "2026-04-05",
+    "date": "2026-04-07",
     "summary": {
       "zh": "项目设置、变体面板、状态指示",
       "en": "Project settings, variant panel, state indicators"
@@ -30,12 +30,14 @@
       "zh": [
         "项目切换器显示未保存状态指示点",
         "变体面板标记为 Beta 并默认折叠",
-        "新增项目设置对话框（描述、颜色）"
+        "新增项目设置对话框（描述、颜色）",
+        "分组图标引用自动清理（SQLite 触发器）"
       ],
       "en": [
         "Project switcher shows unsaved changes indicator",
         "Variant panel marked as Beta, collapsed by default",
-        "New project settings dialog (description, color)"
+        "New project settings dialog (description, color)",
+        "Auto-cleanup orphaned group icon references via SQLite triggers"
       ]
     }
   },
@@ -43,32 +45,34 @@
     "version": "1.11.0",
     "date": "2026-03-28",
     "summary": {
-      "zh": "多项目切换与内存优化",
-      "en": "Multi-project switching and memory optimization"
+      "zh": "多项目切换与 CLI Wiki",
+      "en": "Multi-project switching and CLI Wiki"
     },
     "changes": {
       "zh": [
         "新增项目切换器，支持多项目快速切换",
         "修复反复切换项目时 sql.js 内存溢出",
-        "CLI 维护指南与 Wiki 重构"
+        "CLI 知识库页面，支持 16 种语言",
+        "CLI 命令自动发现项目文件"
       ],
       "en": [
         "New project switcher for fast multi-project navigation",
         "Fixed sql.js OOM on repeated project switching",
-        "CLI maintenance guide and Wiki restructure"
+        "CLI Wiki reference page in 16 languages",
+        "CLI auto-discovers project files for all commands"
       ]
     }
   },
   {
     "version": "1.10.0",
-    "date": "2026-03-21",
+    "date": "2026-04-05",
     "summary": {
       "zh": "图标多格式导出",
       "en": "Multi-format icon export"
     },
     "changes": {
       "zh": [
-        "图标导出功能：支持 PNG、JPG、WebP、SVG、PDF、ICO 多格式",
+        "图标导出：支持 PNG、JPG、WebP、SVG、PDF、ICO 多格式",
         "支持自定义尺寸、缩放比例和背景色",
         "修复单引号 viewBox 和非正方形导出问题"
       ],
@@ -76,6 +80,328 @@
         "Icon export: PNG, JPG, WebP, SVG, PDF, ICO multi-format support",
         "Custom size, scale, and background color options",
         "Fixed single-quote viewBox and non-square export issues"
+      ]
+    }
+  },
+  {
+    "version": "1.9.5",
+    "date": "2026-04-05",
+    "summary": {
+      "zh": "修复 Windows 窗口边框问题",
+      "en": "Fix Windows maximize border artifact"
+    },
+    "changes": {
+      "zh": ["修复 Windows 无边框窗口最大化时的边框残影"],
+      "en": ["Fixed maximize border artifact on Windows frameless window"]
+    }
+  },
+  {
+    "version": "1.9.4",
+    "date": "2026-04-05",
+    "summary": {
+      "zh": "HTML 演示页重设计与截图自动化",
+      "en": "HTML demo page redesign and screenshot automation"
+    },
+    "changes": {
+      "zh": [
+        "重新设计导出的 HTML 演示页，品牌一致性与预览面板",
+        "截图自动化流水线",
+        "新增繁体中文支持"
+      ],
+      "en": [
+        "Redesigned exported HTML demo page with brand consistency and preview panel",
+        "Automated screenshot pipeline",
+        "Added Traditional Chinese support"
+      ]
+    }
+  },
+  {
+    "version": "1.9.3",
+    "date": "2026-04-05",
+    "summary": {
+      "zh": "侧栏与对话框 UI 大改",
+      "en": "Sidebar and dialog UI overhaul"
+    },
+    "changes": {
+      "zh": [
+        "侧栏显示/隐藏切换与拖放覆盖层",
+        "窗口控件、对话框滚动、分组图标、粘性标题全面翻新"
+      ],
+      "en": [
+        "Sidebar toggle with drop zone overlay and resize UX",
+        "Window controls, dialog scroll, group icons, and sticky headers overhaul"
+      ]
+    }
+  },
+  {
+    "version": "1.9.0",
+    "date": "2026-04-04",
+    "summary": {
+      "zh": "虚拟滚动性能优化与 Wiki 知识库",
+      "en": "Virtual scrolling performance and Wiki knowledge base"
+    },
+    "changes": {
+      "zh": [
+        "图标网格批量预取 SVG 内容，可见区域优先加载",
+        "占位高度 + 交错淡入动画",
+        "图标字体 Wiki 知识库，支持 16 种语言",
+        "编辑器区域标题重设计，添加图标"
+      ],
+      "en": [
+        "Batch prefetch SVG content for visible icons in grid",
+        "Placeholder height with staggered fade-in animation",
+        "Icon font Wiki knowledge base in 16 languages",
+        "Redesigned SideEditor section headers with icons"
+      ]
+    }
+  },
+  {
+    "version": "1.8.8",
+    "date": "2026-04-04",
+    "summary": {
+      "zh": "深色模式调色与多语言官网",
+      "en": "Dark mode color tuning and multilingual website"
+    },
+    "changes": {
+      "zh": [
+        "语义化颜色令牌系统，中性深色模式",
+        "深色模式强调色调整为深皇家蓝",
+        "官网支持 16 种语言，懒加载语言包"
+      ],
+      "en": [
+        "Semantic color token system with neutral dark mode",
+        "Dark mode accent tuned to deep royal blue",
+        "Website i18n with 16 languages via lazy-loaded locale files"
+      ]
+    }
+  },
+  {
+    "version": "1.8.7",
+    "date": "2026-04-03",
+    "summary": {
+      "zh": "应用内更新预览卡片",
+      "en": "In-app update preview card"
+    },
+    "changes": {
+      "zh": [
+        "更新悬浮卡片：显示目标版本和更新日志预览",
+        "更新日志以样式化 HTML 渲染",
+        "开发模式下安装前确认，防止崩溃"
+      ],
+      "en": [
+        "Update hover card showing target version and changelog preview",
+        "Release notes rendered as styled HTML",
+        "Dev-only confirm before quitAndInstall to prevent crash"
+      ]
+    }
+  },
+  {
+    "version": "1.8.2",
+    "date": "2026-04-03",
+    "summary": {
+      "zh": "自动更新与设置面板",
+      "en": "Auto-update and settings panel"
+    },
+    "changes": {
+      "zh": [
+        "应用内自动更新指示器与偏好设置",
+        "主题模式：亮色/暗色/跟随系统，分段控件切换",
+        "设置面板中添加官网链接",
+        "未保存更改关闭保护"
+      ],
+      "en": [
+        "In-app auto-update indicator and preferences",
+        "Theme mode: light/dark/system with segmented control",
+        "Website link in settings version section",
+        "Unsaved changes close guard"
+      ]
+    }
+  },
+  {
+    "version": "1.8.0",
+    "date": "2026-04-02",
+    "summary": {
+      "zh": "全面国际化（i18n）",
+      "en": "Full internationalization (i18n)"
+    },
+    "changes": {
+      "zh": [
+        "全部用户可见字符串迁移到 react-i18next",
+        "支持中英文切换",
+        "批量面板、导出对话框、编辑器（~50 字符串）完成迁移",
+        "语言选择器"
+      ],
+      "en": [
+        "All user-facing strings migrated to react-i18next",
+        "Chinese/English language switching",
+        "BatchPanel, ExportDialog, SideEditor (~50 strings) migrated",
+        "Language selector in settings"
+      ]
+    }
+  },
+  {
+    "version": "1.7.0",
+    "date": "2026-04-01",
+    "summary": {
+      "zh": "收藏功能与构建修复",
+      "en": "Favorites feature and build fixes"
+    },
+    "changes": {
+      "zh": [
+        "图标收藏：星标切换、批量收藏/取消",
+        "收藏数据源与空状态",
+        "修复 macOS electron-builder EEXIST 图标错误"
+      ],
+      "en": [
+        "Icon favorites: star toggle, batch favorite/unfavorite",
+        "Favorite data source with empty state",
+        "Fixed macOS electron-builder EEXIST icon error"
+      ]
+    }
+  },
+  {
+    "version": "1.6.0",
+    "date": "2026-03-21",
+    "summary": {
+      "zh": "批量操作与虚拟渲染",
+      "en": "Batch operations and virtual rendering"
+    },
+    "changes": {
+      "zh": [
+        "批量图标操作：多选、移动、复制、删除、导出、改色",
+        "图标网格虚拟渲染 + 懒加载（3000+ 图标流畅）",
+        "多平台 CI 发布流水线重设计"
+      ],
+      "en": [
+        "Batch icon operations: multi-select, move, copy, delete, export, recolor",
+        "Virtual rendering + lazy loading for icon grid (3000+ icons)",
+        "Redesigned multi-platform CI release pipeline"
+      ]
+    }
+  },
+  {
+    "version": "1.5.5",
+    "date": "2026-03-19",
+    "summary": {
+      "zh": "屏幕取色器与 UI 打磨",
+      "en": "Screen color picker and UI polish"
+    },
+    "changes": {
+      "zh": [
+        "屏幕取色器：全屏覆盖层 + 放大镜",
+        "重构为 electron-pixel-picker npm 包",
+        "标题栏、滚动条、标签页、深色模式入口 UI 优化"
+      ],
+      "en": [
+        "Screen color picker: fullscreen overlay with magnifier",
+        "Refactored to electron-pixel-picker npm package",
+        "Titlebar, scrollbar, tabs, and dark mode entry UI polish"
+      ]
+    }
+  },
+  {
+    "version": "1.5.0",
+    "date": "2026-03-17",
+    "summary": {
+      "zh": "官网上线与万级图标性能优化",
+      "en": "Product homepage and 10K icon performance"
+    },
+    "changes": {
+      "zh": [
+        "产品官网上线（GitHub Pages）",
+        "HTML 演示页添加 SVG 下载按钮",
+        "万级图标可扩展性优化，消除 O(n²) 模式",
+        "颜色热补丁、标题栏对齐、Toast 样式优化"
+      ],
+      "en": [
+        "Product homepage launched (GitHub Pages)",
+        "SVG download button on exported HTML demo page",
+        "10K icon scalability — eliminated O(n²) patterns",
+        "Color hot-patch, titlebar alignment, toast style fixes"
+      ]
+    }
+  },
+  {
+    "version": "1.4.0",
+    "date": "2026-03-16",
+    "summary": {
+      "zh": "去 antd、颜色编辑器、分组拖拽排序",
+      "en": "Remove antd, color editor, group drag-to-reorder"
+    },
+    "changes": {
+      "zh": [
+        "移除 antd，替换为 Tailwind + Radix UI + lucide-react",
+        "内联 SVG 颜色编辑与实时预览",
+        "分组拖拽排序",
+        "侧栏拆分子组件 + 深色模式切换"
+      ],
+      "en": [
+        "Removed antd — replaced with Tailwind + Radix UI + lucide-react",
+        "Inline SVG color editing with live preview",
+        "Drag-to-reorder for icon groups",
+        "SideMenu split into sub-components + dark mode toggle"
+      ]
+    }
+  },
+  {
+    "version": "1.2.0",
+    "date": "2026-03-16",
+    "summary": {
+      "zh": "全面 Tailwind 迁移",
+      "en": "Complete Tailwind migration"
+    },
+    "changes": {
+      "zh": [
+        "全部组件迁移到 Tailwind CSS",
+        "IconBlock、IconToolbar、SideEditor 重设计",
+        "SplashScreen 和演示页模板重设计",
+        "添加 Tailwind/shadcn 基础设施"
+      ],
+      "en": [
+        "All components migrated to Tailwind CSS",
+        "IconBlock, IconToolbar, SideEditor redesigned",
+        "SplashScreen and demo HTML template redesigned",
+        "Added Tailwind/shadcn infrastructure"
+      ]
+    }
+  },
+  {
+    "version": "1.1.0",
+    "date": "2026-03-15",
+    "summary": {
+      "zh": "TypeScript 迁移",
+      "en": "TypeScript migration"
+    },
+    "changes": {
+      "zh": [
+        "完成 TypeScript 迁移（34 个文件）",
+        "React 组件层添加 Props 接口与类型注解",
+        "数据层（database、SVG、generators）迁移到 TypeScript"
+      ],
+      "en": [
+        "Complete TypeScript migration (34 files)",
+        "React component layer — Props interfaces and type annotations",
+        "Data layer (database, SVG, generators) migrated to TypeScript"
+      ]
+    }
+  },
+  {
+    "version": "1.0.0",
+    "date": "2026-03-15",
+    "summary": {
+      "zh": "首个正式版本",
+      "en": "First stable release"
+    },
+    "changes": {
+      "zh": [
+        "Electron + React 架构重构（app/ → src/main + preload + renderer）",
+        "CI 自动构建与发布",
+        "ICP 项目文件导入支持"
+      ],
+      "en": [
+        "Electron + React architecture restructure (app/ → src/main + preload + renderer)",
+        "CI automated build and release",
+        "ICP project file import support"
       ]
     }
   }

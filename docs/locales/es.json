@@ -23,6 +23,8 @@
   "story3.desc": "Mueve iconos entre grupos en segundos. Crea, reordena y anida grupos para adaptarlos a la estructura de tu proyecto. Guarda todo como archivo de proyecto .icp y retoma exactamente donde lo dejaste.",
   "changelog.title": "Novedades",
   "changelog.allReleases": "Todas las versiones →",
+  "changelog.fullTitle": "Registro de cambios",
+  "changelog.fullDesc": "Todas las actualizaciones y mejoras de cada versión.",
   "footer.releases": "Versiones",
   "meta.title": "Bobcorn — Gestor de iconos y generador de fuentes de iconos para Windows y macOS",
   "meta.desc": "Aplicación de escritorio gratuita y de código abierto para organizar, gestionar y generar fuentes de iconos. Importa SVGs, agrupa y busca miles de iconos, edita colores y exporta a SVG, TTF, WOFF, WOFF2, EOT — todo con un solo clic. Disponible para Windows y macOS."

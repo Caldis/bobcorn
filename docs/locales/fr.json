@@ -23,6 +23,8 @@
   "story3.desc": "Déplacez des icônes entre les groupes en quelques secondes. Créez, réordonnez et imbriquez des groupes pour correspondre à la structure de votre projet. Sauvegardez tout dans un fichier projet .icp et reprenez exactement là où vous vous étiez arrêté.",
   "changelog.title": "Nouveautés",
   "changelog.allReleases": "Toutes les versions →",
+  "changelog.fullTitle": "Journal des modifications",
+  "changelog.fullDesc": "Toutes les mises à jour et améliorations de chaque version.",
   "footer.releases": "Versions",
   "meta.title": "Bobcorn — Gestionnaire d'icônes et générateur de polices d'icônes pour Windows et macOS",
   "meta.desc": "Application de bureau gratuite et open source pour organiser, gérer et générer des polices d'icônes. Importez des SVG, regroupez et recherchez des milliers d'icônes, modifiez les couleurs et exportez en SVG, TTF, WOFF, WOFF2, EOT — le tout en un clic. Disponible pour Windows et macOS."

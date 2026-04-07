@@ -23,6 +23,8 @@
   "story3.desc": "Di chuyển biểu tượng giữa các nhóm trong vài giây. Tạo, sắp xếp lại và lồng nhóm theo cấu trúc dự án. Lưu tất cả thành tệp dự án .icp và tiếp tục đúng nơi bạn đã dừng lại.",
   "changelog.title": "Có gì mới",
   "changelog.allReleases": "Tất cả phiên bản →",
+  "changelog.fullTitle": "Nhật ký thay đổi",
+  "changelog.fullDesc": "Tất cả cập nhật và cải tiến qua mỗi phiên bản.",
   "footer.releases": "Phiên bản",
   "meta.title": "Bobcorn — Trình quản lý biểu tượng & tạo phông chữ biểu tượng cho Windows & macOS",
   "meta.desc": "Ứng dụng desktop miễn phí, mã nguồn mở để sắp xếp, quản lý và tạo phông chữ biểu tượng. Nhập SVG, nhóm và tìm kiếm hàng nghìn biểu tượng, chỉnh màu sắc và xuất ra SVG, TTF, WOFF, WOFF2, EOT — tất cả chỉ một cú nhấp. Có sẵn cho Windows và macOS."

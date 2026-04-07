@@ -788,7 +788,7 @@
         <section class="changelog" id="changelog">
             <div class="changelog-header reveal">
                 <h2 data-i18n="changelog.title">What's New</h2>
-                <a href="https://github.com/Caldis/bobcorn/releases" data-i18n="changelog.allReleases">All releases →</a>
+                <a href="changelog.html" data-i18n="changelog.allReleases">All releases →</a>
             </div>
             <div class="changelog-list" id="changelogList"></div>
         </section>
@@ -1025,8 +1025,9 @@
                 var container = document.getElementById('changelogList');
                 if (!container || !entries.length) return;
 
-                // Build DOM skeleton once (language-neutral parts)
-                entries.forEach(function(entry) {
+                // Homepage shows only the latest 4 entries
+                var displayed = entries.slice(0, 4);
+                displayed.forEach(function(entry) {
                     var el = document.createElement('div');
                     el.className = 'changelog-entry reveal';
                     el.innerHTML =
@@ -1040,7 +1041,7 @@
 
                 function render(lang) {
                     var lk = lang.startsWith('zh') ? 'zh' : 'en';
-                    entries.forEach(function(entry, i) {
+                    displayed.forEach(function(entry, i) {
                         var items = (entry.changes && (entry.changes[lk] || entry.changes.en)) || [];
                         var ul = container.children[i] && container.children[i].querySelector('.changelog-items');
                         if (ul) {

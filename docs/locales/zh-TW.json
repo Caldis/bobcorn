@@ -23,6 +23,8 @@
   "story3.desc": "數秒內在群組間移動圖示。建立、排序和巢狀群組以配合專案結構。儲存為 .icp 專案檔，下次開啟無縫銜接。",
   "changelog.title": "最近更新",
   "changelog.allReleases": "所有版本 →",
+  "changelog.fullTitle": "更新日誌",
+  "changelog.fullDesc": "每個版本的功能更新與改進。",
   "footer.releases": "版本發佈",
   "meta.title": "Bobcorn — 圖示管理器與圖示字型產生工具",
   "meta.desc": "免費開源桌面應用程式，管理、整理 SVG 圖示並產生圖示字型。支援匯入 SVG，分組搜尋數千圖示，編輯色彩，一鍵匯出 SVG、TTF、WOFF、WOFF2、EOT。支援 Windows 和 macOS。"
