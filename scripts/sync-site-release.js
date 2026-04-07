@@ -17,12 +17,25 @@ function replaceOnce(source, pattern, replacement, label) {
   return source.replace(pattern, replacement);
 }
 
+const changelogJsonPath = path.join(rootDir, 'docs', 'changelog.json');
+
 const pkg = readJson(packageJsonPath);
 const publish = pkg.build?.publish ?? {};
 const owner = publish.owner || 'Caldis';
 const repo = publish.repo || pkg.name;
 const version = pkg.version;
 const tag = `v${version}`;
+
+// Validate changelog.json has an entry for this version
+const changelog = readJson(changelogJsonPath);
+if (!Array.isArray(changelog) || !changelog.length || changelog[0].version !== version) {
+  const found = changelog[0]?.version || '(empty)';
+  process.stderr.write(
+    `\n❌ changelog.json top entry is "${found}", expected "${version}".\n` +
+    `   Add a changelog entry before running npm version.\n\n`
+  );
+  process.exit(1);
+}
 
 const releasesUrl = `https://github.com/${owner}/${repo}/releases`;
 const latestUrl = `${releasesUrl}/latest`;

@@ -1,22 +1,30 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import DOMPurify from 'dompurify';
 import useAppStore from '../../store';
 import { confirm } from '../ui/dialog';
 import { cn } from '../../lib/utils';
 
 const { electronAPI } = window;
 
+const CHANGELOG_URL = 'https://bobcorn.caldis.me/changelog.json';
+
+interface ChangelogEntry {
+  version: string;
+  date: string;
+  summary?: { zh: string; en: string };
+  changes?: { zh: string[]; en: string[] };
+}
+
 function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const status = useAppStore((s) => s.updateStatus);
   const version = useAppStore((s) => s.updateVersion);
-  const releaseNotes = useAppStore((s) => s.updateReleaseNotes);
   const progress = useAppStore((s) => s.updateProgress);
   const error = useAppStore((s) => s.updateError);
   const pulseRef = useRef<HTMLSpanElement>(null);
   const [hoverCard, setHoverCard] = useState(false);
   const hoverTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const [changelogEntry, setChangelogEntry] = useState<ChangelogEntry | null>(null);
 
   // Single-round pulse: remove animation class after one cycle
   useEffect(() => {
@@ -27,26 +35,20 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
     return () => el.removeEventListener('animationiteration', handler);
   }, [status]);
 
-  // Sanitize release notes HTML for safe rendering (must be before early return — hooks rule)
-  const sanitizedNotes = useMemo(() => {
-    if (!releaseNotes) return null;
-    let cleaned = releaseNotes.replace(/<hr\s*\/?>.*$/s, '').trim();
-    if (!cleaned || cleaned === '<p></p>') return null;
-    // Localize section headings
-    const headingMap: Record<string, string> = {
-      "What's Changed": t('update.cl.whatsChanged'),
-      Features: t('update.cl.features'),
-      'Bug Fixes': t('update.cl.bugFixes'),
-      'Other Changes': t('update.cl.otherChanges'),
-    };
-    for (const [en, localized] of Object.entries(headingMap)) {
-      cleaned = cleaned.replace(new RegExp(`(>)${en}(<)`, 'g'), `$1${localized}$2`);
+  // Fetch changelog entry for the target version from the website
+  useEffect(() => {
+    if (!version || (status !== 'available' && status !== 'downloaded')) {
+      setChangelogEntry(null);
+      return;
     }
-    return DOMPurify.sanitize(cleaned, {
-      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li', 'strong', 'em', 'a', 'code', 'br'],
-      ALLOWED_ATTR: ['href', 'target', 'rel'],
-    });
-  }, [releaseNotes, t]);
+    fetch(CHANGELOG_URL, { cache: 'no-cache' })
+      .then((r) => r.json())
+      .then((entries: ChangelogEntry[]) => {
+        const match = entries.find((e) => e.version === version);
+        if (match) setChangelogEntry(match);
+      })
+      .catch(() => {});
+  }, [version, status]);
 
   if (status === 'idle') return null;
 
@@ -203,30 +205,28 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
             </div>
           </div>
 
-          {/* Release notes */}
-          {sanitizedNotes ? (
+          {/* Release notes from changelog.json */}
+          {changelogEntry ? (
             <div className="px-3 pb-3">
-              <div className="text-[10px] text-foreground-muted/60 uppercase tracking-wide font-medium mb-1">
-                {t('update.changelog')}
-              </div>
-              <div
-                className={cn(
-                  'text-[11px] text-foreground-muted leading-relaxed',
-                  'max-h-[150px] overflow-y-auto',
-                  // Prose-like styles for rendered HTML
-                  '[&_h1]:text-xs [&_h1]:font-semibold [&_h1]:text-foreground [&_h1]:mt-2 [&_h1]:mb-1',
-                  '[&_h2]:text-[11px] [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:mt-2 [&_h2]:mb-0.5',
-                  '[&_h3]:text-[11px] [&_h3]:font-medium [&_h3]:text-foreground [&_h3]:mt-1.5 [&_h3]:mb-0.5',
-                  '[&_ul]:list-disc [&_ul]:pl-3.5 [&_ul]:my-0.5',
-                  '[&_ol]:list-decimal [&_ol]:pl-3.5 [&_ol]:my-0.5',
-                  '[&_li]:my-0.5',
-                  '[&_p]:my-0.5',
-                  '[&_strong]:font-semibold [&_strong]:text-foreground',
-                  '[&_code]:text-[10px] [&_code]:bg-surface-accent [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded',
-                  '[&_a]:text-accent [&_a]:hover:text-accent/80'
-                )}
-                dangerouslySetInnerHTML={{ __html: sanitizedNotes }}
-              />
+              {/* Summary line */}
+              {changelogEntry.summary && (
+                <p className="text-[11px] text-foreground-muted leading-relaxed mb-1.5">
+                  {i18n.language.startsWith('zh')
+                    ? changelogEntry.summary.zh
+                    : changelogEntry.summary.en}
+                </p>
+              )}
+              {/* Change items */}
+              {changelogEntry.changes && (
+                <ul className="text-[11px] text-foreground-muted/70 leading-relaxed list-disc pl-3.5 space-y-0.5">
+                  {(i18n.language.startsWith('zh')
+                    ? changelogEntry.changes.zh
+                    : changelogEntry.changes.en
+                  ).map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           ) : (
             <div className="px-3 pb-3">

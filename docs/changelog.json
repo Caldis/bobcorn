@@ -1,5 +1,27 @@
 [
   {
+    "version": "1.12.2",
+    "date": "2026-04-08",
+    "summary": {
+      "zh": "更新卡片显示多语言更新摘要，官网新增完整更新日志页",
+      "en": "Update card shows multilingual release summary, full changelog page on website"
+    },
+    "changes": {
+      "zh": [
+        "应用内更新卡片从线上 changelog.json 读取多语言摘要，替代 GitHub API",
+        "官网新增独立更新日志页，展示全部版本历史",
+        "首页展示最近 4 个版本更新，链接到完整日志",
+        "发版脚本自动校验 changelog 条目，防止遗漏"
+      ],
+      "en": [
+        "In-app update card fetches multilingual summary from changelog.json, replacing GitHub API",
+        "New standalone changelog page on website with full version history",
+        "Homepage shows latest 4 releases, links to full changelog",
+        "Release script validates changelog entry to prevent omissions"
+      ]
+    }
+  },
+  {
     "version": "1.12.1",
     "date": "2026-04-08",
     "summary": {
