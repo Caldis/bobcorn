@@ -34,6 +34,7 @@ export interface GroupData {
   groupOrder: number;
   groupColor?: string;
   groupDescription?: string;
+  groupIcon?: string;
   createTime?: string;
   updateTime?: string;
 }

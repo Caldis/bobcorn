@@ -48,6 +48,8 @@ const TABLE_ICON = 'iconData';
 const TRIGGER_PROJECT = 'projectAttributesTimeRenewTrigger';
 const TRIGGER_GROUP = 'groupDataTimeRenewTrigger';
 const TRIGGER_ICON = 'iconDataTimeRenewTrigger';
+const TRIGGER_CLEANUP_GROUP_ICON_DELETE = 'cleanupGroupIconOnDelete';
+const TRIGGER_CLEANUP_GROUP_ICON_MOVE = 'cleanupGroupIconOnMove';
 
 // ---------------------------------------------------------------------------
 // Internal SQL helpers
@@ -129,7 +131,7 @@ export class ProjectDb {
 
     // Group data table
     this.db.run(
-      `CREATE TABLE ${TABLE_GROUP} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${TABLE_GROUP} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, groupIcon TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db.run(
       `CREATE TRIGGER ${TRIGGER_GROUP} AFTER UPDATE ON ${TABLE_GROUP} FOR EACH ROW BEGIN UPDATE ${TABLE_GROUP} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -145,6 +147,14 @@ export class ProjectDb {
 
     // Variant index
     this.db.run(`CREATE INDEX IF NOT EXISTS idx_iconData_variantOf ON ${TABLE_ICON} (variantOf)`);
+
+    // Cleanup triggers: auto-NULL groupIcon when referenced icon is deleted or moved
+    this.db.run(
+      `CREATE TRIGGER ${TRIGGER_CLEANUP_GROUP_ICON_DELETE} AFTER DELETE ON ${TABLE_ICON} FOR EACH ROW BEGIN UPDATE ${TABLE_GROUP} SET groupIcon = NULL WHERE groupIcon = OLD.id; END`
+    );
+    this.db.run(
+      `CREATE TRIGGER ${TRIGGER_CLEANUP_GROUP_ICON_MOVE} AFTER UPDATE OF iconGroup ON ${TABLE_ICON} WHEN OLD.iconGroup != NEW.iconGroup BEGIN UPDATE ${TABLE_GROUP} SET groupIcon = NULL WHERE groupIcon = OLD.id AND id = OLD.iconGroup; END`
+    );
   }
 
   // ── Migrations (for opening existing .icp files) ────────────
@@ -189,6 +199,25 @@ export class ProjectDb {
       if (!colNames.includes('groupDescription')) {
         this.db.run(`ALTER TABLE ${TABLE_GROUP} ADD COLUMN groupDescription TEXT`);
       }
+
+      if (!colNames.includes('groupIcon')) {
+        this.db.run(`ALTER TABLE ${TABLE_GROUP} ADD COLUMN groupIcon TEXT`);
+      }
+
+      // Cleanup triggers (drop + create for idempotency)
+      this.db.run(`DROP TRIGGER IF EXISTS ${TRIGGER_CLEANUP_GROUP_ICON_DELETE}`);
+      this.db.run(
+        `CREATE TRIGGER ${TRIGGER_CLEANUP_GROUP_ICON_DELETE} AFTER DELETE ON ${TABLE_ICON} FOR EACH ROW BEGIN UPDATE ${TABLE_GROUP} SET groupIcon = NULL WHERE groupIcon = OLD.id; END`
+      );
+      this.db.run(`DROP TRIGGER IF EXISTS ${TRIGGER_CLEANUP_GROUP_ICON_MOVE}`);
+      this.db.run(
+        `CREATE TRIGGER ${TRIGGER_CLEANUP_GROUP_ICON_MOVE} AFTER UPDATE OF iconGroup ON ${TABLE_ICON} WHEN OLD.iconGroup != NEW.iconGroup BEGIN UPDATE ${TABLE_GROUP} SET groupIcon = NULL WHERE groupIcon = OLD.id AND id = OLD.iconGroup; END`
+      );
+
+      // One-time repair: clean up orphaned groupIcon references
+      this.db.run(
+        `UPDATE ${TABLE_GROUP} SET groupIcon = NULL WHERE groupIcon IS NOT NULL AND groupIcon NOT IN (SELECT id FROM ${TABLE_ICON})`
+      );
     } catch (_) {
       // Column might already exist
     }
