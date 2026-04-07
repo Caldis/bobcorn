@@ -1019,21 +1019,14 @@
 
     /* ─── Changelog ─── */
     (function() {
-        var lang = currentLang || 'en';
-        var langKey = lang.startsWith('zh') ? 'zh' : 'en';
-
         fetch('changelog.json', { cache: 'no-cache' })
             .then(function(r) { return r.json(); })
             .then(function(entries) {
                 var container = document.getElementById('changelogList');
                 if (!container || !entries.length) return;
 
+                // Build DOM skeleton once (language-neutral parts)
                 entries.forEach(function(entry) {
-                    var items = (entry.changes && (entry.changes[langKey] || entry.changes.en)) || [];
-                    var li = items.map(function(text) {
-                        return '<li>' + text + '</li>';
-                    }).join('');
-
                     var el = document.createElement('div');
                     el.className = 'changelog-entry reveal';
                     el.innerHTML =
@@ -1041,13 +1034,12 @@
                             '<div class="changelog-version">' + entry.version + '</div>' +
                             '<div class="changelog-date">' + entry.date + '</div>' +
                         '</div>' +
-                        '<ul class="changelog-items">' + li + '</ul>';
+                        '<ul class="changelog-items"></ul>';
                     container.appendChild(el);
                 });
 
-                // store render function for language switch
-                window._rerenderChangelog = function(newLang) {
-                    var lk = newLang.startsWith('zh') ? 'zh' : 'en';
+                function render(lang) {
+                    var lk = lang.startsWith('zh') ? 'zh' : 'en';
                     entries.forEach(function(entry, i) {
                         var items = (entry.changes && (entry.changes[lk] || entry.changes.en)) || [];
                         var ul = container.children[i] && container.children[i].querySelector('.changelog-items');
@@ -1055,7 +1047,11 @@
                             ul.innerHTML = items.map(function(t) { return '<li>' + t + '</li>'; }).join('');
                         }
                     });
-                };
+                }
+
+                // Expose for applyLang; also render immediately with current language
+                window._rerenderChangelog = render;
+                render(currentLang || 'en');
             })
             .catch(function() {});
     })();
