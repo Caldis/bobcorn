@@ -144,4 +144,28 @@ describe('groupIcon cleanup triggers', () => {
 
     db.close();
   });
+
+  test('migration repairs orphaned groupIcon references', async () => {
+    const db = await createEmptyProject('test');
+    const rawDb = (db as any).db;
+
+    // Create a group
+    rawDb.run(`INSERT INTO groupData (id, groupName, groupOrder) VALUES ('g1', 'Group1', 0)`);
+
+    // Set groupIcon to a non-existent icon (simulating orphaned reference)
+    rawDb.run(`UPDATE groupData SET groupIcon = 'ghost-icon-id' WHERE id = 'g1'`);
+
+    // Verify the orphan exists
+    const before = rawDb.exec(`SELECT groupIcon FROM groupData WHERE id = 'g1'`);
+    expect(before[0].values[0][0]).toBe('ghost-icon-id');
+
+    // Run migrations (should repair orphans)
+    db.runMigrations();
+
+    // Orphaned reference should be NULLed
+    const after = rawDb.exec(`SELECT groupIcon FROM groupData WHERE id = 'g1'`);
+    expect(after[0].values[0][0]).toBeNull();
+
+    db.close();
+  });
 });
