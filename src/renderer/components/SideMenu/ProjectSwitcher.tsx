@@ -12,10 +12,11 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
   const projectName = useAppStore((s: any) => s.projectName);
   const projectDisplayName = useAppStore((s: any) => s.projectDisplayName);
   const projectColor = useAppStore((s: any) => s.projectColor);
+  const isDirty = useAppStore((s: any) => s.isDirty);
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
-  const { histProj, removeHistItem, refresh } = useRecentProjects();
 
   const displayName = projectDisplayName || projectName;
+  const { histProj, removeHistItem, refresh } = useRecentProjects();
 
   const [open, setOpen] = useState(false);
   const [posReady, setPosReady] = useState(false);
@@ -92,6 +93,7 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
       >
         <ProjectAvatar name={displayName} size={20} color={projectColor} />
         <span className="truncate">{displayName}</span>
+        {isDirty && <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-foreground-muted/50" />}
         <svg
           width="10"
           height="10"
