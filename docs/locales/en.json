@@ -21,6 +21,8 @@
   "story3.label": "Organization",
   "story3.title": "Groups that keep icons in order",
   "story3.desc": "Move icons between groups in seconds. Create, reorder, and nest groups to match your project structure. Save everything as a .icp project file and pick up exactly where you left off.",
+  "changelog.title": "What's New",
+  "changelog.allReleases": "All releases →",
   "footer.releases": "Releases",
   "meta.title": "Bobcorn — Icon Manager & Icon Font Generator for Windows & macOS",
   "meta.desc": "Free, open-source desktop app to organize, manage, and generate icon fonts. Import SVGs, group and search thousands of icons, edit colors, and export to SVG, TTF, WOFF, WOFF2, EOT — all in one click. Available for Windows and macOS."

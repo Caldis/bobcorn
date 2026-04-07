@@ -21,6 +21,8 @@
   "story3.label": "Organizasyon",
   "story3.title": "İkonları düzenli tutan gruplar",
   "story3.desc": "İkonları gruplar arasında saniyeler içinde taşıyın. Proje yapısına uygun gruplar oluşturun, yeniden sıralayın ve iç içe geçirin. Her şeyi .icp proje dosyası olarak kaydedin ve kaldığınız yerden devam edin.",
+  "changelog.title": "Yenilikler",
+  "changelog.allReleases": "Tüm sürümler →",
   "footer.releases": "Sürümler",
   "meta.title": "Bobcorn — Windows ve macOS için İkon Yöneticisi ve İkon Font Üreticisi",
   "meta.desc": "İkon fontlarını düzenlemek, yönetmek ve oluşturmak için ücretsiz, açık kaynaklı masaüstü uygulaması. SVG'leri içe aktarın, binlerce ikonu gruplayın ve arayın, renkleri düzenleyin ve SVG, TTF, WOFF, WOFF2, EOT'ye aktarın — hepsi tek tıkla. Windows ve macOS için kullanılabilir."

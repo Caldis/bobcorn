@@ -21,6 +21,8 @@
   "story3.label": "그룹 관리",
   "story3.title": "그룹으로 아이콘을 깔끔하게 정리",
   "story3.desc": "그룹 간 아이콘 이동은 몇 초면 끝. 프로젝트 구조에 맞게 그룹을 만들고, 정렬하고, 중첩하세요. .icp 프로젝트 파일로 저장하면 다음에 열 때 바로 이어서 작업할 수 있습니다.",
+  "changelog.title": "새로운 기능",
+  "changelog.allReleases": "모든 릴리스 →",
   "footer.releases": "릴리스",
   "meta.title": "Bobcorn — Windows & macOS 아이콘 관리 및 아이콘 폰트 생성 도구",
   "meta.desc": "무료 오픈소스 데스크톱 앱으로 아이콘을 관리, 정리하고 아이콘 폰트를 생성하세요. SVG 가져오기, 수천 개 아이콘 그룹 관리 및 검색, 색상 편집, SVG·TTF·WOFF·WOFF2·EOT 원클릭 내보내기를 지원합니다. Windows와 macOS에서 사용 가능합니다."

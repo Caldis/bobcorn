@@ -21,6 +21,8 @@
   "story3.label": "Organisasi",
   "story3.title": "Grup yang menjaga ikon tetap rapi",
   "story3.desc": "Pindahkan ikon antar grup dalam hitungan detik. Buat, urutkan ulang, dan kelompokkan bersarang sesuai struktur proyek Anda. Simpan semuanya sebagai file proyek .icp dan lanjutkan tepat dari posisi terakhir.",
+  "changelog.title": "Yang Baru",
+  "changelog.allReleases": "Semua rilis →",
   "footer.releases": "Rilis",
   "meta.title": "Bobcorn — Pengelola Ikon & Pembuat Font Ikon untuk Windows & macOS",
   "meta.desc": "Aplikasi desktop gratis dan open source untuk mengelola, mengatur, dan membuat font ikon. Impor SVG, kelompokkan dan cari ribuan ikon, edit warna, dan ekspor ke SVG, TTF, WOFF, WOFF2, EOT — semuanya dalam satu klik. Tersedia untuk Windows dan macOS."

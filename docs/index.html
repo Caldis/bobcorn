@@ -356,6 +356,118 @@
             color: var(--accent);
         }
 
+        /* ─── Changelog ─── */
+        .changelog {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 104px 48px 64px;
+        }
+
+        .changelog-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .changelog-header h2 {
+            font-family: var(--serif);
+            font-size: clamp(28px, 3.5vw, 40px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .changelog-header a {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .changelog-header a:hover { color: var(--accent); }
+
+        .changelog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .changelog-entry {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 32px;
+            padding: 32px 0;
+            border-top: 1px solid var(--divider);
+        }
+
+        .changelog-entry:last-child {
+            padding-bottom: 0;
+        }
+
+        .changelog-meta {
+            position: sticky;
+            top: 80px;
+            align-self: start;
+        }
+
+        .changelog-version {
+            font-family: var(--mono);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .changelog-date {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .changelog-items {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 4px;
+        }
+
+        .changelog-items li {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .changelog-items li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.6;
+        }
+
+        @media (max-width: 900px) {
+            .changelog { padding: 72px 24px 48px; }
+            .changelog-entry {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .changelog-meta { position: static; }
+        }
+
+        @media (max-width: 680px) {
+            .changelog { padding: 56px 20px 36px; }
+            .changelog-header { margin-bottom: 32px; }
+        }
+
         /* ─── Footer ─── */
         footer {
             max-width: 1200px;
@@ -670,6 +782,17 @@
             </div>
         </section>
 
+        <div class="divider"></div>
+
+        <!-- ─── Changelog ─── -->
+        <section class="changelog" id="changelog">
+            <div class="changelog-header reveal">
+                <h2 data-i18n="changelog.title">What's New</h2>
+                <a href="https://github.com/Caldis/bobcorn/releases" data-i18n="changelog.allReleases">All releases →</a>
+            </div>
+            <div class="changelog-list" id="changelogList"></div>
+        </section>
+
     </main>
 
     <footer>
@@ -799,6 +922,9 @@
                 var file = img.getAttribute('data-screenshot');
                 img.setAttribute('src', 'screenshots/' + shotDir + '/' + file);
             });
+
+            // Re-render changelog in new language
+            if (window._rerenderChangelog) window._rerenderChangelog(lang);
         }).catch(function() {});
     }
 
@@ -887,6 +1013,49 @@
                 if (assetUrl) {
                     document.getElementById('downloadBtn').href = assetUrl;
                 }
+            })
+            .catch(function() {});
+    })();
+
+    /* ─── Changelog ─── */
+    (function() {
+        var lang = currentLang || 'en';
+        var langKey = lang.startsWith('zh') ? 'zh' : 'en';
+
+        fetch('changelog.json', { cache: 'no-cache' })
+            .then(function(r) { return r.json(); })
+            .then(function(entries) {
+                var container = document.getElementById('changelogList');
+                if (!container || !entries.length) return;
+
+                entries.forEach(function(entry) {
+                    var items = (entry.changes && (entry.changes[langKey] || entry.changes.en)) || [];
+                    var li = items.map(function(text) {
+                        return '<li>' + text + '</li>';
+                    }).join('');
+
+                    var el = document.createElement('div');
+                    el.className = 'changelog-entry reveal';
+                    el.innerHTML =
+                        '<div class="changelog-meta">' +
+                            '<div class="changelog-version">' + entry.version + '</div>' +
+                            '<div class="changelog-date">' + entry.date + '</div>' +
+                        '</div>' +
+                        '<ul class="changelog-items">' + li + '</ul>';
+                    container.appendChild(el);
+                });
+
+                // store render function for language switch
+                window._rerenderChangelog = function(newLang) {
+                    var lk = newLang.startsWith('zh') ? 'zh' : 'en';
+                    entries.forEach(function(entry, i) {
+                        var items = (entry.changes && (entry.changes[lk] || entry.changes.en)) || [];
+                        var ul = container.children[i] && container.children[i].querySelector('.changelog-items');
+                        if (ul) {
+                            ul.innerHTML = items.map(function(t) { return '<li>' + t + '</li>'; }).join('');
+                        }
+                    });
+                };
             })
             .catch(function() {});
     })();

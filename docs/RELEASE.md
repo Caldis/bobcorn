@@ -38,6 +38,29 @@ npm run package-win
 
 ## Release Steps
 
+### 1. 生成 Changelog (AI 工作流)
+
+发版前由 AI (Claude Code) 生成 changelog 条目：
+
+```
+1. AI 执行 git log <last-tag>..HEAD 分析 commits
+2. 生成面向用户的 zh/en 描述 (非 commit message)
+3. 生成 summary (简短摘要，用于 app 内更新卡片) 和 changes (详细列表，用于官网)
+4. 写入 docs/changelog.json 顶部
+```
+
+`docs/changelog.json` 数据结构 (双用途 — 官网 + app 更新卡片)：
+```json
+{
+  "version": "1.x.x",
+  "date": "YYYY-MM-DD",
+  "summary": { "zh": "简短摘要", "en": "Brief summary" },
+  "changes": { "zh": ["详细条目..."], "en": ["Detailed items..."] }
+}
+```
+
+### 2. 发版
+
 ```bash
 # Patch release (bug fixes): 1.0.0 → 1.0.1
 npm version patch
@@ -52,7 +75,7 @@ npm version major
 git push origin master --follow-tags
 ```
 
-`npm version` 会自动执行 `npm run docs:sync`，同步官网首页版本徽章、SEO `softwareVersion` 和 `docs/release.json`。
+`npm version` 会自动执行 `npm run docs:sync`，同步官网首页版本徽章、SEO `softwareVersion`、`docs/release.json`（含平台直链）。
 
 **发版后不要手动创建 `gh release`** — CI 会自动处理。手动创建会导致 CI 产物丢失。
 

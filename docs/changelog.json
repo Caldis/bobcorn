@@ -1,0 +1,82 @@
+[
+  {
+    "version": "1.12.1",
+    "date": "2026-04-08",
+    "summary": {
+      "zh": "颜色选择器支持主题跟随，下载直链优化",
+      "en": "Theme-aware color picker, direct download links"
+    },
+    "changes": {
+      "zh": [
+        "颜色选择器支持 currentColor 主题跟随，自动显示实际渲染色",
+        "下载按钮直链到对应平台安装包",
+        "导出行布局优化，格式选择移至最左"
+      ],
+      "en": [
+        "Color picker resolves currentColor to actual theme foreground",
+        "Download button links directly to platform installer",
+        "Export row layout improved, format selector moved to leading position"
+      ]
+    }
+  },
+  {
+    "version": "1.12.0",
+    "date": "2026-04-05",
+    "summary": {
+      "zh": "项目设置、变体面板、状态指示",
+      "en": "Project settings, variant panel, state indicators"
+    },
+    "changes": {
+      "zh": [
+        "项目切换器显示未保存状态指示点",
+        "变体面板标记为 Beta 并默认折叠",
+        "新增项目设置对话框（描述、颜色）"
+      ],
+      "en": [
+        "Project switcher shows unsaved changes indicator",
+        "Variant panel marked as Beta, collapsed by default",
+        "New project settings dialog (description, color)"
+      ]
+    }
+  },
+  {
+    "version": "1.11.0",
+    "date": "2026-03-28",
+    "summary": {
+      "zh": "多项目切换与内存优化",
+      "en": "Multi-project switching and memory optimization"
+    },
+    "changes": {
+      "zh": [
+        "新增项目切换器，支持多项目快速切换",
+        "修复反复切换项目时 sql.js 内存溢出",
+        "CLI 维护指南与 Wiki 重构"
+      ],
+      "en": [
+        "New project switcher for fast multi-project navigation",
+        "Fixed sql.js OOM on repeated project switching",
+        "CLI maintenance guide and Wiki restructure"
+      ]
+    }
+  },
+  {
+    "version": "1.10.0",
+    "date": "2026-03-21",
+    "summary": {
+      "zh": "图标多格式导出",
+      "en": "Multi-format icon export"
+    },
+    "changes": {
+      "zh": [
+        "图标导出功能：支持 PNG、JPG、WebP、SVG、PDF、ICO 多格式",
+        "支持自定义尺寸、缩放比例和背景色",
+        "修复单引号 viewBox 和非正方形导出问题"
+      ],
+      "en": [
+        "Icon export: PNG, JPG, WebP, SVG, PDF, ICO multi-format support",
+        "Custom size, scale, and background color options",
+        "Fixed single-quote viewBox and non-square export issues"
+      ]
+    }
+  }
+]
