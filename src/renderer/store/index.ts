@@ -31,6 +31,9 @@ export interface State {
   // 批量预取的图标内容 — 虚拟滚动可见区域批量加载
   prefetchedContent: Record<string, string>;
 
+  // Project
+  projectName: string;
+
   // File state
   currentFilePath: string | null;
   isDirty: boolean;
@@ -110,6 +113,9 @@ const useAppStore = create<State & Actions>((set, get) => ({
   iconContentVersion: 0,
   patchedIcons: {},
   prefetchedContent: {},
+
+  // Project
+  projectName: 'iconfont',
 
   // File state
   currentFilePath: (getOption('currentFilePath') as string | null) ?? null,
@@ -221,7 +227,13 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // 重同步：刷新分组列表（触发 ResourceNav 计数 + GroupList 计数 + IconGridLocal 重载）
   syncLeft: () => {
     const data = (db as any).getGroupList();
-    set({ groupData: data });
+    let projectName = 'iconfont';
+    try {
+      projectName = (db as any).getProjectName() || 'iconfont';
+    } catch {
+      /* db not initialized yet */
+    }
+    set({ groupData: data, projectName });
   },
 
   // 轻同步：只通知图标内容变了（不触发分组列表/计数/网格重载）

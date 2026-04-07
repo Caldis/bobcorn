@@ -120,6 +120,7 @@ interface SqlJsDatabase {
   exec(sql: string, params?: any[]): SqlJsQueryResult[];
   prepare(sql: string): SqlJsStatement;
   export(): Uint8Array;
+  close(): void;
 }
 
 interface SqlJsQueryResult {
@@ -436,6 +437,13 @@ class Database {
   // 删库跑路~
   destroyDatabase = (): void => {
     dev && console.log('destroyDatabase');
+    if (this.db) {
+      try {
+        this.db.close();
+      } catch {
+        /* already closed */
+      }
+    }
     this.dbInited = false;
     this.db = null;
   };

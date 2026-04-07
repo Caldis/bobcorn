@@ -1,5 +1,5 @@
 // React
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 // UI
 import { message } from '../ui/toast';
@@ -7,8 +7,10 @@ import { message } from '../ui/toast';
 import { cn } from '../../lib/utils';
 import { projImporter } from '../../utils/importer';
 import { cpLoader, icpLoader } from '../../utils/loaders';
-// Config
-import { getOption, setOption } from '../../config';
+// Hooks
+import { useRecentProjects, getFileDisplayName } from '../../hooks/useRecentProjects';
+// Components
+import { ProjectItem } from '../ProjectItem';
 // Store
 import useAppStore from '../../store';
 // Assets
@@ -59,96 +61,21 @@ function SplashScreen() {
     });
   };
 
-  // 历史记录状态 (用 state 驱动 re-render)
-  const [histProj, setHistProj] = useState<string[]>(() => getOption('histProj') as string[]);
-
-  const removeHistItem = (pathToRemove: string) => {
-    const updated = histProj.filter((p) => p !== pathToRemove);
-    setOption({ histProj: updated });
-    setHistProj(updated);
-  };
-
-  const clearAllHist = () => {
-    setOption({ histProj: [] });
-    setHistProj([]);
-  };
-
-  /** Extract the filename from a full path for display */
-  const getFileName = (filePath: string): string => {
-    const parts = filePath.replace(/\\/g, '/').split('/');
-    return parts[parts.length - 1] || filePath;
-  };
+  // 历史记录 — 与 ProjectSwitcher 共享同一数据源
+  const { histProj, removeHistItem, clearAllHist } = useRecentProjects();
 
   // 历史项目列表
   const buildHistProj = () => {
     if (histProj.length > 0) {
-      return histProj.map((path: string, index: number) => (
-        <div
-          key={index}
-          className={cn(
-            'group flex items-center gap-2.5 w-full px-3 py-2 rounded-md',
-            'text-sm text-left',
-            'text-foreground-muted',
-            'transition-all duration-200',
-            'hover:bg-accent-subtle hover:text-accent'
-          )}
-        >
-          <button
-            title={path}
-            onClick={() => handleImportProj(path)}
-            className="flex items-center gap-2.5 min-w-0 flex-1 truncate focus:outline-none"
-          >
-            {/* file icon */}
-            <svg
-              className={cn(
-                'w-4 h-4 shrink-0 text-foreground-muted/50',
-                'group-hover:text-accent',
-                'transition-colors duration-200'
-              )}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
-
-            <span className="truncate font-medium">{getFileName(path)}</span>
-            <span className="hidden group-hover:inline-block ml-auto text-xs text-foreground-muted/60 truncate max-w-[180px]">
-              {path}
-            </span>
-          </button>
-          {/* delete button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              removeHistItem(path);
-            }}
-            title={t('splash.removeRecord')}
-            className={cn(
-              'shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100',
-              'text-foreground-muted/40 hover:text-danger',
-              'transition-all duration-150',
-              'focus:outline-none focus:opacity-100'
-            )}
-          >
-            <svg
-              className="w-3.5 h-3.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
+      return histProj.map((path: string) => (
+        <ProjectItem
+          key={path}
+          name={getFileDisplayName(path)}
+          path={path}
+          onClick={() => handleImportProj(path)}
+          onRemove={() => removeHistItem(path)}
+          removeTitle={t('splash.removeRecord')}
+        />
       ));
     } else {
       return (

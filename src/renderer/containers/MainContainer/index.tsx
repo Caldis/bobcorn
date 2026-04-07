@@ -362,9 +362,12 @@ function MainContainer() {
 
   // ── FileMenuBar custom events (renderer-side file menu) ──────────
   useEffect(() => {
-    const handlers: Record<string, () => void> = {
+    const handlers: Record<string, (e: Event) => void> = {
       'bobcorn:new-project': () => handleNewProject(),
-      'bobcorn:open-project': () => handleOpenProject(),
+      'bobcorn:open-project': (e: Event) => {
+        const path = (e as CustomEvent).detail?.path as string | undefined;
+        handleOpenProject(path);
+      },
       'bobcorn:save': () => handleSave(),
       'bobcorn:save-as': () => handleSaveAs(),
       'bobcorn:close-project': () => handleCloseProject(),

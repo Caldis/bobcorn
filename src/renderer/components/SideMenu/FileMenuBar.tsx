@@ -5,6 +5,7 @@ import { FilePlus2, FolderOpen, Save, SaveAll, Import, Upload, Settings, X } fro
 import { cn } from '../../lib/utils';
 import { platform } from '../../utils/tools';
 import UpdateIndicator from './UpdateIndicator';
+import ProjectSwitcher from './ProjectSwitcher';
 
 const mod = platform() === 'darwin' ? '⌘' : 'Ctrl+';
 
@@ -19,11 +20,13 @@ interface FileMenuItem {
 interface FileMenuBarProps {
   onMenuAction: (key: string) => void;
   onInstallUpdate: () => void;
+  onSettingsClick: () => void;
 }
 
 const FileMenuBar = React.memo(function FileMenuBar({
   onMenuAction,
   onInstallUpdate,
+  onSettingsClick,
 }: FileMenuBarProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -131,36 +134,29 @@ const FileMenuBar = React.memo(function FileMenuBar({
           description: t('menu.file.closeProjectDesc'),
         },
       ],
-      [
-        {
-          key: 'settings',
-          icon: <Settings size={15} />,
-          label: t('menu.file.settings'),
-          description: t('menu.file.settingsDesc'),
-        },
-      ],
     ],
     [t]
   );
 
   return (
     <>
-      <div className="flex shrink-0 items-center border-t border-border px-2.5 h-[49px] pb-1">
+      <div className="flex shrink-0 items-center border-t border-border px-1.5 h-[49px] pb-1 gap-0.5">
+        {/* File menu trigger — icon only */}
         <button
           ref={triggerRef}
           onClick={() => setOpen(!open)}
           data-testid="file-menu-btn"
           className={cn(
-            'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md',
-            'text-[13px] font-medium text-foreground-muted',
+            'inline-flex items-center justify-center w-8 h-8 rounded-md shrink-0',
+            'text-foreground-muted',
             'transition-colors duration-100',
             'hover:bg-surface-accent hover:text-foreground',
             open && 'bg-surface-accent text-foreground'
           )}
         >
           <svg
-            width="14"
-            height="14"
+            width="15"
+            height="15"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -171,23 +167,28 @@ const FileMenuBar = React.memo(function FileMenuBar({
             <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
             <path d="M14 2v4a2 2 0 0 0 2 2h4" />
           </svg>
-          {t('menu.file')}
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={cn('transition-transform duration-150', open && 'rotate-180')}
-          >
-            <polyline points="18 15 12 9 6 15" />
-          </svg>
         </button>
-        <div className="ml-auto flex items-center">
+
+        {/* Project switcher — flex center */}
+        <div className="flex-1 min-w-0">
+          <ProjectSwitcher />
+        </div>
+
+        {/* Update indicator + Settings */}
+        <div className="flex items-center shrink-0">
           <UpdateIndicator onInstall={onInstallUpdate} />
+          <button
+            onClick={onSettingsClick}
+            data-testid="settings-btn"
+            className={cn(
+              'inline-flex items-center justify-center w-8 h-8 rounded-md',
+              'text-foreground-muted',
+              'transition-colors duration-100',
+              'hover:bg-surface-accent hover:text-foreground'
+            )}
+          >
+            <Settings size={15} />
+          </button>
         </div>
       </div>
 

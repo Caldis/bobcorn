@@ -457,6 +457,11 @@
   "settings.ai.variantIntelligenceDesc": "AI 推荐最佳粗细与尺寸参数",
   "settings.ai.stayTuned": "敬请期待更多更新。",
 
+  "project.settings": "项目设置",
+  "project.recent": "最近打开的项目",
+  "project.noRecent": "没有最近打开的项目",
+  "project.removeRecord": "从列表中移除",
+
   "common.cancel": "取消",
   "common.confirm": "确认",
   "common.save": "保存",

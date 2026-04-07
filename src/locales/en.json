@@ -457,6 +457,11 @@
   "settings.ai.variantIntelligenceDesc": "AI-recommended weight & scale parameters",
   "settings.ai.stayTuned": "Stay tuned for updates.",
 
+  "project.settings": "Project Settings",
+  "project.recent": "Recent Projects",
+  "project.noRecent": "No recent projects",
+  "project.removeRecord": "Remove from list",
+
   "common.cancel": "Cancel",
   "common.confirm": "Confirm",
   "common.save": "Save",
