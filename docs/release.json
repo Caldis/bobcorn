@@ -6,6 +6,10 @@
   "latestUrl": "https://github.com/Caldis/bobcorn/releases/latest",
   "releaseUrl": "https://github.com/Caldis/bobcorn/releases/tag/v1.12.1",
   "downloads": {
+    "windows": "https://github.com/Caldis/bobcorn/releases/download/v1.12.1/Bobcorn-Setup-1.12.1.exe",
+    "mac": "https://github.com/Caldis/bobcorn/releases/download/v1.12.1/Bobcorn-1.12.1.dmg",
+    "mac-arm64": "https://github.com/Caldis/bobcorn/releases/download/v1.12.1/Bobcorn-1.12.1-arm64.dmg",
+    "linux": "https://github.com/Caldis/bobcorn/releases/download/v1.12.1/Bobcorn-1.12.1.AppImage",
     "default": "https://github.com/Caldis/bobcorn/releases/latest"
   }
 }

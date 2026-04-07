@@ -28,6 +28,7 @@ const releasesUrl = `https://github.com/${owner}/${repo}/releases`;
 const latestUrl = `${releasesUrl}/latest`;
 const releaseUrl = `${releasesUrl}/tag/${tag}`;
 
+const dlBase = `${releasesUrl}/download/${tag}`;
 const releaseMeta = {
   version,
   tag,
@@ -36,6 +37,10 @@ const releaseMeta = {
   latestUrl,
   releaseUrl,
   downloads: {
+    windows: `${dlBase}/Bobcorn-Setup-${version}.exe`,
+    mac: `${dlBase}/Bobcorn-${version}.dmg`,
+    'mac-arm64': `${dlBase}/Bobcorn-${version}-arm64.dmg`,
+    linux: `${dlBase}/Bobcorn-${version}.AppImage`,
     default: latestUrl,
   },
 };
