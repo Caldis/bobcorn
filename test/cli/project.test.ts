@@ -2,7 +2,7 @@
  * CLI project/icon/group command tests — validates real core operations.
  */
 import { describe, it, expect, afterEach } from 'vitest';
-import { run, runJson, tmpProject } from './helpers';
+import { run, runJson, tmpProject, SF_SYMBOLS_ICP, HAS_SF_FIXTURE } from './helpers';
 import { join } from 'node:path';
 
 describe('project create', () => {
@@ -236,9 +236,7 @@ describe('group list', () => {
 // ---------------------------------------------------------------------------
 // sf-symbols fixture tests — validate against real 7007-icon project
 // ---------------------------------------------------------------------------
-const SF_SYMBOLS_ICP = join(__dirname, '..', 'fixtures', 'sf-symbols', 'sf-symbols.icp');
-
-describe('sf-symbols: project inspect', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('sf-symbols: project inspect', () => {
   it('reads correct project name and counts', async () => {
     const { json, raw } = await runJson(['project', 'inspect', SF_SYMBOLS_ICP]);
     expect(raw.exitCode).toBe(0);
@@ -266,7 +264,7 @@ describe('sf-symbols: project inspect', () => {
   });
 });
 
-describe('sf-symbols: icon list', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('sf-symbols: icon list', () => {
   it('lists all 7007 icons', async () => {
     const { json, raw } = await runJson(['icon', 'list', SF_SYMBOLS_ICP]);
     expect(raw.exitCode).toBe(0);
@@ -305,7 +303,7 @@ describe('sf-symbols: icon list', () => {
   });
 });
 
-describe('sf-symbols: group list', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('sf-symbols: group list', () => {
   it('lists all 28 groups', async () => {
     const { json, raw } = await runJson(['group', 'list', SF_SYMBOLS_ICP]);
     expect(raw.exitCode).toBe(0);

@@ -6,10 +6,8 @@
  * Read-only tests (get-content) use the fixture directly.
  */
 import { describe, it, expect, afterEach } from 'vitest';
-import { run, runJson, tmpProject, writeSvg, copyFixture } from './helpers';
+import { run, runJson, tmpProject, writeSvg, copyFixture, SF_SYMBOLS_ICP, HAS_SF_FIXTURE } from './helpers';
 import { join } from 'node:path';
-
-const SF_SYMBOLS_ICP = join(__dirname, '..', 'fixtures', 'sf-symbols', 'sf-symbols.icp');
 
 // ---------------------------------------------------------------------------
 // icon import
@@ -145,7 +143,7 @@ describe('icon delete', () => {
     }
   });
 
-  it('deletes an icon from a copy of the fixture', async () => {
+  it.skipIf(!HAS_SF_FIXTURE)('deletes an icon from a copy of the fixture', async () => {
     const fixture = await copyFixture(SF_SYMBOLS_ICP);
     cleanup = fixture.cleanup;
 
@@ -212,7 +210,7 @@ describe('icon rename', () => {
     }
   });
 
-  it('renames an icon in the fixture copy', async () => {
+  it.skipIf(!HAS_SF_FIXTURE)('renames an icon in the fixture copy', async () => {
     const fixture = await copyFixture(SF_SYMBOLS_ICP);
     cleanup = fixture.cleanup;
 
@@ -334,7 +332,7 @@ describe('icon move', () => {
 // icon get-content
 // ---------------------------------------------------------------------------
 describe('icon get-content', () => {
-  it('returns SVG content from fixture', async () => {
+  it.skipIf(!HAS_SF_FIXTURE)('returns SVG content from fixture', async () => {
     // Find the 'accessibility' icon
     const { json: listJson } = await runJson(['icon', 'list', SF_SYMBOLS_ICP, '--group', 'Accessibility']);
     const icon = listJson.data.find((i: any) => i.iconName === 'accessibility');
@@ -346,7 +344,7 @@ describe('icon get-content', () => {
     expect(json.data.content).toContain('<svg');
   });
 
-  it('outputs raw SVG in human mode', async () => {
+  it.skipIf(!HAS_SF_FIXTURE)('outputs raw SVG in human mode', async () => {
     const { json: listJson } = await runJson(['icon', 'list', SF_SYMBOLS_ICP, '--group', 'Accessibility']);
     const icon = listJson.data.find((i: any) => i.iconName === 'accessibility');
 
@@ -357,7 +355,7 @@ describe('icon get-content', () => {
     expect(result.stdout).not.toContain('"ok"');
   });
 
-  it('fails for nonexistent icon', async () => {
+  it.skipIf(!HAS_SF_FIXTURE)('fails for nonexistent icon', async () => {
     const { json, raw } = await runJson(['icon', 'get-content', SF_SYMBOLS_ICP, 'nonexistent-uuid']);
     expect(raw.exitCode).toBe(2);
     expect(json.ok).toBe(false);
@@ -522,7 +520,7 @@ describe('group delete', () => {
     expect(iconList.data[0].iconName).toBe('orphan');
   });
 
-  it('deletes a group from fixture copy', async () => {
+  it.skipIf(!HAS_SF_FIXTURE)('deletes a group from fixture copy', async () => {
     const fixture = await copyFixture(SF_SYMBOLS_ICP);
     cleanup = fixture.cleanup;
 

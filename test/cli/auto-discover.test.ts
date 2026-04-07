@@ -7,11 +7,9 @@
  *   3. Auto-discover *.icp in current directory
  */
 import { describe, it, expect, afterEach } from 'vitest';
-import { run, runJson, tmpProject } from './helpers';
+import { run, runJson, tmpProject, SF_SYMBOLS_ICP, HAS_SF_FIXTURE } from './helpers';
 import { join } from 'node:path';
 import { copyFile, writeFile } from 'node:fs/promises';
-
-const SF_SYMBOLS_ICP = join(__dirname, '..', 'fixtures', 'sf-symbols', 'sf-symbols.icp');
 
 describe('auto-discover: single .icp in cwd', () => {
   let cleanup: (() => Promise<void>) | undefined;
@@ -147,7 +145,7 @@ describe('explicit path (backward compatible)', () => {
     expect(json.data).toEqual([]);
   });
 
-  it('project inspect with explicit path still works', async () => {
+  it.skipIf(!HAS_SF_FIXTURE)('project inspect with explicit path still works', async () => {
     // Use the sf-symbols fixture directly
     const { json, raw } = await runJson(['project', 'inspect', SF_SYMBOLS_ICP]);
     expect(raw.exitCode).toBe(0);
@@ -180,7 +178,7 @@ describe('--project global flag', () => {
     expect(json.data).toEqual([]);
   });
 
-  it('project inspect works with --project flag', async () => {
+  it.skipIf(!HAS_SF_FIXTURE)('project inspect works with --project flag', async () => {
     const { json, raw } = await runJson(['--project', SF_SYMBOLS_ICP, 'project', 'inspect']);
     expect(raw.exitCode).toBe(0);
     expect(json.ok).toBe(true);

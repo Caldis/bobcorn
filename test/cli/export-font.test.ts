@@ -5,16 +5,14 @@
  * All tests use temp directories for output.
  */
 import { describe, it, expect, afterEach } from 'vitest';
-import { run, runJson, tmpProject, copyFixture } from './helpers';
+import { run, runJson, tmpProject, copyFixture, SF_SYMBOLS_ICP, HAS_SF_FIXTURE } from './helpers';
 import { join } from 'node:path';
 import { readFile, readdir, access } from 'node:fs/promises';
-
-const SF_SYMBOLS_ICP = join(__dirname, '..', 'fixtures', 'sf-symbols', 'sf-symbols.icp');
 
 // ---------------------------------------------------------------------------
 // export font
 // ---------------------------------------------------------------------------
-describe('export font', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('export font', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -162,7 +160,7 @@ describe('export font', () => {
 // ---------------------------------------------------------------------------
 // export svg
 // ---------------------------------------------------------------------------
-describe('export svg', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('export svg', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
