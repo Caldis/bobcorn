@@ -6,16 +6,14 @@
  * All write tests use temp copies of the sf-symbols fixture to avoid mutation.
  */
 import { describe, it, expect, afterEach } from 'vitest';
-import { run, runJson, tmpProject, writeSvg, copyFixture } from './helpers';
+import { run, runJson, tmpProject, writeSvg, copyFixture, SF_SYMBOLS_ICP, HAS_SF_FIXTURE } from './helpers';
 import { join } from 'node:path';
 import { readFile, access } from 'node:fs/promises';
-
-const SF_SYMBOLS_ICP = join(__dirname, '..', 'fixtures', 'sf-symbols', 'sf-symbols.icp');
 
 // ---------------------------------------------------------------------------
 // icon copy
 // ---------------------------------------------------------------------------
-describe('icon copy', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('icon copy', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -70,7 +68,7 @@ describe('icon copy', () => {
 // ---------------------------------------------------------------------------
 // icon set-code
 // ---------------------------------------------------------------------------
-describe('icon set-code', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('icon set-code', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -128,7 +126,7 @@ describe('icon set-code', () => {
 // ---------------------------------------------------------------------------
 // icon replace
 // ---------------------------------------------------------------------------
-describe('icon replace', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('icon replace', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -168,7 +166,7 @@ describe('icon replace', () => {
 // ---------------------------------------------------------------------------
 // icon export-svg
 // ---------------------------------------------------------------------------
-describe('icon export-svg', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('icon export-svg', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -204,7 +202,7 @@ describe('icon export-svg', () => {
 // ---------------------------------------------------------------------------
 // icon set-favorite + favorite list
 // ---------------------------------------------------------------------------
-describe('icon set-favorite', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('icon set-favorite', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -261,7 +259,7 @@ describe('icon set-favorite', () => {
 // ---------------------------------------------------------------------------
 // search
 // ---------------------------------------------------------------------------
-describe('search', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('search', () => {
   it('finds icons matching a query', async () => {
     const { json, raw } = await runJson(['search', SF_SYMBOLS_ICP, 'arrow']);
     expect(raw.exitCode).toBe(0);
@@ -292,7 +290,7 @@ describe('search', () => {
 // ---------------------------------------------------------------------------
 // favorite list (empty)
 // ---------------------------------------------------------------------------
-describe('favorite list', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('favorite list', () => {
   it('returns empty list when no favorites set', async () => {
     const { json, raw } = await runJson(['favorite', 'list', SF_SYMBOLS_ICP]);
     expect(raw.exitCode).toBe(0);
@@ -304,7 +302,7 @@ describe('favorite list', () => {
 // ---------------------------------------------------------------------------
 // group reorder
 // ---------------------------------------------------------------------------
-describe('group reorder', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('group reorder', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -350,7 +348,7 @@ describe('group reorder', () => {
 // ---------------------------------------------------------------------------
 // group set-description
 // ---------------------------------------------------------------------------
-describe('group set-description', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('group set-description', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -397,7 +395,7 @@ describe('group set-description', () => {
 // ---------------------------------------------------------------------------
 // group move-icons
 // ---------------------------------------------------------------------------
-describe('group move-icons', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('group move-icons', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -438,7 +436,7 @@ describe('group move-icons', () => {
 // ---------------------------------------------------------------------------
 // project set-name
 // ---------------------------------------------------------------------------
-describe('project set-name', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('project set-name', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -467,7 +465,7 @@ describe('project set-name', () => {
 // ---------------------------------------------------------------------------
 // project set-prefix
 // ---------------------------------------------------------------------------
-describe('project set-prefix', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('project set-prefix', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {

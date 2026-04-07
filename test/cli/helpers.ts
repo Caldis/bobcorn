@@ -7,8 +7,15 @@
  */
 import { execFile } from 'node:child_process';
 import { mkdtemp, writeFile, rm, copyFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+
+/** Path to the SF Symbols stress-test fixture (27MB, gitignored). */
+export const SF_SYMBOLS_ICP = join(__dirname, '..', 'fixtures', 'sf-symbols', 'sf-symbols.icp');
+
+/** true when the SF Symbols fixture exists on disk (missing on CI). */
+export const HAS_SF_FIXTURE = existsSync(SF_SYMBOLS_ICP);
 
 // Resolve CLI binary path relative to project root
 const CLI_BIN = join(__dirname, '..', '..', 'out', 'cli', 'index.cjs');

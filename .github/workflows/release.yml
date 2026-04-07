@@ -30,6 +30,9 @@ jobs:
       - name: Build
         run: npx electron-vite build
 
+      - name: Build CLI
+        run: npx tsup
+
       - name: Unit tests
         run: npx vitest run
 

@@ -5,15 +5,13 @@
  * All write tests use temp copies of the sf-symbols fixture to avoid mutation.
  */
 import { describe, it, expect, afterEach } from 'vitest';
-import { run, runJson, tmpProject, copyFixture } from './helpers';
+import { run, runJson, tmpProject, copyFixture, SF_SYMBOLS_ICP, HAS_SF_FIXTURE } from './helpers';
 import { join } from 'node:path';
-
-const SF_SYMBOLS_ICP = join(__dirname, '..', 'fixtures', 'sf-symbols', 'sf-symbols.icp');
 
 // ---------------------------------------------------------------------------
 // variant list
 // ---------------------------------------------------------------------------
-describe('variant list', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('variant list', () => {
   it('returns empty variants for icon with no variants', async () => {
     // sf-symbols icons should not have variants
     const { json: listJson } = await runJson([
@@ -50,7 +48,7 @@ describe('variant list', () => {
 // ---------------------------------------------------------------------------
 // variant delete
 // ---------------------------------------------------------------------------
-describe('variant delete', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('variant delete', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -99,7 +97,7 @@ describe('variant delete', () => {
 // ---------------------------------------------------------------------------
 // variant generate (stub — should fail with NOT_AVAILABLE_HEADLESS)
 // ---------------------------------------------------------------------------
-describe('variant generate', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('variant generate', () => {
   it('returns NOT_AVAILABLE_HEADLESS error', async () => {
     const { json, raw } = await runJson([
       'variant',
@@ -116,7 +114,7 @@ describe('variant generate', () => {
 // ---------------------------------------------------------------------------
 // project save-as
 // ---------------------------------------------------------------------------
-describe('project save-as', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('project save-as', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
@@ -191,7 +189,7 @@ describe('project save-as', () => {
 // ---------------------------------------------------------------------------
 // icon set-color
 // ---------------------------------------------------------------------------
-describe('icon set-color', () => {
+describe.skipIf(!HAS_SF_FIXTURE)('icon set-color', () => {
   let cleanup: (() => Promise<void>) | undefined;
 
   afterEach(async () => {
