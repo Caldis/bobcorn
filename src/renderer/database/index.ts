@@ -78,6 +78,9 @@ export interface GroupData {
 export interface ProjectAttributes {
   id: string;
   projectName: string;
+  displayName?: string;
+  description?: string;
+  projectColor?: string;
   createTime?: string;
   updateTime?: string;
 }
@@ -216,6 +219,23 @@ class Database {
           if (!hasFavCol) {
             this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN isFavorite INTEGER DEFAULT 0`);
             dev && console.log('Migration: added isFavorite column');
+          }
+          // Migration: add displayName, description, projectColor to projectAttributes
+          const projCols = this.db!.exec(`PRAGMA table_info(${projectAttributes})`);
+          if (projCols.length > 0) {
+            const projColNames = projCols[0].values.map((row: any) => row[1] as string);
+            if (!projColNames.includes('displayName')) {
+              this.db!.run(`ALTER TABLE ${projectAttributes} ADD COLUMN displayName varchar(255)`);
+              dev && console.log('Migration: added displayName column');
+            }
+            if (!projColNames.includes('description')) {
+              this.db!.run(`ALTER TABLE ${projectAttributes} ADD COLUMN description TEXT`);
+              dev && console.log('Migration: added description column');
+            }
+            if (!projColNames.includes('projectColor')) {
+              this.db!.run(`ALTER TABLE ${projectAttributes} ADD COLUMN projectColor varchar(32)`);
+              dev && console.log('Migration: added projectColor column');
+            }
           }
         } catch (e) {
           dev && console.error('Migration error:', e);
@@ -455,7 +475,7 @@ class Database {
     dev && console.log('initNewProject');
     // 创建配置表, 并配置触发器自动更新时间戳, 再初始化数据
     this.db!.run(
-      `CREATE TABLE ${projectAttributes} (id varchar(255), projectName varchar(255), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${projectAttributes} (id varchar(255), projectName varchar(255), displayName varchar(255), description TEXT, projectColor varchar(32), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db!.run(
       `CREATE TRIGGER ${projectAttributesTimeRenewTrigger} AFTER UPDATE ON ${projectAttributes} FOR EACH ROW BEGIN UPDATE ${projectAttributes} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -554,6 +574,65 @@ class Database {
   };
   getProjectName = (): string => {
     return this.getProjectAttributes('projectName');
+  };
+
+  // Display name (separate from font prefix)
+  getProjectDisplayName = (): string | null => {
+    return this.getProjectAttributes('displayName') || null;
+  };
+  setProjectDisplayName = (displayName: string | null, callback?: () => void): void => {
+    if (displayName !== null) {
+      this.setProjectAttributes({ displayName: sf(displayName) }, callback);
+    } else {
+      this.runMutation(
+        `UPDATE ${projectAttributes} SET displayName = NULL WHERE id = 'projectAttributes'`
+      );
+      callback?.();
+    }
+  };
+
+  // Project description
+  getProjectDescription = (): string | null => {
+    return this.getProjectAttributes('description') || null;
+  };
+  setProjectDescription = (description: string | null, callback?: () => void): void => {
+    if (description !== null) {
+      this.setProjectAttributes({ description: sf(description) }, callback);
+    } else {
+      this.runMutation(
+        `UPDATE ${projectAttributes} SET description = NULL WHERE id = 'projectAttributes'`
+      );
+      callback?.();
+    }
+  };
+
+  // Project color (avatar color override)
+  getProjectColor = (): string | null => {
+    return this.getProjectAttributes('projectColor') || null;
+  };
+  setProjectColor = (color: string | null, callback?: () => void): void => {
+    if (color !== null) {
+      this.setProjectAttributes({ projectColor: sf(color) }, callback);
+    } else {
+      this.runMutation(
+        `UPDATE ${projectAttributes} SET projectColor = NULL WHERE id = 'projectAttributes'`
+      );
+      callback?.();
+    }
+  };
+
+  // Project stats (read-only aggregates)
+  getProjectStats = (): {
+    iconCount: number;
+    groupCount: number;
+    createTime: string | null;
+    updateTime: string | null;
+  } => {
+    const iconCount = this.getDataCountsOfTable(iconData);
+    const groupCount = this.getDataCountsOfTable(groupData);
+    const createTime = this.getProjectAttributes('createTime') || null;
+    const updateTime = this.getProjectAttributes('updateTime') || null;
+    return { iconCount, groupCount, createTime, updateTime };
   };
 
   // 分组相关

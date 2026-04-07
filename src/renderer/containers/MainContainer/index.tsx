@@ -464,10 +464,13 @@ function MainContainer() {
   }, [handleInstallUpdate]);
 
   // ── Title bar sync ───────────────────────────────────────────────
+  const projectDisplayName = useAppStore((s: any) => s.projectDisplayName);
   useEffect(() => {
-    const name = currentFilePath ? electronAPI.pathBasename(currentFilePath, '.icp') : 'Untitled';
+    const name =
+      projectDisplayName ||
+      (currentFilePath ? electronAPI.pathBasename(currentFilePath, '.icp') : 'Untitled');
     document.title = `${name}${isDirty ? '*' : ''} — Bobcorn`;
-  }, [currentFilePath, isDirty]);
+  }, [currentFilePath, isDirty, projectDisplayName]);
 
   return (
     <div className="flex h-full w-full flex-row flex-nowrap">

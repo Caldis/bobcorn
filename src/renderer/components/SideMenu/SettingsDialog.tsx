@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dialog, Input } from '../ui';
+import { Dialog } from '../ui';
 import { Switch } from '../ui/switch';
 import { message } from '../ui/toast';
-import { confirm } from '../ui/dialog';
-import { isnContainSpace } from '../../utils/tools';
 import { cn } from '../../lib/utils';
 import { getOption, setOption } from '../../config';
 import type { OptionData } from '../../config';
-// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.inspect
-import db from '../../database';
 import useAppStore from '../../store';
 import appIcon from '../../resources/imgs/icon.png';
 import i18n from '../../i18n';
@@ -41,10 +37,6 @@ interface SettingsDialogProps {
 
 function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const { t } = useTranslation();
-  const syncLeft = useAppStore((state: any) => state.syncLeft);
-
-  const [editingPrefixText, setEditingPrefixText] = useState<string | null>(null);
-  const [editingPrefixErrText, setEditingPrefixErrText] = useState<string | null>(null);
 
   const opts = getOption() as OptionData;
   const [autoCheck, setAutoCheck] = useState(opts.autoCheckUpdate);
@@ -129,36 +121,6 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
       autoDownloadUpdate: current.autoDownloadUpdate,
       updateChannel: current.updateChannel,
     });
-  };
-
-  // Reset state when dialog opens
-  const prevVisibleRef = React.useRef(false);
-  if (visible && !prevVisibleRef.current) {
-    setEditingPrefixText(db.getProjectName());
-    setEditingPrefixErrText(null);
-  }
-  prevVisibleRef.current = visible;
-
-  const prefixChanged = editingPrefixText !== null && editingPrefixText !== db.getProjectName();
-
-  const handleApplyPrefix = () => {
-    if (isnContainSpace(editingPrefixText)) {
-      confirm({
-        title: t('prefix.confirmTitle'),
-        content: t('prefix.confirmContent'),
-        okText: t('prefix.confirmOk'),
-        okType: 'danger',
-        cancelText: t('common.cancel'),
-        onOk() {
-          db.setProjectName(editingPrefixText, () => {
-            message.success(t('prefix.success'));
-            syncLeft();
-          });
-        },
-      });
-    } else {
-      setEditingPrefixErrText(t('prefix.emptyError'));
-    }
   };
 
   const handleLanguageChange = (val: string) => {
@@ -585,56 +547,6 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 </span>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* ── Divider ───────────────────────────────────── */}
-        <div className="border-t border-border" />
-
-        {/* ── Advanced ───────────────────────────────── */}
-        <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-danger/70 mb-2.5'
-            )}
-          >
-            {t('settings.advanced')}
-          </h4>
-          <div className="rounded-md border border-danger/20 bg-danger-subtle p-3">
-            <label className="block text-sm text-danger mb-1.5">{t('settings.prefix')}</label>
-            <div className="flex items-center gap-2">
-              <Input
-                className="flex-1"
-                placeholder={t('prefix.placeholder')}
-                value={editingPrefixText}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setEditingPrefixText(e.target.value);
-                  setEditingPrefixErrText(null);
-                }}
-                onPressEnter={prefixChanged ? handleApplyPrefix : undefined}
-              />
-              <button
-                disabled={!prefixChanged}
-                onClick={handleApplyPrefix}
-                className={cn(
-                  'shrink-0 h-8 px-3 rounded-md text-sm font-medium',
-                  'transition-colors duration-150',
-                  'disabled:opacity-40 disabled:cursor-not-allowed',
-                  prefixChanged
-                    ? 'bg-danger text-accent-foreground hover:bg-danger/90 border border-danger'
-                    : 'bg-surface-muted text-foreground-muted border border-border'
-                )}
-              >
-                {t('settings.prefixApply')}
-              </button>
-            </div>
-            {editingPrefixErrText && (
-              <p className="text-[11px] text-danger mt-1">{editingPrefixErrText}</p>
-            )}
-            <p className="text-[11px] text-danger/50 mt-1.5 leading-relaxed">
-              {t('settings.prefixDesc')}
-            </p>
           </div>
         </section>
 
