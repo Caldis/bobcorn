@@ -23,7 +23,12 @@ import EnhanceInput from '../enhance/input';
 // Utils
 import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
-import { extractSvgColors, replaceSvgColor, parseCssColor } from '../../utils/svg/colors';
+import {
+  extractSvgColors,
+  replaceSvgColor,
+  parseCssColor,
+  resolveCurrentColor,
+} from '../../utils/svg/colors';
 import { platform } from '../../utils/tools';
 import { checkVariants, buildVariantWarning } from '../../utils/variantGuard';
 // Database
@@ -70,6 +75,7 @@ const SideEditor = React.memo(function SideEditor({
   const syncIconContent = useAppStore((state: any) => state.syncIconContent);
   const patchIconContent = useAppStore((state: any) => state.patchIconContent);
   const selectIcon = useAppStore((state: any) => state.selectIcon);
+  const darkMode = useAppStore((state: any) => state.darkMode);
 
   const [iconData, setIconData] = useState<IconDataRecord>({} as IconDataRecord);
   const [iconName, setIconName] = useState<string | null>(null);
@@ -370,10 +376,14 @@ const SideEditor = React.memo(function SideEditor({
   const [colorInputError, setColorInputError] = useState<boolean>(false);
   const [originalIconContent, setOriginalIconContent] = useState<string | null>(null);
 
+  // 解析 currentColor 为当前主题的实际前景色
+  // darkMode 作为依赖确保主题切换时重新解析
+  const resolvedForeground = useMemo(() => resolveCurrentColor(), [darkMode]);
+
   const svgColors = useMemo(() => {
     if (!iconData.iconContent) return [];
-    return extractSvgColors(iconData.iconContent);
-  }, [iconData.iconContent]);
+    return extractSvgColors(iconData.iconContent, resolvedForeground);
+  }, [iconData.iconContent, resolvedForeground]);
 
   // 点击颜色区域外部时关闭编辑面板（取色期间跳过）
   useEffect(() => {
@@ -400,8 +410,11 @@ const SideEditor = React.memo(function SideEditor({
     (newColor: string) => {
       if (editingColorIdx === null || !svgColors[editingColorIdx]) return;
       db.ensureOriginalContent(selectedIcon);
-      const oldColor = svgColors[editingColorIdx].color;
-      const updatedSvg = replaceSvgColor(iconData.iconContent, oldColor, newColor);
+      const colorInfo = svgColors[editingColorIdx];
+      // currentColor 元素使用精确匹配模式，避免误改无 fill 的隐式黑色元素
+      const updatedSvg = colorInfo.isCurrentColor
+        ? replaceSvgColor(iconData.iconContent, colorInfo.color, newColor, true)
+        : replaceSvgColor(iconData.iconContent, colorInfo.color, newColor);
       const escaped = updatedSvg.replace(/'/g, "''");
       db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
       sync(selectedIcon);
@@ -562,7 +575,7 @@ const SideEditor = React.memo(function SideEditor({
 
           {/* Section: 颜色编辑 */}
           {svgColors.length > 0 && (
-            <div className="mb-4" ref={colorSectionRef}>
+            <div className="mb-4">
               <h4
                 className={cn(
                   'flex items-center gap-1.5',
@@ -574,115 +587,135 @@ const SideEditor = React.memo(function SideEditor({
               >
                 <Palette size={12} />
                 {t('editor.color')}
-              </h4>
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {svgColors.map((c, i) => (
+                {colorChanged && (
                   <button
-                    key={c.color}
-                    title={c.color}
-                    onClick={() => setEditingColorIdx(editingColorIdx === i ? null : i)}
+                    onClick={handleResetColors}
                     className={cn(
-                      'w-7 h-7 rounded-md border-2 transition-all duration-150',
-                      'hover:scale-110 hover:shadow-md',
-                      editingColorIdx === i
-                        ? 'border-accent ring-2 ring-ring/30 scale-110'
-                        : 'border-border'
+                      'ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded',
+                      'text-[10px] font-medium normal-case tracking-normal',
+                      'text-foreground-muted hover:text-foreground',
+                      'border border-border hover:border-foreground-subtle',
+                      'hover:bg-surface-accent',
+                      'transition-colors duration-150 cursor-pointer'
                     )}
-                    style={{ backgroundColor: c.color }}
-                  />
-                ))}
-              </div>
-              {editingColorIdx !== null && svgColors[editingColorIdx] && (
-                <div
-                  className={cn(
-                    'absolute left-0 right-0 z-50 mx-3',
-                    'rounded-lg border border-border',
-                    'bg-surface',
-                    'shadow-lg',
-                    'p-3'
-                  )}
-                >
-                  <HexColorPicker
-                    color={svgColors[editingColorIdx].color}
-                    onChange={handleColorChange}
-                    style={{ width: '100%', height: 140 }}
-                  />
-                  {/* 颜色值输入框 — 支持 hex/rgb/hsl/hwb 等任意 CSS 颜色格式 */}
-                  <div className="mt-2 flex gap-1.5 items-center">
-                    <input
-                      type="text"
-                      value={colorInputValue}
-                      onChange={(e) => {
-                        setColorInputValue(e.target.value);
-                        setColorInputError(false);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleColorInputConfirm();
-                      }}
-                      onBlur={handleColorInputConfirm}
-                      placeholder="hex / rgb / hsl / hwb"
-                      className={cn(
-                        'flex-1 min-w-0 px-2 py-1 rounded text-xs font-mono',
-                        'bg-surface',
-                        'border transition-colors duration-150',
-                        'outline-none focus:ring-1',
-                        colorInputError
-                          ? 'border-danger focus:ring-danger/30'
-                          : 'border-border focus:ring-ring/30',
-                        'text-foreground',
-                        'placeholder:text-foreground-muted/50'
-                      )}
-                    />
-                    {/* 取色器按钮 */}
+                  >
+                    <RefreshCw size={10} />
+                    {t('editor.resetColors')}
+                  </button>
+                )}
+              </h4>
+              <div ref={colorSectionRef}>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {svgColors.map((c, i) => (
                     <button
-                      title={t('editor.eyeDropper')}
-                      onClick={handleEyeDropper}
+                      key={`${c.color}-${c.isCurrentColor}`}
+                      title={
+                        c.isCurrentColor ? `${c.color} · ${t('editor.colorFollowsTheme')}` : c.color
+                      }
+                      onClick={() => setEditingColorIdx(editingColorIdx === i ? null : i)}
                       className={cn(
-                        'w-7 h-7 rounded border border-border shrink-0',
-                        'flex items-center justify-center',
-                        'bg-surface hover:bg-surface-accent',
-                        'transition-colors duration-150',
-                        'text-foreground-muted hover:text-foreground',
-                        'cursor-pointer'
+                        'relative w-7 h-7 rounded-md border-2 transition-all duration-150',
+                        'hover:scale-110 hover:shadow-md',
+                        editingColorIdx === i
+                          ? 'border-accent ring-2 ring-ring/30 scale-110'
+                          : 'border-border'
                       )}
+                      style={{ backgroundColor: c.color }}
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m2 22 1-1h3l9-9" />
-                        <path d="M3 21v-3l9-9" />
-                        <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3L15 6" />
-                      </svg>
+                      {c.isCurrentColor && (
+                        <span
+                          className={cn(
+                            'absolute -bottom-0.5 -right-0.5',
+                            'w-2.5 h-2.5 rounded-full',
+                            'ring-1 ring-border',
+                            'shadow-sm'
+                          )}
+                          style={{
+                            background: 'linear-gradient(135deg, #f0f0f0 50%, #222 50%)',
+                          }}
+                        />
+                      )}
                     </button>
-                    {/* 颜色预览色块 */}
-                    <div
-                      className="w-7 h-7 rounded border border-border shrink-0"
-                      style={{ backgroundColor: colorInputValue }}
-                    />
-                  </div>
+                  ))}
                 </div>
-              )}
-              {colorChanged && (
-                <button
-                  onClick={handleResetColors}
-                  className={cn(
-                    'mt-2 w-full py-1 rounded text-xs',
-                    'border border-border',
-                    'text-foreground-muted hover:text-foreground',
-                    'bg-surface hover:bg-surface-accent',
-                    'transition-colors duration-150 cursor-pointer'
-                  )}
-                >
-                  {t('editor.resetColors')}
-                </button>
-              )}
+                {editingColorIdx !== null && svgColors[editingColorIdx] && (
+                  <div
+                    className={cn(
+                      'absolute left-0 right-0 z-50 mx-3',
+                      'rounded-lg border border-border',
+                      'bg-surface',
+                      'shadow-lg',
+                      'p-3'
+                    )}
+                  >
+                    <HexColorPicker
+                      color={svgColors[editingColorIdx].color}
+                      onChange={handleColorChange}
+                      style={{ width: '100%', height: 140 }}
+                    />
+                    {/* 颜色值输入框 — 支持 hex/rgb/hsl/hwb 等任意 CSS 颜色格式 */}
+                    <div className="mt-2 flex gap-1.5 items-center">
+                      <input
+                        type="text"
+                        value={colorInputValue}
+                        onChange={(e) => {
+                          setColorInputValue(e.target.value);
+                          setColorInputError(false);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleColorInputConfirm();
+                        }}
+                        onBlur={handleColorInputConfirm}
+                        placeholder="hex / rgb / hsl / hwb"
+                        className={cn(
+                          'flex-1 min-w-0 px-2 py-1 rounded text-xs font-mono',
+                          'bg-surface',
+                          'border transition-colors duration-150',
+                          'outline-none focus:ring-1',
+                          colorInputError
+                            ? 'border-danger focus:ring-danger/30'
+                            : 'border-border focus:ring-ring/30',
+                          'text-foreground',
+                          'placeholder:text-foreground-muted/50'
+                        )}
+                      />
+                      {/* 取色器按钮 */}
+                      <button
+                        title={t('editor.eyeDropper')}
+                        onClick={handleEyeDropper}
+                        className={cn(
+                          'w-7 h-7 rounded border border-border shrink-0',
+                          'flex items-center justify-center',
+                          'bg-surface hover:bg-surface-accent',
+                          'transition-colors duration-150',
+                          'text-foreground-muted hover:text-foreground',
+                          'cursor-pointer'
+                        )}
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m2 22 1-1h3l9-9" />
+                          <path d="M3 21v-3l9-9" />
+                          <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3L15 6" />
+                        </svg>
+                      </button>
+                      {/* 颜色预览色块 */}
+                      <div
+                        className="w-7 h-7 rounded border border-border shrink-0"
+                        style={{ backgroundColor: colorInputValue }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

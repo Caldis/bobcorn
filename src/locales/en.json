@@ -125,6 +125,7 @@
   "editor.color": "Color",
   "editor.eyeDropper": "Pick color from screen",
   "editor.resetColors": "Reset to original colors",
+  "editor.colorFollowsTheme": "Follows theme",
   "editor.advancedOps": "Advanced",
   "editor.operations": "Operations",
   "editor.export": "Export",
@@ -464,8 +465,7 @@
 
   "projectSettings.title": "Project Settings",
   "projectSettings.identity": "Identity",
-  "projectSettings.name": "Project Name",
-  "projectSettings.namePlaceholder": "Uses font prefix as name",
+  "projectSettings.nameHint": "Project name matches the project filename",
   "projectSettings.description": "Description",
   "projectSettings.descPlaceholder": "Add project notes...",
   "projectSettings.color": "Project Color",

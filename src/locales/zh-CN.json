@@ -125,6 +125,7 @@
   "editor.color": "颜色",
   "editor.eyeDropper": "从屏幕取色",
   "editor.resetColors": "恢复初始颜色",
+  "editor.colorFollowsTheme": "跟随主题",
   "editor.advancedOps": "高级操作",
   "editor.operations": "操作",
   "editor.export": "导出",
@@ -464,8 +465,7 @@
 
   "projectSettings.title": "项目设置",
   "projectSettings.identity": "项目身份",
-  "projectSettings.name": "项目名称",
-  "projectSettings.namePlaceholder": "使用字体前缀作为名称",
+  "projectSettings.nameHint": "项目名称与项目文件名保持一致",
   "projectSettings.description": "项目描述",
   "projectSettings.descPlaceholder": "添加项目备注...",
   "projectSettings.color": "项目颜色",

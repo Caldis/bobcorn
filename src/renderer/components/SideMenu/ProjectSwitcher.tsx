@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Settings } from 'lucide-react';
+import { Settings, FolderOpen } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useRecentProjects, getFileDisplayName } from '../../hooks/useRecentProjects';
 import { ProjectAvatar, ProjectItem } from '../ProjectItem';
@@ -10,12 +10,12 @@ import useAppStore from '../../store';
 const ProjectSwitcher = React.memo(function ProjectSwitcher() {
   const { t } = useTranslation();
   const projectName = useAppStore((s: any) => s.projectName);
-  const projectDisplayName = useAppStore((s: any) => s.projectDisplayName);
+  const projectDescription = useAppStore((s: any) => s.projectDescription);
   const projectColor = useAppStore((s: any) => s.projectColor);
   const isDirty = useAppStore((s: any) => s.isDirty);
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
 
-  const displayName = projectDisplayName || projectName;
+  const displayName = currentFilePath ? getFileDisplayName(currentFilePath) : projectName;
   const { histProj, removeHistItem, refresh } = useRecentProjects();
 
   const [open, setOpen] = useState(false);
@@ -70,6 +70,11 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
   const handleOpenRecent = useCallback((path: string) => {
     setOpen(false);
     window.dispatchEvent(new CustomEvent('bobcorn:open-project', { detail: { path } }));
+  }, []);
+
+  const handleShowInFolder = useCallback((filePath: string) => {
+    const dir = window.electronAPI.pathDirname(filePath);
+    window.electronAPI.openPath(dir);
   }, []);
 
   const handleSettingsClick = useCallback(() => {
@@ -135,15 +140,36 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
                     {displayName}
                   </div>
                   {currentFilePath && (
-                    <div
-                      className="text-[11px] text-foreground-muted truncate"
-                      title={currentFilePath}
-                    >
-                      {currentFilePath}
+                    <div className="flex items-center gap-1 min-w-0">
+                      <span
+                        className="text-[11px] text-foreground-muted truncate"
+                        title={currentFilePath}
+                      >
+                        {currentFilePath}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShowInFolder(currentFilePath);
+                        }}
+                        className={cn(
+                          'shrink-0 p-0.5 rounded',
+                          'text-foreground-muted/30 hover:text-foreground-muted hover:bg-surface-accent',
+                          'transition-colors duration-100'
+                        )}
+                        title={t('projectSettings.showInFolder')}
+                      >
+                        <FolderOpen size={11} />
+                      </button>
                     </div>
                   )}
                 </div>
               </div>
+              {projectDescription && (
+                <div className="mt-1.5 ml-[38px] text-[11px] text-foreground-muted/60 leading-relaxed line-clamp-2">
+                  {projectDescription}
+                </div>
+              )}
             </div>
 
             <div className="mx-2 h-px bg-border" />

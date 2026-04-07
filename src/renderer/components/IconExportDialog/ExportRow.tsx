@@ -18,7 +18,7 @@ interface ExportRowProps {
 
 export function ExportRow({ row, iconName, viewBoxSize, onChange, onDelete }: ExportRowProps) {
   const { t } = useTranslation();
-  const isSvg = row.format === 'svg';
+  const isVector = row.format === 'svg' || row.format === 'pdf';
 
   const filename = useMemo(() => buildFilename(iconName, row), [iconName, row]);
 
@@ -66,97 +66,12 @@ export function ExportRow({ row, iconName, viewBoxSize, onChange, onDelete }: Ex
         'bg-surface-muted/30 rounded-lg border border-border/50'
       )}
     >
-      {/* @/px toggle */}
-      <div className="flex items-stretch bg-surface-accent rounded overflow-hidden shrink-0">
-        <button
-          className={cn(
-            'px-2 py-1 text-xs leading-none flex items-center justify-center transition-colors',
-            row.sizeMode === 'scale'
-              ? 'bg-accent text-accent-foreground'
-              : 'text-foreground-muted hover:text-foreground'
-          )}
-          onClick={() => handleSizeModeToggle('scale')}
-          disabled={isSvg}
-        >
-          @
-        </button>
-        <button
-          className={cn(
-            'px-2 py-1 text-xs leading-none flex items-center justify-center transition-colors',
-            row.sizeMode === 'pixel'
-              ? 'bg-accent text-accent-foreground'
-              : 'text-foreground-muted hover:text-foreground'
-          )}
-          onClick={() => handleSizeModeToggle('pixel')}
-          disabled={isSvg}
-        >
-          PX
-        </button>
-      </div>
-
-      {/* Size value with stepper */}
-      <div
-        className={cn(
-          'flex items-center rounded border border-border bg-surface overflow-hidden shrink-0',
-          'focus-within:border-accent focus-within:ring-1 focus-within:ring-ring/30',
-          'transition-colors duration-200',
-          isSvg && 'opacity-40 cursor-not-allowed'
-        )}
-      >
-        <input
-          type="text"
-          inputMode="decimal"
-          value={isSvg ? '—' : row.sizeMode === 'scale' ? row.scale : row.pixelSize}
-          onChange={handleSizeChange}
-          onKeyDown={(e) => {
-            if (isSvg) return;
-            const step = row.sizeMode === 'scale' ? 0.5 : 1;
-            if (e.key === 'ArrowUp') {
-              e.preventDefault();
-              handleStep(step);
-            }
-            if (e.key === 'ArrowDown') {
-              e.preventDefault();
-              handleStep(-step);
-            }
-          }}
-          disabled={isSvg}
-          className={cn(
-            'w-14 px-2 py-1 text-center text-sm bg-transparent text-foreground outline-none',
-            '[appearance:textfield]',
-            isSvg && 'cursor-not-allowed'
-          )}
-        />
-        <div className="flex flex-col border-l border-border">
-          <button
-            type="button"
-            onClick={() => handleStep(row.sizeMode === 'scale' ? 0.5 : 1)}
-            disabled={isSvg}
-            className="px-1 h-3.5 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-muted transition-colors"
-          >
-            <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor">
-              <path d="M4 0L7.5 4.5H0.5L4 0Z" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleStep(row.sizeMode === 'scale' ? -0.5 : -1)}
-            disabled={isSvg}
-            className="px-1 h-3.5 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-muted border-t border-border transition-colors"
-          >
-            <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor">
-              <path d="M4 5L0.5 0.5H7.5L4 5Z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
       {/* Format dropdown */}
       <select
         value={row.format}
         onChange={handleFormatChange}
         className={cn(
-          'px-2 py-1 text-sm rounded border border-border bg-surface text-foreground',
+          'h-8 px-2 text-sm rounded border border-border bg-surface text-foreground',
           'focus:border-accent focus:ring-1 focus:ring-ring/30 outline-none',
           'min-w-[72px]'
         )}
@@ -167,6 +82,96 @@ export function ExportRow({ row, iconName, viewBoxSize, onChange, onDelete }: Ex
           </option>
         ))}
       </select>
+
+      {/* @/px toggle */}
+      <div
+        className={cn(
+          'h-8 flex items-stretch bg-surface-accent rounded border border-border overflow-hidden shrink-0',
+          isVector && 'opacity-40 pointer-events-none'
+        )}
+      >
+        <button
+          className={cn(
+            'px-2.5 text-sm flex items-center justify-center transition-colors',
+            row.sizeMode === 'scale'
+              ? 'bg-accent text-accent-foreground'
+              : 'text-foreground-muted hover:text-foreground'
+          )}
+          onClick={() => handleSizeModeToggle('scale')}
+          disabled={isVector}
+        >
+          @
+        </button>
+        <button
+          className={cn(
+            'px-2.5 text-sm flex items-center justify-center transition-colors',
+            row.sizeMode === 'pixel'
+              ? 'bg-accent text-accent-foreground'
+              : 'text-foreground-muted hover:text-foreground'
+          )}
+          onClick={() => handleSizeModeToggle('pixel')}
+          disabled={isVector}
+        >
+          PX
+        </button>
+      </div>
+
+      {/* Size value with stepper */}
+      <div
+        className={cn(
+          'h-8 flex items-center rounded border border-border bg-surface overflow-hidden shrink-0',
+          'focus-within:border-accent focus-within:ring-1 focus-within:ring-ring/30',
+          'transition-colors duration-200',
+          isVector && 'opacity-40 pointer-events-none'
+        )}
+      >
+        <input
+          type="text"
+          inputMode="decimal"
+          value={isVector ? '—' : row.sizeMode === 'scale' ? row.scale : row.pixelSize}
+          onChange={handleSizeChange}
+          onKeyDown={(e) => {
+            if (isVector) return;
+            const step = row.sizeMode === 'scale' ? 0.5 : 1;
+            if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              handleStep(step);
+            }
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              handleStep(-step);
+            }
+          }}
+          disabled={isVector}
+          className={cn(
+            'w-14 px-2 py-1 text-center text-sm bg-transparent text-foreground outline-none',
+            '[appearance:textfield]',
+            isVector && 'cursor-not-allowed'
+          )}
+        />
+        <div className="flex flex-col border-l border-border">
+          <button
+            type="button"
+            onClick={() => handleStep(row.sizeMode === 'scale' ? 0.5 : 1)}
+            disabled={isVector}
+            className="px-1 h-3.5 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-muted transition-colors"
+          >
+            <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor">
+              <path d="M4 0L7.5 4.5H0.5L4 0Z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleStep(row.sizeMode === 'scale' ? -0.5 : -1)}
+            disabled={isVector}
+            className="px-1 h-3.5 flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-muted border-t border-border transition-colors"
+          >
+            <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor">
+              <path d="M4 5L0.5 0.5H7.5L4 5Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
       {/* Filename preview — flex dual-span: name truncates, suffix stays */}
       {(() => {

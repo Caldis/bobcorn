@@ -6,6 +6,7 @@ import { message } from '../ui/toast';
 import { confirm } from '../ui/dialog';
 import { cn } from '../../lib/utils';
 import { isnContainSpace } from '../../utils/tools';
+import { getFileDisplayName } from '../../hooks/useRecentProjects';
 import { ProjectAvatar, AVATAR_COLORS } from '../ProjectItem';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.settings
 import db from '../../database';
@@ -26,7 +27,6 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
   const projectName = useAppStore((s: any) => s.projectName);
 
   // ── Editable state ──────────────────────────────────────────────
-  const [displayName, setDisplayName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
@@ -45,7 +45,6 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
   // Reset state when dialog opens
   useEffect(() => {
     if (!visible) return;
-    setDisplayName((db as any).getProjectDisplayName?.() || '');
     setDescription((db as any).getProjectDescription?.() || '');
     setSelectedColor((db as any).getProjectColor?.() || null);
     setPrefixText((db as any).getProjectName() || 'iconfont');
@@ -59,15 +58,10 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
 
   // ── Identity handlers ───────────────────────────────────────────
 
-  const handleNameBlur = useCallback(() => {
-    const val = displayName.trim() || null;
-    (db as any).setProjectDisplayName(val, () => syncProjectMeta());
-  }, [displayName, syncProjectMeta]);
-
   const handleDescBlur = useCallback(() => {
     const val = description.trim() || null;
-    (db as any).setProjectDescription(val);
-  }, [description]);
+    (db as any).setProjectDescription(val, () => syncProjectMeta());
+  }, [description, syncProjectMeta]);
 
   const handleColorSelect = useCallback(
     (color: string | null) => {
@@ -124,7 +118,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
 
   // ── Derived display ─────────────────────────────────────────────
 
-  const avatarName = displayName.trim() || projectName;
+  const displayName = currentFilePath ? getFileDisplayName(currentFilePath) : projectName;
 
   const formatDate = (iso: string | null) => {
     if (!iso) return '—';
@@ -150,35 +144,32 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
             {t('projectSettings.identity')}
           </h4>
 
-          {/* Avatar + Name + Description */}
-          <div className="flex gap-3 mb-3">
-            <div className="shrink-0 pt-0.5">
-              <ProjectAvatar name={avatarName} size={36} color={selectedColor} />
-            </div>
-            <div className="flex-1 min-w-0 space-y-2">
-              <Input
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                onPressEnter={handleNameBlur}
-                placeholder={`${projectName}  ·  ${t('projectSettings.namePlaceholder')}`}
-                className="w-full"
-              />
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                onBlur={handleDescBlur}
-                placeholder={t('projectSettings.descPlaceholder')}
-                rows={2}
-                className={cn(
-                  'w-full px-2.5 py-2 rounded-md text-sm resize-none',
-                  'border border-border bg-surface text-foreground',
-                  'placeholder:text-foreground-muted/40',
-                  'focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30',
-                  'transition-colors duration-150'
-                )}
-              />
-            </div>
+          {/* Avatar + Name */}
+          <div className="flex items-center gap-3 mb-3">
+            <ProjectAvatar name={displayName} size={36} color={selectedColor} />
+            <span
+              className="text-sm font-medium text-foreground truncate"
+              title={t('projectSettings.nameHint')}
+            >
+              {displayName}
+            </span>
           </div>
+
+          {/* Description */}
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            onBlur={handleDescBlur}
+            placeholder={t('projectSettings.descPlaceholder')}
+            rows={2}
+            className={cn(
+              'w-full px-2.5 py-2 rounded-md text-sm resize-none mb-3',
+              'border border-border bg-surface text-foreground',
+              'placeholder:text-foreground-muted/40',
+              'focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30',
+              'transition-colors duration-150'
+            )}
+          />
 
           {/* Color palette */}
           <div className="flex items-center gap-2">
