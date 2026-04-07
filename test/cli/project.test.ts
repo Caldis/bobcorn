@@ -252,10 +252,10 @@ describe('sf-symbols: project inspect', () => {
     const { json } = await runJson(['project', 'inspect', SF_SYMBOLS_ICP]);
     const groupNames = json.data.groups.map((g: any) => g.name);
     expect(groupNames).toContain('Accessibility');
-    expect(groupNames).toContain('arrows');
-    expect(groupNames).toContain('communication');
-    expect(groupNames).toContain('objectsAndTools');
-    expect(groupNames).toContain('weather');
+    expect(groupNames).toContain('Arrows');
+    expect(groupNames).toContain('Communication');
+    expect(groupNames).toContain('ObjectsAndTools');
+    expect(groupNames).toContain('Weather');
     expect(groupNames.length).toBe(28);
   });
 

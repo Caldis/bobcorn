@@ -203,7 +203,7 @@ describe('export svg', () => {
       '--out',
       outDir,
       '--group',
-      'weather',
+      'Weather',
     ]);
     expect(raw.exitCode).toBe(0);
     expect(json.data.exported).toBe(9);

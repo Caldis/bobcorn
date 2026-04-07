@@ -528,13 +528,13 @@ describe('group delete', () => {
 
     // Get weather group info before delete
     const { json: beforeInspect } = await runJson(['project', 'inspect', fixture.icp]);
-    const weatherGroup = beforeInspect.data.groups.find((g: any) => g.name === 'weather');
+    const weatherGroup = beforeInspect.data.groups.find((g: any) => g.name === 'Weather');
     expect(weatherGroup).toBeDefined();
     const weatherIconCount = weatherGroup.count;
     const totalBefore = beforeInspect.data.iconCount;
 
     // Delete weather group
-    const { json, raw } = await runJson(['group', 'delete', fixture.icp, 'weather']);
+    const { json, raw } = await runJson(['group', 'delete', fixture.icp, 'Weather']);
     expect(raw.exitCode).toBe(0);
     expect(json.ok).toBe(true);
     expect(json.data.iconsMovedToUncategorized).toBe(weatherIconCount);

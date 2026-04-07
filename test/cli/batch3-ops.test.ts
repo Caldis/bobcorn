@@ -36,11 +36,11 @@ describe('icon copy', () => {
     expect(icon).toBeDefined();
 
     // Copy it to weather group
-    const { json, raw } = await runJson(['icon', 'copy', fixture.icp, icon.id, '--to', 'weather']);
+    const { json, raw } = await runJson(['icon', 'copy', fixture.icp, icon.id, '--to', 'Weather']);
     expect(raw.exitCode).toBe(0);
     expect(json.ok).toBe(true);
     expect(json.data.copied).toBe(1);
-    expect(json.data.targetGroup).toBe('weather');
+    expect(json.data.targetGroup).toBe('Weather');
     expect(json.data.icons[0].name).toBe('accessibility');
 
     // Verify original still exists in Accessibility
@@ -49,7 +49,7 @@ describe('icon copy', () => {
     expect(origIcon).toBeDefined();
 
     // Verify copy exists in weather
-    const { json: weatherList } = await runJson(['icon', 'list', fixture.icp, '--group', 'weather']);
+    const { json: weatherList } = await runJson(['icon', 'list', fixture.icp, '--group', 'Weather']);
     const copiedIcon = weatherList.data.find((i: any) => i.iconName === 'accessibility');
     expect(copiedIcon).toBeDefined();
     // Copy should have a different ID
@@ -420,16 +420,16 @@ describe('group move-icons', () => {
       'group',
       'move-icons',
       fixture.icp,
-      'weather',
+      'Weather',
       icon.id,
     ]);
     expect(raw.exitCode).toBe(0);
     expect(json.ok).toBe(true);
     expect(json.data.moved).toBe(1);
-    expect(json.data.targetGroup).toBe('weather');
+    expect(json.data.targetGroup).toBe('Weather');
 
     // Verify icon is now in weather
-    const { json: weatherList } = await runJson(['icon', 'list', fixture.icp, '--group', 'weather']);
+    const { json: weatherList } = await runJson(['icon', 'list', fixture.icp, '--group', 'Weather']);
     const moved = weatherList.data.find((i: any) => i.id === icon.id);
     expect(moved).toBeDefined();
   });
