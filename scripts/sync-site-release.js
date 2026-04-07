@@ -31,8 +31,16 @@ const changelog = readJson(changelogJsonPath);
 if (!Array.isArray(changelog) || !changelog.length || changelog[0].version !== version) {
   const found = changelog[0]?.version || '(empty)';
   process.stderr.write(
-    `\n❌ changelog.json top entry is "${found}", expected "${version}".\n` +
-    `   Add a changelog entry before running npm version.\n\n`
+    `\n❌ docs/changelog.json top entry is "${found}", expected "${version}".\n\n` +
+    `To fix, prepend a new entry to docs/changelog.json:\n` +
+    `  {\n` +
+    `    "version": "${version}",\n` +
+    `    "date": "YYYY-MM-DD",\n` +
+    `    "summary": { "zh": "简短摘要", "en": "Brief summary" },\n` +
+    `    "changes": { "zh": ["条目..."], "en": ["Items..."] }\n` +
+    `  }\n\n` +
+    `Generate from: git log ${found ? 'v' + found : 'HEAD~5'}..HEAD --oneline\n` +
+    `Then commit and re-run npm version.\n\n`
   );
   process.exit(1);
 }
