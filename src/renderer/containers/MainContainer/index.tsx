@@ -24,7 +24,9 @@ import type { OptionData } from '../../config';
 // Utils – dirty guard
 import { guardDirtyState } from '../../utils/dirtyGuard';
 // Store
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
+// Analytics consent
+import ConsentDialog from '../../components/ConsentDialog';
 
 const { electronAPI } = window;
 
@@ -99,6 +101,9 @@ function MainContainer() {
 
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
   const isDirty = useAppStore((s: any) => s.isDirty);
+  const analyticsConsentShown = useAppStore((s: any) => s.analyticsConsentShown);
+  const loadAnalyticsConsent = useAppStore((s: any) => s.loadAnalyticsConsent);
+  const [consentDialogVisible, setConsentDialogVisible] = useState(false);
   const [resizing, setResizing] = useState(false);
 
   const selectGroup = useAppStore((state: any) => state.selectGroup);
@@ -159,6 +164,7 @@ function MainContainer() {
             useAppStore.getState().syncLeft();
             useAppStore.getState().selectGroup('resource-all');
             message.success(t('file.opened'));
+            analyticsTrack('project.open');
           });
         },
         onSelectICP: (project: any) => {
@@ -169,6 +175,7 @@ function MainContainer() {
             useAppStore.getState().syncLeft();
             useAppStore.getState().selectGroup('resource-all');
             message.success(t('file.opened'));
+            analyticsTrack('project.open');
           });
         },
       });
@@ -261,6 +268,7 @@ function MainContainer() {
     useAppStore.getState().syncLeft();
     useAppStore.getState().selectGroup('resource-all');
     useAppStore.getState().showSplashScreen(false);
+    analyticsTrack('project.create');
   }, [t]);
 
   /** Close project — return to welcome screen */
@@ -325,6 +333,16 @@ function MainContainer() {
     };
     mq.addEventListener('change', handleSystemChange);
     return () => mq.removeEventListener('change', handleSystemChange);
+  }, []);
+
+  // ── Analytics consent ─────────────────────────────────────────
+  useEffect(() => {
+    loadAnalyticsConsent().then(() => {
+      const consent = useAppStore.getState();
+      if (!consent.analyticsConsentShown) {
+        setTimeout(() => setConsentDialogVisible(true), 800);
+      }
+    });
   }, []);
 
   // ── Menu IPC listeners (Electron menu) ────────────────────────────
@@ -536,6 +554,9 @@ function MainContainer() {
 
       {/*控制按钮 — 始终渲染，不受 splash 状态影响*/}
       {platform() === 'win32' && <TitleBarButtonGroup />}
+
+      {/* Analytics consent dialog — shown once on first launch */}
+      <ConsentDialog open={consentDialogVisible} onClose={() => setConsentDialogVisible(false)} />
     </div>
   );
 }
