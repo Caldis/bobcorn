@@ -47,6 +47,11 @@ export interface State {
   updateProgress: number;
   updateError: string | null;
 
+  // Analytics consent (synced with main process)
+  analyticsBasicEnabled: boolean;
+  analyticsDetailedEnabled: boolean;
+  analyticsConsentShown: boolean;
+
   // Variant generation progress
   variantProgress: { current: number; total: number; active: boolean } | null;
 
@@ -86,6 +91,11 @@ export interface Actions {
   setUpdateStatus: (status: State['updateStatus'], version?: string) => void;
   setUpdateProgress: (percent: number) => void;
   setUpdateError: (error: string | null) => void;
+
+  // Analytics
+  setAnalyticsConsent: (basic: boolean, detailed: boolean) => void;
+  markConsentShown: () => void;
+  loadAnalyticsConsent: () => Promise<void>;
 
   // Variant actions
   setVariantProgress: (
@@ -131,6 +141,11 @@ const useAppStore = create<State & Actions>((set, get) => ({
   updateReleaseNotes: null,
   updateProgress: 0,
   updateError: null,
+
+  // Analytics consent
+  analyticsBasicEnabled: true,
+  analyticsDetailedEnabled: false,
+  analyticsConsentShown: false,
 
   // Variant generation progress
   variantProgress: null,
@@ -289,6 +304,13 @@ const useAppStore = create<State & Actions>((set, get) => ({
   setCurrentFilePath: (path: string | null) => {
     set({ currentFilePath: path });
     setOption({ currentFilePath: path });
+    // Sync project context for analytics
+    if (path) {
+      const projectName = (window as any).electronAPI.pathBasename(path, '.icp');
+      (window as any).electronAPI.analyticsSetProject(projectName);
+    } else {
+      (window as any).electronAPI.analyticsSetProject(null);
+    }
   },
   markDirty: () => {
     if (!get().isDirty) set({ isDirty: true });
@@ -310,6 +332,31 @@ const useAppStore = create<State & Actions>((set, get) => ({
   setUpdateProgress: (percent) => set({ updateProgress: percent }),
   setUpdateError: (error) => set({ updateError: error }),
 
+  // Analytics actions
+  setAnalyticsConsent: (basic: boolean, detailed: boolean) => {
+    set({ analyticsBasicEnabled: basic, analyticsDetailedEnabled: detailed });
+    (window as any).electronAPI.analyticsUpdateConsent({
+      basicEnabled: basic,
+      detailedEnabled: detailed,
+    });
+  },
+
+  markConsentShown: () => {
+    set({ analyticsConsentShown: true });
+    (window as any).electronAPI.analyticsUpdateConsent({
+      consentShownAt: new Date().toISOString(),
+    });
+  },
+
+  loadAnalyticsConsent: async () => {
+    const consent = await (window as any).electronAPI.analyticsGetConsent();
+    set({
+      analyticsBasicEnabled: consent.basicEnabled,
+      analyticsDetailedEnabled: consent.detailedEnabled,
+      analyticsConsentShown: !!consent.consentShownAt,
+    });
+  },
+
   // Variant actions
   setVariantProgress: (progress) => {
     set({ variantProgress: progress });
@@ -330,5 +377,13 @@ const useAppStore = create<State & Actions>((set, get) => ({
     }
   },
 }));
+
+/**
+ * Track an analytics event from the renderer process.
+ * Import this instead of calling electronAPI directly.
+ */
+export function analyticsTrack(event: string, params?: Record<string, unknown>): void {
+  (window as any).electronAPI.analyticsTrack(event, params);
+}
 
 export default useAppStore;

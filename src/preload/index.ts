@@ -140,6 +140,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
     updateChannel: 'stable' | 'beta';
   }): void => ipcRenderer.send('sync-update-preferences', prefs),
 
+  // ── Analytics ────────────────────────────────────────────────────
+  analyticsGetConsent: (): Promise<{
+    basicEnabled: boolean;
+    detailedEnabled: boolean;
+    consentShownAt: string;
+    consentVersion: number;
+  }> => ipcRenderer.invoke('analytics:get-consent'),
+
+  analyticsUpdateConsent: (consent: {
+    basicEnabled?: boolean;
+    detailedEnabled?: boolean;
+    consentShownAt?: string;
+    consentVersion?: number;
+  }): void => ipcRenderer.send('analytics:update-consent', consent),
+
+  analyticsTrack: (event: string, params?: Record<string, unknown>): void =>
+    ipcRenderer.send('analytics:track', { event, params }),
+
+  analyticsSetProject: (projectName: string | null): void =>
+    ipcRenderer.send('analytics:set-project', projectName),
+
   // ── Menu commands (main → renderer) ──────────────────────────────
   onMenuNewProject: (callback: () => void) => {
     const handler = () => callback();
