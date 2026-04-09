@@ -4,6 +4,7 @@
  * through IPC.
  */
 
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import type { OpenDialogOptions, SaveDialogOptions } from 'electron';
@@ -13,6 +14,17 @@ import MenuBuilder from './menu';
 import mainI18n from './i18n';
 import { registerPixelPicker } from 'electron-pixel-picker';
 import { readUpdatePreferences, writeUpdatePreferences } from './update-preferences';
+import { readAnalyticsConsent, writeAnalyticsConsent } from './analytics-consent';
+import {
+  initGateway,
+  initGA4,
+  initLocalStore,
+  track,
+  updateConsent,
+  setCurrentProject,
+} from '../core/analytics';
+import type { AnalyticsConsent } from '../core/analytics';
+import { randomUUID } from 'crypto';
 
 /** Extract the first .icp file path from an argv array */
 function extractIcpPath(argv: string[]): string | null {
@@ -400,6 +412,26 @@ if (!gotLock) {
       autoUpdater.forceDevUpdateConfig = true;
     }
 
+    // ── Analytics initialization ─────────────────────────────────
+    const analyticsConsent = readAnalyticsConsent();
+
+    // Ensure a persistent client ID exists (UUID v4, never tied to identity)
+    const analyticsClientIdPath = path.join(app.getPath('userData'), 'analytics-client-id');
+    let clientId: string;
+    try {
+      clientId = fs.readFileSync(analyticsClientIdPath, 'utf-8').trim();
+    } catch {
+      clientId = randomUUID();
+      fs.writeFileSync(analyticsClientIdPath, clientId, 'utf-8');
+    }
+
+    initLocalStore(app.getPath('userData'));
+    initGA4(clientId);
+    initGateway(analyticsConsent, app.getVersion());
+
+    // Track app launch
+    track('app.launch');
+
     // Track whether the current action (check/download) was user-initiated
     let userInitiatedAction = false;
 
@@ -417,6 +449,7 @@ if (!gotLock) {
     autoUpdater.on('checking-for-update', () => {
       updaterLog('[updater] checking-for-update');
       mainWindow?.webContents.send('update-checking');
+      track('app.update_check');
     });
     autoUpdater.on('update-available', (info) => {
       updaterLog('[updater] update-available:', info.version);
@@ -478,6 +511,7 @@ if (!gotLock) {
       autoUpdater.downloadUpdate().catch(() => {});
     });
     ipcMain.on('install-update', () => {
+      track('app.update_install');
       autoUpdater.quitAndInstall();
     });
     ipcMain.on(
@@ -495,6 +529,36 @@ if (!gotLock) {
         autoUpdater.allowPrerelease = incoming.updateChannel === 'beta';
       }
     });
+
+    // ── Analytics IPC ─────────────────────────────────────────────
+    ipcMain.handle('analytics:get-consent', () => {
+      return readAnalyticsConsent();
+    });
+
+    ipcMain.on(
+      'analytics:update-consent',
+      (_event: Electron.IpcMainEvent, incoming: Partial<AnalyticsConsent>) => {
+        writeAnalyticsConsent(incoming);
+        updateConsent(readAnalyticsConsent());
+      }
+    );
+
+    ipcMain.on(
+      'analytics:track',
+      (
+        _event: Electron.IpcMainEvent,
+        { event, params }: { event: string; params?: Record<string, unknown> }
+      ) => {
+        track(event as any, params);
+      }
+    );
+
+    ipcMain.on(
+      'analytics:set-project',
+      (_event: Electron.IpcMainEvent, projectName: string | null) => {
+        setCurrentProject(projectName);
+      }
+    );
 
     // Auto-check for updates on startup
     // NOTE: temporarily enabled in dev for sparkle E2E testing
