@@ -165,6 +165,20 @@ label: t('menu.file.save')
 
 See Contributing Translations section in README.md.
 
+## Analytics
+
+All user-facing actions must be tracked through the Analytics Gateway:
+
+1. **Register the event** in `src/core/analytics/catalog.ts` with name, category, tier, and description
+2. **Call `analytics.track()`** in the store action or component handler
+3. **Choose the correct tier**: `basic` for anonymous counts (opt-out), `detailed` for feature usage (opt-in)
+
+Rules:
+- Never call GA4 or write to the analytics store directly — always go through `track()`
+- Never include project content, file names, or SVG data in event params
+- The `track()` function's TypeScript type ensures only registered events compile
+- Local store recording is always on (user's own data); GA4 is gated by consent
+
 ## Core Operations Layer
 
 All user-facing operations MUST be implemented in `src/core/operations/` first.
