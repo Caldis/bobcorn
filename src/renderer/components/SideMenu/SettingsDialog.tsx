@@ -44,6 +44,9 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const [channel, setChannel] = useState<'stable' | 'beta'>(opts.updateChannel);
   const themeMode = useAppStore((s: any) => s.themeMode);
   const setThemeMode = useAppStore((s: any) => s.setThemeMode);
+  const analyticsBasic = useAppStore((s: any) => s.analyticsBasicEnabled);
+  const analyticsDetailed = useAppStore((s: any) => s.analyticsDetailedEnabled);
+  const setAnalyticsConsent = useAppStore((s: any) => s.setAnalyticsConsent);
 
   // CLI status
   const [cliStatus, setCliStatus] = useState<'checking' | 'installed' | 'not-installed'>(
@@ -547,6 +550,62 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 </span>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* ── Divider ───────────────────────────────────── */}
+        <div className="border-t border-border" />
+
+        {/* ── Data Sharing ──────────────────────────────── */}
+        <section>
+          <h4
+            className={cn(
+              'text-[11px] font-semibold uppercase tracking-widest',
+              'text-foreground-muted/60 mb-2.5'
+            )}
+          >
+            {t('settings.analytics')}
+          </h4>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex-1 mr-3">
+                <span className="text-sm text-foreground">{t('settings.analyticsBasic')}</span>
+                <p className="text-xs text-foreground-muted/50 mt-0.5">
+                  {t('settings.analyticsBasicHint')}
+                </p>
+              </div>
+              <Switch
+                checked={analyticsBasic}
+                onChange={(v) => setAnalyticsConsent(v, analyticsDetailed)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex-1 mr-3">
+                <span className="text-sm text-foreground">{t('settings.analyticsDetailed')}</span>
+                <p className="text-xs text-foreground-muted/50 mt-0.5">
+                  {t('settings.analyticsDetailedHint')}
+                </p>
+              </div>
+              <Switch
+                checked={analyticsDetailed}
+                onChange={(v) => setAnalyticsConsent(analyticsBasic, v)}
+              />
+            </div>
+            <p className="text-xs text-foreground-muted/50 pt-1">
+              {t('settings.analyticsFooter')}{' '}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  (window as any).electronAPI.openExternal(
+                    'https://bobcorn.caldis.me/privacy.html'
+                  );
+                }}
+                className="text-accent hover:text-accent/80 transition-colors duration-150 cursor-pointer"
+              >
+                {t('settings.privacyPolicy')}
+              </a>
+            </p>
           </div>
         </section>
 
