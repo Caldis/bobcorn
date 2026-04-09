@@ -458,6 +458,14 @@
   "settings.ai.variantIntelligenceDesc": "AI-recommended weight & scale parameters",
   "settings.ai.stayTuned": "Stay tuned for updates.",
 
+  "settings.analytics": "Data Sharing",
+  "settings.analyticsBasic": "Anonymous basic data (launch count, system info)",
+  "settings.analyticsBasicHint": "Contains no project content, helps us understand compatibility",
+  "settings.analyticsDetailed": "Feature usage statistics",
+  "settings.analyticsDetailedHint": "Share import/export frequency to help improve features",
+  "settings.analyticsFooter": "All data is anonymous and contains no project content.",
+  "settings.privacyPolicy": "Privacy Policy",
+
   "project.settings": "Project Settings",
   "project.recent": "Recent Projects",
   "project.noRecent": "No recent projects",
@@ -482,6 +490,13 @@
   "projectSettings.groups": "groups",
   "projectSettings.created": "Created",
   "projectSettings.modified": "Modified",
+
+  "consent.title": "Help Improve Bobcorn",
+  "consent.body": "To improve your experience, Bobcorn collects anonymous basic usage data (such as launch count and system version). No project content or personal information is included.",
+  "consent.detailedCheckbox": "Also share feature usage statistics (e.g. import/export counts) to help us understand which features are most valuable",
+  "consent.settingsHint": "You can change these options anytime in Settings → Data Sharing.",
+  "consent.privacyLink": "Privacy Policy",
+  "consent.confirm": "OK, I understand",
 
   "common.cancel": "Cancel",
   "common.confirm": "Confirm",

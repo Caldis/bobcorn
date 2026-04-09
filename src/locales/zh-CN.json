@@ -458,6 +458,14 @@
   "settings.ai.variantIntelligenceDesc": "AI 推荐最佳粗细与尺寸参数",
   "settings.ai.stayTuned": "敬请期待更多更新。",
 
+  "settings.analytics": "数据共享",
+  "settings.analyticsBasic": "匿名基础数据（启动次数、系统信息）",
+  "settings.analyticsBasicHint": "不含任何项目内容，帮助我们了解兼容性",
+  "settings.analyticsDetailed": "功能使用统计",
+  "settings.analyticsDetailedHint": "分享导入/导出等操作频次，帮助改进功能",
+  "settings.analyticsFooter": "所有数据均匿名且不含项目内容。",
+  "settings.privacyPolicy": "隐私政策",
+
   "project.settings": "项目设置",
   "project.recent": "最近打开的项目",
   "project.noRecent": "没有最近打开的项目",
@@ -482,6 +490,13 @@
   "projectSettings.groups": "个分组",
   "projectSettings.created": "创建于",
   "projectSettings.modified": "修改于",
+
+  "consent.title": "帮助改进 Bobcorn",
+  "consent.body": "为了改进产品体验，Bobcorn 会收集匿名的基础使用数据（如启动次数、系统版本）。不包含任何项目内容或个人信息。",
+  "consent.detailedCheckbox": "同时分享功能使用统计（如导入/导出次数），帮助我们了解哪些功能最有价值",
+  "consent.settingsHint": "你可以随时在 设置 → 数据共享 中更改这些选项。",
+  "consent.privacyLink": "隐私政策",
+  "consent.confirm": "好的，我了解了",
 
   "common.cancel": "取消",
   "common.confirm": "确认",
