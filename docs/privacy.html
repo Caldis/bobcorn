@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — Bobcorn</title>
+    <meta name="description" content="Bobcorn privacy policy — what data we collect, why, and how to opt out.">
+    <meta name="theme-color" content="#FAFAF5">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'GT Canon VF Variable L Black';
+            src: url('fonts/GT-Canon-VF-Variable-L-Black.woff2') format('woff2');
+            font-weight: 900; font-style: normal; font-display: swap;
+        }
+
+        :root {
+            --bg: #FAFAF5;
+            --text: #1A1917;
+            --text-secondary: #82817A;
+            --accent: #f97316;
+            --accent-hover: #ea6700;
+            --divider: #E0DED2;
+            --pill-bg: rgba(160, 158, 148, 0.12);
+            --card-bg: rgba(160, 158, 148, 0.07);
+            --serif: 'GT Canon VF Variable L Black', Georgia, serif;
+            --sans: 'Outfit', system-ui, -apple-system, sans-serif;
+            --mono: 'Space Mono', monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #171614;
+                --text: #F0EDE6;
+                --text-secondary: #8C8B84;
+                --divider: #2D2C29;
+                --pill-bg: rgba(255, 255, 255, 0.06);
+                --card-bg: rgba(255, 255, 255, 0.04);
+            }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ─── Page shell ─── */
+        .page-wrap {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 32px 80px;
+        }
+
+        /* ─── Top bar ─── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 0 0;
+            margin-bottom: 52px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-link {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--text); text-decoration: none; }
+
+        .back-link svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .topbar-sep {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--divider);
+            user-select: none;
+        }
+
+        .topbar-current {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Language toggle */
+        .lang-btn {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: none;
+            border: 1px solid var(--divider);
+            border-radius: 6px;
+            padding: 5px 12px;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+            letter-spacing: 0.04em;
+        }
+
+        .lang-btn:hover {
+            color: var(--text);
+            border-color: var(--text-secondary);
+            background: var(--pill-bg);
+        }
+
+        /* ─── Header ─── */
+        .page-header {
+            margin-bottom: 48px;
+        }
+
+        .page-header h1 {
+            font-family: var(--serif);
+            font-size: clamp(28px, 5vw, 40px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-bottom: 14px;
+        }
+
+        .page-header .subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .effective-date {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: var(--pill-bg);
+            border-radius: 4px;
+            padding: 3px 8px;
+            margin-top: 16px;
+        }
+
+        /* ─── Sections ─── */
+        .section {
+            padding: 36px 0;
+            border-top: 1px solid var(--divider);
+        }
+
+        .section-label {
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+
+        .section p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .section p:last-child { margin-bottom: 0; }
+
+        /* ─── Tier cards ─── */
+        .tier-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .tier-card {
+            background: var(--card-bg);
+            border: 1px solid var(--divider);
+            border-radius: 12px;
+            padding: 20px 22px;
+        }
+
+        .tier-card-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .tier-badge {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .tier-badge.basic {
+            background: rgba(249, 115, 22, 0.12);
+            color: var(--accent);
+        }
+
+        .tier-badge.detailed {
+            background: rgba(99, 102, 241, 0.10);
+            color: #818cf8;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .tier-badge.detailed {
+                background: rgba(99, 102, 241, 0.15);
+                color: #a5b4fc;
+            }
+        }
+
+        .tier-card-head h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .tier-opt {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .tier-card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .tier-card ul li {
+            font-size: 14px;
+            color: var(--text-secondary);
+            padding-left: 18px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .tier-card ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.55;
+        }
+
+        /* ─── Not collected list ─── */
+        .no-collect-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .no-collect-list li {
+            font-size: 15px;
+            color: var(--text-secondary);
+            padding-left: 22px;
+            position: relative;
+            line-height: 1.55;
+        }
+
+        .no-collect-list li::before {
+            content: '✕';
+            position: absolute;
+            left: 0;
+            top: 1px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        /* ─── Inline code ─── */
+        code {
+            font-family: var(--mono);
+            font-size: 12px;
+            background: var(--pill-bg);
+            border-radius: 4px;
+            padding: 2px 6px;
+            color: var(--text);
+        }
+
+        /* ─── Footer ─── */
+        .page-footer {
+            padding-top: 32px;
+            border-top: 1px solid var(--divider);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-brand {
+            font-family: var(--serif);
+            font-size: 16px;
+            color: var(--text);
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--text); }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 560px) {
+            .page-wrap { padding: 0 20px 60px; }
+            .topbar { padding-top: 28px; margin-bottom: 36px; }
+            .page-footer { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+
+        /* ─── i18n ─── */
+        [data-lang] { display: none; }
+        [data-lang].active { display: block; }
+        .tier-card [data-lang].active { display: flex; flex-direction: column; gap: 7px; }
+    </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="https://bobcorn.caldis.me" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Bobcorn
+            </a>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-current" id="pageLabel">Privacy Policy</span>
+        </div>
+        <button class="lang-btn" id="langToggle" aria-label="Toggle language">ZH</button>
+    </div>
+
+    <!-- Page header -->
+    <div class="page-header">
+        <h1 id="pageTitle">Privacy Policy</h1>
+        <p class="subtitle" id="pageSubtitle">
+            Bobcorn is designed with your privacy in mind. This page explains exactly what data we
+            collect, why, and how you can opt out at any time.
+        </p>
+        <span class="effective-date" id="effectiveDate">Effective: April 2025</span>
+    </div>
+
+    <!-- Section 1: What we collect -->
+    <div class="section">
+        <div class="section-label" id="s1Label">01 / What we collect</div>
+        <h2 id="s1Title">Two tiers of analytics, both anonymous</h2>
+        <p id="s1Desc">
+            All analytics are tied to a randomly generated installation UUID — never to your identity,
+            account, or device fingerprint.
+        </p>
+
+        <div class="tier-cards">
+            <!-- Basic -->
+            <div class="tier-card">
+                <div class="tier-card-head">
+                    <span class="tier-badge basic">Basic</span>
+                    <h3 id="basicTitle">Basic Analytics</h3>
+                    <span class="tier-opt" id="basicOpt">Opt-out in Settings</span>
+                </div>
+                <ul data-lang="en" class="active">
+                    <li>App launch count</li>
+                    <li>Update check &amp; install events</li>
+                    <li>Operating system type and version</li>
+                    <li>App version</li>
+                    <li>System language</li>
+                    <li>Screen resolution</li>
+                    <li>CPU architecture (x64 / arm64)</li>
+                </ul>
+                <ul data-lang="zh" class="active" style="display:none;">
+                    <li>应用启动次数</li>
+                    <li>更新检查与安装事件</li>
+                    <li>操作系统类型及版本</li>
+                    <li>应用版本号</li>
+                    <li>系统语言</li>
+                    <li>屏幕分辨率</li>
+                    <li>CPU 架构（x64 / arm64）</li>
+                </ul>
+            </div>
+
+            <!-- Detailed -->
+            <div class="tier-card">
+                <div class="tier-card-head">
+                    <span class="tier-badge detailed">Detailed</span>
+                    <h3 id="detailedTitle">Feature Analytics</h3>
+                    <span class="tier-opt" id="detailedOpt">Opt-in only</span>
+                </div>
+                <ul data-lang="en" class="active">
+                    <li>Icon import frequency</li>
+                    <li>Icon export frequency &amp; format selection</li>
+                    <li>Font generation frequency</li>
+                    <li>Search usage frequency</li>
+                    <li>Group management actions (add / rename / delete)</li>
+                    <li>CLI command invocation frequency</li>
+                </ul>
+                <ul data-lang="zh" class="active" style="display:none;">
+                    <li>图标导入频次</li>
+                    <li>图标导出频次及格式选择</li>
+                    <li>字体生成频次</li>
+                    <li>搜索使用频次</li>
+                    <li>分组管理操作（新增 / 重命名 / 删除）</li>
+                    <li>CLI 命令调用频次</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: What we do NOT collect -->
+    <div class="section">
+        <div class="section-label" id="s2Label">02 / What we do NOT collect</div>
+        <h2 id="s2Title">Your project data stays on your device</h2>
+        <p id="s2Desc">We never collect any of the following:</p>
+        <ul class="no-collect-list" id="noCollectList">
+            <li id="nc1">Project content or workspace data</li>
+            <li id="nc2">SVG source code or image data</li>
+            <li id="nc3">Icon names or file names</li>
+            <li id="nc4">Personal information (name, email, IP address)</li>
+            <li id="nc5">Browsing history or external network activity</li>
+            <li id="nc6">Any data from files you open or export</li>
+        </ul>
+    </div>
+
+    <!-- Section 3: Why we collect -->
+    <div class="section">
+        <div class="section-label" id="s3Label">03 / Why we collect</div>
+        <h2 id="s3Title">Improving Bobcorn for everyone</h2>
+        <p id="s3P1">
+            Anonymous usage data helps us understand which features are most valuable, prioritize
+            bug fixes, and make compatibility decisions (e.g. which OS versions to support).
+        </p>
+        <p id="s3P2">
+            Feature analytics (opt-in) let us see whether new capabilities are actually used, so we
+            can invest development time where it matters most.
+        </p>
+    </div>
+
+    <!-- Section 4: How we collect -->
+    <div class="section">
+        <div class="section-label" id="s4Label">04 / How we collect</div>
+        <h2 id="s4Title">GA4 Measurement Protocol, no cookies</h2>
+        <p id="s4P1">
+            Data is sent directly from the desktop app to Google Analytics 4 via the
+            <strong>Measurement Protocol</strong> — no browser, no cookies, no tracking pixels.
+        </p>
+        <p id="s4P2">
+            Each installation is assigned a random UUID stored locally in your app data folder.
+            This ID has no connection to your identity and cannot be used to re-identify you.
+        </p>
+        <p id="s4P3">
+            The analytics call is made at app launch and on specific user actions. No data is
+            collected while the app is closed.
+        </p>
+    </div>
+
+    <!-- Section 5: How to opt out -->
+    <div class="section">
+        <div class="section-label" id="s5Label">05 / How to opt out</div>
+        <h2 id="s5Title">Full control in Settings</h2>
+        <p id="s5P1">
+            Open <code id="settingsPath">Settings → Data Sharing</code> at any time to disable Basic
+            analytics or decline Detailed analytics. Your preference is saved locally and respected
+            immediately — no restart required.
+        </p>
+        <p id="s5P2">
+            Opting out stops all future data transmission. Previously sent anonymous events cannot be
+            retroactively deleted from GA4 because they carry no identifying information.
+        </p>
+    </div>
+
+    <!-- Section 6: Data retention -->
+    <div class="section">
+        <div class="section-label" id="s6Label">06 / Data retention</div>
+        <h2 id="s6Title">Limited retention, clear schedule</h2>
+        <p id="s6P1">
+            <strong id="ga4Retention">GA4 (remote):</strong> <span id="ga4RetentionDesc">Event data is retained for 14 months, then automatically deleted by Google.</span>
+        </p>
+        <p id="s6P2">
+            <strong id="localRetention">Local (on-device):</strong> <span id="localRetentionDesc">Raw events are kept for 90 days. Aggregated summaries (e.g. total launch count) are stored indefinitely in your local app data folder and are never transmitted.</span>
+        </p>
+    </div>
+
+    <!-- Section 7: Contact -->
+    <div class="section">
+        <div class="section-label" id="s7Label">07 / Contact</div>
+        <h2 id="s7Title">Questions or concerns?</h2>
+        <p id="s7P1">
+            If you have any questions about this policy, please open an issue on
+            <a href="https://github.com/Caldis/bobcorn" id="ghLink">GitHub</a>.
+            We take privacy questions seriously and will respond promptly.
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <div class="footer-brand">Bobcorn</div>
+        <div class="footer-links">
+            <a href="https://bobcorn.caldis.me" id="footerHome">Home</a>
+            <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+(function () {
+    // ─── Content ────────────────────────────────────────────────────────────────
+    var content = {
+        en: {
+            pageLabel: 'Privacy Policy',
+            pageTitle: 'Privacy Policy',
+            pageSubtitle: 'Bobcorn is designed with your privacy in mind. This page explains exactly what data we collect, why, and how you can opt out at any time.',
+            effectiveDate: 'Effective: April 2025',
+            s1Label: '01 / What we collect',
+            s1Title: 'Two tiers of analytics, both anonymous',
+            s1Desc: 'All analytics are tied to a randomly generated installation UUID — never to your identity, account, or device fingerprint.',
+            basicTitle: 'Basic Analytics',
+            basicOpt: 'Opt-out in Settings',
+            detailedTitle: 'Feature Analytics',
+            detailedOpt: 'Opt-in only',
+            s2Label: '02 / What we do NOT collect',
+            s2Title: 'Your project data stays on your device',
+            s2Desc: 'We never collect any of the following:',
+            nc1: 'Project content or workspace data',
+            nc2: 'SVG source code or image data',
+            nc3: 'Icon names or file names',
+            nc4: 'Personal information (name, email, IP address)',
+            nc5: 'Browsing history or external network activity',
+            nc6: 'Any data from files you open or export',
+            s3Label: '03 / Why we collect',
+            s3Title: 'Improving Bobcorn for everyone',
+            s3P1: 'Anonymous usage data helps us understand which features are most valuable, prioritize bug fixes, and make compatibility decisions (e.g. which OS versions to support).',
+            s3P2: 'Feature analytics (opt-in) let us see whether new capabilities are actually used, so we can invest development time where it matters most.',
+            s4Label: '04 / How we collect',
+            s4Title: 'GA4 Measurement Protocol, no cookies',
+            s4P1: 'Data is sent directly from the desktop app to Google Analytics 4 via the <strong>Measurement Protocol</strong> — no browser, no cookies, no tracking pixels.',
+            s4P2: 'Each installation is assigned a random UUID stored locally in your app data folder. This ID has no connection to your identity and cannot be used to re-identify you.',
+            s4P3: 'The analytics call is made at app launch and on specific user actions. No data is collected while the app is closed.',
+            s5Label: '05 / How to opt out',
+            s5Title: 'Full control in Settings',
+            s5P1: 'Open <code>Settings → Data Sharing</code> at any time to disable Basic analytics or decline Detailed analytics. Your preference is saved locally and respected immediately — no restart required.',
+            s5P2: 'Opting out stops all future data transmission. Previously sent anonymous events cannot be retroactively deleted from GA4 because they carry no identifying information.',
+            s6Label: '06 / Data retention',
+            s6Title: 'Limited retention, clear schedule',
+            ga4Retention: 'GA4 (remote):',
+            ga4RetentionDesc: 'Event data is retained for 14 months, then automatically deleted by Google.',
+            localRetention: 'Local (on-device):',
+            localRetentionDesc: 'Raw events are kept for 90 days. Aggregated summaries (e.g. total launch count) are stored indefinitely in your local app data folder and are never transmitted.',
+            s7Label: '07 / Contact',
+            s7Title: 'Questions or concerns?',
+            s7P1: 'If you have any questions about this policy, please open an issue on <a href="https://github.com/Caldis/bobcorn">GitHub</a>. We take privacy questions seriously and will respond promptly.',
+            footerHome: 'Home',
+            langToggle: 'ZH',
+            settingsPath: 'Settings → Data Sharing',
+            docTitle: 'Privacy Policy — Bobcorn',
+            htmlLang: 'en'
+        },
+        zh: {
+            pageLabel: '隐私政策',
+            pageTitle: '隐私政策',
+            pageSubtitle: 'Bobcorn 以保护您的隐私为设计原则。本页面详细说明我们收集哪些数据、原因，以及您随时可以选择退出的方式。',
+            effectiveDate: '生效日期：2025 年 4 月',
+            s1Label: '01 / 我们收集的数据',
+            s1Title: '两个层级的统计，均匿名处理',
+            s1Desc: '所有统计数据均关联至随机生成的安装 UUID，与您的身份、账户或设备指纹无任何关联。',
+            basicTitle: '基础统计',
+            basicOpt: '可在设置中关闭',
+            detailedTitle: '功能统计',
+            detailedOpt: '需主动开启',
+            s2Label: '02 / 我们不收集的数据',
+            s2Title: '您的项目数据始终保留在设备本地',
+            s2Desc: '我们绝不收集以下任何内容：',
+            nc1: '项目内容或工作区数据',
+            nc2: 'SVG 源代码或图像数据',
+            nc3: '图标名称或文件名',
+            nc4: '个人信息（姓名、邮箱、IP 地址）',
+            nc5: '浏览历史或外部网络活动',
+            nc6: '您打开或导出的文件中的任何数据',
+            s3Label: '03 / 收集原因',
+            s3Title: '持续改进 Bobcorn',
+            s3P1: '匿名使用数据帮助我们了解哪些功能最受重视，优先修复问题，并做出兼容性决策（例如：支持哪些操作系统版本）。',
+            s3P2: '功能统计（需开启）让我们了解新功能是否真正被使用，从而将开发资源投入到最有价值的地方。',
+            s4Label: '04 / 收集方式',
+            s4Title: 'GA4 Measurement Protocol，不使用 Cookie',
+            s4P1: '数据通过 <strong>Measurement Protocol</strong> 直接从桌面应用发送至 Google Analytics 4，不涉及浏览器、Cookie 或追踪像素。',
+            s4P2: '每次安装会生成一个随机 UUID 存储于本地应用数据文件夹中，该 ID 与您的身份毫无关联，无法用于重新识别您。',
+            s4P3: '数据上报发生在应用启动时及特定用户操作时。应用关闭期间不收集任何数据。',
+            s5Label: '05 / 如何退出',
+            s5Title: '在设置中完全掌控',
+            s5P1: '随时打开 <code>设置 → 数据共享</code> 即可关闭基础统计或拒绝功能统计。偏好设置即时生效，无需重启应用。',
+            s5P2: '退出后，所有后续数据传输将立即停止。由于之前发送的匿名事件不携带任何身份信息，无法从 GA4 中追溯删除。',
+            s6Label: '06 / 数据保留',
+            s6Title: '保留时限明确',
+            ga4Retention: 'GA4（远程）：',
+            ga4RetentionDesc: '事件数据保留 14 个月，之后由 Google 自动删除。',
+            localRetention: '本地（设备端）：',
+            localRetentionDesc: '原始事件数据保留 90 天。聚合摘要（如总启动次数）无限期存储于本地应用数据文件夹中，不会被上传。',
+            s7Label: '07 / 联系我们',
+            s7Title: '有疑问或顾虑？',
+            s7P1: '如您对本隐私政策有任何疑问，欢迎在 <a href="https://github.com/Caldis/bobcorn">GitHub</a> 上提交 Issue。我们重视隐私相关问题，会尽快回复。',
+            footerHome: '主页',
+            langToggle: 'EN',
+            settingsPath: '设置 → 数据共享',
+            docTitle: '隐私政策 — Bobcorn',
+            htmlLang: 'zh-CN'
+        }
+    };
+
+    // ─── Language detection ──────────────────────────────────────────────────────
+    function detectLang() {
+        var saved = localStorage.getItem('privacy-lang');
+        if (saved === 'zh' || saved === 'en') return saved;
+        var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
+        return nav.startsWith('zh') ? 'zh' : 'en';
+    }
+
+    var currentLang = detectLang();
+
+    // ─── Apply language ──────────────────────────────────────────────────────────
+    function applyLang(lang) {
+        var c = content[lang];
+        currentLang = lang;
+        localStorage.setItem('privacy-lang', lang);
+
+        document.documentElement.lang = c.htmlLang;
+        document.title = c.docTitle;
+
+        // Simple text nodes
+        var textIds = [
+            'pageLabel','pageTitle','pageSubtitle','effectiveDate',
+            's1Label','s1Title','s1Desc',
+            'basicTitle','basicOpt','detailedTitle','detailedOpt',
+            's2Label','s2Title','s2Desc',
+            'nc1','nc2','nc3','nc4','nc5','nc6',
+            's3Label','s3Title',
+            's4Label','s4Title',
+            's5Label','s5Title',
+            's6Label','s6Title',
+            'ga4Retention','ga4RetentionDesc','localRetention','localRetentionDesc',
+            's7Label','s7Title',
+            'footerHome',
+            'settingsPath'
+        ];
+
+        textIds.forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && c[id] !== undefined) el.textContent = c[id];
+        });
+
+        // HTML content (paragraphs that contain links or <strong>)
+        var htmlIds = ['s3P1','s3P2','s4P1','s4P2','s4P3','s5P1','s5P2','s7P1'];
+        htmlIds.forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && c[id] !== undefined) el.innerHTML = c[id];
+        });
+
+        // Language toggle label
+        var btn = document.getElementById('langToggle');
+        if (btn) btn.textContent = c.langToggle;
+
+        // Tier card lists: show lang-specific <ul>
+        var allUls = document.querySelectorAll('.tier-card ul[data-lang]');
+        allUls.forEach(function (ul) {
+            var show = ul.getAttribute('data-lang') === lang;
+            ul.style.display = show ? '' : 'none';
+        });
+    }
+
+    // ─── Toggle handler ──────────────────────────────────────────────────────────
+    document.getElementById('langToggle').addEventListener('click', function () {
+        applyLang(currentLang === 'en' ? 'zh' : 'en');
+    });
+
+    // ─── Init ────────────────────────────────────────────────────────────────────
+    applyLang(currentLang);
+})();
+</script>
+
+</body>
+</html>
