@@ -27,6 +27,22 @@ export const EVENT_CATALOG = {
   'search.execute': { category: 'icon', tier: 'detailed', description: 'Searched icons' },
   'cli.command': { category: 'cli', tier: 'detailed', description: 'Executed CLI command' },
 
+  // ── UI interactions (params carry specifics) ──
+  'settings.change': { category: 'settings', tier: 'detailed', description: 'Changed a setting' },
+  'file_menu.click': { category: 'ui', tier: 'detailed', description: 'Clicked file menu item' },
+  'project_settings.change': {
+    category: 'project',
+    tier: 'detailed',
+    description: 'Changed project setting',
+  },
+  'batch.toggle': { category: 'ui', tier: 'detailed', description: 'Toggled batch selection mode' },
+  'batch.operation': {
+    category: 'batch',
+    tier: 'detailed',
+    description: 'Executed batch operation',
+  },
+  'toolbar.action': { category: 'ui', tier: 'detailed', description: 'Used toolbar control' },
+
   // ── Consent tracking ──
   'consent.respond': {
     category: 'app',
