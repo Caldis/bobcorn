@@ -18,7 +18,7 @@ import {
 // Utils
 import { cn } from '../../lib/utils';
 // Store
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 
 interface IconToolbarProps {
   defaultIconWidth?: number;
@@ -123,6 +123,7 @@ function IconToolbar({
                 onChange={(checked) => {
                   setShowName(checked);
                   updateNameVisible(checked);
+                  analyticsTrack('toolbar.action', { action: 'toggleNames' });
                 }}
               />
             </label>
@@ -134,6 +135,7 @@ function IconToolbar({
                 onChange={(checked) => {
                   setShowCode(checked);
                   updateCodeVisible(checked);
+                  analyticsTrack('toolbar.action', { action: 'toggleCodes' });
                 }}
               />
             </label>
@@ -197,7 +199,10 @@ function IconToolbar({
                 ? 'bg-accent text-accent-foreground'
                 : 'text-foreground-muted hover:text-foreground hover:bg-surface-accent'
             )}
-            onClick={toggleBatchMode}
+            onClick={() => {
+              toggleBatchMode();
+              analyticsTrack('batch.toggle');
+            }}
             title={t('toolbar.batchMode')}
           >
             {batchMode ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
@@ -208,14 +213,20 @@ function IconToolbar({
             <>
               <button
                 className="inline-flex items-center gap-0.5 px-1.5 py-1 rounded text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent"
-                onClick={() => selectAllIcons(visibleIconIds)}
+                onClick={() => {
+                  selectAllIcons(visibleIconIds);
+                  analyticsTrack('toolbar.action', { action: 'selectAll' });
+                }}
                 title={t('toolbar.selectAll')}
               >
                 <CheckSquare size={12} /> {t('toolbar.selectAll')}
               </button>
               <button
                 className="inline-flex items-center gap-0.5 px-1.5 py-1 rounded text-xs text-foreground-muted hover:text-foreground hover:bg-surface-accent"
-                onClick={() => invertSelection(visibleIconIds)}
+                onClick={() => {
+                  invertSelection(visibleIconIds);
+                  analyticsTrack('toolbar.action', { action: 'invertSelection' });
+                }}
                 title={t('toolbar.invertSelection')}
               >
                 <CheckCircle size={12} /> {t('toolbar.invertSelection')}

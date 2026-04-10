@@ -247,6 +247,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       const iconWidth = width || widthTmpRef.current || defOption.iconBlockSize;
       setIconBlockWidth(iconWidth || 'auto');
       setOption({ iconBlockSize: width });
+      analyticsTrack('toolbar.action', { action: 'iconSize' });
     }, 150);
   }, []);
 

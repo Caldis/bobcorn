@@ -10,7 +10,7 @@ import { getFileDisplayName } from '../../hooks/useRecentProjects';
 import { ProjectAvatar, AVATAR_COLORS } from '../ProjectItem';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.settings
 import db from '../../database';
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 
 const { electronAPI } = window;
 
@@ -60,13 +60,19 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
 
   const handleDescBlur = useCallback(() => {
     const val = description.trim() || null;
-    (db as any).setProjectDescription(val, () => syncProjectMeta());
+    (db as any).setProjectDescription(val, () => {
+      syncProjectMeta();
+      analyticsTrack('project_settings.change', { setting: 'description' });
+    });
   }, [description, syncProjectMeta]);
 
   const handleColorSelect = useCallback(
     (color: string | null) => {
       setSelectedColor(color);
-      (db as any).setProjectColor(color, () => syncProjectMeta());
+      (db as any).setProjectColor(color, () => {
+        syncProjectMeta();
+        analyticsTrack('project_settings.change', { setting: 'color' });
+      });
     },
     [syncProjectMeta]
   );
@@ -87,6 +93,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
           (db as any).setProjectName(prefixText, () => {
             message.success(t('prefix.success'));
             syncLeft();
+            analyticsTrack('project_settings.change', { setting: 'prefix' });
           });
         },
       });
@@ -101,6 +108,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
     if (currentFilePath) {
       navigator.clipboard.writeText(currentFilePath);
       message.success(t('projectSettings.pathCopied'));
+      analyticsTrack('project_settings.change', { setting: 'copyPath' });
     }
   }, [currentFilePath, t]);
 
@@ -108,6 +116,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
     if (currentFilePath) {
       const dir = electronAPI.pathDirname(currentFilePath);
       electronAPI.openPath(dir);
+      analyticsTrack('project_settings.change', { setting: 'showInFolder' });
     }
   }, [currentFilePath]);
 

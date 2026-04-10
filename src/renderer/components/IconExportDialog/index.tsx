@@ -258,7 +258,10 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
       }
 
       message.success(t('iconExport.done'));
-      analyticsTrack('icon.export');
+      analyticsTrack('icon.export', {
+        format: rows.map((r) => r.format).join(','),
+        rowCount: rows.length,
+      });
       onClose();
     } catch (err: any) {
       message.error(t('iconExport.error', { error: err.message }));

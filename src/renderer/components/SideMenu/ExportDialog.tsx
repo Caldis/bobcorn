@@ -393,7 +393,13 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         t('export.progress.success', { count: files.length, zip: zipEnabled ? ' (ZIP)' : '' })
       );
       setExportPhase('done');
-      analyticsTrack('font.generate');
+      analyticsTrack('font.generate', {
+        formats: Object.entries(selectedFormats)
+          .filter(([, v]) => v)
+          .map(([k]) => k)
+          .join(','),
+        zip: zipEnabled,
+      });
     } catch (err: any) {
       console.error(err);
       const errMsg =

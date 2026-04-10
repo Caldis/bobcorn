@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FilePlus2, FolderOpen, Save, SaveAll, Import, Upload, Settings, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { platform } from '../../utils/tools';
+import { analyticsTrack } from '../../store';
 import UpdateIndicator from './UpdateIndicator';
 import ProjectSwitcher from './ProjectSwitcher';
 
@@ -74,6 +75,7 @@ const FileMenuBar = React.memo(function FileMenuBar({
     (key: string) => {
       setOpen(false);
       onMenuAction(key);
+      analyticsTrack('file_menu.click', { action: key });
     },
     [onMenuAction]
   );

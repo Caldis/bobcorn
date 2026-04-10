@@ -10,7 +10,7 @@ import { allVariantCombinations, buildVariantName } from '../../utils/svg/varian
 import { bakeSvgVariant, buildVariantMeta } from '../../utils/svg/bake';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.move, icon.copy, icon.delete, icon.set-color, group.move-icons
 import db from '../../database';
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 import { IconExportDialog } from '../IconExportDialog';
 import type { IconExportTarget } from '../IconExportDialog';
 
@@ -59,6 +59,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
       syncLeft();
       clearBatchSelection();
       message.success(t('batch.moved', { count: selectedIds.length }));
+      analyticsTrack('batch.operation', { operation: 'move' });
     },
     [selectedIds]
   );
@@ -69,6 +70,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
       syncLeft();
       clearBatchSelection();
       message.success(t('batch.copied', { count: selectedIds.length }));
+      analyticsTrack('batch.operation', { operation: 'copy' });
     },
     [selectedIds]
   );
@@ -83,11 +85,15 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         syncLeft();
         clearBatchSelection();
         message.success(t('batch.deleted', { count: selectedIds.length }));
+        analyticsTrack('batch.operation', { operation: 'delete' });
       },
     });
   }, [selectedIds]);
 
-  const handleExport = useCallback(() => setExportDialogVisible(true), []);
+  const handleExport = useCallback(() => {
+    setExportDialogVisible(true);
+    analyticsTrack('batch.operation', { operation: 'export' });
+  }, []);
 
   const exportIcons: IconExportTarget[] = useMemo(
     () =>
@@ -109,6 +115,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         ? t('batch.favorited', { count: selectedIds.length })
         : t('batch.unfavorited', { count: selectedIds.length })
     );
+    analyticsTrack('batch.operation', { operation: 'favorite' });
   }, [selectedIds, allFavorited]);
 
   const handleApplyColor = useCallback(() => {
@@ -117,6 +124,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
     syncIconContent();
     message.success(t('batch.colorApplied', { count: selectedIds.length }));
     setShowColorPicker(false);
+    analyticsTrack('batch.operation', { operation: 'unifyColor' });
   }, [selectedIds, batchColor]);
 
   const handleBatchGenerateVariants = useCallback(async () => {
@@ -172,6 +180,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         } else {
           message.success(t('variant.generated', { count: done }));
         }
+        analyticsTrack('batch.operation', { operation: 'generateVariants' });
       },
     });
   }, [selectedIds, syncLeft, clearBatchSelection, t]);

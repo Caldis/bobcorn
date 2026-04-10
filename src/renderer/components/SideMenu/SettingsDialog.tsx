@@ -6,7 +6,7 @@ import { message } from '../ui/toast';
 import { cn } from '../../lib/utils';
 import { getOption, setOption } from '../../config';
 import type { OptionData } from '../../config';
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 import appIcon from '../../resources/imgs/icon.png';
 import i18n from '../../i18n';
 import { supportedLanguages } from '../../../locales';
@@ -91,6 +91,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
         message.success(t('settings.cli.installSuccess'));
         setCliShowRestartHint(true);
         await detectCliStatus();
+        analyticsTrack('settings.change', { setting: 'cliInstall' });
       } else {
         message.error(t('settings.cli.installError', { error: result.message }));
       }
@@ -108,6 +109,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
       if (result.success) {
         setCliShowRestartHint(false);
         await detectCliStatus();
+        analyticsTrack('settings.change', { setting: 'cliUninstall' });
       }
     } catch {
       // Silently handle errors
@@ -137,6 +139,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
       i18n.changeLanguage(val);
       (window as any).electronAPI.languageChanged(val);
     }
+    analyticsTrack('settings.change', { setting: 'language', value: val });
   };
 
   return (
@@ -194,7 +197,10 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               {(['system', 'light', 'dark'] as const).map((mode) => (
                 <button
                   key={mode}
-                  onClick={() => setThemeMode(mode)}
+                  onClick={() => {
+                    setThemeMode(mode);
+                    analyticsTrack('settings.change', { setting: 'theme', value: mode });
+                  }}
                   className={cn(
                     'px-2.5 py-1 text-[11px] font-medium transition-colors duration-100',
                     'flex items-center gap-1',
@@ -283,6 +289,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 onChange={(v) => {
                   setAutoCheck(v);
                   syncPrefsToMain({ autoCheckUpdate: v });
+                  analyticsTrack('settings.change', { setting: 'autoCheck', value: v });
                 }}
               />
             </div>
@@ -293,6 +300,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 onChange={(v) => {
                   setAutoDownload(v);
                   syncPrefsToMain({ autoDownloadUpdate: v });
+                  analyticsTrack('settings.change', { setting: 'autoDownload', value: v });
                 }}
               />
             </div>
@@ -306,6 +314,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                       setChannel(ch);
                       syncPrefsToMain({ updateChannel: ch });
                       (window as any).electronAPI.setUpdateChannel(ch);
+                      analyticsTrack('settings.change', { setting: 'channel', value: ch });
                     }}
                     className={cn(
                       'px-2.5 py-1 text-[11px] font-medium transition-colors duration-100',
@@ -346,6 +355,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                     })
                   );
                   (window as any).electronAPI.checkForUpdate();
+                  analyticsTrack('settings.change', { setting: 'checkNow' });
                 }}
                 className={cn(
                   'px-3 py-1 rounded-md text-[11px] font-medium',
