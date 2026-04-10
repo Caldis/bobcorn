@@ -4,7 +4,7 @@ import type { EnvironmentMeta } from './types';
 
 const GA4_ENDPOINT = 'https://www.google-analytics.com/mp/collect';
 const MEASUREMENT_ID = 'G-H1DCS6LF3S';
-const GA4_API_SECRET = 'REPLACE_WITH_GA4_API_SECRET'; // write-only, safe to embed
+const GA4_API_SECRET = 'q11FTtGuTP6e0NazX6XVRQ'; // write-only, safe to embed
 
 let clientId = '';
 
