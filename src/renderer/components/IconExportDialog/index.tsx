@@ -258,6 +258,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
       }
 
       message.success(t('iconExport.done'));
+      window.dispatchEvent(new CustomEvent('bobcorn:export-triggered'));
       analyticsTrack('icon.export', {
         format: rows.map((r) => r.format).join(','),
         rowCount: rows.length,

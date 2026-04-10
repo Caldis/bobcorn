@@ -17,6 +17,15 @@ export default function ConsentDialog() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const splashScreenVisible = useAppStore((s) => s.splashScreenVisible);
+  const scheduledRef = useRef(false);
+
+  const showCard = () => {
+    if (open || scheduledRef.current) return; // only once
+    scheduledRef.current = true;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    shownAtRef.current = Date.now();
+    setOpen(true);
+  };
 
   // When splash disappears (project opened), schedule the consent card
   useEffect(() => {
@@ -27,16 +36,24 @@ export default function ConsentDialog() {
 
     const delay = import.meta.env.DEV
       ? (3 + Math.random() * 7) * 1000 // dev: 3-10s
-      : (30 + Math.random() * 270) * 1000; // prod: 30-300s
+      : (60 + Math.random() * 540) * 1000; // prod: 1-10min
 
-    timerRef.current = setTimeout(() => {
-      shownAtRef.current = Date.now();
-      setOpen(true);
-    }, delay);
+    timerRef.current = setTimeout(showCard, delay);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
+  }, [splashScreenVisible]);
+
+  // Immediately show if user exports (font or icon) — high-value moment
+  useEffect(() => {
+    if (splashScreenVisible) return;
+    const skipCheck = import.meta.env.DEV;
+    if (!skipCheck && useAppStore.getState().analyticsConsentShown) return;
+
+    const handler = () => showCard();
+    window.addEventListener('bobcorn:export-triggered', handler);
+    return () => window.removeEventListener('bobcorn:export-triggered', handler);
   }, [splashScreenVisible]);
 
   // Slide-in animation

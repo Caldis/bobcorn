@@ -393,6 +393,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         t('export.progress.success', { count: files.length, zip: zipEnabled ? ' (ZIP)' : '' })
       );
       setExportPhase('done');
+      window.dispatchEvent(new CustomEvent('bobcorn:export-triggered'));
       analyticsTrack('font.generate', {
         formats: Object.entries(selectedFormats)
           .filter(([, v]) => v)
