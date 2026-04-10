@@ -101,9 +101,6 @@ function MainContainer() {
 
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
   const isDirty = useAppStore((s: any) => s.isDirty);
-  const analyticsConsentShown = useAppStore((s: any) => s.analyticsConsentShown);
-  const loadAnalyticsConsent = useAppStore((s: any) => s.loadAnalyticsConsent);
-  const [consentDialogVisible, setConsentDialogVisible] = useState(false);
   const [resizing, setResizing] = useState(false);
 
   const selectGroup = useAppStore((state: any) => state.selectGroup);
@@ -338,27 +335,10 @@ function MainContainer() {
   }, []);
 
   // ── Analytics consent — load on mount ─────────────────────────
+  const loadAnalyticsConsent = useAppStore((s: any) => s.loadAnalyticsConsent);
   useEffect(() => {
     loadAnalyticsConsent();
   }, []);
-
-  // Show consent card after first project open, with random delay (30-300s)
-  // In dev mode, always show with shorter delay (3-10s) for debugging
-  const consentShownAtRef = React.useRef<number>(0);
-  useEffect(() => {
-    if (!splashScreenVisible) {
-      const skipCheck = import.meta.env.DEV;
-      if (skipCheck || !useAppStore.getState().analyticsConsentShown) {
-        const delay = import.meta.env.DEV
-          ? (3 + Math.random() * 7) * 1000 // dev: 3-10s
-          : (30 + Math.random() * 270) * 1000; // prod: 30-300s
-        setTimeout(() => {
-          consentShownAtRef.current = Date.now();
-          setConsentDialogVisible(true);
-        }, delay);
-      }
-    }
-  }, [splashScreenVisible]);
 
   // ── Menu IPC listeners (Electron menu) ────────────────────────────
   useEffect(() => {
@@ -571,11 +551,7 @@ function MainContainer() {
       {platform() === 'win32' && <TitleBarButtonGroup />}
 
       {/* Analytics consent dialog — shown once on first launch */}
-      <ConsentDialog
-        open={consentDialogVisible}
-        shownAt={consentShownAtRef.current}
-        onClose={() => setConsentDialogVisible(false)}
-      />
+      <ConsentDialog />
     </div>
   );
 }

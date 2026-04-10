@@ -1,44 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 import useAppStore, { analyticsTrack } from '../../store';
 
-interface ConsentDialogProps {
-  open: boolean;
-  /** Timestamp (Date.now()) when the card was shown */
-  shownAt: number;
-  onClose: () => void;
-}
-
-export default function ConsentDialog({ open, shownAt, onClose }: ConsentDialogProps) {
+/**
+ * Self-managing consent card — watches store state internally,
+ * renders via portal, never triggers parent re-renders.
+ */
+export default function ConsentDialog() {
   const { t } = useTranslation();
-  const [detailedChecked, setDetailedChecked] = useState(false);
-  const setAnalyticsConsent = useAppStore((s) => s.setAnalyticsConsent);
-  const markConsentShown = useAppStore((s) => s.markConsentShown);
-
-  // Slide-in animation state
+  const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [detailedChecked, setDetailedChecked] = useState(false);
+  const shownAtRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const splashScreenVisible = useAppStore((s) => s.splashScreenVisible);
+
+  // When splash disappears (project opened), schedule the consent card
+  useEffect(() => {
+    if (splashScreenVisible) return;
+
+    const skipCheck = import.meta.env.DEV;
+    if (!skipCheck && useAppStore.getState().analyticsConsentShown) return;
+
+    const delay = import.meta.env.DEV
+      ? (3 + Math.random() * 7) * 1000 // dev: 3-10s
+      : (30 + Math.random() * 270) * 1000; // prod: 30-300s
+
+    timerRef.current = setTimeout(() => {
+      shownAtRef.current = Date.now();
+      setOpen(true);
+    }, delay);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [splashScreenVisible]);
+
+  // Slide-in animation
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => setVisible(true));
-    } else {
-      setVisible(false);
     }
   }, [open]);
 
   const handleConfirm = () => {
-    // Track consent response: delay (seconds) + whether detailed was opted in
-    const delaySeconds = shownAt ? Math.round((Date.now() - shownAt) / 1000) : 0;
+    const delaySeconds = shownAtRef.current
+      ? Math.round((Date.now() - shownAtRef.current) / 1000)
+      : 0;
     analyticsTrack('consent.respond', {
       detailed_opted_in: detailedChecked,
       response_delay_s: delaySeconds,
     });
 
-    setAnalyticsConsent(true, detailedChecked);
-    markConsentShown();
+    useAppStore.getState().setAnalyticsConsent(true, detailedChecked);
+    useAppStore.getState().markConsentShown();
+
     setVisible(false);
-    setTimeout(onClose, 200);
+    setTimeout(() => setOpen(false), 200);
   };
 
   if (!open) return null;
@@ -58,7 +79,7 @@ export default function ConsentDialog({ open, shownAt, onClose }: ConsentDialogP
           'backdrop-blur-sm'
         )}
       >
-        {/* Header — icon + title inline */}
+        {/* Header */}
         <div className="flex items-center gap-2.5 mb-3">
           <div
             className={cn(
@@ -87,7 +108,6 @@ export default function ConsentDialog({ open, shownAt, onClose }: ConsentDialogP
           <h3 className="text-[13px] font-semibold text-foreground">{t('consent.title')}</h3>
         </div>
 
-        {/* Body */}
         <p className="text-xs text-foreground-muted leading-relaxed mb-3">{t('consent.body')}</p>
 
         {/* Opt-in checkbox */}
@@ -111,7 +131,7 @@ export default function ConsentDialog({ open, shownAt, onClose }: ConsentDialogP
           </span>
         </label>
 
-        {/* Footer — hint + button */}
+        {/* Footer */}
         <div className="flex items-end justify-between gap-2">
           <p className="text-[10px] text-foreground-muted/50 leading-relaxed">
             {t('consent.settingsHint')}{' '}
