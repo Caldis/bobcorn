@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 
 interface ConsentDialogProps {
   open: boolean;
+  /** Timestamp (Date.now()) when the card was shown */
+  shownAt: number;
   onClose: () => void;
 }
 
-export default function ConsentDialog({ open, onClose }: ConsentDialogProps) {
+export default function ConsentDialog({ open, shownAt, onClose }: ConsentDialogProps) {
   const { t } = useTranslation();
   const [detailedChecked, setDetailedChecked] = useState(false);
   const setAnalyticsConsent = useAppStore((s) => s.setAnalyticsConsent);
@@ -19,7 +21,6 @@ export default function ConsentDialog({ open, onClose }: ConsentDialogProps) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     if (open) {
-      // Trigger animation after mount
       requestAnimationFrame(() => setVisible(true));
     } else {
       setVisible(false);
@@ -27,10 +28,16 @@ export default function ConsentDialog({ open, onClose }: ConsentDialogProps) {
   }, [open]);
 
   const handleConfirm = () => {
+    // Track consent response: delay (seconds) + whether detailed was opted in
+    const delaySeconds = shownAt ? Math.round((Date.now() - shownAt) / 1000) : 0;
+    analyticsTrack('consent.respond', {
+      detailed_opted_in: detailedChecked,
+      response_delay_s: delaySeconds,
+    });
+
     setAnalyticsConsent(true, detailedChecked);
     markConsentShown();
     setVisible(false);
-    // Wait for slide-out animation before unmounting
     setTimeout(onClose, 200);
   };
 

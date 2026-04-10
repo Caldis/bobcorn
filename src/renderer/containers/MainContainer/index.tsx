@@ -206,6 +206,7 @@ function MainContainer() {
             const updated = [savePath, ...hist.filter((p: string) => p !== savePath)].slice(0, 10);
             setOption({ histProj: updated });
             message.success(t('file.saved'));
+            analyticsTrack('project.save');
             resolve();
           })
           .catch((err: Error) => {
@@ -232,6 +233,7 @@ function MainContainer() {
             .then(() => {
               useAppStore.getState().markClean();
               message.success(t('file.saved'));
+              analyticsTrack('project.save');
               resolve();
             })
             .catch((err: Error) => {
@@ -340,13 +342,20 @@ function MainContainer() {
     loadAnalyticsConsent();
   }, []);
 
-  // Show consent card when user first opens a project (splash → workspace)
-  // In dev mode, always show for debugging
+  // Show consent card after first project open, with random delay (30-300s)
+  // In dev mode, always show with shorter delay (3-10s) for debugging
+  const consentShownAtRef = React.useRef<number>(0);
   useEffect(() => {
     if (!splashScreenVisible) {
       const skipCheck = import.meta.env.DEV;
       if (skipCheck || !useAppStore.getState().analyticsConsentShown) {
-        setTimeout(() => setConsentDialogVisible(true), 800);
+        const delay = import.meta.env.DEV
+          ? (3 + Math.random() * 7) * 1000 // dev: 3-10s
+          : (30 + Math.random() * 270) * 1000; // prod: 30-300s
+        setTimeout(() => {
+          consentShownAtRef.current = Date.now();
+          setConsentDialogVisible(true);
+        }, delay);
       }
     }
   }, [splashScreenVisible]);
@@ -562,7 +571,11 @@ function MainContainer() {
       {platform() === 'win32' && <TitleBarButtonGroup />}
 
       {/* Analytics consent dialog — shown once on first launch */}
-      <ConsentDialog open={consentDialogVisible} onClose={() => setConsentDialogVisible(false)} />
+      <ConsentDialog
+        open={consentDialogVisible}
+        shownAt={consentShownAtRef.current}
+        onClose={() => setConsentDialogVisible(false)}
+      />
     </div>
   );
 }

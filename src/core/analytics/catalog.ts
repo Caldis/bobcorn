@@ -26,6 +26,13 @@ export const EVENT_CATALOG = {
   'group.delete': { category: 'project', tier: 'detailed', description: 'Deleted a group' },
   'search.execute': { category: 'icon', tier: 'detailed', description: 'Searched icons' },
   'cli.command': { category: 'cli', tier: 'detailed', description: 'Executed CLI command' },
+
+  // ── Consent tracking ──
+  'consent.respond': {
+    category: 'app',
+    tier: 'basic',
+    description: 'User responded to consent dialog',
+  },
 } as const satisfies Record<string, EventDef>;
 
 export type EventName = keyof typeof EVENT_CATALOG;
