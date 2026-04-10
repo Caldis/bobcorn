@@ -2,6 +2,20 @@
    Bobcorn Wiki — Sidebar, Language, Reveal
    ═══════════════════════════════════════════════ */
 
+/* ─── Google Analytics 4 (injected once via shared JS) ─── */
+(function () {
+    if (document.querySelector('script[src*="googletagmanager"]')) return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-H1DCS6LF3S';
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    window.gtag = gtag;
+    gtag('js', new Date());
+    gtag('config', 'G-H1DCS6LF3S');
+})();
+
 (function () {
     'use strict';
 
