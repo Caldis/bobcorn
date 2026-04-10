@@ -1,5 +1,33 @@
 [
   {
+    "version": "1.12.3",
+    "date": "2026-04-11",
+    "summary": {
+      "zh": "集成 Google Analytics 数据采集，新增隐私政策页面和用户同意机制",
+      "en": "Integrate Google Analytics with privacy-first consent system and policy page"
+    },
+    "changes": {
+      "zh": [
+        "新增 Analytics Gateway 架构：TypeScript 事件注册表 + 分层同意 + GA4 双写本地存储",
+        "新增首次使用 consent 卡片（左下角浮动，导出时触发，1-10 分钟随机延迟）",
+        "设置新增「数据共享」区域，支持基础/详细两级开关",
+        "全站 GA4 覆盖：主页、Wiki、隐私政策页、更新日志页",
+        "新增双语隐私政策页面 (bobcorn.caldis.me/privacy.html)",
+        "网站新增 Cookie 同意横幅和下载按钮点击统计",
+        "50+ 用户交互埋点：设置、文件菜单、项目设置、批量操作、工具栏、导出等"
+      ],
+      "en": [
+        "New Analytics Gateway: TypeScript event catalog + tiered consent + GA4 with local JSON store",
+        "First-use consent card (bottom-left floating, export-triggered, 1-10min random delay)",
+        "Settings: new Data Sharing section with basic/detailed toggle switches",
+        "GA4 coverage across all pages: homepage, Wiki, privacy policy, changelog",
+        "New bilingual privacy policy page (bobcorn.caldis.me/privacy.html)",
+        "Website cookie consent banner and download button click tracking",
+        "50+ UI interaction tracking points: settings, file menu, project settings, batch ops, toolbar, exports"
+      ]
+    }
+  },
+  {
     "version": "1.12.2",
     "date": "2026-04-08",
     "summary": {
