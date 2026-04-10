@@ -96,7 +96,7 @@ docsIndex = replaceOnce(
 );
 docsIndex = replaceOnce(
   docsIndex,
-  /(<a id="downloadBtn" href=")[^"]+(" class="btn-download">)/,
+  /(<a id="downloadBtn" href=")[^"]+("[^>]*>)/,
   `$1${latestUrl}$2`,
   'primary download button href'
 );
