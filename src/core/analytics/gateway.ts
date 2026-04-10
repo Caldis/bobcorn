@@ -38,6 +38,12 @@ export function setCurrentProject(projectName: string | null): void {
 export function track(event: EventName, params?: Record<string, unknown>): void {
   const def = EVENT_CATALOG[event];
 
+  // Guard against unknown events (IPC casts to any, so runtime check needed)
+  if (!def) {
+    console.warn(`[analytics] Unknown event: ${event}`);
+    return;
+  }
+
   // Always write to local store (user's own data, like iOS Screen Time)
   recordEvent(event, def.category, currentProject, params ?? null);
 
