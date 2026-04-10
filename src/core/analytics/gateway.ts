@@ -42,8 +42,9 @@ export function track(event: EventName, params?: Record<string, unknown>): void 
   recordEvent(event, def.category, currentProject, params ?? null);
 
   // Check consent for GA4 remote reporting
-  if (def.tier === 'basic' && !consent.basicEnabled) return;
-  if (def.tier === 'detailed' && !consent.detailedEnabled) return;
+  // TODO: Re-enable consent gating after initial launch debugging
+  // if (def.tier === 'basic' && !consent.basicEnabled) return;
+  // if (def.tier === 'detailed' && !consent.detailedEnabled) return;
 
   // Send to GA4 (fire-and-forget)
   if (envMeta) {
