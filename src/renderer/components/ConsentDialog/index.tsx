@@ -51,7 +51,7 @@ export default function ConsentDialog() {
     const skipCheck = import.meta.env.DEV;
     if (!skipCheck && useAppStore.getState().analyticsConsentShown) return;
 
-    const handler = () => showCard();
+    const handler = () => setTimeout(showCard, 3000);
     window.addEventListener('bobcorn:export-triggered', handler);
     return () => window.removeEventListener('bobcorn:export-triggered', handler);
   }, [splashScreenVisible]);
