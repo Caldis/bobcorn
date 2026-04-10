@@ -335,15 +335,17 @@ function MainContainer() {
     return () => mq.removeEventListener('change', handleSystemChange);
   }, []);
 
-  // ── Analytics consent ─────────────────────────────────────────
+  // ── Analytics consent — load on mount ─────────────────────────
   useEffect(() => {
-    loadAnalyticsConsent().then(() => {
-      const consent = useAppStore.getState();
-      if (!consent.analyticsConsentShown) {
-        setTimeout(() => setConsentDialogVisible(true), 800);
-      }
-    });
+    loadAnalyticsConsent();
   }, []);
+
+  // Show consent card when user first opens a project (splash → workspace)
+  useEffect(() => {
+    if (!splashScreenVisible && !useAppStore.getState().analyticsConsentShown) {
+      setTimeout(() => setConsentDialogVisible(true), 800);
+    }
+  }, [splashScreenVisible]);
 
   // ── Menu IPC listeners (Electron menu) ────────────────────────────
   useEffect(() => {
