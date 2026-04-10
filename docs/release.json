@@ -1,15 +1,15 @@
 {
-  "version": "1.12.2",
-  "tag": "v1.12.2",
+  "version": "1.12.3",
+  "tag": "v1.12.3",
   "repo": "Caldis/bobcorn",
   "releasesUrl": "https://github.com/Caldis/bobcorn/releases",
   "latestUrl": "https://github.com/Caldis/bobcorn/releases/latest",
-  "releaseUrl": "https://github.com/Caldis/bobcorn/releases/tag/v1.12.2",
+  "releaseUrl": "https://github.com/Caldis/bobcorn/releases/tag/v1.12.3",
   "downloads": {
-    "windows": "https://github.com/Caldis/bobcorn/releases/download/v1.12.2/Bobcorn-Setup-1.12.2.exe",
-    "mac": "https://github.com/Caldis/bobcorn/releases/download/v1.12.2/Bobcorn-1.12.2.dmg",
-    "mac-arm64": "https://github.com/Caldis/bobcorn/releases/download/v1.12.2/Bobcorn-1.12.2-arm64.dmg",
-    "linux": "https://github.com/Caldis/bobcorn/releases/download/v1.12.2/Bobcorn-1.12.2.AppImage",
+    "windows": "https://github.com/Caldis/bobcorn/releases/download/v1.12.3/Bobcorn-Setup-1.12.3.exe",
+    "mac": "https://github.com/Caldis/bobcorn/releases/download/v1.12.3/Bobcorn-1.12.3.dmg",
+    "mac-arm64": "https://github.com/Caldis/bobcorn/releases/download/v1.12.3/Bobcorn-1.12.3-arm64.dmg",
+    "linux": "https://github.com/Caldis/bobcorn/releases/download/v1.12.3/Bobcorn-1.12.3.AppImage",
     "default": "https://github.com/Caldis/bobcorn/releases/latest"
   }
 }
