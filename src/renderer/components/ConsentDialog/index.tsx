@@ -21,6 +21,8 @@ export default function ConsentDialog() {
 
   const showCard = () => {
     if (open || scheduledRef.current) return; // only once
+    // Re-check at show time — async loadAnalyticsConsent may have completed after scheduling
+    if (!import.meta.env.DEV && useAppStore.getState().analyticsConsentShown) return;
     scheduledRef.current = true;
     if (timerRef.current) clearTimeout(timerRef.current);
     shownAtRef.current = Date.now();
