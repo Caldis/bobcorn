@@ -37,7 +37,7 @@ import db from '../../database';
 // Images
 import selectedIconHint from '../../resources/imgs/nodata/selectedIconHint.png';
 // Store
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 // Variant panel
 import VariantPanel from './VariantPanel';
 // Export dialog
@@ -292,6 +292,7 @@ const SideEditor = React.memo(function SideEditor({
         db.deleteIconWithVariants(selectedIcon, () => {
           message.success(t('editor.deleted'));
           syncLeft();
+          analyticsTrack('icon.delete');
           selectIcon(null);
         });
       },

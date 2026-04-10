@@ -8,7 +8,7 @@ import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): group.add, group.rename, group.delete, group.set-description
 import db from '../../database';
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 import type { GroupData } from './types';
 
 interface GroupDialogsProps {
@@ -220,6 +220,7 @@ function GroupDialogs({
         (group: GroupData) => {
           message.success(t('group.addSuccess'));
           syncLeft();
+          analyticsTrack('group.create');
           onCloseAddGroup();
           onGroupAdded(group.id);
           if (sideMenuWrapperRef.current) {

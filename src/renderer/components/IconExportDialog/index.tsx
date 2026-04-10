@@ -6,6 +6,7 @@ import { Slider } from '../ui/slider';
 import { Checkbox } from '../ui/checkbox';
 import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
+import { analyticsTrack } from '../../store';
 import { ExportRow } from './ExportRow';
 import { PRESETS, buildFilename, computeOutputSize } from '../../utils/export/presets';
 import type { ExportRowConfig, PresetDef } from '../../utils/export/presets';
@@ -257,6 +258,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
       }
 
       message.success(t('iconExport.done'));
+      analyticsTrack('icon.export');
       onClose();
     } catch (err: any) {
       message.error(t('iconExport.error', { error: err.message }));

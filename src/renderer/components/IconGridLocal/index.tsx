@@ -24,7 +24,7 @@ import config, { defOption, setOption, getOption, type OptionData } from '../../
 import noIconHintSad from '../../resources/imgs/nodata/noIconHint-sad.png';
 import noIconHintHappy from '../../resources/imgs/nodata/noIconHint-happy.png';
 // Store
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 
 interface IconGridLocalProps {
   selectedGroup: string;
@@ -230,10 +230,12 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     if (elapsed >= 300) {
       searchLastFireRef.current = now;
       setSearchKeyword(value || null);
+      if (value) analyticsTrack('search.execute');
     } else {
       searchTimerRef.current = setTimeout(() => {
         searchLastFireRef.current = Date.now();
         setSearchKeyword(value || null);
+        if (value) analyticsTrack('search.execute');
       }, 300 - elapsed);
     }
   }, []);

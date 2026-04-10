@@ -21,6 +21,7 @@ import {
 } from '../../utils/generators/demopageGenerator';
 import { zipSync } from 'fflate';
 import { cn } from '../../lib/utils';
+import { analyticsTrack } from '../../store';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.set-name, project.set-prefix, export.font, export.svg
 import db from '../../database';
 import type { ExportGroupOption } from './types';
@@ -392,6 +393,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         t('export.progress.success', { count: files.length, zip: zipEnabled ? ' (ZIP)' : '' })
       );
       setExportPhase('done');
+      analyticsTrack('font.generate');
     } catch (err: any) {
       console.error(err);
       const errMsg =

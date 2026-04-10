@@ -14,7 +14,7 @@ import { iconImporter } from '../../utils/importer';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): group.list
 import db from '../../database';
 // Store
-import useAppStore from '../../store';
+import useAppStore, { analyticsTrack } from '../../store';
 // Sub-components
 import ResourceNav from './ResourceNav';
 import GroupList from './GroupList';
@@ -79,6 +79,7 @@ const SideMenu = React.memo(function SideMenu({
               db.addIcons(files, selectedGroup, () => {
                 message.success(t('import.success', { count: files.length }));
                 syncLeft();
+                analyticsTrack('icon.import');
               });
             },
           });
@@ -148,6 +149,7 @@ const SideMenu = React.memo(function SideMenu({
               db.delGroup(group.id, () => {
                 message.success(t('group.deleteSuccess'));
                 syncLeft();
+                analyticsTrack('group.delete');
                 setSelectedGroup('resource-all');
                 handleGroupSelected('resource-all');
               });
