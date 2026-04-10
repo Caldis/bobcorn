@@ -341,9 +341,13 @@ function MainContainer() {
   }, []);
 
   // Show consent card when user first opens a project (splash → workspace)
+  // In dev mode, always show for debugging
   useEffect(() => {
-    if (!splashScreenVisible && !useAppStore.getState().analyticsConsentShown) {
-      setTimeout(() => setConsentDialogVisible(true), 800);
+    if (!splashScreenVisible) {
+      const skipCheck = import.meta.env.DEV;
+      if (skipCheck || !useAppStore.getState().analyticsConsentShown) {
+        setTimeout(() => setConsentDialogVisible(true), 800);
+      }
     }
   }, [splashScreenVisible]);
 
