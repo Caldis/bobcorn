@@ -1,5 +1,21 @@
 [
   {
+    "version": "1.12.4",
+    "date": "2026-05-09",
+    "summary": {
+      "zh": "修复编辑器中重命名图标或修改字码后，左侧网格未同步更新的问题",
+      "en": "Fix left grid not syncing after renaming icon or changing icon code in editor"
+    },
+    "changes": {
+      "zh": [
+        "修复：在右侧详情面板修改图标名称或字码后，左侧图标网格仍显示旧值"
+      ],
+      "en": [
+        "Fix: editing icon name or code in the right detail panel left the left grid showing stale values"
+      ]
+    }
+  },
+  {
     "version": "1.12.3",
     "date": "2026-04-11",
     "summary": {
