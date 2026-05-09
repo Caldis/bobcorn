@@ -9,11 +9,13 @@
 - [Full agent context](https://bobcorn.caldis.me/llms-full.txt)
 - [GitHub repository](https://github.com/Caldis/bobcorn)
 - [Repository agent instructions](https://github.com/Caldis/bobcorn/blob/master/AGENTS.md)
+- [Website copy of AGENTS.md](https://bobcorn.caldis.me/AGENTS.md)
 - [Latest release](https://github.com/Caldis/bobcorn/releases/latest)
 - [Changelog JSON](https://bobcorn.caldis.me/changelog.json)
 - [Release metadata JSON](https://bobcorn.caldis.me/release.json)
 - [About Bobcorn](https://bobcorn.caldis.me/about.html)
-- [Contact](https://bobcorn.caldis.me/contact/)
+- [Contact](https://bobcorn.caldis.me/contact)
+- [Pricing](https://bobcorn.caldis.me/pricing.md)
 - [Bobcorn vs IcoMoon comparison](https://bobcorn.caldis.me/alternatives/icomoon.html)
 - [SVG to icon font workflow guide](https://bobcorn.caldis.me/guides/icon-font-workflow.html)
 
@@ -59,6 +61,7 @@
 - No remote webhook delivery.
 - No hosted MCP tool server.
 - No paid pricing tiers.
+- Free and open source under the MIT license.
 
 ## Main capabilities
 

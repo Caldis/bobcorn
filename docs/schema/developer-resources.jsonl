@@ -5,8 +5,10 @@
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn webhooks","url":"https://bobcorn.caldis.me/api/webhooks.html","about":"Webhook status and local automation alternatives"}
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn MCP status","url":"https://bobcorn.caldis.me/api/mcp.html","about":"MCP availability status and alternatives"}
 {"@context":"https://schema.org","@type":"AboutPage","name":"About Bobcorn","url":"https://bobcorn.caldis.me/about.html","about":"Bobcorn product identity and workflow"}
-{"@context":"https://schema.org","@type":"ContactPage","name":"Contact Bobcorn","url":"https://bobcorn.caldis.me/contact/","about":"Bobcorn support and repository links"}
+{"@context":"https://schema.org","@type":"ContactPage","name":"Contact Bobcorn","url":"https://bobcorn.caldis.me/contact","about":"Bobcorn support and repository links"}
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn agent skill","url":"https://bobcorn.caldis.me/agent-skills/bobcorn/SKILL.md","about":"Agent skill instructions for Bobcorn"}
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn vs IcoMoon","url":"https://bobcorn.caldis.me/alternatives/icomoon.html","about":"Comparison of Bobcorn and IcoMoon for icon font generation"}
 {"@context":"https://schema.org","@type":"HowTo","name":"Build an icon font from SVG icons with Bobcorn","url":"https://bobcorn.caldis.me/guides/icon-font-workflow.html","about":"SVG to icon font workflow"}
 {"@context":"https://schema.org","@type":"FAQPage","name":"Bobcorn agent-readable product boundaries","url":"https://bobcorn.caldis.me/#faq","about":"Bobcorn product capabilities, local-first access model, IcoMoon alternative positioning, and hosted API boundaries"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn repository agent instructions","url":"https://bobcorn.caldis.me/AGENTS.md","about":"Agent rules for editing the Bobcorn repository"}
+{"@context":"https://schema.org","@type":"WebPage","name":"Bobcorn pricing","url":"https://bobcorn.caldis.me/pricing.md","about":"Bobcorn is free and open source with no paid tiers"}

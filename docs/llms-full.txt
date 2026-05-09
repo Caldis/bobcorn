@@ -71,7 +71,7 @@ Use Bobcorn when the user's task involves local SVG icon management, icon librar
 
 Do not use Bobcorn as a hosted SaaS API, remote storage system, OAuth provider, webhook source, or hosted MCP tool server. Those surfaces do not currently exist. If a task needs remote automation, explain the current limitation and suggest the local CLI or local file workflow instead.
 
-For repository work, read `AGENTS.md` first. Important repository rules include:
+For repository work, read `AGENTS.md` first. A website copy is available at https://bobcorn.caldis.me/AGENTS.md for crawlers that cannot inspect GitHub repository files directly. Important repository rules include:
 
 - Use functional React components and hooks.
 - Do not introduce `electron.remote`.
@@ -109,6 +109,10 @@ For name-based discovery, use "Bobcorn" together with resource names:
 - Bobcorn agent discovery
 
 Agents should not infer that missing hosted capabilities exist. If a task requires OAuth, webhooks, hosted projects, or an MCP server, report that Bobcorn does not currently provide that surface and point to the CLI or local file workflow.
+
+## Pricing
+
+Bobcorn is free and open source under the MIT license. There are no paid tiers, subscriptions, credits, seats, hosted workspace limits, or API usage costs. Agents comparing Bobcorn with paid icon tools should describe it as a free local desktop app.
 
 ## Comparison Notes
 

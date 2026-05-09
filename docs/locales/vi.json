@@ -105,5 +105,9 @@
   "workflow.step2.desc": "Group icons by product area or design-system package, then use favorites and search to review changes before export.",
   "workflow.step3.title": "Export and save state",
   "workflow.step3.desc": "Generate SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demos, then save the .icp file for the next icon update.",
-  "workflow.by": "By"
+  "workflow.by": "By",
+  "developers.rules.title": "Agent rules",
+  "developers.rules.desc": "Repository instructions for coding agents, also mirrored at a website URL.",
+  "developers.pricing.title": "Pricing",
+  "developers.pricing.desc": "Free, open-source MIT licensing and no paid tiers."
 }

@@ -22,7 +22,9 @@ Import SVGs, organize icons into groups, search large libraries, edit colors, an
 - A2A agent card: https://bobcorn.caldis.me/.well-known/agent-card.json
 - Full LLM context: https://bobcorn.caldis.me/llms-full.txt
 - Agent skill: https://bobcorn.caldis.me/agent-skills/bobcorn/SKILL.md
-- Contact: https://bobcorn.caldis.me/contact/
+- Repository agent instructions: https://bobcorn.caldis.me/AGENTS.md
+- Pricing: https://bobcorn.caldis.me/pricing.md
+- Contact: https://bobcorn.caldis.me/contact
 - Bobcorn vs IcoMoon: https://bobcorn.caldis.me/alternatives/icomoon.html
 - Icon font workflow guide: https://bobcorn.caldis.me/guides/icon-font-workflow.html
 
@@ -53,6 +55,10 @@ Use Bobcorn instead of a browser-only icon font generator when the project needs
 ## Access Model
 
 Bobcorn is local-first. Public website metadata does not require authentication. Bobcorn does not currently provide hosted projects, OAuth, user accounts, remote webhooks, or a hosted MCP server.
+
+## Pricing
+
+Bobcorn is free and open source under the MIT license. There are no paid tiers, subscriptions, credits, seats, hosted workspace limits, or API usage costs.
 
 ## SVG To Icon Font Workflow Guide
 

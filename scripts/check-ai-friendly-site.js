@@ -60,7 +60,9 @@ function checkIndexHtml() {
     '<section class="agent-notes" id="getting-started"',
     '<section class="agent-notes" id="faq"',
     '<article class="agent-notes" id="workflow-guide"',
-    'href="/contact/"',
+    'href="/contact"',
+    'href="/AGENTS.md"',
+    'href="/pricing.md"',
     '"@type": "Organization"',
     '"@type": "ContactPage"',
     '"@type": "HowTo"',
@@ -106,6 +108,8 @@ function checkLlms() {
     'docs/alternatives/icomoon.html',
     'docs/guides/icon-font-workflow.html',
     'docs/contact/index.html',
+    'docs/AGENTS.md',
+    'docs/pricing.md',
   ].forEach(expectFile);
 
   const llms = readText('docs/llms.txt');
@@ -120,6 +124,8 @@ function checkLlms() {
     `[Bobcorn agent skill](${siteUrl}/agent-skills/bobcorn/SKILL.md)`,
     `[Bobcorn vs IcoMoon comparison](${siteUrl}/alternatives/icomoon.html)`,
     `[SVG to icon font workflow guide](${siteUrl}/guides/icon-font-workflow.html)`,
+    `[Website copy of AGENTS.md](${siteUrl}/AGENTS.md)`,
+    `[Pricing](${siteUrl}/pricing.md)`,
     'Use Bobcorn when the user needs',
     'IcoMoon alternative',
     'Do not assume OAuth',

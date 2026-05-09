@@ -36,7 +36,7 @@
     <link rel="service-desc" type="application/json" href="/.well-known/agent.json" title="Bobcorn agent discovery">
     <link rel="service-desc" type="application/json" href="/.well-known/agent-card.json" title="Bobcorn A2A agent card">
     <link rel="author" href="/about.html" title="About Bobcorn">
-    <link rel="help" href="/contact/" title="Contact Bobcorn">
+    <link rel="help" href="/contact" title="Contact Bobcorn">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bobcorn.caldis.me/">
@@ -78,7 +78,7 @@
             'Convert local SVG icon sets into web font assets.',
             'Maintain reusable icon libraries for product UI or design systems.'
           ],
-          contact: 'https://bobcorn.caldis.me/contact/',
+          contact: 'https://bobcorn.caldis.me/contact',
           auth: {
             type: 'none',
             notes: 'Public website metadata endpoints are read-only and do not require API keys, OAuth, cookies, or accounts.'
@@ -1121,7 +1121,7 @@
             {
                 "@type": "ContactPage",
                 "name": "Contact Bobcorn",
-                "url": "https://bobcorn.caldis.me/contact/",
+                "url": "https://bobcorn.caldis.me/contact",
                 "about": {
                     "@id": "https://bobcorn.caldis.me/#organization"
                 }
@@ -1468,14 +1468,24 @@
                     <a href="llms-full.txt" data-i18n="developers.context">Context</a>
                 </li>
                 <li class="resource-row">
+                    <strong data-i18n="developers.rules.title">Agent rules</strong>
+                    <span data-i18n="developers.rules.desc">Repository instructions for coding agents, also mirrored at a website URL.</span>
+                    <a href="/AGENTS.md" data-i18n="developers.read">Read</a>
+                </li>
+                <li class="resource-row">
                     <strong data-i18n="developers.auth.title">Auth and webhooks</strong>
                     <span data-i18n="developers.auth.desc">Explicit docs for the current no-auth, no-webhooks local-first boundary.</span>
                     <a href="api/auth.html" data-i18n="developers.read">Read</a>
                 </li>
                 <li class="resource-row">
+                    <strong data-i18n="developers.pricing.title">Pricing</strong>
+                    <span data-i18n="developers.pricing.desc">Free, open-source MIT licensing and no paid tiers.</span>
+                    <a href="/pricing.md" data-i18n="developers.read">Read</a>
+                </li>
+                <li class="resource-row">
                     <strong data-i18n="developers.contact.title">Contact and support</strong>
                     <span data-i18n="developers.contact.desc">Public GitHub issues, repository links, release links, and maintainer profile.</span>
-                    <a href="/contact/" data-i18n="developers.open">Open</a>
+                    <a href="/contact" data-i18n="developers.open">Open</a>
                 </li>
                 <li class="resource-row">
                     <strong data-i18n="developers.mcp.title">MCP status</strong>
@@ -1503,7 +1513,7 @@
         <div class="footer-links">
             <a href="https://github.com/Caldis/bobcorn/releases" data-i18n="footer.releases">Releases</a>
             <a href="/about.html" data-i18n="footer.about">About</a>
-            <a href="/contact/" data-i18n="footer.contact">Contact</a>
+            <a href="/contact" data-i18n="footer.contact">Contact</a>
             <a href="https://github.com/Caldis/bobcorn">GitHub</a>
             <a href="https://github.com/Caldis">Caldis</a>
             <a href="/privacy.html">Privacy Policy</a>

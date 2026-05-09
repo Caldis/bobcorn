@@ -105,5 +105,9 @@
   "workflow.step2.desc": "按产品区域或设计系统包组织图标，导出前用收藏和搜索检查变更。",
   "workflow.step3.title": "导出并保存状态",
   "workflow.step3.desc": "生成 SVG、TTF、WOFF、WOFF2、EOT、CSS、JavaScript 和 HTML demo，然后保存 .icp 文件供下一次图标更新使用。",
-  "workflow.by": "作者"
+  "workflow.by": "作者",
+  "developers.rules.title": "Agent 规则",
+  "developers.rules.desc": "面向代码 agent 的仓库说明，并同步提供官网 URL。",
+  "developers.pricing.title": "价格",
+  "developers.pricing.desc": "免费、开源、MIT 许可，没有付费层级。"
 }
