@@ -7,7 +7,7 @@
     "organization": "Caldis",
     "url": "https://github.com/Caldis"
   },
-  "version": "1.12.4",
+  "version": "1.12.5",
   "documentationUrl": "https://bobcorn.caldis.me/developers/",
   "capabilities": {
     "streaming": false,
