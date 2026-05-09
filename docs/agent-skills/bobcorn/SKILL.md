@@ -7,9 +7,9 @@ description: Use when a user needs to manage SVG icon libraries, generate icon f
 
 Bobcorn is a local-first desktop icon manager and icon font generator for Windows and macOS.
 
-## When To Use
+## When To Use This Skill
 
-Use Bobcorn when the user wants to:
+Use this skill when the user wants to:
 
 - Import or organize SVG icon libraries.
 - Generate icon font files from SVG icons.

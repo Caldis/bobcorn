@@ -37,6 +37,8 @@ Bobcorn is local-first. Project data lives in local `.icp` files and local sql.j
 - Changelog metadata: https://bobcorn.caldis.me/changelog.json
 - GitHub repository: https://github.com/Caldis/bobcorn
 - Latest release: https://github.com/Caldis/bobcorn/releases/latest
+- Comparison guide: https://bobcorn.caldis.me/alternatives/icomoon.html
+- Icon font workflow guide: https://bobcorn.caldis.me/guides/icon-font-workflow.html
 
 ## Public Website API
 

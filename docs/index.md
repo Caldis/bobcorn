@@ -22,6 +22,8 @@ Import SVGs, organize icons into groups, search large libraries, edit colors, an
 - A2A agent card: https://bobcorn.caldis.me/.well-known/agent-card.json
 - Full LLM context: https://bobcorn.caldis.me/llms-full.txt
 - Agent skill: https://bobcorn.caldis.me/agent-skills/bobcorn/SKILL.md
+- Bobcorn vs IcoMoon: https://bobcorn.caldis.me/alternatives/icomoon.html
+- Icon font workflow guide: https://bobcorn.caldis.me/guides/icon-font-workflow.html
 
 ## Why Bobcorn
 

@@ -36,6 +36,8 @@
     <link rel="service-desc" type="application/json" href="/.well-known/agent.json" title="Bobcorn agent discovery">
     <link rel="service-desc" type="application/json" href="/.well-known/agent-card.json" title="Bobcorn A2A agent card">
     <link rel="service-desc" type="application/json" href="/.well-known/mcp" title="Bobcorn MCP server discovery">
+    <link rel="author" href="/about.html" title="About Bobcorn">
+    <link rel="help" href="/contact.html" title="Contact Bobcorn">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bobcorn.caldis.me/">
@@ -1043,6 +1045,35 @@
                         "item": "https://bobcorn.caldis.me/developers/"
                     }
                 ]
+            },
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "What is Bobcorn used for?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Bobcorn is used to manage local SVG icon libraries and generate icon font assets such as SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demos."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is Bobcorn a hosted API?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "No. Bobcorn is a local-first desktop application. Public website endpoints are read-only metadata, and project files stay on the user's machine."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How is Bobcorn different from IcoMoon or Fontello?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Bobcorn focuses on desktop library management, local project files, and repeatable icon font exports. Browser tools such as IcoMoon and Fontello are useful for online generation, while Bobcorn keeps the working library local."
+                        }
+                    }
+                ]
             }
         ]
     }
@@ -1122,6 +1153,7 @@
                 <div class="story-label" data-i18n="why.label">Why Bobcorn</div>
                 <h2 id="why-bobcorn-title" data-i18n="why.title">Local icon font work without a browser round trip</h2>
                 <p data-i18n="why.desc">Bobcorn is for teams that need to keep SVG libraries local, organize reusable groups, and regenerate web font assets repeatedly. It complements browser tools such as IcoMoon and Fontello by focusing on desktop library management, local project files, and repeatable exports.</p>
+                <p><a href="alternatives/icomoon.html" data-i18n="why.compare">Read the Bobcorn vs IcoMoon comparison</a></p>
             </div>
             <table class="comparison-table reveal">
                 <tbody>

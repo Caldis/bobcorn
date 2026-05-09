@@ -71,5 +71,6 @@
   "start.step5.title": "复用",
   "start.step5.desc": "保存 .icp 文件，图标集变化后继续打开编辑。",
   "footer.about": "关于",
-  "footer.contact": "联系"
+  "footer.contact": "联系",
+  "why.compare": "阅读 Bobcorn 与 IcoMoon 对比"
 }

@@ -71,5 +71,6 @@
   "start.step5.title": "Repeat",
   "start.step5.desc": "Save the .icp file and reopen it when the icon set changes.",
   "footer.about": "About",
-  "footer.contact": "Contact"
+  "footer.contact": "Contact",
+  "why.compare": "Read the Bobcorn vs IcoMoon comparison"
 }

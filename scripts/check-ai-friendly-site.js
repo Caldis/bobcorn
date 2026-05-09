@@ -97,6 +97,8 @@ function checkLlms() {
     'docs/docs/llms.txt',
     'docs/agent-skills/bobcorn/SKILL.md',
     'docs/.well-known/agent-skills/index.json',
+    'docs/alternatives/icomoon.html',
+    'docs/guides/icon-font-workflow.html',
   ].forEach(expectFile);
 
   const llms = readText('docs/llms.txt');
@@ -109,6 +111,8 @@ function checkLlms() {
     'Bobcorn MCP server discovery',
     `[Bobcorn MCP server discovery](${siteUrl}/.well-known/mcp)`,
     `[Bobcorn agent skill](${siteUrl}/agent-skills/bobcorn/SKILL.md)`,
+    `[Bobcorn vs IcoMoon comparison](${siteUrl}/alternatives/icomoon.html)`,
+    `[SVG to icon font workflow guide](${siteUrl}/guides/icon-font-workflow.html)`,
     'Use Bobcorn when the user needs',
     'Do not assume OAuth',
   ].forEach((phrase) => {
@@ -160,6 +164,10 @@ function checkDiscoveryFiles() {
 
   if (mcp && !String(mcp.name || '').includes('Bobcorn')) {
     failures.push('docs/.well-known/mcp name must include Bobcorn.');
+  }
+
+  if (skills && skills.$schema !== 'https://schemas.agentskills.io/discovery/0.2.0/schema.json') {
+    failures.push('docs/.well-known/agent-skills/index.json must use the v0.2.0 schema URL.');
   }
 
   if (skills && skills.version !== '0.2.0') {
