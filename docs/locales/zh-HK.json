@@ -83,5 +83,7 @@
   "faq.q3": "Bobcorn 有 OAuth 或托管 API 吗？",
   "faq.a3": "没有。Bobcorn 是本地优先的桌面应用。官网只提供 release JSON、changelog JSON、OpenAPI 文档和 discovery files 等静态元数据，不托管用户项目或账号。",
   "faq.q4": "Bobcorn 提供托管 MCP server 吗？",
-  "faq.a4": "目前没有托管 MCP server。Agent 应使用 llms.txt、llms-full.txt、OpenAPI 元数据、GitHub 仓库，以及适用场景下的本地 CLI 流程。"
+  "faq.a4": "目前没有托管 MCP server。Agent 应使用 llms.txt、llms-full.txt、OpenAPI 元数据、GitHub 仓库，以及适用场景下的本地 CLI 流程。",
+  "developers.contact.title": "联系与支持",
+  "developers.contact.desc": "公开 GitHub issue、仓库链接、release 链接和维护者资料。"
 }

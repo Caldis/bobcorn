@@ -40,8 +40,20 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
           }
-        }
+        },
+        "description": "Returns the current Bobcorn version, GitHub release URLs, and platform download URLs. This endpoint is static, public, read-only, and does not require authentication."
       }
     },
     "/changelog.json": {
@@ -64,8 +76,20 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
           }
-        }
+        },
+        "description": "Returns localized Bobcorn release notes. The response is an array of release entries ordered by newest release first."
       }
     },
     "/index.md": {
@@ -85,8 +109,20 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
           }
-        }
+        },
+        "description": "Returns the canonical homepage content as Markdown for agents that prefer text over HTML."
       }
     },
     "/llms.txt": {
@@ -106,8 +142,20 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
           }
-        }
+        },
+        "description": "Returns concise product context, use cases, constraints, and canonical resource links for AI agents."
       }
     },
     "/llms-full.txt": {
@@ -127,8 +175,20 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
           }
-        }
+        },
+        "description": "Returns the full product and integration context in one request for AI agents that should avoid crawling multiple pages."
       }
     },
     "/.well-known/agent.json": {
@@ -148,8 +208,20 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
           }
-        }
+        },
+        "description": "Returns the Bobcorn agent discovery document with product identity, documentation links, unauthenticated access model, capabilities, and limitations."
       }
     },
     "/.well-known/agent-card.json": {
@@ -165,12 +237,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AgentCard"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
                 }
               }
             }
           }
-        }
+        },
+        "description": "Returns the Bobcorn Agent-to-Agent card for pre-connection capability discovery."
       }
     },
     "/.well-known/ai-plugin.json": {
@@ -186,12 +270,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AiPluginDescriptor"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
                 }
               }
             }
           }
-        }
+        },
+        "description": "Returns the legacy AI plugin descriptor for tools that still inspect ai-plugin.json manifests."
       }
     },
     "/api/mcp.html": {
@@ -211,8 +307,20 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
           }
-        }
+        },
+        "description": "Returns a human-readable page explaining that Bobcorn does not currently provide a hosted MCP server and listing supported alternatives."
       }
     }
   },
@@ -230,34 +338,51 @@
         ],
         "properties": {
           "version": {
-            "type": "string"
+            "type": "string",
+            "description": "Semantic version of the current Bobcorn release.",
+            "examples": [
+              "1.12.4"
+            ]
           },
           "tag": {
-            "type": "string"
+            "type": "string",
+            "description": "Git tag for the current release.",
+            "examples": [
+              "v1.12.4"
+            ]
           },
           "repo": {
-            "type": "string"
+            "type": "string",
+            "description": "GitHub repository in owner/name form.",
+            "examples": [
+              "Caldis/bobcorn"
+            ]
           },
           "releasesUrl": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "GitHub Releases page."
           },
           "latestUrl": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "GitHub latest release URL."
           },
           "releaseUrl": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Specific GitHub release URL for this version."
           },
           "downloads": {
             "type": "object",
+            "description": "Platform-specific download URLs keyed by platform identifier.",
             "additionalProperties": {
               "type": "string",
               "format": "uri"
             }
           }
-        }
+        },
+        "description": "Current Bobcorn release metadata and platform download links."
       },
       "ChangelogEntry": {
         "type": "object",
@@ -268,19 +393,23 @@
         ],
         "properties": {
           "version": {
-            "type": "string"
+            "type": "string",
+            "description": "Release version."
           },
           "date": {
-            "type": "string"
+            "type": "string",
+            "description": "Release date in YYYY-MM-DD format."
           },
           "summary": {
             "type": "object",
+            "description": "Localized one-line release summaries.",
             "additionalProperties": {
               "type": "string"
             }
           },
           "changes": {
             "type": "object",
+            "description": "Localized release note bullet lists.",
             "additionalProperties": {
               "type": "array",
               "items": {
@@ -288,7 +417,8 @@
               }
             }
           }
-        }
+        },
+        "description": "One localized Bobcorn changelog entry."
       },
       "AgentDiscovery": {
         "type": "object",
@@ -300,46 +430,61 @@
         ],
         "properties": {
           "schema_version": {
-            "type": "string"
+            "type": "string",
+            "description": "Discovery document schema version."
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Product name."
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Short product description."
           },
           "url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Canonical product homepage."
           },
           "repository": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Source code repository."
           },
           "documentation_url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Developer portal URL."
           },
           "openapi_url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "OpenAPI service description URL."
           },
           "auth": {
-            "type": "object"
+            "type": "object",
+            "description": "Authentication model for public metadata endpoints."
           },
           "capabilities": {
             "type": "array",
+            "description": "Current agent-readable capabilities.",
             "items": {
               "type": "string"
             }
           },
           "limitations": {
             "type": "array",
+            "description": "Explicit product limitations agents must not infer around.",
             "items": {
               "type": "string"
             }
+          },
+          "contact": {
+            "type": "object",
+            "description": "Public support and maintainer links."
           }
-        }
+        },
+        "description": "Bobcorn agent discovery metadata."
       },
       "McpDiscovery": {
         "type": "object",
@@ -377,6 +522,172 @@
             "items": {
               "type": "object"
             }
+          }
+        }
+      },
+      "AgentCard": {
+        "type": "object",
+        "description": "Agent-to-Agent capability card for Bobcorn.",
+        "required": [
+          "schemaVersion",
+          "name",
+          "description",
+          "url",
+          "version",
+          "skills"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "description": "A2A card schema version."
+          },
+          "name": {
+            "type": "string",
+            "description": "Product name."
+          },
+          "description": {
+            "type": "string",
+            "description": "Agent-readable product summary."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Canonical product homepage."
+          },
+          "provider": {
+            "type": "object",
+            "description": "Provider organization metadata."
+          },
+          "version": {
+            "type": "string",
+            "description": "Bobcorn release version described by this card."
+          },
+          "documentationUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Developer portal URL."
+          },
+          "capabilities": {
+            "type": "object",
+            "description": "Boolean A2A capability flags."
+          },
+          "authentication": {
+            "type": "object",
+            "description": "Authentication scheme notes."
+          },
+          "defaultInputModes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Accepted input MIME types."
+          },
+          "defaultOutputModes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Returned output MIME types."
+          },
+          "skills": {
+            "type": "array",
+            "description": "Agent skills exposed by this card.",
+            "items": {
+              "$ref": "#/components/schemas/AgentCardSkill"
+            }
+          }
+        }
+      },
+      "AgentCardSkill": {
+        "type": "object",
+        "description": "One documented skill in the Bobcorn A2A card.",
+        "required": [
+          "id",
+          "name",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable skill identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable skill name."
+          },
+          "description": {
+            "type": "string",
+            "description": "What the skill helps an agent do."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Search tags for the skill."
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Example user questions for this skill."
+          }
+        }
+      },
+      "AiPluginDescriptor": {
+        "type": "object",
+        "description": "Legacy ai-plugin.json descriptor for Bobcorn public metadata.",
+        "required": [
+          "schema_version",
+          "name_for_human",
+          "name_for_model",
+          "description_for_model",
+          "auth",
+          "api"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "description": "Plugin manifest schema version."
+          },
+          "name_for_human": {
+            "type": "string",
+            "description": "Human-readable product name."
+          },
+          "name_for_model": {
+            "type": "string",
+            "description": "Model-facing product identifier."
+          },
+          "description_for_human": {
+            "type": "string",
+            "description": "Human-readable description."
+          },
+          "description_for_model": {
+            "type": "string",
+            "description": "Model-facing usage description."
+          },
+          "auth": {
+            "type": "object",
+            "description": "Authentication requirements. Bobcorn public metadata uses none."
+          },
+          "api": {
+            "type": "object",
+            "description": "OpenAPI service description pointer."
+          },
+          "logo_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Product icon URL."
+          },
+          "contact_email": {
+            "type": "string",
+            "description": "Contact email listed for legacy plugin clients."
+          },
+          "legal_info_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Legal or privacy page URL."
           }
         }
       }

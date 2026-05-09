@@ -83,5 +83,7 @@
   "faq.q3": "Does Bobcorn have OAuth or a hosted API?",
   "faq.a3": "No. Bobcorn is a local-first desktop app. The public website exposes static metadata such as release JSON, changelog JSON, OpenAPI documentation, and discovery files, but it does not host user projects or accounts.",
   "faq.q4": "Does Bobcorn provide a hosted MCP server?",
-  "faq.a4": "No hosted MCP server is available today. Agents should use llms.txt, llms-full.txt, the OpenAPI metadata, GitHub repository, and the local CLI workflow where applicable."
+  "faq.a4": "No hosted MCP server is available today. Agents should use llms.txt, llms-full.txt, the OpenAPI metadata, GitHub repository, and the local CLI workflow where applicable.",
+  "developers.contact.title": "Contact and support",
+  "developers.contact.desc": "Public GitHub issues, repository links, release links, and maintainer profile."
 }

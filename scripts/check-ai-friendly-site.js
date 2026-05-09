@@ -58,6 +58,7 @@ function checkIndexHtml() {
     '<section class="agent-notes" id="why-bobcorn"',
     '<section class="agent-notes" id="getting-started"',
     '<section class="agent-notes" id="faq"',
+    'href="/contact/"',
     '"@type": "Organization"',
     '"@type": "ContactPage"',
     '"@type": "HowTo"',
