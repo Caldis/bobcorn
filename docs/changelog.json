@@ -1,5 +1,31 @@
 [
   {
+    "version": "1.12.5",
+    "date": "2026-05-10",
+    "summary": {
+      "zh": "导出图标字体的所有选项现在跟随用户态持久化，并支持在导出位置 input 内直接修改目录名",
+      "en": "Export icon font settings now persist per user, and the target directory name is editable directly in the export location input"
+    },
+    "changes": {
+      "zh": [
+        "新增：导出弹窗的所有选项（分组、可选格式、伴随文件、ZIP、导出位置、目录名）跟随用户态持久化，跨会话和项目保留",
+        "新增：导出位置 input 显示完整目标路径，可直接编辑末级目录名；勾选 ZIP 时自动补 .zip 后缀",
+        "新增：导出前校验目录名合法性与父目录可达性，错误立即提示而不进入管线",
+        "新增：目标已存在时弹出处理选项（覆盖 / 存储为自动后缀名 / 取消），目录与 .zip 文件冲突共用",
+        "改进：分组选择区改为小标题加滚动列表，去掉折叠头；数量摘要内置于全选行右侧",
+        "改进：[选择] 按钮高度与左侧 input 对齐"
+      ],
+      "en": [
+        "New: All export dialog options (groups, optional formats, companion files, ZIP, location, custom dir name) persist to user-level storage across sessions and projects",
+        "New: Export location input now shows the full target path and the trailing directory is editable in-place; the .zip suffix is auto-appended when ZIP mode is on",
+        "New: Pre-export validation rejects empty/illegal directory names and inaccessible parent directories with immediate error messages instead of failing mid-pipeline",
+        "New: When the target already exists, a 3-option dialog (Overwrite / Save as auto-suffixed name / Cancel) handles both directory and .zip file conflicts",
+        "Improved: The groups section is now a flat sub-title plus scrollable list (no collapsible header); count summary moved into the \"Select all\" row, right-aligned",
+        "Improved: The [Browse] button height now matches the input on its left"
+      ]
+    }
+  },
+  {
     "version": "1.12.4",
     "date": "2026-05-09",
     "summary": {
