@@ -67,6 +67,7 @@ function checkIndexHtml() {
     'data-i18n="why.compare">Read the Bobcorn vs IcoMoon comparison</a>',
     'id="alternatives" aria-labelledby="alternatives-title" data-agent-hidden="true"',
     'id="faq" aria-labelledby="faq-title" data-agent-hidden="true"',
+    'id="workflow-guide" aria-labelledby="workflow-guide-title" itemscope itemtype="https://schema.org/TechArticle" data-agent-hidden="true"',
     'id="developers" aria-labelledby="developers-title" data-agent-hidden="true"',
     '"@type": "Organization"',
     '"@type": "ContactPage"',
