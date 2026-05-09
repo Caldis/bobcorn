@@ -110,6 +110,13 @@ function checkLlms() {
     'docs/contact/index.html',
     'docs/AGENTS.md',
     'docs/pricing.md',
+    'docs/api/auth.json',
+    'docs/api/rate-limits.json',
+    'docs/api/errors.json',
+    'docs/status.json',
+    'docs/api/rate-limits.html',
+    'docs/api/errors.html',
+    'docs/status.html',
   ].forEach(expectFile);
 
   const llms = readText('docs/llms.txt');
@@ -126,6 +133,10 @@ function checkLlms() {
     `[SVG to icon font workflow guide](${siteUrl}/guides/icon-font-workflow.html)`,
     `[Website copy of AGENTS.md](${siteUrl}/AGENTS.md)`,
     `[Pricing](${siteUrl}/pricing.md)`,
+    `[Bobcorn auth JSON](${siteUrl}/api/auth.json)`,
+    `[Bobcorn rate limits](${siteUrl}/api/rate-limits.json)`,
+    `[Bobcorn error model](${siteUrl}/api/errors.json)`,
+    `[Bobcorn status](${siteUrl}/status.json)`,
     'Use Bobcorn when the user needs',
     'IcoMoon alternative',
     'Do not assume OAuth',
@@ -196,6 +207,17 @@ function checkOpenApi() {
     failures.push(`docs/openapi.json version is "${openApi.info?.version}", expected "${pkg.version}".`);
   }
 
+  [
+    '/api/auth.json',
+    '/api/rate-limits.json',
+    '/api/errors.json',
+    '/status.json',
+  ].forEach((apiPath) => {
+    if (openApi && !openApi.paths?.[apiPath]?.get?.description) {
+      failures.push(`docs/openapi.json is missing a documented GET operation for ${apiPath}.`);
+    }
+  });
+
   if (apiOpenApi && apiOpenApi.openapi !== '3.1.0') {
     failures.push('docs/api/openapi.json must use OpenAPI 3.1.0.');
   }
@@ -205,6 +227,17 @@ function checkOpenApi() {
       `docs/api/openapi.json version is "${apiOpenApi.info?.version}", expected "${pkg.version}".`
     );
   }
+
+  [
+    '/api/auth.json',
+    '/api/rate-limits.json',
+    '/api/errors.json',
+    '/status.json',
+  ].forEach((apiPath) => {
+    if (apiOpenApi && !apiOpenApi.paths?.[apiPath]?.get?.description) {
+      failures.push(`docs/api/openapi.json is missing a documented GET operation for ${apiPath}.`);
+    }
+  });
 }
 
 function checkRobotsAndSchema() {
@@ -227,6 +260,10 @@ function checkRobotsAndSchema() {
     `${siteUrl}/release.json`,
     `${siteUrl}/changelog.json`,
     `${siteUrl}/.well-known/agent-skills/index.json`,
+    `${siteUrl}/api/auth.json`,
+    `${siteUrl}/api/rate-limits.json`,
+    `${siteUrl}/api/errors.json`,
+    `${siteUrl}/status.json`,
   ].forEach((url) => {
     if (!schemaMap.includes(url)) {
       failures.push(`docs/schemamap.xml does not reference ${url}.`);

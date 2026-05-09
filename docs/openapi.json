@@ -20,6 +20,10 @@
     {
       "name": "Metadata",
       "description": "Release, changelog, and documentation metadata"
+    },
+    {
+      "name": "Access",
+      "description": "Authentication, rate-limit, error, and status metadata for static endpoints"
     }
   ],
   "paths": {
@@ -321,6 +325,138 @@
           }
         },
         "description": "Returns a human-readable page explaining that Bobcorn does not currently provide a hosted MCP server and listing supported alternatives."
+      }
+    },
+    "/api/auth.json": {
+      "get": {
+        "tags": [
+          "Access"
+        ],
+        "summary": "Get Bobcorn public metadata auth model",
+        "operationId": "getAuthModel",
+        "description": "Returns the machine-readable no-auth access model for Bobcorn public website metadata. These static endpoints do not use API keys, OAuth, cookies, or user accounts.",
+        "responses": {
+          "200": {
+            "description": "Get Bobcorn public metadata auth model.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthModel"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rate-limits.json": {
+      "get": {
+        "tags": [
+          "Access"
+        ],
+        "summary": "Get Bobcorn public metadata rate-limit notes",
+        "operationId": "getRateLimitNotes",
+        "description": "Returns rate-limit notes for Bobcorn public website metadata. Bobcorn does not operate a hosted account API with product-level quotas.",
+        "responses": {
+          "200": {
+            "description": "Get Bobcorn public metadata rate-limit notes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitNotes"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/errors.json": {
+      "get": {
+        "tags": [
+          "Access"
+        ],
+        "summary": "Get Bobcorn static metadata error model",
+        "operationId": "getErrorModel",
+        "description": "Returns known static-site error cases and recovery guidance for agents.",
+        "responses": {
+          "200": {
+            "description": "Get Bobcorn static metadata error model.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status.json": {
+      "get": {
+        "tags": [
+          "Metadata"
+        ],
+        "summary": "Get Bobcorn public website status",
+        "operationId": "getPublicWebsiteStatus",
+        "description": "Returns public website metadata status. It does not describe hosted project API health because that surface is not provided.",
+        "responses": {
+          "200": {
+            "description": "Get Bobcorn public website status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected static-site response. GitHub Pages may return an HTML error page for missing static files.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "GitHub Pages HTML error response."
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -688,6 +824,187 @@
             "type": "string",
             "format": "uri",
             "description": "Legal or privacy page URL."
+          }
+        }
+      },
+      "AuthModel": {
+        "type": "object",
+        "description": "No-auth access model for Bobcorn public website metadata.",
+        "required": [
+          "name",
+          "authentication",
+          "appliesTo"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Document name."
+          },
+          "authentication": {
+            "type": "object",
+            "description": "Authentication requirements for static metadata endpoints.",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "none"
+                ],
+                "description": "Authentication type."
+              },
+              "apiKeys": {
+                "type": "boolean",
+                "description": "Whether API keys are required."
+              },
+              "oauth": {
+                "type": "boolean",
+                "description": "Whether OAuth is provided or required."
+              },
+              "cookies": {
+                "type": "boolean",
+                "description": "Whether session cookies are required."
+              },
+              "userAccounts": {
+                "type": "boolean",
+                "description": "Whether user accounts are provided."
+              },
+              "notes": {
+                "type": "string",
+                "description": "Human-readable access notes."
+              }
+            }
+          },
+          "appliesTo": {
+            "type": "array",
+            "description": "Static paths covered by this access model.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "localProjectAccess": {
+            "type": "object",
+            "description": "Local project-file access requirements."
+          }
+        }
+      },
+      "RateLimitNotes": {
+        "type": "object",
+        "description": "Rate-limit notes for Bobcorn public website metadata.",
+        "required": [
+          "name",
+          "productRateLimits",
+          "rateLimitHeaders",
+          "notes"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "productRateLimits": {
+            "type": "boolean",
+            "description": "Whether Bobcorn operates product-level API quotas."
+          },
+          "rateLimitHeaders": {
+            "type": "boolean",
+            "description": "Whether Bobcorn static files return X-RateLimit headers."
+          },
+          "notes": {
+            "type": "string"
+          },
+          "agentGuidance": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorModel": {
+        "type": "object",
+        "description": "Known static-site errors and recovery guidance.",
+        "required": [
+          "name",
+          "hostedApi",
+          "structuredApiErrors",
+          "knownErrors"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "hostedApi": {
+            "type": "boolean",
+            "description": "Whether Bobcorn operates a hosted JSON API for project actions."
+          },
+          "structuredApiErrors": {
+            "type": "boolean",
+            "description": "Whether hosted API JSON errors exist."
+          },
+          "notes": {
+            "type": "string"
+          },
+          "knownErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KnownError"
+            }
+          }
+        }
+      },
+      "KnownError": {
+        "type": "object",
+        "description": "One documented static-site error case.",
+        "required": [
+          "status",
+          "code",
+          "message",
+          "resolution"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code."
+          },
+          "code": {
+            "type": "string",
+            "description": "Stable error code."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message."
+          },
+          "resolution": {
+            "type": "string",
+            "description": "Agent recovery guidance."
+          }
+        }
+      },
+      "Status": {
+        "type": "object",
+        "description": "Status of Bobcorn public website metadata surfaces.",
+        "required": [
+          "status",
+          "name",
+          "updated",
+          "components"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Overall status."
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated": {
+            "type": "string",
+            "description": "Last status document update date."
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Named status components."
+          },
+          "notes": {
+            "type": "string"
           }
         }
       }

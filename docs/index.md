@@ -51,6 +51,10 @@ Use Bobcorn instead of a browser-only icon font generator when the project needs
 - `GET /llms.txt`: concise agent context.
 - `GET /llms-full.txt`: full product context for agents.
 - `GET /openapi.json`: OpenAPI description for public static metadata endpoints.
+- `GET /api/auth.json`: machine-readable no-auth access model.
+- `GET /api/rate-limits.json`: rate-limit notes for static metadata.
+- `GET /api/errors.json`: error model and recovery guidance for static metadata.
+- `GET /status.json`: public website metadata status.
 
 ## Access Model
 

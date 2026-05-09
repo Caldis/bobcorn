@@ -21,6 +21,26 @@
     <about>Bobcorn changelog metadata</about>
   </url>
   <url>
+    <loc>https://bobcorn.caldis.me/api/auth.json</loc>
+    <type>application/json</type>
+    <about>Bobcorn public metadata authentication model</about>
+  </url>
+  <url>
+    <loc>https://bobcorn.caldis.me/api/rate-limits.json</loc>
+    <type>application/json</type>
+    <about>Bobcorn public metadata rate-limit notes</about>
+  </url>
+  <url>
+    <loc>https://bobcorn.caldis.me/api/errors.json</loc>
+    <type>application/json</type>
+    <about>Bobcorn public metadata error model</about>
+  </url>
+  <url>
+    <loc>https://bobcorn.caldis.me/status.json</loc>
+    <type>application/json</type>
+    <about>Bobcorn public website status</about>
+  </url>
+  <url>
     <loc>https://bobcorn.caldis.me/.well-known/agent-skills/index.json</loc>
     <type>application/json</type>
     <about>Bobcorn agent skills index</about>

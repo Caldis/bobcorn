@@ -109,5 +109,8 @@
   "developers.rules.title": "Agent rules",
   "developers.rules.desc": "Repository instructions for coding agents, also mirrored at a website URL.",
   "developers.pricing.title": "Pricing",
-  "developers.pricing.desc": "Free, open-source MIT licensing and no paid tiers."
+  "developers.pricing.desc": "Free, open-source MIT licensing and no paid tiers.",
+  "nav.contact": "Contact",
+  "developers.status.title": "Status and errors",
+  "developers.status.desc": "Machine-readable status, auth, rate-limit, and error model documents."
 }

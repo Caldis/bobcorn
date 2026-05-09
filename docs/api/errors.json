@@ -1,0 +1,20 @@
+{
+  "name": "Bobcorn public metadata error model",
+  "hostedApi": false,
+  "structuredApiErrors": false,
+  "notes": "Bobcorn does not currently operate a hosted JSON API for project actions. Missing static website paths are served by GitHub Pages and may return an HTML 404 page.",
+  "knownErrors": [
+    {
+      "status": 404,
+      "code": "static_path_not_found",
+      "message": "The requested static website path does not exist.",
+      "resolution": "Use /llms.txt, /llms-full.txt, /openapi.json, /api/, or GitHub repository links listed in the discovery files."
+    },
+    {
+      "status": 405,
+      "code": "method_not_supported",
+      "message": "The public website metadata endpoints are read-only.",
+      "resolution": "Use GET requests for static metadata. Use the local CLI for supported local project automation."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Bobcorn public metadata rate limits",
+  "productRateLimits": false,
+  "rateLimitHeaders": false,
+  "notes": "Bobcorn does not operate a hosted API with account-level quotas. The public website is static GitHub Pages content, so normal CDN or hosting abuse protections may apply outside Bobcorn's product model.",
+  "agentGuidance": "Cache static metadata when possible. Do not expect X-RateLimit-* headers from the Bobcorn website."
+}

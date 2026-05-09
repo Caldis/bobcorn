@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bobcorn Error Model - Static Website Metadata</title>
+  <meta name="description" content="Bobcorn error model for public static metadata endpoints and local-first automation boundaries.">
+  <link rel="canonical" href="https://bobcorn.caldis.me/api/errors.html">
+  <link rel="alternate" type="application/json" href="/api/errors.json">
+  <style>body{margin:0;background:#fafaf5;color:#1a1917;font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:860px;margin:0 auto;padding:72px 24px}a{color:#1a1917;text-underline-offset:4px}h1{font-size:clamp(38px,7vw,64px);line-height:1;margin:0 0 24px}p,li{color:#74726b}code{color:#1a1917}</style>
+</head>
+<body>
+  <main>
+    <p><a href="/api/">Bobcorn API docs</a></p>
+    <h1>Bobcorn Error Model</h1>
+    <p>Bobcorn does not currently operate a hosted JSON API for project actions. Public metadata files are static and read-only. Missing website paths are served by GitHub Pages and may return an HTML 404 page.</p>
+    <ul>
+      <li><code>static_path_not_found</code>: use the documented static paths from <a href="/openapi.json">OpenAPI</a> or <a href="/llms.txt">llms.txt</a>.</li>
+      <li><code>method_not_supported</code>: use GET requests for static metadata. Use the local CLI for supported local automation.</li>
+    </ul>
+    <p>Machine-readable version: <a href="/api/errors.json">/api/errors.json</a>.</p>
+  </main>
+</body>
+</html>

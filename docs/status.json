@@ -1,0 +1,24 @@
+{
+  "status": "operational",
+  "name": "Bobcorn public website",
+  "updated": "2026-05-09",
+  "components": [
+    {
+      "name": "Static website",
+      "status": "operational"
+    },
+    {
+      "name": "Public metadata files",
+      "status": "operational"
+    },
+    {
+      "name": "Hosted project API",
+      "status": "not_provided"
+    },
+    {
+      "name": "Hosted MCP server",
+      "status": "not_provided"
+    }
+  ],
+  "notes": "Bobcorn is a local-first desktop app. This status file covers public website metadata only."
+}

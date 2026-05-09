@@ -109,5 +109,8 @@
   "developers.rules.title": "Agent 规则",
   "developers.rules.desc": "面向代码 agent 的仓库说明，并同步提供官网 URL。",
   "developers.pricing.title": "价格",
-  "developers.pricing.desc": "免费、开源、MIT 许可，没有付费层级。"
+  "developers.pricing.desc": "免费、开源、MIT 许可，没有付费层级。",
+  "nav.contact": "联系",
+  "developers.status.title": "状态与错误",
+  "developers.status.desc": "机器可读的状态、认证、限流和错误模型文档。"
 }

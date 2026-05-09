@@ -54,6 +54,34 @@
         <lastmod>2026-05-09</lastmod>
     </url>
     <url>
+        <loc>https://bobcorn.caldis.me/api/auth.json</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/api/rate-limits.html</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/api/rate-limits.json</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/api/errors.html</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/api/errors.json</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/status.html</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/status.json</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
         <loc>https://bobcorn.caldis.me/api/webhooks.html</loc>
         <lastmod>2026-05-09</lastmod>
     </url>

@@ -2,6 +2,10 @@
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn API docs","url":"https://bobcorn.caldis.me/api/","about":"Read-only public metadata API endpoints"}
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn OpenAPI spec","url":"https://bobcorn.caldis.me/openapi.json","about":"OpenAPI description for Bobcorn public metadata"}
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn auth docs","url":"https://bobcorn.caldis.me/api/auth.html","about":"Authentication status for Bobcorn public metadata"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn auth JSON","url":"https://bobcorn.caldis.me/api/auth.json","about":"Machine-readable no-auth access model for Bobcorn public metadata"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn rate limits","url":"https://bobcorn.caldis.me/api/rate-limits.json","about":"Rate-limit notes for Bobcorn static metadata"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn error model","url":"https://bobcorn.caldis.me/api/errors.json","about":"Error model and recovery guidance for Bobcorn static metadata"}
+{"@context":"https://schema.org","@type":"WebPage","name":"Bobcorn status","url":"https://bobcorn.caldis.me/status.json","about":"Operational status for Bobcorn public website metadata"}
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn webhooks","url":"https://bobcorn.caldis.me/api/webhooks.html","about":"Webhook status and local automation alternatives"}
 {"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn MCP status","url":"https://bobcorn.caldis.me/api/mcp.html","about":"MCP availability status and alternatives"}
 {"@context":"https://schema.org","@type":"AboutPage","name":"About Bobcorn","url":"https://bobcorn.caldis.me/about.html","about":"Bobcorn product identity and workflow"}

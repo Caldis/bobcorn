@@ -3,6 +3,12 @@
 - Bobcorn API docs: https://bobcorn.caldis.me/api/
 - Bobcorn OpenAPI spec: https://bobcorn.caldis.me/openapi.json
 - Auth docs: https://bobcorn.caldis.me/api/auth.html
+- Auth JSON: https://bobcorn.caldis.me/api/auth.json
+- Rate limits: https://bobcorn.caldis.me/api/rate-limits.html
+- Rate limits JSON: https://bobcorn.caldis.me/api/rate-limits.json
+- Error model: https://bobcorn.caldis.me/api/errors.html
+- Error model JSON: https://bobcorn.caldis.me/api/errors.json
+- Status: https://bobcorn.caldis.me/status.json
 - Webhooks docs: https://bobcorn.caldis.me/api/webhooks.html
 - MCP status: https://bobcorn.caldis.me/api/mcp.html
 

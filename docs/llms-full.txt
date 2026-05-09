@@ -50,6 +50,10 @@ The public website API is a small static metadata surface:
 - `GET /llms.txt` returns concise agent instructions.
 - `GET /llms-full.txt` returns this full context file.
 - `GET /openapi.json` returns the OpenAPI service description.
+- `GET /api/auth.json` returns the machine-readable no-auth access model.
+- `GET /api/rate-limits.json` returns rate-limit notes for static metadata.
+- `GET /api/errors.json` returns error model and recovery guidance for static metadata.
+- `GET /status.json` returns public website metadata status.
 - `GET /.well-known/agent.json` returns agent discovery metadata.
 - `GET /.well-known/agent-card.json` returns the A2A agent card.
 - `GET /.well-known/ai-plugin.json` returns a legacy AI plugin descriptor.
