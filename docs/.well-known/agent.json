@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "name": "Bobcorn",
+  "description": "Local-first desktop app for SVG icon management and icon font generation.",
+  "url": "https://bobcorn.caldis.me/",
+  "repository": "https://github.com/Caldis/bobcorn",
+  "documentation_url": "https://bobcorn.caldis.me/developers/",
+  "openapi_url": "https://bobcorn.caldis.me/openapi.json",
+  "llms_txt": "https://bobcorn.caldis.me/llms.txt",
+  "llms_full_txt": "https://bobcorn.caldis.me/llms-full.txt",
+  "auth": {
+    "type": "none",
+    "notes": "Public website metadata endpoints are read-only and do not require authentication. Bobcorn does not currently provide hosted user accounts or OAuth."
+  },
+  "capabilities": [
+    "Describe Bobcorn product capabilities and supported export formats",
+    "Return latest release metadata and download URLs",
+    "Return localized changelog metadata",
+    "Point agents to local CLI automation and repository instructions"
+  ],
+  "limitations": [
+    "No hosted project API",
+    "No OAuth authorization flow",
+    "No remote webhooks",
+    "No hosted MCP server currently published"
+  ],
+  "contact": {
+    "issues": "https://github.com/Caldis/bobcorn/issues",
+    "maintainer": "https://github.com/Caldis"
+  }
+}

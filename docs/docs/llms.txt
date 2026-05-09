@@ -1,0 +1,9 @@
+# Bobcorn Documentation Context
+
+- Full agent context: https://bobcorn.caldis.me/llms-full.txt
+- Website markdown fallback: https://bobcorn.caldis.me/index.md
+- Wiki: https://bobcorn.caldis.me/wiki/en/
+- Changelog: https://bobcorn.caldis.me/changelog.html
+- Privacy policy: https://bobcorn.caldis.me/privacy.html
+
+Use section-level docs when you need a narrow context. Use `/llms-full.txt` when you need the full product summary in one request.

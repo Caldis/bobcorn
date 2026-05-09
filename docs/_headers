@@ -1,0 +1,9 @@
+/*
+  Link: </sitemap.xml>; rel="sitemap"
+  Link: </index.md>; rel="alternate"; type="text/markdown"
+  Link: </llms.txt>; rel="alternate"; type="text/plain"
+  Link: </llms-full.txt>; rel="alternate"; type="text/plain"
+  Link: </openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"
+  Link: </.well-known/agent.json>; rel="service-desc"; type="application/json"
+  Link: </.well-known/agent-card.json>; rel="service-desc"; type="application/json"
+  Link: </.well-known/mcp>; rel="service-desc"; type="application/json"

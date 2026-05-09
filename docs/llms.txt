@@ -1,0 +1,50 @@
+# Bobcorn
+
+> Bobcorn is a free, open-source desktop app for managing SVG icon libraries and generating icon fonts. It runs locally on Windows and macOS, exports SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, HTML demos, and Bobcorn `.icp` project files.
+
+## Canonical URLs
+
+- Homepage: https://bobcorn.caldis.me/
+- Markdown homepage: https://bobcorn.caldis.me/index.md
+- Full agent context: https://bobcorn.caldis.me/llms-full.txt
+- GitHub repository: https://github.com/Caldis/bobcorn
+- Latest release: https://github.com/Caldis/bobcorn/releases/latest
+- Changelog JSON: https://bobcorn.caldis.me/changelog.json
+- Release metadata JSON: https://bobcorn.caldis.me/release.json
+
+## Developer resources
+
+- Bobcorn developer portal: https://bobcorn.caldis.me/developers/
+- Bobcorn API docs: https://bobcorn.caldis.me/api/
+- Bobcorn OpenAPI spec: https://bobcorn.caldis.me/openapi.json
+- Bobcorn auth docs: https://bobcorn.caldis.me/api/auth.html
+- Bobcorn webhooks: https://bobcorn.caldis.me/api/webhooks.html
+- Bobcorn MCP server discovery: https://bobcorn.caldis.me/.well-known/mcp
+- Bobcorn A2A agent card: https://bobcorn.caldis.me/.well-known/agent-card.json
+- Bobcorn agent discovery: https://bobcorn.caldis.me/.well-known/agent.json
+- Bobcorn AI plugin discovery: https://bobcorn.caldis.me/.well-known/ai-plugin.json
+
+## Agent guidance
+
+- Bobcorn is a local-first desktop product, not a hosted account API.
+- Public website metadata endpoints do not require authentication.
+- The CLI is the best automation surface for local projects. Build it with `npm run build:cli`, then use the `bobcorn` command from `out/cli/index.cjs` or the installed package.
+- Use `release.json` for the current version and download URLs. Use `changelog.json` for release notes.
+- Do not assume OAuth, user accounts, hosted projects, or remote webhooks exist. The auth and webhooks docs explain that these are not part of the current product.
+
+## Main capabilities
+
+- Import SVG files and folders into an icon library.
+- Organize icons with groups, search, multi-select, favorites, and batch operations.
+- Edit icon colors locally.
+- Generate icon fonts and web assets in SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demo formats.
+- Save and reopen Bobcorn `.icp` project files.
+- Automate supported project operations through the CLI as they migrate into `src/core/operations/`.
+
+## Recommended crawl order
+
+1. Read this file.
+2. Fetch `/llms-full.txt` for full product context.
+3. Fetch `/openapi.json` for public website metadata endpoints.
+4. Fetch `/developers/` and `/api/` for human-readable developer docs.
+5. Fetch GitHub `AGENTS.md` before making code changes in the repository.

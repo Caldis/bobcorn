@@ -1,0 +1,6 @@
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn developer portal","url":"https://bobcorn.caldis.me/developers/","about":"Developer and agent resources for Bobcorn"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn API docs","url":"https://bobcorn.caldis.me/api/","about":"Read-only public metadata API endpoints"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn OpenAPI spec","url":"https://bobcorn.caldis.me/openapi.json","about":"OpenAPI description for Bobcorn public metadata"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn auth docs","url":"https://bobcorn.caldis.me/api/auth.html","about":"Authentication status for Bobcorn public metadata"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn webhooks","url":"https://bobcorn.caldis.me/api/webhooks.html","about":"Webhook status and local automation alternatives"}
+{"@context":"https://schema.org","@type":"TechArticle","name":"Bobcorn MCP server discovery","url":"https://bobcorn.caldis.me/.well-known/mcp","about":"MCP availability status and alternatives"}

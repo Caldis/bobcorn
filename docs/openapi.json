@@ -1,0 +1,386 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bobcorn Public Metadata API",
+    "version": "1.12.4",
+    "summary": "Read-only static metadata endpoints for Bobcorn.",
+    "description": "Bobcorn is a local-first desktop app. This OpenAPI document describes public website metadata endpoints only. These endpoints do not provide hosted project storage, OAuth, user accounts, remote export jobs, or webhooks."
+  },
+  "servers": [
+    {
+      "url": "https://bobcorn.caldis.me",
+      "description": "Bobcorn public website"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Discovery",
+      "description": "Agent and crawler discovery files"
+    },
+    {
+      "name": "Metadata",
+      "description": "Release, changelog, and documentation metadata"
+    }
+  ],
+  "paths": {
+    "/release.json": {
+      "get": {
+        "tags": [
+          "Metadata"
+        ],
+        "summary": "Get latest Bobcorn release metadata",
+        "operationId": "getReleaseMetadata",
+        "responses": {
+          "200": {
+            "description": "Current release metadata and platform download URLs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleaseMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/changelog.json": {
+      "get": {
+        "tags": [
+          "Metadata"
+        ],
+        "summary": "Get Bobcorn changelog entries",
+        "operationId": "getChangelog",
+        "responses": {
+          "200": {
+            "description": "Localized changelog entries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChangelogEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/index.md": {
+      "get": {
+        "tags": [
+          "Metadata"
+        ],
+        "summary": "Get the Bobcorn homepage as Markdown",
+        "operationId": "getHomepageMarkdown",
+        "responses": {
+          "200": {
+            "description": "Markdown homepage.",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "Get concise Bobcorn agent context",
+        "operationId": "getLlmsTxt",
+        "responses": {
+          "200": {
+            "description": "Concise agent-readable context.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms-full.txt": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "Get full Bobcorn agent context",
+        "operationId": "getLlmsFullTxt",
+        "responses": {
+          "200": {
+            "description": "Full product and integration context for agents.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/agent.json": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "Get Bobcorn agent discovery metadata",
+        "operationId": "getAgentDiscovery",
+        "responses": {
+          "200": {
+            "description": "Agent discovery metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDiscovery"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/agent-card.json": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "Get Bobcorn A2A agent card",
+        "operationId": "getAgentCard",
+        "responses": {
+          "200": {
+            "description": "A2A agent card.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/ai-plugin.json": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "Get Bobcorn legacy AI plugin descriptor",
+        "operationId": "getAiPluginDescriptor",
+        "responses": {
+          "200": {
+            "description": "Legacy AI plugin descriptor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/mcp": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "Get Bobcorn MCP discovery status",
+        "operationId": "getMcpDiscovery",
+        "responses": {
+          "200": {
+            "description": "MCP server availability status and supported alternatives.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpDiscovery"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {},
+    "schemas": {
+      "ReleaseMetadata": {
+        "type": "object",
+        "required": [
+          "version",
+          "tag",
+          "repo",
+          "latestUrl",
+          "downloads"
+        ],
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "releasesUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "latestUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "releaseUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "downloads": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        }
+      },
+      "ChangelogEntry": {
+        "type": "object",
+        "required": [
+          "version",
+          "date",
+          "changes"
+        ],
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "changes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "AgentDiscovery": {
+        "type": "object",
+        "required": [
+          "name",
+          "url",
+          "openapi_url",
+          "auth"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "repository": {
+            "type": "string",
+            "format": "uri"
+          },
+          "documentation_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "openapi_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "auth": {
+            "type": "object"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "McpDiscovery": {
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "alternatives"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "product": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_provided"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": []
+}

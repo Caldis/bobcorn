@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemamap xmlns="https://example.org/schemamap/1.0">
+  <url>
+    <loc>https://bobcorn.caldis.me/schema/software-application.json</loc>
+    <type>application/ld+json</type>
+    <about>Bobcorn software application structured data</about>
+  </url>
+  <url>
+    <loc>https://bobcorn.caldis.me/schema/developer-resources.jsonl</loc>
+    <type>application/x-ndjson</type>
+    <about>Bobcorn developer and agent resource feed</about>
+  </url>
+  <url>
+    <loc>https://bobcorn.caldis.me/release.json</loc>
+    <type>application/json</type>
+    <about>Bobcorn release metadata</about>
+  </url>
+  <url>
+    <loc>https://bobcorn.caldis.me/changelog.json</loc>
+    <type>application/json</type>
+    <about>Bobcorn changelog metadata</about>
+  </url>
+</schemamap>

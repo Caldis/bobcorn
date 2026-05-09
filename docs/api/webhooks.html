@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bobcorn Webhooks - Current Status And Alternatives</title>
+  <meta name="description" content="Bobcorn webhook docs. Bobcorn does not currently provide remote webhook delivery. Use local CLI automation for project workflows.">
+  <link rel="canonical" href="https://bobcorn.caldis.me/api/webhooks.html">
+  <style>body{margin:0;background:#fafaf5;color:#1a1917;font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:860px;margin:0 auto;padding:72px 24px}a{color:#1a1917;text-underline-offset:4px}h1{font-size:clamp(38px,7vw,64px);line-height:1;margin:0 0 24px}p,li{color:#74726b}code{color:#1a1917}</style>
+</head>
+<body>
+  <main>
+    <p><a href="/api/">Bobcorn API docs</a></p>
+    <h1>Bobcorn Webhooks</h1>
+    <p>Bobcorn does not currently provide remote webhooks. It is a local-first desktop app, so there is no hosted event stream for project updates, export completion, account changes, or billing events.</p>
+    <h2>Alternatives</h2>
+    <ul>
+      <li>Use the local CLI for supported project automation.</li>
+      <li>Use filesystem watchers around `.icp` project files when your workflow owns the local project directory.</li>
+      <li>Use GitHub Releases and <code>/release.json</code> for public release monitoring.</li>
+    </ul>
+  </main>
+</body>
+</html>

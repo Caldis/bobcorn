@@ -5,6 +5,10 @@ const rootDir = path.resolve(__dirname, '..');
 const packageJsonPath = path.join(rootDir, 'package.json');
 const docsIndexPath = path.join(rootDir, 'docs', 'index.html');
 const releaseJsonPath = path.join(rootDir, 'docs', 'release.json');
+const openApiJsonPath = path.join(rootDir, 'docs', 'openapi.json');
+const apiOpenApiJsonPath = path.join(rootDir, 'docs', 'api', 'openapi.json');
+const agentCardJsonPath = path.join(rootDir, 'docs', '.well-known', 'agent-card.json');
+const softwareSchemaJsonPath = path.join(rootDir, 'docs', 'schema', 'software-application.json');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -15,6 +19,13 @@ function replaceOnce(source, pattern, replacement, label) {
     throw new Error(`Could not find ${label} in ${docsIndexPath}`);
   }
   return source.replace(pattern, replacement);
+}
+
+function updateJson(filePath, update) {
+  if (!fs.existsSync(filePath)) return;
+  const value = readJson(filePath);
+  update(value);
+  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
 const changelogJsonPath = path.join(rootDir, 'docs', 'changelog.json');
@@ -68,6 +79,21 @@ const releaseMeta = {
 
 fs.writeFileSync(releaseJsonPath, `${JSON.stringify(releaseMeta, null, 2)}\n`);
 
+updateJson(openApiJsonPath, (openApi) => {
+  openApi.info = openApi.info || {};
+  openApi.info.version = version;
+});
+updateJson(apiOpenApiJsonPath, (openApi) => {
+  openApi.info = openApi.info || {};
+  openApi.info.version = version;
+});
+updateJson(agentCardJsonPath, (agentCard) => {
+  agentCard.version = version;
+});
+updateJson(softwareSchemaJsonPath, (schema) => {
+  schema.softwareVersion = version;
+});
+
 let docsIndex = fs.readFileSync(docsIndexPath, 'utf8');
 
 docsIndex = replaceOnce(
@@ -104,5 +130,5 @@ docsIndex = replaceOnce(
 fs.writeFileSync(docsIndexPath, docsIndex);
 
 process.stdout.write(
-  `Synced site release metadata to ${version} (${tag}) in docs/index.html and docs/release.json\n`
+  `Synced site release metadata to ${version} (${tag}) in docs/index.html, docs/release.json, and AI discovery metadata\n`
 );

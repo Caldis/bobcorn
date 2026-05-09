@@ -3,7 +3,43 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
         <loc>https://bobcorn.caldis.me/</loc>
-        <lastmod>2026-04-04</lastmod>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/index.md</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/llms.txt</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/llms-full.txt</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/developers/</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/api/</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/api/auth.html</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/api/webhooks.html</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/api/mcp.html</loc>
+        <lastmod>2026-05-09</lastmod>
+    </url>
+    <url>
+        <loc>https://bobcorn.caldis.me/openapi.json</loc>
+        <lastmod>2026-05-09</lastmod>
     </url>
     <url>
         <loc>https://bobcorn.caldis.me/wiki/en/index.html</loc>

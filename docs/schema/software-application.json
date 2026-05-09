@@ -1,0 +1,13 @@
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Bobcorn",
+  "url": "https://bobcorn.caldis.me/",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Windows, macOS",
+  "softwareVersion": "1.12.4",
+  "description": "Free, open-source desktop app to organize SVG icons and generate icon fonts.",
+  "downloadUrl": "https://github.com/Caldis/bobcorn/releases/latest",
+  "license": "https://opensource.org/licenses/MIT",
+  "codeRepository": "https://github.com/Caldis/bobcorn"
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "2026-05-09",
+  "name": "Bobcorn MCP server discovery",
+  "product": "Bobcorn",
+  "url": "https://bobcorn.caldis.me/.well-known/mcp",
+  "status": "not_provided",
+  "description": "Bobcorn does not currently publish a hosted MCP server. This discovery file exists so agents can find the current status and supported alternatives without guessing.",
+  "alternatives": [
+    {
+      "type": "cli",
+      "description": "Use the local Bobcorn CLI for supported project automation.",
+      "documentation": "https://github.com/Caldis/bobcorn/blob/master/docs/CLI.md"
+    },
+    {
+      "type": "openapi",
+      "description": "Use OpenAPI for read-only public website metadata endpoints.",
+      "url": "https://bobcorn.caldis.me/openapi.json"
+    },
+    {
+      "type": "agent-card",
+      "description": "Use the A2A agent card for capability discovery.",
+      "url": "https://bobcorn.caldis.me/.well-known/agent-card.json"
+    }
+  ]
+}

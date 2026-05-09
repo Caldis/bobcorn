@@ -29,6 +29,13 @@
     <link rel="alternate" hreflang="th" href="https://bobcorn.caldis.me/?lang=th">
     <link rel="alternate" hreflang="vi" href="https://bobcorn.caldis.me/?lang=vi">
     <link rel="alternate" hreflang="id" href="https://bobcorn.caldis.me/?lang=id">
+    <link rel="alternate" type="text/markdown" href="/index.md" title="Bobcorn homepage markdown">
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="Bobcorn llms.txt">
+    <link rel="alternate" type="text/plain" href="/llms-full.txt" title="Bobcorn full agent context">
+    <link rel="service-desc" type="application/vnd.oai.openapi+json" href="/openapi.json" title="Bobcorn OpenAPI spec">
+    <link rel="service-desc" type="application/json" href="/.well-known/agent.json" title="Bobcorn agent discovery">
+    <link rel="service-desc" type="application/json" href="/.well-known/agent-card.json" title="Bobcorn A2A agent card">
+    <link rel="service-desc" type="application/json" href="/.well-known/mcp" title="Bobcorn MCP server discovery">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bobcorn.caldis.me/">
@@ -41,6 +48,72 @@
     <meta name="twitter:title" content="Bobcorn — Icon Manager & Icon Font Generator">
     <meta name="twitter:description" content="Free desktop app to organize SVG icons and generate production-ready icon fonts. Windows & macOS.">
     <meta name="twitter:image" content="https://bobcorn.caldis.me/screenshots/main.png">
+    <script>
+      function renderAgentMode() {
+        var agentView = {
+          product: 'Bobcorn',
+          canonicalUrl: 'https://bobcorn.caldis.me/',
+          description: 'Local-first desktop app for SVG icon management and icon font generation.',
+          capabilities: [
+            'Import SVG icon libraries',
+            'Organize icons with groups, search, favorites, and batch actions',
+            'Edit icon colors locally',
+            'Export SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, HTML demo, and .icp project files'
+          ],
+          developerResources: {
+            portal: 'https://bobcorn.caldis.me/developers/',
+            apiDocs: 'https://bobcorn.caldis.me/api/',
+            openapi: 'https://bobcorn.caldis.me/openapi.json',
+            authDocs: 'https://bobcorn.caldis.me/api/auth.html',
+            webhooks: 'https://bobcorn.caldis.me/api/webhooks.html',
+            llmsTxt: 'https://bobcorn.caldis.me/llms.txt',
+            llmsFullTxt: 'https://bobcorn.caldis.me/llms-full.txt',
+            agentDiscovery: 'https://bobcorn.caldis.me/.well-known/agent.json',
+            agentCard: 'https://bobcorn.caldis.me/.well-known/agent-card.json',
+            mcpDiscovery: 'https://bobcorn.caldis.me/.well-known/mcp'
+          },
+          auth: {
+            type: 'none',
+            notes: 'Public website metadata endpoints are read-only and do not require API keys, OAuth, cookies, or accounts.'
+          },
+          apiEndpoints: [
+            { method: 'GET', path: '/release.json', description: 'Current release metadata and download URLs.' },
+            { method: 'GET', path: '/changelog.json', description: 'Localized changelog metadata.' },
+            { method: 'GET', path: '/index.md', description: 'Markdown homepage fallback.' },
+            { method: 'GET', path: '/llms.txt', description: 'Concise agent context.' },
+            { method: 'GET', path: '/llms-full.txt', description: 'Full product context for agents.' },
+            { method: 'GET', path: '/.well-known/agent.json', description: 'Agent discovery metadata.' },
+            { method: 'GET', path: '/.well-known/agent-card.json', description: 'A2A agent card.' },
+            { method: 'GET', path: '/.well-known/mcp', description: 'MCP server status and alternatives.' }
+          ],
+          integration: {
+            cli: 'Use the local Bobcorn CLI for supported project automation.',
+            mcp: 'No hosted MCP server is currently published. See /.well-known/mcp for status.',
+            webhooks: 'No remote webhooks are currently provided.'
+          }
+        };
+
+        var json = JSON.stringify(agentView, null, 2)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        document.title = 'Bobcorn Agent View';
+        document.body.innerHTML =
+          '<main class="agent-mode" aria-label="Bobcorn agent-readable view">' +
+            '<h1>Bobcorn Agent View</h1>' +
+            '<p>Structured discovery view for AI agents. Fetch <a href="/llms-full.txt">/llms-full.txt</a> or <a href="/openapi.json">/openapi.json</a> for canonical machine-readable context.</p>' +
+            '<pre>' + json + '</pre>' +
+          '</main>';
+      }
+
+      (function() {
+        var searchParams = new URL(location.href).searchParams;
+        if (searchParams.get('mode') === 'agent') {
+          document.addEventListener('DOMContentLoaded', renderAgentMode);
+        }
+      })();
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H1DCS6LF3S"></script>
     <script>
@@ -356,6 +429,100 @@
             color: var(--accent);
         }
 
+        /* ─── Developer Resources ─── */
+        .developer-resources {
+            display: grid;
+            grid-template-columns: 4fr 8fr;
+            gap: clamp(40px, 6vw, 80px);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 104px 48px;
+        }
+
+        .developer-resources h2 {
+            font-family: var(--serif);
+            font-size: clamp(28px, 3.5vw, 40px);
+            font-weight: 900;
+            line-height: 1.12;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .developer-resources p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            letter-spacing: -0.005em;
+        }
+
+        .resource-list {
+            list-style: none;
+            border-top: 1px solid var(--divider);
+        }
+
+        .resource-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 240px) 1fr auto;
+            gap: 24px;
+            align-items: baseline;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .resource-row strong {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+        }
+
+        .resource-row span {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .resource-row a {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: color 0.2s;
+        }
+
+        .resource-row a:hover { color: var(--accent); }
+
+        .agent-mode {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 64px 24px;
+            font-family: var(--sans);
+        }
+
+        .agent-mode h1 {
+            font-family: var(--serif);
+            font-size: clamp(34px, 6vw, 56px);
+            line-height: 1.05;
+            margin-bottom: 18px;
+        }
+
+        .agent-mode p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .agent-mode pre {
+            overflow: auto;
+            padding: 24px;
+            border: 1px solid var(--divider);
+            border-radius: 8px;
+            background: rgba(160, 158, 148, 0.08);
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
         /* ─── Changelog ─── */
         .changelog {
             max-width: 1200px;
@@ -455,6 +622,16 @@
         }
 
         @media (max-width: 900px) {
+            .developer-resources {
+                grid-template-columns: 1fr;
+                gap: 32px;
+                padding: 72px 24px;
+            }
+            .resource-row {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            .resource-row a { white-space: normal; }
             .changelog { padding: 72px 24px 48px; }
             .changelog-entry {
                 grid-template-columns: 1fr;
@@ -464,6 +641,7 @@
         }
 
         @media (max-width: 680px) {
+            .developer-resources { padding: 56px 20px; }
             .changelog { padding: 56px 20px 36px; }
             .changelog-header { margin-bottom: 32px; }
         }
@@ -665,6 +843,38 @@
             "name": "Caldis",
             "url": "https://github.com/Caldis"
         },
+        "subjectOf": [
+            {
+                "@type": "TechArticle",
+                "name": "Bobcorn developer portal",
+                "url": "https://bobcorn.caldis.me/developers/"
+            },
+            {
+                "@type": "TechArticle",
+                "name": "Bobcorn API docs",
+                "url": "https://bobcorn.caldis.me/api/"
+            },
+            {
+                "@type": "TechArticle",
+                "name": "Bobcorn OpenAPI spec",
+                "url": "https://bobcorn.caldis.me/openapi.json"
+            },
+            {
+                "@type": "TechArticle",
+                "name": "Bobcorn auth docs",
+                "url": "https://bobcorn.caldis.me/api/auth.html"
+            },
+            {
+                "@type": "TechArticle",
+                "name": "Bobcorn webhooks",
+                "url": "https://bobcorn.caldis.me/api/webhooks.html"
+            },
+            {
+                "@type": "TechArticle",
+                "name": "Bobcorn MCP server discovery",
+                "url": "https://bobcorn.caldis.me/.well-known/mcp"
+            }
+        ],
         "offers": {
             "@type": "Offer",
             "price": "0",
@@ -676,13 +886,15 @@
 <body>
 
     <nav>
-        <a href="/" class="logo"><img src="icon.png" alt="Bobcorn" width="32" height="32">Bobcorn</a>
+        <a href="/" class="logo"><img src="icon.png" alt="Bobcorn app icon mark" width="32" height="32">Bobcorn</a>
         <div class="nav-right">
             <a href="#features" class="nav-link" data-i18n="nav.features">Features</a>
             <span class="nav-sep">|</span>
             <a href="#formats" class="nav-link" data-i18n="nav.formats">Formats</a>
             <span class="nav-sep">|</span>
             <a href="wiki/" class="nav-link" data-i18n="nav.wiki">Wiki</a>
+            <span class="nav-sep">|</span>
+            <a href="#developers" class="nav-link" data-i18n="nav.developers">Developers</a>
             <span class="nav-sep">|</span>
             <a href="https://github.com/Caldis/bobcorn" class="nav-link">GitHub</a>
         </div>
@@ -780,6 +992,49 @@
             <div class="story-visual reveal">
                 <img src="screenshots/move.png" data-screenshot="move.png" alt="Move icons to target group — select from accessibility, arrows, automotive, cameraAndPhotos, and more" loading="lazy">
             </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ─── Developer Resources ─── -->
+        <section class="developer-resources" id="developers" aria-labelledby="developers-title">
+            <div class="story-content reveal">
+                <div class="story-label" data-i18n="developers.label">Agent-ready resources</div>
+                <h2 id="developers-title" data-i18n="developers.title">Developer and agent resources</h2>
+                <p data-i18n="developers.desc">Bobcorn is local-first, but the public site now exposes predictable docs, OpenAPI, discovery files, and Markdown fallbacks so agents can understand the product without running JavaScript or guessing URLs.</p>
+            </div>
+            <ul class="resource-list reveal">
+                <li class="resource-row">
+                    <strong data-i18n="developers.portal.title">Developer portal</strong>
+                    <span data-i18n="developers.portal.desc">Entry point for CLI, repository, and agent integration docs.</span>
+                    <a href="developers/" data-i18n="developers.open">Open</a>
+                </li>
+                <li class="resource-row">
+                    <strong data-i18n="developers.api.title">API docs</strong>
+                    <span data-i18n="developers.api.desc">Read-only metadata endpoints for releases, changelog, and discovery files.</span>
+                    <a href="api/" data-i18n="developers.open">Open</a>
+                </li>
+                <li class="resource-row">
+                    <strong data-i18n="developers.openapi.title">OpenAPI spec</strong>
+                    <span data-i18n="developers.openapi.desc">Machine-readable service description for public website metadata.</span>
+                    <a href="openapi.json" data-i18n="developers.json">JSON</a>
+                </li>
+                <li class="resource-row">
+                    <strong data-i18n="developers.agent.title">Agent discovery</strong>
+                    <span data-i18n="developers.agent.desc">llms.txt, full context, Agent Card, and well-known discovery files.</span>
+                    <a href="llms-full.txt" data-i18n="developers.context">Context</a>
+                </li>
+                <li class="resource-row">
+                    <strong data-i18n="developers.auth.title">Auth and webhooks</strong>
+                    <span data-i18n="developers.auth.desc">Explicit docs for the current no-auth, no-webhooks local-first boundary.</span>
+                    <a href="api/auth.html" data-i18n="developers.read">Read</a>
+                </li>
+                <li class="resource-row">
+                    <strong data-i18n="developers.mcp.title">MCP status</strong>
+                    <span data-i18n="developers.mcp.desc">Discovery file that states MCP availability and supported alternatives.</span>
+                    <a href=".well-known/mcp" data-i18n="developers.json">JSON</a>
+                </li>
+            </ul>
         </section>
 
         <div class="divider"></div>
@@ -1080,7 +1335,7 @@
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
-                    var parent = entry.target.closest('.story');
+                    var parent = entry.target.closest('.story, .developer-resources');
                     if (parent) {
                         var siblings = parent.querySelectorAll('.reveal:not(.visible)');
                         siblings.forEach(function(sib, i) {
@@ -1096,7 +1351,7 @@
             });
         }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
 
-        document.querySelectorAll('.story .reveal').forEach(function(el) {
+        document.querySelectorAll('.story .reveal, .developer-resources .reveal').forEach(function(el) {
             observer.observe(el);
         });
 

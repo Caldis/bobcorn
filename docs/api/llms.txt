@@ -1,0 +1,9 @@
+# Bobcorn API Context
+
+- Bobcorn API docs: https://bobcorn.caldis.me/api/
+- Bobcorn OpenAPI spec: https://bobcorn.caldis.me/openapi.json
+- Auth docs: https://bobcorn.caldis.me/api/auth.html
+- Webhooks docs: https://bobcorn.caldis.me/api/webhooks.html
+- MCP discovery: https://bobcorn.caldis.me/.well-known/mcp
+
+The public Bobcorn website API is static and read-only. It exposes release metadata, changelog metadata, Markdown content, and agent discovery files. It does not expose hosted project CRUD, OAuth, account management, or remote export jobs.

@@ -1,0 +1,9 @@
+# Bobcorn Developer Portal Context
+
+- Developer portal: https://bobcorn.caldis.me/developers/
+- API docs: https://bobcorn.caldis.me/api/
+- CLI maintenance guide: https://github.com/Caldis/bobcorn/blob/master/docs/CLI.md
+- Repository agent instructions: https://github.com/Caldis/bobcorn/blob/master/AGENTS.md
+- OpenAPI spec: https://bobcorn.caldis.me/openapi.json
+
+For automation, prefer the local CLI and `.icp` project files. For public website metadata, use the read-only endpoints described in OpenAPI.

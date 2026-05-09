@@ -1,0 +1,115 @@
+# Bobcorn Full Agent Context
+
+Bobcorn is an Electron and React desktop application for icon management and icon font generation. It is designed for designers, front-end developers, UI engineers, and design system teams that maintain SVG icon libraries and need repeatable font exports.
+
+The canonical website is https://bobcorn.caldis.me/. The public source repository is https://github.com/Caldis/bobcorn. The current public metadata endpoints are static files hosted with the website. They do not require API keys, OAuth, cookies, accounts, or session state.
+
+## Product Summary
+
+Bobcorn imports SVG icons, organizes them into groups, supports search and batch selection, lets users edit colors, and exports production-ready icon font assets. Supported export formats include SVG font, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, HTML demo pages, and Bobcorn `.icp` project files.
+
+Bobcorn is local-first. Project data lives in local `.icp` files and local sql.js databases. The website is for discovery, documentation, release metadata, and downloads. It is not a hosted workspace service.
+
+## Primary Users
+
+- Designers who need to organize large SVG icon sets.
+- Front-end developers who need web font assets and CSS mappings.
+- Design system teams that maintain custom icon font packages.
+- AI coding agents working in the Bobcorn repository or automating local project files through the CLI.
+
+## Canonical Resources
+
+- Homepage: https://bobcorn.caldis.me/
+- Homepage markdown: https://bobcorn.caldis.me/index.md
+- Full context for agents: https://bobcorn.caldis.me/llms-full.txt
+- Developer portal: https://bobcorn.caldis.me/developers/
+- API docs: https://bobcorn.caldis.me/api/
+- OpenAPI spec: https://bobcorn.caldis.me/openapi.json
+- Auth docs: https://bobcorn.caldis.me/api/auth.html
+- Webhooks docs: https://bobcorn.caldis.me/api/webhooks.html
+- MCP discovery descriptor: https://bobcorn.caldis.me/.well-known/mcp
+- A2A agent card: https://bobcorn.caldis.me/.well-known/agent-card.json
+- Agent discovery file: https://bobcorn.caldis.me/.well-known/agent.json
+- Legacy AI plugin discovery: https://bobcorn.caldis.me/.well-known/ai-plugin.json
+- Sitemap: https://bobcorn.caldis.me/sitemap.xml
+- Schema map: https://bobcorn.caldis.me/schemamap.xml
+- Release metadata: https://bobcorn.caldis.me/release.json
+- Changelog metadata: https://bobcorn.caldis.me/changelog.json
+- GitHub repository: https://github.com/Caldis/bobcorn
+- Latest release: https://github.com/Caldis/bobcorn/releases/latest
+
+## Public Website API
+
+The public website API is a small static metadata surface:
+
+- `GET /release.json` returns current version, tag, GitHub release URLs, and platform download URLs.
+- `GET /changelog.json` returns localized release notes.
+- `GET /index.md` returns the homepage in Markdown.
+- `GET /llms.txt` returns concise agent instructions.
+- `GET /llms-full.txt` returns this full context file.
+- `GET /openapi.json` returns the OpenAPI service description.
+- `GET /.well-known/agent.json` returns agent discovery metadata.
+- `GET /.well-known/agent-card.json` returns the A2A agent card.
+- `GET /.well-known/ai-plugin.json` returns a legacy AI plugin descriptor.
+- `GET /.well-known/mcp` returns MCP discovery status and alternatives.
+
+These endpoints are read-only. There are no write operations, no hosted user records, and no remote project storage.
+
+## Auth and Access
+
+The public website metadata endpoints use no authentication. Bobcorn does not currently provide user accounts, OAuth authorization, token exchange, scoped permissions, enterprise SSO, or hosted workspace access. If an agent needs to work with a Bobcorn project, it should operate on a local `.icp` file with the user's filesystem permission.
+
+## MCP and Agent Integration
+
+Bobcorn does not currently publish a hosted MCP server. The discovery descriptor at `/.well-known/mcp` exists so agents can find the current integration status and the supported alternatives without guessing. The supported automation path is the local CLI, backed by core operations as migration continues.
+
+For repository work, read `AGENTS.md` first. Important repository rules include:
+
+- Use functional React components and hooks.
+- Do not introduce `electron.remote`.
+- Sanitize SVG content before rendering.
+- Use Zustand store state rather than ad-hoc global events.
+- New user operations should go through `src/core/operations/` first, then thin store wrappers and CLI commands.
+- All visible UI strings in the app should be internationalized.
+
+## CLI Automation Surface
+
+The CLI is maintained in `src/cli/` and backed by core operations in `src/core/operations/`. It is intended to become the stable automation surface for AI agents and scripts.
+
+Useful local commands:
+
+```bash
+npm install --legacy-peer-deps
+npm run build:cli
+npx tsup
+npx vitest run test/cli/
+```
+
+The CLI supports JSON output contracts. Successful JSON commands should return an envelope with `ok: true`, `code: null`, and non-null `data`. Partial or failed operations should set `ok: false` with an explicit code.
+
+## Content and Search Notes
+
+For name-based discovery, use "Bobcorn" together with resource names:
+
+- Bobcorn API docs
+- Bobcorn OpenAPI spec
+- Bobcorn developer portal
+- Bobcorn auth docs
+- Bobcorn webhooks
+- Bobcorn MCP server discovery
+- Bobcorn A2A agent card
+- Bobcorn agent discovery
+
+Agents should not infer that missing hosted capabilities exist. If a task requires OAuth, webhooks, hosted projects, or an MCP server, report that Bobcorn does not currently provide that surface and point to the CLI or local file workflow.
+
+## Releases
+
+Use `release.json` for the current version and download URLs. Use `changelog.json` for recent changes. Release artifacts are published on GitHub Releases.
+
+## Human Support and Contact
+
+- Issues: https://github.com/Caldis/bobcorn/issues
+- Repository: https://github.com/Caldis/bobcorn
+- Author profile: https://github.com/Caldis
+
+Do not send private project files to the website. Bobcorn projects should stay local unless the user explicitly chooses to share them.

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bobcorn MCP Server Discovery</title>
+  <meta name="description" content="Bobcorn MCP server discovery status. Bobcorn does not currently publish a hosted MCP server; use the local CLI and OpenAPI metadata alternatives.">
+  <link rel="canonical" href="https://bobcorn.caldis.me/api/mcp.html">
+  <link rel="service-desc" type="application/json" href="/.well-known/mcp">
+  <style>body{margin:0;background:#fafaf5;color:#1a1917;font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:860px;margin:0 auto;padding:72px 24px}a{color:#1a1917;text-underline-offset:4px}h1{font-size:clamp(38px,7vw,64px);line-height:1;margin:0 0 24px}p,li{color:#74726b}code{color:#1a1917}</style>
+</head>
+<body>
+  <main>
+    <p><a href="/api/">Bobcorn API docs</a></p>
+    <h1>Bobcorn MCP Server Discovery</h1>
+    <p>Bobcorn does not currently publish a hosted MCP server. Agents can discover this status at <a href="/.well-known/mcp"><code>/.well-known/mcp</code></a>.</p>
+    <h2>Supported Alternatives</h2>
+    <ul>
+      <li>Use the local CLI for supported `.icp` project automation.</li>
+      <li>Use <a href="/openapi.json">OpenAPI</a> for read-only public website metadata.</li>
+      <li>Use <a href="/.well-known/agent-card.json">the A2A agent card</a> for capability discovery.</li>
+    </ul>
+  </main>
+</body>
+</html>
