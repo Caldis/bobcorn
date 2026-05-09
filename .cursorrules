@@ -1,0 +1,10 @@
+# Bobcorn Agent Rules
+
+Read `AGENTS.md` before editing this repository. The short version:
+
+- Keep UI strings internationalized.
+- Use functional React components and hooks.
+- Keep new user operations core-first in `src/core/operations/`.
+- Do not bypass the store by importing renderer database modules from components.
+- Sanitize SVG before rendering.
+- Do not manually edit generated `out/` files.

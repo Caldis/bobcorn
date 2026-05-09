@@ -20,4 +20,9 @@
     <type>application/json</type>
     <about>Bobcorn changelog metadata</about>
   </url>
+  <url>
+    <loc>https://bobcorn.caldis.me/.well-known/agent-skills/index.json</loc>
+    <type>application/json</type>
+    <about>Bobcorn agent skills index</about>
+  </url>
 </schemamap>

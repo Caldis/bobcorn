@@ -1,0 +1,17 @@
+{
+  "$schema": "https://agentskills.io/schemas/agent-skills-index/v0.2.0.json",
+  "version": "0.2.0",
+  "publisher": {
+    "name": "Bobcorn",
+    "url": "https://bobcorn.caldis.me/"
+  },
+  "skills": [
+    {
+      "name": "bobcorn",
+      "type": "skill-md",
+      "url": "https://bobcorn.caldis.me/agent-skills/bobcorn/SKILL.md",
+      "digest": "sha256:6bfa5ee2de5b0784d32789d3e712e41c8df9866d2dddfb6b3e1946bc591f8ac6",
+      "description": "Use when a user needs to manage SVG icon libraries, generate icon fonts, inspect Bobcorn release metadata, or automate supported local Bobcorn project operations."
+    }
+  ]
+}

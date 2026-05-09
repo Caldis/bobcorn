@@ -1,0 +1,5 @@
+# Bobcorn Well-Known LLM Context
+
+Canonical agent context lives at [Bobcorn llms.txt](https://bobcorn.caldis.me/llms.txt).
+
+Full context lives at [Bobcorn llms-full.txt](https://bobcorn.caldis.me/llms-full.txt).

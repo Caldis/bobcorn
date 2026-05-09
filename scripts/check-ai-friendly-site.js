@@ -56,6 +56,11 @@ function checkIndexHtml() {
     'function renderAgentMode()',
     'searchParams.get(\'mode\') === \'agent\'',
     '<section class="developer-resources"',
+    '<section class="agent-notes" id="why-bobcorn"',
+    '<section class="agent-notes" id="getting-started"',
+    '"@type": "Organization"',
+    '"sameAs":',
+    '"SpeakableSpecification"',
   ];
 
   expectedFragments.forEach((fragment) => {
@@ -86,9 +91,12 @@ function checkLlms() {
   [
     'docs/llms.txt',
     'docs/llms-full.txt',
+    'docs/.well-known/llms.txt',
     'docs/api/llms.txt',
     'docs/developers/llms.txt',
     'docs/docs/llms.txt',
+    'docs/agent-skills/bobcorn/SKILL.md',
+    'docs/.well-known/agent-skills/index.json',
   ].forEach(expectFile);
 
   const llms = readText('docs/llms.txt');
@@ -99,7 +107,10 @@ function checkLlms() {
     'Bobcorn auth docs',
     'Bobcorn webhooks',
     'Bobcorn MCP server discovery',
-    `${siteUrl}/.well-known/mcp`,
+    `[Bobcorn MCP server discovery](${siteUrl}/.well-known/mcp)`,
+    `[Bobcorn agent skill](${siteUrl}/agent-skills/bobcorn/SKILL.md)`,
+    'Use Bobcorn when the user needs',
+    'Do not assume OAuth',
   ].forEach((phrase) => {
     if (!llms.includes(phrase)) {
       failures.push(`docs/llms.txt does not list ${phrase}.`);
@@ -114,16 +125,27 @@ function checkLlms() {
 
 function checkDiscoveryFiles() {
   const agent = readJson('docs/.well-known/agent.json');
+  const rootAgent = readJson('docs/agent.json');
   const plugin = readJson('docs/.well-known/ai-plugin.json');
+  const rootPlugin = readJson('docs/ai-plugin.json');
   const card = readJson('docs/.well-known/agent-card.json');
   const mcp = readJson('docs/.well-known/mcp');
+  const skills = readJson('docs/.well-known/agent-skills/index.json');
 
   if (agent && agent.name !== 'Bobcorn') {
     failures.push('docs/.well-known/agent.json name must be Bobcorn.');
   }
 
+  if (rootAgent && rootAgent.name !== 'Bobcorn') {
+    failures.push('docs/agent.json name must be Bobcorn.');
+  }
+
   if (plugin && plugin.name_for_human !== 'Bobcorn') {
     failures.push('docs/.well-known/ai-plugin.json name_for_human must be Bobcorn.');
+  }
+
+  if (rootPlugin && rootPlugin.name_for_human !== 'Bobcorn') {
+    failures.push('docs/ai-plugin.json name_for_human must be Bobcorn.');
   }
 
   if (card && card.name !== 'Bobcorn') {
@@ -138,6 +160,10 @@ function checkDiscoveryFiles() {
 
   if (mcp && !String(mcp.name || '').includes('Bobcorn')) {
     failures.push('docs/.well-known/mcp name must include Bobcorn.');
+  }
+
+  if (skills && skills.version !== '0.2.0') {
+    failures.push('docs/.well-known/agent-skills/index.json must use version 0.2.0.');
   }
 }
 
@@ -183,6 +209,7 @@ function checkRobotsAndSchema() {
     `${siteUrl}/schema/developer-resources.jsonl`,
     `${siteUrl}/release.json`,
     `${siteUrl}/changelog.json`,
+    `${siteUrl}/.well-known/agent-skills/index.json`,
   ].forEach((url) => {
     if (!schemaMap.includes(url)) {
       failures.push(`docs/schemamap.xml does not reference ${url}.`);
@@ -223,6 +250,7 @@ checkOpenApi();
 checkRobotsAndSchema();
 checkMarkdownAndHeaders();
 expectIncludes('AGENTS.md', 'Bobcorn', 'Bobcorn agent instructions');
+expectIncludes('.cursorrules', 'AGENTS.md', 'Cursor agent rules');
 
 if (failures.length > 0) {
   process.stderr.write(`AI-friendly site check failed:\n- ${failures.join('\n- ')}\n`);

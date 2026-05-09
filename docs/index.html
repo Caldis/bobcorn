@@ -429,6 +429,88 @@
             color: var(--accent);
         }
 
+        /* ─── Agent Notes ─── */
+        .agent-notes {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 104px 48px;
+        }
+
+        .agent-notes__intro {
+            max-width: 680px;
+            margin-bottom: 40px;
+        }
+
+        .agent-notes h2 {
+            font-family: var(--serif);
+            font-size: clamp(28px, 3.5vw, 42px);
+            font-weight: 900;
+            line-height: 1.12;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .agent-notes p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            letter-spacing: -0.005em;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-top: 1px solid var(--divider);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            text-align: left;
+            vertical-align: top;
+            padding: 18px 16px 18px 0;
+            border-bottom: 1px solid var(--divider);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .comparison-table th {
+            width: 26%;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+        }
+
+        .steps-list {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 1px;
+            list-style: none;
+            background: var(--divider);
+            margin-top: 32px;
+        }
+
+        .steps-list li {
+            background: var(--bg);
+            padding: 20px 18px;
+            min-height: 128px;
+        }
+
+        .steps-list strong {
+            display: block;
+            margin-bottom: 10px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+        }
+
+        .steps-list span {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
         /* ─── Developer Resources ─── */
         .developer-resources {
             display: grid;
@@ -622,6 +704,8 @@
         }
 
         @media (max-width: 900px) {
+            .agent-notes { padding: 72px 24px; }
+            .steps-list { grid-template-columns: 1fr 1fr; }
             .developer-resources {
                 grid-template-columns: 1fr;
                 gap: 32px;
@@ -641,6 +725,15 @@
         }
 
         @media (max-width: 680px) {
+            .agent-notes { padding: 56px 20px; }
+            .comparison-table th,
+            .comparison-table td {
+                display: block;
+                width: 100%;
+                padding: 10px 0;
+            }
+            .comparison-table td { padding-top: 0; }
+            .steps-list { grid-template-columns: 1fr; }
             .developer-resources { padding: 56px 20px; }
             .changelog { padding: 56px 20px 36px; }
             .changelog-header { margin-bottom: 32px; }
@@ -821,6 +914,11 @@
         "license": "https://opensource.org/licenses/MIT",
         "image": "https://bobcorn.caldis.me/icon.png",
         "screenshot": "https://bobcorn.caldis.me/screenshots/main.png",
+        "codeRepository": "https://github.com/Caldis/bobcorn",
+        "sameAs": [
+            "https://github.com/Caldis/bobcorn",
+            "https://github.com/Caldis"
+        ],
         "downloadUrl": "https://github.com/Caldis/bobcorn/releases/latest",
         "installUrl": "https://github.com/Caldis/bobcorn/releases/latest",
         "featureList": [
@@ -880,6 +978,73 @@
             "price": "0",
             "priceCurrency": "USD"
         }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "@id": "https://bobcorn.caldis.me/#organization",
+                "name": "Bobcorn",
+                "url": "https://bobcorn.caldis.me/",
+                "logo": "https://bobcorn.caldis.me/icon.png",
+                "sameAs": [
+                    "https://github.com/Caldis/bobcorn",
+                    "https://github.com/Caldis"
+                ],
+                "contactPoint": {
+                    "@type": "ContactPoint",
+                    "url": "https://github.com/Caldis/bobcorn/issues",
+                    "contactType": "technical support"
+                }
+            },
+            {
+                "@type": "AboutPage",
+                "name": "About Bobcorn",
+                "url": "https://bobcorn.caldis.me/about.html",
+                "about": {
+                    "@id": "https://bobcorn.caldis.me/#organization"
+                }
+            },
+            {
+                "@type": "TechArticle",
+                "headline": "Bobcorn icon font workflow",
+                "url": "https://bobcorn.caldis.me/#getting-started",
+                "about": "Local SVG icon management and icon font export workflow",
+                "author": {
+                    "@type": "Person",
+                    "name": "Caldis",
+                    "url": "https://github.com/Caldis"
+                },
+                "speakable": {
+                    "@type": "SpeakableSpecification",
+                    "cssSelector": [
+                        "#why-bobcorn-title",
+                        "#getting-started-title",
+                        "#developers-title"
+                    ]
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Bobcorn",
+                        "item": "https://bobcorn.caldis.me/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Developer resources",
+                        "item": "https://bobcorn.caldis.me/developers/"
+                    }
+                ]
+            }
+        ]
     }
     </script>
 </head>
@@ -951,6 +1116,33 @@
 
         <div class="divider" style="margin-top: 104px;"></div>
 
+        <!-- ─── Why Bobcorn ─── -->
+        <section class="agent-notes" id="why-bobcorn" aria-labelledby="why-bobcorn-title">
+            <div class="agent-notes__intro reveal">
+                <div class="story-label" data-i18n="why.label">Why Bobcorn</div>
+                <h2 id="why-bobcorn-title" data-i18n="why.title">Local icon font work without a browser round trip</h2>
+                <p data-i18n="why.desc">Bobcorn is for teams that need to keep SVG libraries local, organize reusable groups, and regenerate web font assets repeatedly. It complements browser tools such as IcoMoon and Fontello by focusing on desktop library management, local project files, and repeatable exports.</p>
+            </div>
+            <table class="comparison-table reveal">
+                <tbody>
+                    <tr>
+                        <th scope="row" data-i18n="why.local.title">Local-first</th>
+                        <td data-i18n="why.local.desc">SVG source files and `.icp` projects stay on the user's machine. There is no hosted workspace or account requirement.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" data-i18n="why.export.title">Font output</th>
+                        <td data-i18n="why.export.desc">Exports include SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demo files for front-end integration.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" data-i18n="why.workflow.title">Repeatable workflow</th>
+                        <td data-i18n="why.workflow.desc">Groups, search, multi-select, favorites, color edits, and saved project files make repeated icon font releases easier to reproduce.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="divider"></div>
+
         <!-- ─── Story 1: Organize ─── -->
         <section class="story" id="features">
             <div class="story-content reveal">
@@ -992,6 +1184,24 @@
             <div class="story-visual reveal">
                 <img src="screenshots/move.png" data-screenshot="move.png" alt="Move icons to target group — select from accessibility, arrows, automotive, cameraAndPhotos, and more" loading="lazy">
             </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ─── Getting Started ─── -->
+        <section class="agent-notes" id="getting-started" aria-labelledby="getting-started-title">
+            <div class="agent-notes__intro reveal">
+                <div class="story-label" data-i18n="start.label">Getting started</div>
+                <h2 id="getting-started-title" data-i18n="start.title">From SVG folder to web font package</h2>
+                <p data-i18n="start.desc">A typical Bobcorn workflow is local and repeatable: download the app, import SVGs, organize groups, export fonts, and save the project file for the next icon update.</p>
+            </div>
+            <ol class="steps-list reveal">
+                <li><strong data-i18n="start.step1.title">Download</strong><span data-i18n="start.step1.desc">Install the latest Windows or macOS release from GitHub.</span></li>
+                <li><strong data-i18n="start.step2.title">Import</strong><span data-i18n="start.step2.desc">Drag SVG files or folders into a local Bobcorn project.</span></li>
+                <li><strong data-i18n="start.step3.title">Organize</strong><span data-i18n="start.step3.desc">Use groups, search, favorites, and batch selection to keep the library usable.</span></li>
+                <li><strong data-i18n="start.step4.title">Export</strong><span data-i18n="start.step4.desc">Generate font files, CSS, JavaScript, and an HTML demo page.</span></li>
+                <li><strong data-i18n="start.step5.title">Repeat</strong><span data-i18n="start.step5.desc">Save the `.icp` file and reopen it when the icon set changes.</span></li>
+            </ol>
         </section>
 
         <div class="divider"></div>
@@ -1054,6 +1264,8 @@
         <div class="footer-brand">Bobcorn</div>
         <div class="footer-links">
             <a href="https://github.com/Caldis/bobcorn/releases" data-i18n="footer.releases">Releases</a>
+            <a href="/about.html" data-i18n="footer.about">About</a>
+            <a href="/contact.html" data-i18n="footer.contact">Contact</a>
             <a href="https://github.com/Caldis/bobcorn">GitHub</a>
             <a href="https://github.com/Caldis">Caldis</a>
             <a href="/privacy.html">Privacy Policy</a>
@@ -1335,7 +1547,7 @@
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
-                    var parent = entry.target.closest('.story, .developer-resources');
+                    var parent = entry.target.closest('.story, .developer-resources, .agent-notes');
                     if (parent) {
                         var siblings = parent.querySelectorAll('.reveal:not(.visible)');
                         siblings.forEach(function(sib, i) {
@@ -1351,7 +1563,7 @@
             });
         }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
 
-        document.querySelectorAll('.story .reveal, .developer-resources .reveal').forEach(function(el) {
+        document.querySelectorAll('.story .reveal, .developer-resources .reveal, .agent-notes .reveal').forEach(function(el) {
             observer.observe(el);
         });
 

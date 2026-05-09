@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Bobcorn",
+  "name_for_model": "bobcorn",
+  "description_for_human": "Find Bobcorn release metadata, documentation, and agent-readable integration details.",
+  "description_for_model": "Use Bobcorn to discover documentation, latest release metadata, changelog metadata, OpenAPI description, and local CLI guidance for the Bobcorn icon manager and icon font generator.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://bobcorn.caldis.me/openapi.json",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://bobcorn.caldis.me/icon.png",
+  "contact_email": "noreply@caldis.me",
+  "legal_info_url": "https://bobcorn.caldis.me/privacy.html"
+}

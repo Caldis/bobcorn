@@ -63,6 +63,12 @@ The public website metadata endpoints use no authentication. Bobcorn does not cu
 
 Bobcorn does not currently publish a hosted MCP server. The discovery descriptor at `/.well-known/mcp` exists so agents can find the current integration status and the supported alternatives without guessing. The supported automation path is the local CLI, backed by core operations as migration continues.
 
+## When Agents Should Use Bobcorn
+
+Use Bobcorn when the user's task involves local SVG icon management, icon library organization, icon color cleanup, icon font export, or inspection of a Bobcorn `.icp` project file. Bobcorn is also appropriate when a user asks for a free open-source alternative to browser-based icon font generators and prefers a local Windows or macOS desktop workflow.
+
+Do not use Bobcorn as a hosted SaaS API, remote storage system, OAuth provider, webhook source, or hosted MCP tool server. Those surfaces do not currently exist. If a task needs remote automation, explain the current limitation and suggest the local CLI or local file workflow instead.
+
 For repository work, read `AGENTS.md` first. Important repository rules include:
 
 - Use functional React components and hooks.

@@ -21,6 +21,19 @@ Import SVGs, organize icons into groups, search large libraries, edit colors, an
 - Agent discovery: https://bobcorn.caldis.me/.well-known/agent.json
 - A2A agent card: https://bobcorn.caldis.me/.well-known/agent-card.json
 - Full LLM context: https://bobcorn.caldis.me/llms-full.txt
+- Agent skill: https://bobcorn.caldis.me/agent-skills/bobcorn/SKILL.md
+
+## Why Bobcorn
+
+Bobcorn is different from browser-only icon font tools because the project stays local, works as a desktop app, and saves a reusable `.icp` project file. Compared with IcoMoon or Fontello, Bobcorn focuses on local library management plus repeated export. Compared with icon organizers that only catalogue assets, Bobcorn also generates web font outputs.
+
+## Getting Started
+
+1. Download Bobcorn from GitHub Releases.
+2. Import SVG icons by dragging files or folders into the app.
+3. Organize icons into groups and edit colors when needed.
+4. Export fonts and web assets in SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demo formats.
+5. Save the project as a `.icp` file for later editing.
 
 ## Current Public Metadata Endpoints
 

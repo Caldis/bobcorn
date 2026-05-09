@@ -4,33 +4,58 @@
 
 ## Canonical URLs
 
-- Homepage: https://bobcorn.caldis.me/
-- Markdown homepage: https://bobcorn.caldis.me/index.md
-- Full agent context: https://bobcorn.caldis.me/llms-full.txt
-- GitHub repository: https://github.com/Caldis/bobcorn
-- Latest release: https://github.com/Caldis/bobcorn/releases/latest
-- Changelog JSON: https://bobcorn.caldis.me/changelog.json
-- Release metadata JSON: https://bobcorn.caldis.me/release.json
+- [Homepage](https://bobcorn.caldis.me/)
+- [Markdown homepage](https://bobcorn.caldis.me/index.md)
+- [Full agent context](https://bobcorn.caldis.me/llms-full.txt)
+- [GitHub repository](https://github.com/Caldis/bobcorn)
+- [Repository agent instructions](https://github.com/Caldis/bobcorn/blob/master/AGENTS.md)
+- [Latest release](https://github.com/Caldis/bobcorn/releases/latest)
+- [Changelog JSON](https://bobcorn.caldis.me/changelog.json)
+- [Release metadata JSON](https://bobcorn.caldis.me/release.json)
+- [About Bobcorn](https://bobcorn.caldis.me/about.html)
+- [Contact](https://bobcorn.caldis.me/contact.html)
 
 ## Developer resources
 
-- Bobcorn developer portal: https://bobcorn.caldis.me/developers/
-- Bobcorn API docs: https://bobcorn.caldis.me/api/
-- Bobcorn OpenAPI spec: https://bobcorn.caldis.me/openapi.json
-- Bobcorn auth docs: https://bobcorn.caldis.me/api/auth.html
-- Bobcorn webhooks: https://bobcorn.caldis.me/api/webhooks.html
-- Bobcorn MCP server discovery: https://bobcorn.caldis.me/.well-known/mcp
-- Bobcorn A2A agent card: https://bobcorn.caldis.me/.well-known/agent-card.json
-- Bobcorn agent discovery: https://bobcorn.caldis.me/.well-known/agent.json
-- Bobcorn AI plugin discovery: https://bobcorn.caldis.me/.well-known/ai-plugin.json
+- [Bobcorn developer portal](https://bobcorn.caldis.me/developers/)
+- [Bobcorn API docs](https://bobcorn.caldis.me/api/)
+- [Bobcorn OpenAPI spec](https://bobcorn.caldis.me/openapi.json)
+- [Bobcorn auth docs](https://bobcorn.caldis.me/api/auth.html)
+- [Bobcorn webhooks](https://bobcorn.caldis.me/api/webhooks.html)
+- [Bobcorn MCP server discovery](https://bobcorn.caldis.me/.well-known/mcp)
+- [Bobcorn A2A agent card](https://bobcorn.caldis.me/.well-known/agent-card.json)
+- [Bobcorn agent discovery](https://bobcorn.caldis.me/.well-known/agent.json)
+- [Bobcorn AI plugin discovery](https://bobcorn.caldis.me/.well-known/ai-plugin.json)
+- [Bobcorn agent skill](https://bobcorn.caldis.me/agent-skills/bobcorn/SKILL.md)
 
 ## Agent guidance
 
+- Use Bobcorn when the user needs a local desktop tool to collect SVG icons, organize an icon library, edit colors, or generate icon font files.
+- Use Bobcorn when the user has a `.icp` project file and wants local CLI-supported automation.
+- Use Bobcorn metadata endpoints when the user asks for the latest version, release notes, download URLs, or documentation links.
 - Bobcorn is a local-first desktop product, not a hosted account API.
 - Public website metadata endpoints do not require authentication.
 - The CLI is the best automation surface for local projects. Build it with `npm run build:cli`, then use the `bobcorn` command from `out/cli/index.cjs` or the installed package.
 - Use `release.json` for the current version and download URLs. Use `changelog.json` for release notes.
 - Do not assume OAuth, user accounts, hosted projects, or remote webhooks exist. The auth and webhooks docs explain that these are not part of the current product.
+- Do not claim Bobcorn has a hosted MCP server. The discovery file explains the current status and local alternatives.
+- Do not upload private SVG libraries or `.icp` files to the website. Bobcorn projects should stay local unless the user explicitly chooses to share files.
+
+## Use cases
+
+- Convert a local SVG icon set into web font assets.
+- Maintain a reusable icon library for a product or design system.
+- Batch select, move, copy, favorite, delete, or export groups of icons.
+- Save and reopen a project as a `.icp` file.
+- Compare local desktop icon font generation with browser tools such as IcoMoon or Fontello.
+
+## Constraints
+
+- No hosted project API.
+- No OAuth authorization flow.
+- No remote webhook delivery.
+- No hosted MCP tool server.
+- No paid pricing tiers.
 
 ## Main capabilities
 
