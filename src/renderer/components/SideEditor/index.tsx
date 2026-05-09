@@ -148,6 +148,7 @@ const SideEditor = React.memo(function SideEditor({
         db.setIconName(selectedIcon, iconName, () => {
           message.success(t('editor.nameChanged'));
           syncIconContent();
+          syncLeft();
           sync(selectedIcon);
         });
       }
@@ -182,6 +183,7 @@ const SideEditor = React.memo(function SideEditor({
         db.setIconCode(selectedIcon, iconCode, () => {
           message.success(t('editor.codeChanged'));
           syncIconContent();
+          syncLeft();
           sync(selectedIcon);
         });
       }
