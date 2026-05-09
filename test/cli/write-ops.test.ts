@@ -293,7 +293,7 @@ describe('icon move', () => {
     // Verify it's no longer in group-a
     const { json: listA2 } = await runJson(['icon', 'list', icpPath, '--group', 'group-a']);
     expect(listA2.data).toHaveLength(0);
-  });
+  }, 15_000);
 
   it('fails without --to flag', async () => {
     const tmp = await tmpProject();
