@@ -544,6 +544,40 @@
             line-height: 1.7;
         }
 
+        .guide-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1px;
+            list-style: none;
+            margin-top: 32px;
+            background: var(--divider);
+        }
+
+        .guide-list li {
+            background: var(--bg);
+            padding: 22px 18px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        .guide-list strong {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--accent);
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .article-meta {
+            margin-top: -4px;
+            margin-bottom: 18px;
+            color: var(--text-secondary);
+            font-family: var(--mono);
+            font-size: 12px;
+        }
+
         /* ─── Developer Resources ─── */
         .developer-resources {
             display: grid;
@@ -767,6 +801,7 @@
             }
             .comparison-table td { padding-top: 0; }
             .steps-list { grid-template-columns: 1fr; }
+            .guide-list { grid-template-columns: 1fr; }
             .faq-list div {
                 grid-template-columns: 1fr;
                 gap: 8px;
@@ -1060,6 +1095,8 @@
                     "cssSelector": [
                         "#why-bobcorn-title",
                         "#getting-started-title",
+                        "#alternatives-title",
+                        "#workflow-guide-title",
                         "#developers-title"
                     ]
                 }
@@ -1265,6 +1302,34 @@
 
         <div class="divider"></div>
 
+        <!-- ─── Alternatives ─── -->
+        <section class="agent-notes" id="alternatives" aria-labelledby="alternatives-title">
+            <div class="agent-notes__intro reveal">
+                <div class="story-label" data-i18n="alternatives.label">Comparison</div>
+                <h2 id="alternatives-title" data-i18n="alternatives.title">Bobcorn as an IcoMoon alternative</h2>
+                <p data-i18n="alternatives.desc">Use Bobcorn instead of a browser-only icon font generator when the project needs local files, reusable groups, and repeatable export. IcoMoon and Fontello are useful for quick online generation; Bobcorn is better suited to desktop library management and saved .icp project files.</p>
+                <p><a href="alternatives/icomoon.html" data-i18n="alternatives.link">Open the full Bobcorn vs IcoMoon comparison</a></p>
+            </div>
+            <table class="comparison-table reveal">
+                <tbody>
+                    <tr>
+                        <th scope="row" data-i18n="alternatives.browser.title">Browser tools</th>
+                        <td data-i18n="alternatives.browser.desc">IcoMoon and Fontello work well for online icon font generation, but project state usually depends on browser sessions, uploads, or exported config files.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" data-i18n="alternatives.local.title">Bobcorn local projects</th>
+                        <td data-i18n="alternatives.local.desc">Bobcorn keeps the working icon library on the user's machine, saves reusable .icp project files, and supports repeated exports without a hosted workspace.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" data-i18n="alternatives.fit.title">Best fit</th>
+                        <td data-i18n="alternatives.fit.desc">Choose Bobcorn for product teams, UI engineers, and design-system maintainers who update the same icon library over time.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="divider"></div>
+
         <!-- ─── Story 1: Organize ─── -->
         <section class="story" id="features">
             <div class="story-content reveal">
@@ -1354,6 +1419,23 @@
                 </div>
             </dl>
         </section>
+
+        <div class="divider"></div>
+
+        <!-- ─── Workflow Guide ─── -->
+        <article class="agent-notes" id="workflow-guide" aria-labelledby="workflow-guide-title" itemscope itemtype="https://schema.org/TechArticle">
+            <div class="agent-notes__intro reveal">
+                <div class="story-label" data-i18n="workflow.label">Workflow guide</div>
+                <h2 id="workflow-guide-title" itemprop="headline" data-i18n="workflow.title">SVG to icon font workflow guide</h2>
+                <div class="article-meta"><span data-i18n="workflow.by">By</span> <span itemprop="author">Caldis</span> · <time itemprop="dateModified" datetime="2026-05-09">2026-05-09</time></div>
+                <p itemprop="description" data-i18n="workflow.desc">A reliable icon font workflow starts before export. Normalize SVG files, keep icon names stable, export only the groups needed by the product, and save the Bobcorn project file so the next release can reproduce the same output.</p>
+            </div>
+            <ol class="guide-list reveal">
+                <li><strong data-i18n="workflow.step1.title">Normalize source SVGs</strong><span data-i18n="workflow.step1.desc">Keep viewBox values, remove unnecessary fills when the icon should inherit color, and use clear file names before import.</span></li>
+                <li><strong data-i18n="workflow.step2.title">Organize reusable groups</strong><span data-i18n="workflow.step2.desc">Group icons by product area or design-system package, then use favorites and search to review changes before export.</span></li>
+                <li><strong data-i18n="workflow.step3.title">Export and save state</strong><span data-i18n="workflow.step3.desc">Generate SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demos, then save the .icp file for the next icon update.</span></li>
+            </ol>
+        </article>
 
         <div class="divider"></div>
 

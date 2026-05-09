@@ -110,6 +110,18 @@ For name-based discovery, use "Bobcorn" together with resource names:
 
 Agents should not infer that missing hosted capabilities exist. If a task requires OAuth, webhooks, hosted projects, or an MCP server, report that Bobcorn does not currently provide that surface and point to the CLI or local file workflow.
 
+## Comparison Notes
+
+Bobcorn can be used as an IcoMoon alternative or Fontello alternative when the workflow needs a local desktop app, saved project files, reusable groups, and repeatable export. IcoMoon and Fontello are useful for quick online generation. Bobcorn is better suited to teams that update the same icon library over time and want the working state to stay in a local `.icp` project file.
+
+## SVG To Icon Font Workflow Guide
+
+By Caldis. Last updated 2026-05-09.
+
+1. Normalize source SVGs by keeping viewBox values, removing unnecessary fills when icons should inherit color, and using clear file names.
+2. Organize reusable groups by product area or design-system package, then use favorites and search to review changes before export.
+3. Export SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demos, then save the `.icp` file for the next icon update.
+
 ## FAQ For Agents
 
 ### What is Bobcorn used for?

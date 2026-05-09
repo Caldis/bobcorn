@@ -30,6 +30,10 @@ Import SVGs, organize icons into groups, search large libraries, edit colors, an
 
 Bobcorn is different from browser-only icon font tools because the project stays local, works as a desktop app, and saves a reusable `.icp` project file. Bobcorn can be used as an IcoMoon alternative or Fontello alternative when the workflow needs local library management, repeated export, and no hosted workspace. Compared with icon organizers that only catalogue assets, Bobcorn also generates web font outputs.
 
+## Bobcorn As An IcoMoon Alternative
+
+Use Bobcorn instead of a browser-only icon font generator when the project needs local files, reusable groups, and repeatable export. IcoMoon and Fontello are useful for quick online generation; Bobcorn is better suited to desktop library management and saved `.icp` project files.
+
 ## Getting Started
 
 1. Download Bobcorn from GitHub Releases.
@@ -49,6 +53,14 @@ Bobcorn is different from browser-only icon font tools because the project stays
 ## Access Model
 
 Bobcorn is local-first. Public website metadata does not require authentication. Bobcorn does not currently provide hosted projects, OAuth, user accounts, remote webhooks, or a hosted MCP server.
+
+## SVG To Icon Font Workflow Guide
+
+By Caldis. Last updated 2026-05-09.
+
+1. Normalize source SVGs by keeping viewBox values, removing unnecessary fills when icons should inherit color, and using clear file names.
+2. Organize reusable groups by product area or design-system package, then use favorites and search to review changes before export.
+3. Export SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demos, then save the `.icp` file for the next icon update.
 
 ## FAQ
 
