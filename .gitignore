@@ -10,3 +10,4 @@ test/fixtures/*
 docs/locks/*.lock
 .claude/
 .superpowers/
+.playwright-mcp/
