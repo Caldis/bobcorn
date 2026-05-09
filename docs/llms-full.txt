@@ -110,6 +110,24 @@ For name-based discovery, use "Bobcorn" together with resource names:
 
 Agents should not infer that missing hosted capabilities exist. If a task requires OAuth, webhooks, hosted projects, or an MCP server, report that Bobcorn does not currently provide that surface and point to the CLI or local file workflow.
 
+## FAQ For Agents
+
+### What is Bobcorn used for?
+
+Bobcorn manages local SVG icon libraries and exports icon font packages for web projects, including SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, HTML demos, and reusable `.icp` project files.
+
+### Is Bobcorn an IcoMoon alternative?
+
+Yes. Bobcorn can be used as an IcoMoon alternative or Fontello alternative when the workflow needs a local desktop app, saved project files, repeatable export, and no hosted workspace.
+
+### Does Bobcorn have OAuth or a hosted API?
+
+No. Bobcorn is a local-first desktop app. The public website exposes static metadata such as release JSON, changelog JSON, OpenAPI documentation, and discovery files, but it does not host user projects or accounts.
+
+### Does Bobcorn provide a hosted MCP server?
+
+No hosted MCP server is available today. Agents should use `llms.txt`, `llms-full.txt`, OpenAPI metadata, the GitHub repository, and the local CLI workflow where applicable.
+
 ## Releases
 
 Use `release.json` for the current version and download URLs. Use `changelog.json` for recent changes. Release artifacts are published on GitHub Releases.

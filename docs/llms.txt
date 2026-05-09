@@ -13,7 +13,7 @@
 - [Changelog JSON](https://bobcorn.caldis.me/changelog.json)
 - [Release metadata JSON](https://bobcorn.caldis.me/release.json)
 - [About Bobcorn](https://bobcorn.caldis.me/about.html)
-- [Contact](https://bobcorn.caldis.me/contact.html)
+- [Contact](https://bobcorn.caldis.me/contact/)
 - [Bobcorn vs IcoMoon comparison](https://bobcorn.caldis.me/alternatives/icomoon.html)
 - [SVG to icon font workflow guide](https://bobcorn.caldis.me/guides/icon-font-workflow.html)
 
@@ -49,7 +49,7 @@
 - Maintain a reusable icon library for a product or design system.
 - Batch select, move, copy, favorite, delete, or export groups of icons.
 - Save and reopen a project as a `.icp` file.
-- Compare local desktop icon font generation with browser tools such as IcoMoon or Fontello.
+- Use Bobcorn as an IcoMoon alternative or Fontello alternative when the user needs local desktop project files and repeatable icon font export.
 - Learn the SVG-to-icon-font workflow before using the app.
 
 ## Constraints

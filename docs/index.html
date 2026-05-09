@@ -36,7 +36,7 @@
     <link rel="service-desc" type="application/json" href="/.well-known/agent.json" title="Bobcorn agent discovery">
     <link rel="service-desc" type="application/json" href="/.well-known/agent-card.json" title="Bobcorn A2A agent card">
     <link rel="author" href="/about.html" title="About Bobcorn">
-    <link rel="help" href="/contact.html" title="Contact Bobcorn">
+    <link rel="help" href="/contact/" title="Contact Bobcorn">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bobcorn.caldis.me/">
@@ -73,6 +73,12 @@
             agentCard: 'https://bobcorn.caldis.me/.well-known/agent-card.json',
             mcpStatus: 'https://bobcorn.caldis.me/api/mcp.html'
           },
+          useCases: [
+            'Use Bobcorn as an IcoMoon alternative or Fontello alternative for local desktop icon font workflows.',
+            'Convert local SVG icon sets into web font assets.',
+            'Maintain reusable icon libraries for product UI or design systems.'
+          ],
+          contact: 'https://bobcorn.caldis.me/contact/',
           auth: {
             type: 'none',
             notes: 'Public website metadata endpoints are read-only and do not require API keys, OAuth, cookies, or accounts.'
@@ -512,6 +518,32 @@
             line-height: 1.55;
         }
 
+        .faq-list {
+            border-top: 1px solid var(--divider);
+            margin-top: 32px;
+        }
+
+        .faq-list div {
+            display: grid;
+            grid-template-columns: minmax(180px, 0.35fr) 1fr;
+            gap: 28px;
+            padding: 22px 0;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .faq-list dt {
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.55;
+            color: var(--accent);
+        }
+
+        .faq-list dd {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
         /* ─── Developer Resources ─── */
         .developer-resources {
             display: grid;
@@ -735,6 +767,10 @@
             }
             .comparison-table td { padding-top: 0; }
             .steps-list { grid-template-columns: 1fr; }
+            .faq-list div {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
             .developer-resources { padding: 56px 20px; }
             .changelog { padding: 56px 20px 36px; }
             .changelog-header { margin-bottom: 32px; }
@@ -1046,6 +1082,53 @@
                 ]
             },
             {
+                "@type": "ContactPage",
+                "name": "Contact Bobcorn",
+                "url": "https://bobcorn.caldis.me/contact/",
+                "about": {
+                    "@id": "https://bobcorn.caldis.me/#organization"
+                }
+            },
+            {
+                "@type": "HowTo",
+                "name": "Generate an icon font with Bobcorn",
+                "description": "A local workflow for turning SVG icons into reusable web font assets with Bobcorn.",
+                "totalTime": "PT10M",
+                "tool": [
+                    {
+                        "@type": "HowToTool",
+                        "name": "Bobcorn desktop app"
+                    }
+                ],
+                "step": [
+                    {
+                        "@type": "HowToStep",
+                        "name": "Download Bobcorn",
+                        "text": "Install the latest Windows or macOS release from GitHub."
+                    },
+                    {
+                        "@type": "HowToStep",
+                        "name": "Import SVG icons",
+                        "text": "Drag SVG files or folders into a local Bobcorn project."
+                    },
+                    {
+                        "@type": "HowToStep",
+                        "name": "Organize the icon library",
+                        "text": "Use groups, search, favorites, and batch selection to keep the library maintainable."
+                    },
+                    {
+                        "@type": "HowToStep",
+                        "name": "Export web font assets",
+                        "text": "Generate SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demo files."
+                    },
+                    {
+                        "@type": "HowToStep",
+                        "name": "Save the project",
+                        "text": "Save the .icp file so the same icon library can be reopened for later changes."
+                    }
+                ]
+            },
+            {
                 "@type": "FAQPage",
                 "mainEntity": [
                     {
@@ -1069,7 +1152,15 @@
                         "name": "How is Bobcorn different from IcoMoon or Fontello?",
                         "acceptedAnswer": {
                             "@type": "Answer",
-                            "text": "Bobcorn focuses on desktop library management, local project files, and repeatable icon font exports. Browser tools such as IcoMoon and Fontello are useful for online generation, while Bobcorn keeps the working library local."
+                            "text": "Bobcorn is an IcoMoon alternative and Fontello alternative for users who want desktop library management, local project files, and repeatable icon font exports. Browser tools such as IcoMoon and Fontello are useful for online generation, while Bobcorn keeps the working library local."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Does Bobcorn provide OAuth, webhooks, or a hosted MCP server?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "No. Bobcorn does not currently provide OAuth, remote webhooks, hosted projects, or a hosted MCP server. Agents should use the static discovery files, OpenAPI metadata, GitHub repository, and local CLI workflow."
                         }
                     }
                 ]
@@ -1151,7 +1242,7 @@
             <div class="agent-notes__intro reveal">
                 <div class="story-label" data-i18n="why.label">Why Bobcorn</div>
                 <h2 id="why-bobcorn-title" data-i18n="why.title">Local icon font work without a browser round trip</h2>
-                <p data-i18n="why.desc">Bobcorn is for teams that need to keep SVG libraries local, organize reusable groups, and regenerate web font assets repeatedly. It complements browser tools such as IcoMoon and Fontello by focusing on desktop library management, local project files, and repeatable exports.</p>
+                <p data-i18n="why.desc">Bobcorn is for teams that need to keep SVG libraries local, organize reusable groups, and regenerate web font assets repeatedly. It is an IcoMoon alternative and Fontello alternative for users who want desktop library management, local project files, and repeatable exports.</p>
                 <p><a href="alternatives/icomoon.html" data-i18n="why.compare">Read the Bobcorn vs IcoMoon comparison</a></p>
             </div>
             <table class="comparison-table reveal">
@@ -1237,6 +1328,35 @@
 
         <div class="divider"></div>
 
+        <!-- ─── FAQ ─── -->
+        <section class="agent-notes" id="faq" aria-labelledby="faq-title">
+            <div class="agent-notes__intro reveal">
+                <div class="story-label" data-i18n="faq.label">FAQ</div>
+                <h2 id="faq-title" data-i18n="faq.title">Agent-readable product boundaries</h2>
+                <p data-i18n="faq.desc">These answers describe the current public product surface, so search agents and coding agents do not infer hosted capabilities that Bobcorn does not provide.</p>
+            </div>
+            <dl class="faq-list reveal">
+                <div>
+                    <dt data-i18n="faq.q1">What is Bobcorn used for?</dt>
+                    <dd data-i18n="faq.a1">Bobcorn manages local SVG icon libraries and exports icon font packages for web projects, including SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, HTML demos, and reusable .icp project files.</dd>
+                </div>
+                <div>
+                    <dt data-i18n="faq.q2">Is Bobcorn an IcoMoon alternative?</dt>
+                    <dd data-i18n="faq.a2">Yes. Bobcorn can be used as an IcoMoon alternative or Fontello alternative when the workflow needs a local desktop app, saved project files, repeatable export, and no hosted workspace.</dd>
+                </div>
+                <div>
+                    <dt data-i18n="faq.q3">Does Bobcorn have OAuth or a hosted API?</dt>
+                    <dd data-i18n="faq.a3">No. Bobcorn is a local-first desktop app. The public website exposes static metadata such as release JSON, changelog JSON, OpenAPI documentation, and discovery files, but it does not host user projects or accounts.</dd>
+                </div>
+                <div>
+                    <dt data-i18n="faq.q4">Does Bobcorn provide a hosted MCP server?</dt>
+                    <dd data-i18n="faq.a4">No hosted MCP server is available today. Agents should use llms.txt, llms-full.txt, the OpenAPI metadata, GitHub repository, and the local CLI workflow where applicable.</dd>
+                </div>
+            </dl>
+        </section>
+
+        <div class="divider"></div>
+
         <!-- ─── Developer Resources ─── -->
         <section class="developer-resources" id="developers" aria-labelledby="developers-title">
             <div class="story-content reveal">
@@ -1296,7 +1416,7 @@
         <div class="footer-links">
             <a href="https://github.com/Caldis/bobcorn/releases" data-i18n="footer.releases">Releases</a>
             <a href="/about.html" data-i18n="footer.about">About</a>
-            <a href="/contact.html" data-i18n="footer.contact">Contact</a>
+            <a href="/contact/" data-i18n="footer.contact">Contact</a>
             <a href="https://github.com/Caldis/bobcorn">GitHub</a>
             <a href="https://github.com/Caldis">Caldis</a>
             <a href="/privacy.html">Privacy Policy</a>

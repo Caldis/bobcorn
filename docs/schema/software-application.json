@@ -6,8 +6,20 @@
   "applicationCategory": "DesignApplication",
   "operatingSystem": "Windows, macOS",
   "softwareVersion": "1.12.4",
-  "description": "Free, open-source desktop app to organize SVG icons and generate icon fonts.",
+  "description": "Free, open-source desktop app to organize SVG icons and generate icon fonts. Bobcorn is an IcoMoon alternative and Fontello alternative for local desktop icon font workflows.",
   "downloadUrl": "https://github.com/Caldis/bobcorn/releases/latest",
   "license": "https://opensource.org/licenses/MIT",
-  "codeRepository": "https://github.com/Caldis/bobcorn"
+  "codeRepository": "https://github.com/Caldis/bobcorn",
+  "sameAs": [
+    "https://github.com/Caldis/bobcorn",
+    "https://github.com/Caldis"
+  ],
+  "keywords": [
+    "icon font generator",
+    "SVG icon manager",
+    "IcoMoon alternative",
+    "Fontello alternative",
+    "local icon library",
+    "SVG to WOFF2"
+  ]
 }

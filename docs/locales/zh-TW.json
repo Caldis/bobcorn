@@ -72,5 +72,16 @@
   "start.step5.desc": "保存 .icp 文件，图标集变化后继续打开编辑。",
   "footer.about": "关于",
   "footer.contact": "联系",
-  "why.compare": "阅读 Bobcorn 与 IcoMoon 对比"
+  "why.compare": "阅读 Bobcorn 与 IcoMoon 对比",
+  "faq.label": "常见问题",
+  "faq.title": "方便 agent 读取的产品边界",
+  "faq.desc": "这些回答描述 Bobcorn 当前真实公开能力，避免搜索 agent 和代码 agent 误以为它提供托管服务。",
+  "faq.q1": "Bobcorn 用来做什么？",
+  "faq.a1": "Bobcorn 用于管理本地 SVG 图标库，并为 Web 项目导出图标字体包，包括 SVG、TTF、WOFF、WOFF2、EOT、CSS、JavaScript、HTML demo 和可复用的 .icp 项目文件。",
+  "faq.q2": "Bobcorn 是 IcoMoon 替代方案吗？",
+  "faq.a2": "是。需要本地桌面应用、保存项目文件、可重复导出且不依赖托管工作区时，Bobcorn 可以作为 IcoMoon 或 Fontello 的替代方案。",
+  "faq.q3": "Bobcorn 有 OAuth 或托管 API 吗？",
+  "faq.a3": "没有。Bobcorn 是本地优先的桌面应用。官网只提供 release JSON、changelog JSON、OpenAPI 文档和 discovery files 等静态元数据，不托管用户项目或账号。",
+  "faq.q4": "Bobcorn 提供托管 MCP server 吗？",
+  "faq.a4": "目前没有托管 MCP server。Agent 应使用 llms.txt、llms-full.txt、OpenAPI 元数据、GitHub 仓库，以及适用场景下的本地 CLI 流程。"
 }

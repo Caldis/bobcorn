@@ -72,5 +72,16 @@
   "start.step5.desc": "Save the .icp file and reopen it when the icon set changes.",
   "footer.about": "About",
   "footer.contact": "Contact",
-  "why.compare": "Read the Bobcorn vs IcoMoon comparison"
+  "why.compare": "Read the Bobcorn vs IcoMoon comparison",
+  "faq.label": "FAQ",
+  "faq.title": "Agent-readable product boundaries",
+  "faq.desc": "These answers describe the current public product surface, so search agents and coding agents do not infer hosted capabilities that Bobcorn does not provide.",
+  "faq.q1": "What is Bobcorn used for?",
+  "faq.a1": "Bobcorn manages local SVG icon libraries and exports icon font packages for web projects, including SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, HTML demos, and reusable .icp project files.",
+  "faq.q2": "Is Bobcorn an IcoMoon alternative?",
+  "faq.a2": "Yes. Bobcorn can be used as an IcoMoon alternative or Fontello alternative when the workflow needs a local desktop app, saved project files, repeatable export, and no hosted workspace.",
+  "faq.q3": "Does Bobcorn have OAuth or a hosted API?",
+  "faq.a3": "No. Bobcorn is a local-first desktop app. The public website exposes static metadata such as release JSON, changelog JSON, OpenAPI documentation, and discovery files, but it does not host user projects or accounts.",
+  "faq.q4": "Does Bobcorn provide a hosted MCP server?",
+  "faq.a4": "No hosted MCP server is available today. Agents should use llms.txt, llms-full.txt, the OpenAPI metadata, GitHub repository, and the local CLI workflow where applicable."
 }

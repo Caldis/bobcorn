@@ -57,9 +57,13 @@ function checkIndexHtml() {
     '<section class="developer-resources"',
     '<section class="agent-notes" id="why-bobcorn"',
     '<section class="agent-notes" id="getting-started"',
+    '<section class="agent-notes" id="faq"',
     '"@type": "Organization"',
+    '"@type": "ContactPage"',
+    '"@type": "HowTo"',
     '"sameAs":',
     '"SpeakableSpecification"',
+    'IcoMoon alternative',
   ];
 
   expectedFragments.forEach((fragment) => {
@@ -98,6 +102,7 @@ function checkLlms() {
     'docs/.well-known/agent-skills/index.json',
     'docs/alternatives/icomoon.html',
     'docs/guides/icon-font-workflow.html',
+    'docs/contact/index.html',
   ].forEach(expectFile);
 
   const llms = readText('docs/llms.txt');
@@ -113,6 +118,7 @@ function checkLlms() {
     `[Bobcorn vs IcoMoon comparison](${siteUrl}/alternatives/icomoon.html)`,
     `[SVG to icon font workflow guide](${siteUrl}/guides/icon-font-workflow.html)`,
     'Use Bobcorn when the user needs',
+    'IcoMoon alternative',
     'Do not assume OAuth',
   ].forEach((phrase) => {
     if (!llms.includes(phrase)) {
