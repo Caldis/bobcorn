@@ -17,7 +17,7 @@ Import SVGs, organize icons into groups, search large libraries, edit colors, an
 - OpenAPI spec: https://bobcorn.caldis.me/openapi.json
 - Auth docs: https://bobcorn.caldis.me/api/auth.html
 - Webhooks docs: https://bobcorn.caldis.me/api/webhooks.html
-- MCP discovery: https://bobcorn.caldis.me/.well-known/mcp
+- MCP status: https://bobcorn.caldis.me/api/mcp.html
 - Agent discovery: https://bobcorn.caldis.me/.well-known/agent.json
 - A2A agent card: https://bobcorn.caldis.me/.well-known/agent-card.json
 - Full LLM context: https://bobcorn.caldis.me/llms-full.txt

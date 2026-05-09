@@ -194,20 +194,20 @@
         }
       }
     },
-    "/.well-known/mcp": {
+    "/api/mcp.html": {
       "get": {
         "tags": [
           "Discovery"
         ],
-        "summary": "Get Bobcorn MCP discovery status",
-        "operationId": "getMcpDiscovery",
+        "summary": "Get Bobcorn MCP status page",
+        "operationId": "getMcpStatusPage",
         "responses": {
           "200": {
-            "description": "MCP server availability status and supported alternatives.",
+            "description": "Human-readable MCP availability status and alternatives.",
             "content": {
-              "application/json": {
+              "text/html": {
                 "schema": {
-                  "$ref": "#/components/schemas/McpDiscovery"
+                  "type": "string"
                 }
               }
             }

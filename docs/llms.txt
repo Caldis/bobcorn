@@ -24,7 +24,7 @@
 - [Bobcorn OpenAPI spec](https://bobcorn.caldis.me/openapi.json)
 - [Bobcorn auth docs](https://bobcorn.caldis.me/api/auth.html)
 - [Bobcorn webhooks](https://bobcorn.caldis.me/api/webhooks.html)
-- [Bobcorn MCP server discovery](https://bobcorn.caldis.me/.well-known/mcp)
+- [Bobcorn MCP status](https://bobcorn.caldis.me/api/mcp.html)
 - [Bobcorn A2A agent card](https://bobcorn.caldis.me/.well-known/agent-card.json)
 - [Bobcorn agent discovery](https://bobcorn.caldis.me/.well-known/agent.json)
 - [Bobcorn AI plugin discovery](https://bobcorn.caldis.me/.well-known/ai-plugin.json)

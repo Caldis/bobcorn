@@ -52,7 +52,6 @@ function checkIndexHtml() {
     'rel="service-desc" type="application/vnd.oai.openapi+json" href="/openapi.json"',
     'rel="service-desc" type="application/json" href="/.well-known/agent.json"',
     'rel="service-desc" type="application/json" href="/.well-known/agent-card.json"',
-    'rel="service-desc" type="application/json" href="/.well-known/mcp"',
     'function renderAgentMode()',
     'searchParams.get(\'mode\') === \'agent\'',
     '<section class="developer-resources"',
@@ -108,8 +107,8 @@ function checkLlms() {
     'Bobcorn developer portal',
     'Bobcorn auth docs',
     'Bobcorn webhooks',
-    'Bobcorn MCP server discovery',
-    `[Bobcorn MCP server discovery](${siteUrl}/.well-known/mcp)`,
+    'Bobcorn MCP status',
+    `[Bobcorn MCP status](${siteUrl}/api/mcp.html)`,
     `[Bobcorn agent skill](${siteUrl}/agent-skills/bobcorn/SKILL.md)`,
     `[Bobcorn vs IcoMoon comparison](${siteUrl}/alternatives/icomoon.html)`,
     `[SVG to icon font workflow guide](${siteUrl}/guides/icon-font-workflow.html)`,
@@ -133,7 +132,6 @@ function checkDiscoveryFiles() {
   const plugin = readJson('docs/.well-known/ai-plugin.json');
   const rootPlugin = readJson('docs/ai-plugin.json');
   const card = readJson('docs/.well-known/agent-card.json');
-  const mcp = readJson('docs/.well-known/mcp');
   const skills = readJson('docs/.well-known/agent-skills/index.json');
 
   if (agent && agent.name !== 'Bobcorn') {
@@ -160,10 +158,6 @@ function checkDiscoveryFiles() {
     failures.push(
       `docs/.well-known/agent-card.json version is "${card.version}", expected "${pkg.version}".`
     );
-  }
-
-  if (mcp && !String(mcp.name || '').includes('Bobcorn')) {
-    failures.push('docs/.well-known/mcp name must include Bobcorn.');
   }
 
   if (skills && skills.$schema !== 'https://schemas.agentskills.io/discovery/0.2.0/schema.json') {

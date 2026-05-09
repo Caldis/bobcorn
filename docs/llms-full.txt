@@ -27,7 +27,7 @@ Bobcorn is local-first. Project data lives in local `.icp` files and local sql.j
 - OpenAPI spec: https://bobcorn.caldis.me/openapi.json
 - Auth docs: https://bobcorn.caldis.me/api/auth.html
 - Webhooks docs: https://bobcorn.caldis.me/api/webhooks.html
-- MCP discovery descriptor: https://bobcorn.caldis.me/.well-known/mcp
+- MCP status page: https://bobcorn.caldis.me/api/mcp.html
 - A2A agent card: https://bobcorn.caldis.me/.well-known/agent-card.json
 - Agent discovery file: https://bobcorn.caldis.me/.well-known/agent.json
 - Legacy AI plugin discovery: https://bobcorn.caldis.me/.well-known/ai-plugin.json
@@ -53,7 +53,7 @@ The public website API is a small static metadata surface:
 - `GET /.well-known/agent.json` returns agent discovery metadata.
 - `GET /.well-known/agent-card.json` returns the A2A agent card.
 - `GET /.well-known/ai-plugin.json` returns a legacy AI plugin descriptor.
-- `GET /.well-known/mcp` returns MCP discovery status and alternatives.
+- `GET /api/mcp.html` returns human-readable MCP status and alternatives.
 
 These endpoints are read-only. There are no write operations, no hosted user records, and no remote project storage.
 
@@ -63,7 +63,7 @@ The public website metadata endpoints use no authentication. Bobcorn does not cu
 
 ## MCP and Agent Integration
 
-Bobcorn does not currently publish a hosted MCP server. The discovery descriptor at `/.well-known/mcp` exists so agents can find the current integration status and the supported alternatives without guessing. The supported automation path is the local CLI, backed by core operations as migration continues.
+Bobcorn does not currently publish a hosted MCP server. The MCP status page at `/api/mcp.html` exists so agents can find the current integration status and the supported alternatives without guessing. The supported automation path is the local CLI, backed by core operations as migration continues.
 
 ## When Agents Should Use Bobcorn
 
@@ -104,7 +104,7 @@ For name-based discovery, use "Bobcorn" together with resource names:
 - Bobcorn developer portal
 - Bobcorn auth docs
 - Bobcorn webhooks
-- Bobcorn MCP server discovery
+- Bobcorn MCP status
 - Bobcorn A2A agent card
 - Bobcorn agent discovery
 

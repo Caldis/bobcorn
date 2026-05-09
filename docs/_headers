@@ -6,4 +6,3 @@
   Link: </openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"
   Link: </.well-known/agent.json>; rel="service-desc"; type="application/json"
   Link: </.well-known/agent-card.json>; rel="service-desc"; type="application/json"
-  Link: </.well-known/mcp>; rel="service-desc"; type="application/json"

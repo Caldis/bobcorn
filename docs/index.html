@@ -35,7 +35,6 @@
     <link rel="service-desc" type="application/vnd.oai.openapi+json" href="/openapi.json" title="Bobcorn OpenAPI spec">
     <link rel="service-desc" type="application/json" href="/.well-known/agent.json" title="Bobcorn agent discovery">
     <link rel="service-desc" type="application/json" href="/.well-known/agent-card.json" title="Bobcorn A2A agent card">
-    <link rel="service-desc" type="application/json" href="/.well-known/mcp" title="Bobcorn MCP server discovery">
     <link rel="author" href="/about.html" title="About Bobcorn">
     <link rel="help" href="/contact.html" title="Contact Bobcorn">
     <!-- Open Graph -->
@@ -72,7 +71,7 @@
             llmsFullTxt: 'https://bobcorn.caldis.me/llms-full.txt',
             agentDiscovery: 'https://bobcorn.caldis.me/.well-known/agent.json',
             agentCard: 'https://bobcorn.caldis.me/.well-known/agent-card.json',
-            mcpDiscovery: 'https://bobcorn.caldis.me/.well-known/mcp'
+            mcpStatus: 'https://bobcorn.caldis.me/api/mcp.html'
           },
           auth: {
             type: 'none',
@@ -86,11 +85,11 @@
             { method: 'GET', path: '/llms-full.txt', description: 'Full product context for agents.' },
             { method: 'GET', path: '/.well-known/agent.json', description: 'Agent discovery metadata.' },
             { method: 'GET', path: '/.well-known/agent-card.json', description: 'A2A agent card.' },
-            { method: 'GET', path: '/.well-known/mcp', description: 'MCP server status and alternatives.' }
+            { method: 'GET', path: '/api/mcp.html', description: 'MCP status and alternatives.' }
           ],
           integration: {
             cli: 'Use the local Bobcorn CLI for supported project automation.',
-            mcp: 'No hosted MCP server is currently published. See /.well-known/mcp for status.',
+            mcp: 'No hosted MCP server is currently published. See /api/mcp.html for status.',
             webhooks: 'No remote webhooks are currently provided.'
           }
         };
@@ -971,8 +970,8 @@
             },
             {
                 "@type": "TechArticle",
-                "name": "Bobcorn MCP server discovery",
-                "url": "https://bobcorn.caldis.me/.well-known/mcp"
+                "name": "Bobcorn MCP status",
+                "url": "https://bobcorn.caldis.me/api/mcp.html"
             }
         ],
         "offers": {
@@ -1274,7 +1273,7 @@
                 <li class="resource-row">
                     <strong data-i18n="developers.mcp.title">MCP status</strong>
                     <span data-i18n="developers.mcp.desc">Discovery file that states MCP availability and supported alternatives.</span>
-                    <a href=".well-known/mcp" data-i18n="developers.json">JSON</a>
+                    <a href="api/mcp.html" data-i18n="developers.read">Read</a>
                 </li>
             </ul>
         </section>
