@@ -17,6 +17,21 @@ export interface AppConfig {
   publicRangeUnicodeHexList: string[];
 }
 
+export interface ExportFontSettings {
+  // 'all' = 全选 (含未来新增分组),数组 = 显式选中的分组 ID 列表
+  groupSelected: 'all' | string[];
+  // 可选字体格式
+  optionalFormats: { woff: boolean; eot: boolean };
+  // 伴随文件
+  companion: { css: boolean; js: boolean; html: boolean; icp: boolean };
+  // 自动打包
+  zip: boolean;
+  // 上次选择的父目录;null 时回退桌面
+  parentDir: string | null;
+  // 用户自定义末级目录名;null 时用项目名
+  customDirName: string | null;
+}
+
 export interface OptionData {
   iconBlockNameVisible: boolean;
   iconBlockCodeVisible: boolean;
@@ -31,6 +46,8 @@ export interface OptionData {
   autoCheckUpdate: boolean;
   autoDownloadUpdate: boolean;
   updateChannel: 'stable' | 'beta';
+  // 导出字体设置 (用户级偏好,跨项目持久化)
+  exportFontSettings: ExportFontSettings;
 }
 
 // 全局参数相关
@@ -73,6 +90,15 @@ export const defOption: OptionData = {
   autoCheckUpdate: true,
   autoDownloadUpdate: false,
   updateChannel: 'stable',
+  // 导出字体设置默认值 — 与原 ExportDialog 默认勾选一致
+  exportFontSettings: {
+    groupSelected: 'all',
+    optionalFormats: { woff: true, eot: true },
+    companion: { css: true, js: true, html: true, icp: false },
+    zip: false,
+    parentDir: null,
+    customDirName: null,
+  },
 };
 // 重置设置
 export const resetOption = (): void => {

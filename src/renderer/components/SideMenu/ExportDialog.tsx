@@ -6,7 +6,6 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Dialog, Button, Checkbox, CheckboxGroup, Progress } from '../ui';
 import { message } from '../ui/toast';
-import { platform } from '../../utils/tools';
 import {
   svgFontGenerator,
   ttfFontGenerator,
@@ -22,9 +21,60 @@ import {
 import { zipSync } from 'fflate';
 import { cn } from '../../lib/utils';
 import { analyticsTrack } from '../../store';
+import { getOption, setOption, type ExportFontSettings } from '../../config';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.set-name, project.set-prefix, export.font, export.svg
 import db from '../../database';
 import type { ExportGroupOption } from './types';
+
+// ── 路径工具 (内联,仅本组件使用) ────────────────────────────────
+const PATH_SEP = electronAPI.platform === 'win32' ? '\\' : '/';
+// 故意检测控制字符 (文件名禁止),与 lint 的 no-control-regex 默认告警冲突,显式豁免
+// eslint-disable-next-line no-control-regex
+const ILLEGAL_NAME_RE = electronAPI.platform === 'win32' ? /[<>:"|?*\x00-\x1F]/g : /[/\x00]/g;
+
+/** 将所有 / 和 \ 统一为平台分隔符,去除尾随 sep (但保留 Windows 盘根 / POSIX 根) */
+function normalizePath(p: string): string {
+  if (!p) return '';
+  let s = p.replace(/[\\/]+/g, PATH_SEP);
+  // 保留盘根 (C:\) 与 POSIX 根 (/)
+  while (s.length > 1 && s.endsWith(PATH_SEP) && !/^[A-Za-z]:\\$/.test(s) && s !== '/') {
+    s = s.slice(0, -PATH_SEP.length);
+  }
+  return s;
+}
+
+/** 拆分末级目录名与父目录 */
+function splitTail(p: string): { parent: string; name: string } {
+  const norm = normalizePath(p);
+  const idx = norm.lastIndexOf(PATH_SEP);
+  if (idx < 0) return { parent: '', name: norm };
+  // POSIX: 路径以 / 开头时父目录为 '/'
+  const parent = idx === 0 ? PATH_SEP : norm.slice(0, idx);
+  return { parent, name: norm.slice(idx + 1) };
+}
+
+/** 拼接父目录与末级名称 */
+function joinPath(parent: string, name: string): string {
+  if (!parent) return name;
+  if (parent.endsWith(PATH_SEP)) return parent + name;
+  return parent + PATH_SEP + name;
+}
+
+/** 提取目录名中的非法字符 (用于错误提示),返回去重后的字符串 */
+function extractIllegalChars(name: string): string {
+  const matches = name.match(ILLEGAL_NAME_RE);
+  if (!matches) return '';
+  return Array.from(new Set(matches)).join(' ');
+}
+
+/** 在 parent 下找到 base-1, base-2... 第一个不存在的名字 (suffix 用于 ZIP 模式校验 .zip 文件) */
+function findAvailableName(parent: string, base: string, suffix: string = ''): string {
+  for (let i = 1; i < 1000; i++) {
+    const candidate = `${base}-${i}`;
+    if (!electronAPI.existsSync(joinPath(parent, candidate + suffix))) return candidate;
+  }
+  return `${base}-${Date.now()}`;
+}
 
 interface ExportDialogProps {
   visible: boolean;
@@ -106,29 +156,38 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const [exportedDirPath, setExportedDirPath] = useState<string>('');
   const [exportedProjectName, setExportedProjectName] = useState<string>('');
 
-  // 导出目录选择
+  // 导出目录: 父目录 + 末级目录名 (可由用户自定义) — 加载自持久化
   const [exportParentDir, setExportParentDir] = useState<string>('');
+  // null 表示沿用项目名;非空字符串覆盖项目名
+  const [customDirName, setCustomDirName] = useState<string | null>(null);
 
   // 分组选择
   const [exportGroupFullList, setExportGroupFullList] = useState<ExportGroupOption[]>([]);
   const [exportGroupSelected, setExportGroupSelected] = useState<string[]>([]);
   const [exportGroupCheckAll, setExportGroupCheckAll] = useState<boolean>(true);
   const [exportGroupIndeterminate, setExportGroupIndeterminate] = useState<boolean>(false);
-  const [exportGroupModelVisible, setExportGroupModelVisible] = useState<boolean>(true);
 
-  // Format selection
+  // Format selection — 加载自持久化 (svg/ttf/woff2 必选,固定 true)
+  const persistedSettings = getOption('exportFontSettings') as ExportFontSettings;
   const [selectedFormats, setSelectedFormats] = useState({
     svg: true,
     ttf: true,
     woff2: true,
-    css: true, // companion, default ON
-    woff: true,
-    eot: true,
-    js: true,
-    html: true, // optional, default ON
-    icp: false, // optional, default OFF
+    css: persistedSettings.companion.css,
+    woff: persistedSettings.optionalFormats.woff,
+    eot: persistedSettings.optionalFormats.eot,
+    js: persistedSettings.companion.js,
+    html: persistedSettings.companion.html,
+    icp: persistedSettings.companion.icp,
   });
-  const [zipEnabled, setZipEnabled] = useState(false);
+  const [zipEnabled, setZipEnabled] = useState(persistedSettings.zip);
+
+  // 目录冲突弹窗状态 — baseName/renamedBase 是不带后缀的目录名,isZip 控制弹窗显示
+  const [conflictPending, setConflictPending] = useState<{
+    baseName: string;
+    renamedBase: string;
+    isZip: boolean;
+  } | null>(null);
 
   // Preview panel
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -139,7 +198,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const [exportSelectedIconCount, setExportSelectedIconCount] = useState<number>(0);
   const groupIconCountsRef = useRef<Record<string, number>>({});
 
-  // 当对话框打开时初始化分组列表
+  // 当对话框打开时初始化分组列表 + 还原持久化的选择
   const initGroupList = () => {
     const groups = db.getGroupList();
     const totalIcons = db.getIconCount();
@@ -148,10 +207,31 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       value: group.id,
     }));
     setExportGroupFullList(groupList);
-    setExportGroupSelected(groupList.map((group) => group.value));
-    setExportGroupIndeterminate(false);
-    setExportGroupCheckAll(true);
-    // 预缓存每个分组的图标计数，避免 checkbox 变化时查 DB
+
+    // 还原分组选择: 'all' = 全选 (含未来新分组),数组 = 显式列表 (过滤掉已删除的分组)
+    const persisted = (getOption('exportFontSettings') as ExportFontSettings).groupSelected;
+    const allIds = groupList.map((g) => g.value);
+    let initialSelected: string[];
+    let initialAll: boolean;
+    if (persisted === 'all') {
+      initialSelected = allIds;
+      initialAll = true;
+    } else {
+      const validIds = new Set(allIds);
+      initialSelected = (persisted as string[]).filter((id) => validIds.has(id));
+      if (initialSelected.length === 0) {
+        // 持久化的分组都已不存在 → 回退全选
+        initialSelected = allIds;
+        initialAll = true;
+      } else {
+        initialAll = initialSelected.length === allIds.length;
+      }
+    }
+    setExportGroupSelected(initialSelected);
+    setExportGroupCheckAll(initialAll);
+    setExportGroupIndeterminate(!initialAll && initialSelected.length > 0);
+
+    // 预缓存每个分组的图标计数,避免 checkbox 变化时查 DB
     const counts: Record<string, number> = {};
     groups.forEach((g: any) => {
       counts[g.id] = db.getIconCountFromGroup(g.id);
@@ -159,7 +239,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     groupIconCountsRef.current = counts;
     setExportTotalIcons(totalIcons);
     setExportTotalGroups(groups.length);
-    setExportSelectedIconCount(totalIcons);
+    setExportSelectedIconCount(
+      initialAll ? totalIcons : initialSelected.reduce((sum, id) => sum + (counts[id] || 0), 0)
+    );
   };
 
   // Generate preview HTML — 30 sample icons with inline SVG sprite (no font needed)
@@ -187,16 +269,18 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     }
   }, [previewVisible, visible, selectedFormats.js]);
 
-  // 当 visible 变为 true 时初始化
+  // 当 visible 变为 true 时初始化 (load persisted settings + groups)
   const prevVisibleRef = useRef(false);
   if (visible && !prevVisibleRef.current) {
     initGroupList();
-    // 默认导出到桌面
-    setExportParentDir(electronAPI.getAppPath('desktop'));
+    const s = getOption('exportFontSettings') as ExportFontSettings;
+    // 父目录: 用持久化值,空则回退到桌面
+    setExportParentDir(s.parentDir || electronAPI.getAppPath('desktop'));
+    setCustomDirName(s.customDirName);
   }
   prevVisibleRef.current = visible;
 
-  // 选择导出目录
+  // 选择导出目录 — 仅修改父目录,保留用户已编辑的末级目录名
   const handleBrowseDir = async () => {
     const result = await electronAPI.showOpenDialog({
       title: t('export.selectLocationTitle'),
@@ -204,25 +288,75 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       properties: ['openDirectory', 'createDirectory'],
     });
     if (!result.canceled && result.filePaths?.length) {
-      setExportParentDir(result.filePaths[0]);
+      setExportParentDir(normalizePath(result.filePaths[0]));
     }
   };
 
-  const exportTargetDir = exportParentDir
-    ? `${exportParentDir}${electronAPI.platform === 'win32' ? '\\' : '/'}${db.getProjectName()}`
-    : '';
+  // 当前显示给用户的末级目录名 (用户自定义优先,否则用项目名)
+  const effectiveDirName = customDirName ?? db.getProjectName();
+  // 完整目标目录 (用于导出路径)
+  const exportTargetDir = exportParentDir ? joinPath(exportParentDir, effectiveDirName) : '';
+  // input 显示值 — ZIP 模式下自动补 .zip 后缀,让用户看到真实输出目标
+  const displayedTargetDir = exportTargetDir ? exportTargetDir + (zipEnabled ? '.zip' : '') : '';
+
+  // 用户编辑 input — ZIP 模式下剥离尾部 .zip (避免与自动补全的后缀重复)
+  const handleEditTargetDir = (rawValue: string) => {
+    if (!rawValue) {
+      setCustomDirName('');
+      return;
+    }
+    const stripped = zipEnabled ? rawValue.replace(/\.zip$/i, '') : rawValue;
+    const { parent, name } = splitTail(stripped);
+    if (parent) setExportParentDir(parent);
+    setCustomDirName(name);
+  };
+
+  // 失焦时格式化路径 (修正用户输入的混合分隔符 / 多余分隔符)
+  const handleNormalizeOnBlur = () => {
+    if (!exportTargetDir) return;
+    const norm = normalizePath(exportTargetDir);
+    const { parent, name } = splitTail(norm);
+    if (parent !== exportParentDir) setExportParentDir(parent);
+    if (name !== effectiveDirName) setCustomDirName(name);
+  };
 
   const addExportLog = (msg: string) => {
     setExportLogs((prev) => [...prev, msg]);
     setTimeout(() => exportLogsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
   };
 
-  const handleEnsureExportIconfonts = async () => {
+  // 验证 + 冲突检测 — 通过则直接执行,有冲突则展示弹窗
+  const handleEnsureExportIconfonts = () => {
+    // 1. 必须有父目录
     if (!exportParentDir) {
       message.warning(t('export.selectLocationWarning'));
       return;
     }
 
+    // 2. 末级目录名非空
+    const dirName = effectiveDirName.trim();
+    if (!dirName) {
+      message.warning(t('export.dirNameEmpty'));
+      return;
+    }
+
+    // 3. 末级目录名不含非法字符
+    const illegal = extractIllegalChars(dirName);
+    if (illegal) {
+      message.warning(t('export.dirNameInvalid', { chars: illegal }));
+      return;
+    }
+
+    // 4. 父目录存在且可访问
+    if (
+      !electronAPI.accessSync(exportParentDir) ||
+      !electronAPI.statSync(exportParentDir).isDirectory
+    ) {
+      message.warning(t('export.parentDirInvalid', { path: exportParentDir }));
+      return;
+    }
+
+    // 5. 至少有图标可导出
     const allGroupSelected =
       exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
     const allIcons = db.getIconList();
@@ -234,10 +368,43 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       return;
     }
 
-    const projectName = db.getProjectName();
-    const dirPath = `${exportParentDir}${electronAPI.platform === 'win32' ? '\\' : '/'}${projectName}`;
+    // 6. 目录冲突 — 弹窗询问处理方式 (ZIP 模式下检查 .zip 文件,目录模式下检查目录)
+    const suffix = zipEnabled ? '.zip' : '';
+    const targetPath = joinPath(exportParentDir, dirName + suffix);
+    if (electronAPI.existsSync(targetPath)) {
+      const renamedBase = findAvailableName(exportParentDir, dirName, suffix);
+      setConflictPending({ baseName: dirName, renamedBase, isZip: zipEnabled });
+      return;
+    }
 
-    // 切换到导出进度视图
+    // 无冲突 — 直接执行
+    executeExport(dirName);
+  };
+
+  // 处理冲突弹窗的用户选择
+  const handleConflictResolve = (action: 'overwrite' | 'rename' | 'cancel') => {
+    if (!conflictPending) return;
+    const pending = conflictPending;
+    setConflictPending(null);
+    if (action === 'cancel') return;
+    const finalName = action === 'rename' ? pending.renamedBase : pending.baseName;
+    executeExport(finalName);
+  };
+
+  // 实际执行导出管线 (校验通过后调用)
+  const executeExport = async (finalDirName: string) => {
+    const allGroupSelected =
+      exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
+    const allIcons = db.getIconList();
+    const icons = allGroupSelected
+      ? allIcons
+      : allIcons.filter((icon: any) => exportGroupSelected.includes(icon.iconGroup));
+
+    const projectName = db.getProjectName();
+    const dirPath = joinPath(exportParentDir, finalDirName);
+
+    // 切换到导出进度视图 — exportedProjectName 用于打开内部文件,
+    // 始终用 projectName (因为 CSS/字体类名仍引用项目名,文件名也是 projectName.*)
     setExportPhase('exporting');
     setExportProgress(0);
     setExportLogs([]);
@@ -410,14 +577,33 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     }
   };
 
+  // 持久化当前所有导出设置 (跟随用户态,不写入项目文件)
+  const persistExportSettings = () => {
+    setOption({
+      exportFontSettings: {
+        groupSelected: exportGroupCheckAll ? 'all' : exportGroupSelected,
+        optionalFormats: { woff: selectedFormats.woff, eot: selectedFormats.eot },
+        companion: {
+          css: selectedFormats.css,
+          js: selectedFormats.js,
+          html: selectedFormats.html,
+          icp: selectedFormats.icp,
+        },
+        zip: zipEnabled,
+        parentDir: exportParentDir || null,
+        customDirName: customDirName,
+      },
+    });
+  };
+
   const handleCancel = () => {
+    persistExportSettings();
     onClose();
-    // 关闭后重置状态
+    // 关闭后仅重置临时进度状态,持久化字段 (parentDir/customDirName/选中分组/格式/zip) 保留
     setTimeout(() => {
       setExportPhase('config');
       setExportProgress(0);
       setExportLogs([]);
-      setExportParentDir('');
     }, 300);
   };
 
@@ -494,25 +680,12 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               {t('export.description')}
             </p>
 
-            {/* 分组选择 — 内联折叠 */}
-            <div className="rounded-lg border border-border overflow-hidden">
-              <div
-                className="flex items-center justify-between px-3 py-2 bg-surface-muted cursor-pointer hover:bg-surface-accent transition-colors min-h-[36px]"
-                onClick={() => setExportGroupModelVisible(!exportGroupModelVisible)}
-              >
-                <span className="text-sm font-medium text-foreground">{t('export.groups')}</span>
-                <span className="text-xs text-foreground-muted">
-                  {exportGroupCheckAll
-                    ? t('export.groupsAll', { groups: exportTotalGroups, icons: exportTotalIcons })
-                    : t('export.groupsPartial', {
-                        groups: exportGroupSelected.length,
-                        icons: exportSelectedIconCount,
-                      })}
-                </span>
-              </div>
-              {exportGroupModelVisible && (
-                <div className="px-3 py-2 max-h-[200px] overflow-y-auto border-t border-border">
-                  <div className="border-b border-border pb-1.5 mb-1.5">
+            {/* 分组选择 — 小标题 + 滚动区,无折叠;数量描述置于全选行 */}
+            <div>
+              <div className="text-xs text-foreground-muted mb-1.5">{t('export.groups')}</div>
+              <div className="rounded-lg border border-border max-h-[200px] overflow-y-auto">
+                <div className="px-3 py-2">
+                  <div className="flex items-center justify-between gap-2 border-b border-border pb-1.5 mb-1.5">
                     <Checkbox
                       indeterminate={exportGroupIndeterminate}
                       onChange={onTargetGroupCheckAllChange}
@@ -520,6 +693,18 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     >
                       {t('export.selectAll')}
                     </Checkbox>
+                    <span className="text-xs text-foreground-muted shrink-0">
+                      {exportGroupCheckAll
+                        ? t('export.groupsAll', {
+                            groups: exportTotalGroups,
+                            icons: exportTotalIcons,
+                          })
+                        : t('export.groupsPartial', {
+                            groups: exportGroupSelected.length,
+                            total: exportTotalGroups,
+                            icons: exportSelectedIconCount,
+                          })}
+                    </span>
                   </div>
                   <CheckboxGroup
                     options={exportGroupFullList}
@@ -527,7 +712,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     onChange={onTargetGroupChange}
                   />
                 </div>
-              )}
+              </div>
             </div>
 
             {/* 必选格式 */}
@@ -712,42 +897,37 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               </div>
             </div>
 
-            {/* 自动打包 ZIP */}
-            <div className="mt-3">
-              <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={zipEnabled}
-                  onChange={(e) => setZipEnabled(e.target.checked)}
-                  className="rounded border-border"
-                />
-                <span className="text-foreground">{t('export.zip')}</span>
-              </label>
-              <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t('export.zipDesc')}</p>
-            </div>
-
-            {/* 导出位置 */}
+            {/* 导出位置 — 可编辑完整路径 + [选择] 按钮高度对齐;ZIP 复选框置于下方 */}
             <div className="mt-4 pt-3 border-t border-border">
               <div className="text-xs text-foreground-muted mb-1.5">{t('export.location')}</div>
               <div className="flex items-center gap-2">
-                <div
-                  className="flex-1 min-w-0 px-2.5 py-1.5 rounded border border-border bg-surface-muted text-xs text-foreground truncate font-mono cursor-pointer hover:border-accent/40 transition-colors"
-                  onClick={handleBrowseDir}
-                  title={exportParentDir || t('export.noDir')}
-                >
-                  {exportParentDir || t('export.noDir')}
-                </div>
-                <Button onClick={handleBrowseDir} className="shrink-0 text-xs">
+                <input
+                  type="text"
+                  value={displayedTargetDir}
+                  onChange={(e) => handleEditTargetDir(e.target.value)}
+                  onBlur={handleNormalizeOnBlur}
+                  placeholder={t('export.noDir')}
+                  title={displayedTargetDir || t('export.noDir')}
+                  spellCheck={false}
+                  className="flex-1 min-w-0 h-8 px-2.5 rounded border border-border bg-surface-muted text-xs text-foreground font-mono outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-ring/30"
+                />
+                <Button onClick={handleBrowseDir} className="shrink-0 text-xs h-8">
                   {t('export.browse')}
                 </Button>
               </div>
-              {exportTargetDir && (
-                <p className="text-xs text-foreground-muted mt-1 truncate" title={exportTargetDir}>
-                  {t('export.targetPath')}
-                  {exportTargetDir}
-                  {zipEnabled ? '.zip' : '/'}
-                </p>
-              )}
+              {/* 自动打包 (ZIP) — 移至原"文件将导出至"位置 */}
+              <div className="mt-2">
+                <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={zipEnabled}
+                    onChange={(e) => setZipEnabled(e.target.checked)}
+                    className="rounded border-border"
+                  />
+                  <span className="text-foreground">{t('export.zip')}</span>
+                </label>
+                <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t('export.zipDesc')}</p>
+              </div>
             </div>
           </div>
         )}
@@ -830,6 +1010,36 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               </div>
             )}
           </div>
+        )}
+      </Dialog>
+
+      {/* 目标冲突弹窗 — 覆盖 / 存储为 X / 取消 三选 (目录与 .zip 文件共用) */}
+      <Dialog
+        open={!!conflictPending}
+        onClose={() => handleConflictResolve('cancel')}
+        title={t('export.conflict.title')}
+        footer={
+          conflictPending ? (
+            <>
+              <Button onClick={() => handleConflictResolve('cancel')}>{t('common.cancel')}</Button>
+              <Button onClick={() => handleConflictResolve('rename')}>
+                {t('export.conflict.rename', {
+                  name: conflictPending.renamedBase + (conflictPending.isZip ? '.zip' : ''),
+                })}
+              </Button>
+              <Button type="primary" onClick={() => handleConflictResolve('overwrite')}>
+                {t('export.conflict.overwrite')}
+              </Button>
+            </>
+          ) : null
+        }
+      >
+        {conflictPending && (
+          <p className="text-sm text-foreground">
+            {t('export.conflict.content', {
+              name: conflictPending.baseName + (conflictPending.isZip ? '.zip' : ''),
+            })}
+          </p>
         )}
       </Dialog>
 

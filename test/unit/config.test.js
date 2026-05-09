@@ -89,6 +89,14 @@ describe('defOption', () => {
       autoCheckUpdate: true,
       autoDownloadUpdate: false,
       updateChannel: 'stable',
+      exportFontSettings: {
+        groupSelected: 'all',
+        optionalFormats: { woff: true, eot: true },
+        companion: { css: true, js: true, html: true, icp: false },
+        zip: false,
+        parentDir: null,
+        customDirName: null,
+      },
     });
   });
 });
