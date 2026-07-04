@@ -87,7 +87,7 @@ This document describes how to maintain the Bobcorn Wiki across all 16 language 
 - **Landing page** (`docs/index.html`) links to wiki via the navigation bar.
 - **Wiki pages** link back to the landing page via the topbar Bobcorn logo/name.
 - **Export dialog** in the Bobcorn app links to wiki pages (see `ExportDialog.tsx`). When adding a new format page, also update the ExportDialog wiki links map.
-- **Sitemap** (`docs/sitemap.xml`) must include all wiki pages. Re-run `python docs/wiki/seo-inject.py` to regenerate it after adding pages.
+- **Sitemap** (`docs/sitemap.xml`) must include all wiki pages, but the file is hand-maintained (it also covers the landing page, API docs, agent-discovery files, etc. that `seo-inject.py` knows nothing about). Running `python docs/wiki/seo-inject.py` will **not** overwrite it by default — it only prints the wiki `<url>` entries that should exist, so add any missing ones to `docs/sitemap.xml` by hand. Same for `docs/robots.txt` (hand-maintained per-crawler rules). See the docstring at the top of `seo-inject.py` for details.
 - **Internal links** between wiki pages use relative paths (e.g., `href="svg-font.html"` for same-language links).
 
 ## Validation

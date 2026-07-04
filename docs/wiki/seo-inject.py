@@ -1,12 +1,35 @@
 #!/usr/bin/env python3
 """
-seo-inject.py - Batch inject SEO metadata into Bobcorn Wiki HTML files,
-then generate sitemap.xml and robots.txt.
+seo-inject.py - Batch inject SEO metadata into Bobcorn Wiki HTML files
+(canonical, hreflang, Open Graph, Twitter Card, JSON-LD).
+
+IMPORTANT - docs/sitemap.xml and docs/robots.txt are HAND-MAINTAINED:
+    These two files describe the *entire* bobcorn.caldis.me site, not just
+    the wiki. They contain a lot of content this script knows nothing about:
+    the landing page, /about.html, /contact, /pricing.md, /alternatives/*,
+    /guides/*, /developers/, /api/* (+ openapi.json), /status.*, agent
+    discovery files (llms.txt, agent.json, ai-plugin.json, SKILL.md,
+    schemamap.xml), per-crawler robots rules (GPTBot/ClaudeBot/PerplexityBot/
+    CCBot/ByteSpider/...) and the Content-Signal directive.
+
+    This script only knows how to build the *wiki* subset (11 pages x 16
+    languages) of sitemap.xml, and a bare-bones robots.txt. It must NOT
+    blindly overwrite these files, or it will destroy the hand-maintained
+    content above (see docs/HANDOFF.md known issue #4).
+
+    Default behavior: if sitemap.xml / robots.txt already exist, this script
+    leaves them untouched and only prints what the wiki portion of the
+    sitemap should look like, so a human/agent can merge new wiki pages in
+    by hand. Pass --force-seo-files to actually overwrite them (only do this
+    if you understand you will lose the hand-maintained content, or are
+    re-adding it afterwards).
 
 Usage:
-    python seo-inject.py
+    python seo-inject.py                  # inject SEO into HTML, report sitemap/robots status
+    python seo-inject.py --force-seo-files  # ALSO overwrite sitemap.xml/robots.txt (destructive)
 """
 
+import argparse
 import os
 import re
 import json
@@ -177,12 +200,12 @@ def inject_seo_into_file(filepath: Path, lang: str, page: str) -> bool:
     return True
 
 
-def generate_sitemap():
-    """Generate sitemap.xml with all wiki pages and hreflang alternates."""
+def build_wiki_sitemap_urls():
+    """Build the <url> blocks for just the wiki pages this script knows about
+    (landing page + PAGES x LANGUAGES). This is NOT the full site sitemap —
+    see the module docstring for everything else sitemap.xml also needs to
+    contain."""
     lines = []
-    lines.append('<?xml version="1.0" encoding="UTF-8"?>')
-    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"')
-    lines.append('        xmlns:xhtml="http://www.w3.org/1999/xhtml">')
 
     # Landing page
     lines.append("    <url>")
@@ -207,26 +230,98 @@ def generate_sitemap():
 
             lines.append("    </url>")
 
+    return lines
+
+
+def generate_sitemap(force=False):
+    """(Re)generate sitemap.xml — but only for the wiki-only subset this
+    script understands. docs/sitemap.xml is hand-maintained and covers the
+    whole site (see module docstring), so by default we do NOT overwrite an
+    existing file; we just report whether the wiki pages we know about are
+    already present (a full URL-by-URL diff is left to `git diff` / manual
+    review since we can't reliably tell the human/agent apart from the
+    hand-maintained non-wiki entries).
+    """
+    sitemap_path = DOCS_DIR / "sitemap.xml"
+
+    body_lines = build_wiki_sitemap_urls()
+    wiki_urls = {
+        line.split("<loc>", 1)[1].split("</loc>", 1)[0]
+        for line in body_lines
+        if "<loc>" in line
+    }
+
+    if sitemap_path.is_file() and not force:
+        existing = sitemap_path.read_text(encoding="utf-8")
+        missing = [u for u in wiki_urls if u not in existing]
+        print(f"\n{sitemap_path} already exists - leaving it untouched (hand-maintained).")
+        if missing:
+            print(f"  NOTE: {len(missing)} wiki URL(s) from the current PAGES/LANGUAGES")
+            print(f"  config are not present in it yet. Add them by hand, e.g.:")
+            for u in sorted(missing)[:20]:
+                print(f"    - {u}")
+            if len(missing) > 20:
+                print(f"    ... and {len(missing) - 20} more")
+        else:
+            print(f"  All {len(wiki_urls)} known wiki URLs are already present.")
+        print(f"  Pass --force-seo-files to overwrite (destroys hand-maintained content).")
+        return
+
+    lines = []
+    lines.append('<?xml version="1.0" encoding="UTF-8"?>')
+    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"')
+    lines.append('        xmlns:xhtml="http://www.w3.org/1999/xhtml">')
+    lines.extend(body_lines)
     lines.append("</urlset>")
 
-    sitemap_path = DOCS_DIR / "sitemap.xml"
+    if sitemap_path.is_file() and force:
+        print(f"\nWARNING: --force-seo-files given, overwriting {sitemap_path}.")
+        print(f"  This DISCARDS any hand-maintained non-wiki entries (see module docstring).")
+
     sitemap_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"\nGenerated: {sitemap_path}")
+    print(f"Generated: {sitemap_path}")
 
 
-def generate_robots():
-    """Generate robots.txt."""
+def generate_robots(force=False):
+    """(Re)generate robots.txt. docs/robots.txt is hand-maintained (per-crawler
+    rules, Content-Signal, Schemamap) so by default we do NOT touch an
+    existing file."""
+    robots_path = DOCS_DIR / "robots.txt"
+
+    if robots_path.is_file() and not force:
+        print(f"{robots_path} already exists - leaving it untouched (hand-maintained).")
+        print(f"  Pass --force-seo-files to overwrite (destroys hand-maintained content).")
+        return
+
     content = f"""User-agent: *
 Allow: /
 
 Sitemap: {SITE_URL}sitemap.xml
 """
-    robots_path = DOCS_DIR / "robots.txt"
+    if robots_path.is_file() and force:
+        print(f"WARNING: --force-seo-files given, overwriting {robots_path}.")
+        print(f"  This DISCARDS any hand-maintained crawler rules (see module docstring).")
+
     robots_path.write_text(content, encoding="utf-8")
     print(f"Generated: {robots_path}")
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Inject SEO metadata into Bobcorn Wiki HTML files."
+    )
+    parser.add_argument(
+        "--force-seo-files",
+        action="store_true",
+        help=(
+            "Also overwrite docs/sitemap.xml and docs/robots.txt. "
+            "DESTRUCTIVE: these files are hand-maintained and contain content "
+            "(non-wiki pages, AI-crawler rules, Content-Signal, Schemamap) "
+            "this script does not know about. Off by default."
+        ),
+    )
+    args = parser.parse_args()
+
     print(f"SEO Inject for Bobcorn Wiki")
     print(f"Wiki dir: {WIKI_DIR}")
     print(f"Base URL: {BASE_URL}")
@@ -267,9 +362,9 @@ def main():
     print(f"Errors:   {errors}")
     print(f"Total:    {modified + skipped + errors}")
 
-    # Generate sitemap and robots.txt
-    generate_sitemap()
-    generate_robots()
+    # Generate sitemap and robots.txt (hand-maintained; see module docstring)
+    generate_sitemap(force=args.force_seo_files)
+    generate_robots(force=args.force_seo_files)
 
     print(f"\nDone!")
 
