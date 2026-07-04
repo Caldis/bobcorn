@@ -7,6 +7,7 @@ import { message } from '../ui/toast';
 import { cn } from '../../lib/utils';
 import { projImporter } from '../../utils/importer';
 import { cpLoader, icpLoader } from '../../utils/loaders';
+import { warnIfProjectCodeIssues } from '../SideMenu/codeAudit';
 // Hooks
 import { useRecentProjects, getFileDisplayName } from '../../hooks/useRecentProjects';
 // Components
@@ -33,6 +34,7 @@ function SplashScreen() {
           markClean();
           showSplashScreen(false);
           message.success(t('file.opened'));
+          warnIfProjectCodeIssues();
           syncLeft();
           selectGroup('resource-all');
         });
@@ -47,6 +49,7 @@ function SplashScreen() {
           markClean();
           showSplashScreen(false);
           message.success(t('file.opened'));
+          warnIfProjectCodeIssues();
           p?.mark('import.syncLeft');
           syncLeft();
           p?.measure('import.syncLeft');

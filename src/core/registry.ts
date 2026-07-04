@@ -194,6 +194,17 @@ export const OPERATIONS: OpEntry[] = [
     cliCommand: 'icon get-content',
   },
 
+  // ── Code ────────────────────────────────────────────────
+  {
+    id: 'code.fix',
+    description:
+      'Fix duplicate/invalid icon unicode codes by reassigning them to free PUA code points (E000-F8FF)',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/icon.ts#fixIconCodes',
+    legacyPaths: ['src/renderer/database/index.ts#planIconCodeFixes'],
+    cliCommand: 'code fix',
+  },
+
   // ── Group ───────────────────────────────────────────────
   {
     id: 'group.list',

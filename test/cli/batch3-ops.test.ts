@@ -24,34 +24,52 @@ describe.skipIf(!HAS_SF_FIXTURE)('icon copy', () => {
   });
 
   it('copies an icon from one group to another', async () => {
-    const fixture = await copyFixture(SF_SYMBOLS_ICP);
-    cleanup = fixture.cleanup;
+    // 用小项目而非 sf-symbols fixture — 后者 7007 图标已占满全部 6400 个 PUA 码点,
+    // copy 需要分配新码, 在满项目上会正确地以 PUA_EXHAUSTED 拒绝 (见下一个用例)
+    const tmp = await tmpProject();
+    cleanup = tmp.cleanup;
+    const icpPath = join(tmp.dir, 'copy-test.icp');
+    await run(['project', 'create', icpPath]);
+    const svgPath = await writeSvg(tmp.dir, 'accessibility.svg');
+    await run(['icon', 'import', icpPath, svgPath]);
+    await run(['group', 'add', icpPath, 'Weather']);
 
-    // Find an icon in Accessibility
-    const { json: listJson } = await runJson(['icon', 'list', fixture.icp, '--group', 'Accessibility']);
-    expect(listJson.data.length).toBeGreaterThan(0);
+    const { json: listJson } = await runJson(['icon', 'list', icpPath]);
     const icon = listJson.data.find((i: any) => i.iconName === 'accessibility');
     expect(icon).toBeDefined();
 
     // Copy it to weather group
-    const { json, raw } = await runJson(['icon', 'copy', fixture.icp, icon.id, '--to', 'Weather']);
+    const { json, raw } = await runJson(['icon', 'copy', icpPath, icon.id, '--to', 'Weather']);
     expect(raw.exitCode).toBe(0);
     expect(json.ok).toBe(true);
     expect(json.data.copied).toBe(1);
     expect(json.data.targetGroup).toBe('Weather');
     expect(json.data.icons[0].name).toBe('accessibility');
 
-    // Verify original still exists in Accessibility
-    const { json: origList } = await runJson(['icon', 'list', fixture.icp, '--group', 'Accessibility']);
-    const origIcon = origList.data.find((i: any) => i.id === icon.id);
+    // Verify original still exists, copy is in Weather with a fresh id and code
+    const { json: allList } = await runJson(['icon', 'list', icpPath]);
+    const origIcon = allList.data.find((i: any) => i.id === icon.id);
     expect(origIcon).toBeDefined();
-
-    // Verify copy exists in weather
-    const { json: weatherList } = await runJson(['icon', 'list', fixture.icp, '--group', 'Weather']);
+    const { json: weatherList } = await runJson(['icon', 'list', icpPath, '--group', 'Weather']);
     const copiedIcon = weatherList.data.find((i: any) => i.iconName === 'accessibility');
     expect(copiedIcon).toBeDefined();
-    // Copy should have a different ID
     expect(copiedIcon.id).not.toBe(icon.id);
+    expect(copiedIcon.iconCode).not.toBe(origIcon.iconCode);
+  });
+
+  it('refuses to copy when all PUA code points are in use', async () => {
+    // sf-symbols fixture 有 7007 个图标, 6400 个码点全部占用 — copy 无码可分配
+    const fixture = await copyFixture(SF_SYMBOLS_ICP);
+    cleanup = fixture.cleanup;
+
+    const { json: listJson } = await runJson(['icon', 'list', fixture.icp, '--group', 'Accessibility']);
+    const icon = listJson.data.find((i: any) => i.iconName === 'accessibility');
+    expect(icon).toBeDefined();
+
+    const { json, raw } = await runJson(['icon', 'copy', fixture.icp, icon.id, '--to', 'Weather']);
+    expect(raw.exitCode).not.toBe(0);
+    expect(json.ok).toBe(false);
+    expect(String(json.error ?? '')).toContain('PUA_EXHAUSTED');
   });
 
   it('fails without --to flag', async () => {

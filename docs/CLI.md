@@ -171,7 +171,7 @@ CLI 和 GUI 构建独立。改了 core 代码两边都要重新构建。
 
 ## 当前状态
 
-- **30/36 操作已迁移到 Core (83%)**
-- **647 测试通过**
+- **31/37 操作已迁移到 Core (84%)**
+- **651+ 测试通过**
 - **6 个 Legacy**: 3 个 GUI 内部 + 3 个需要 Canvas/DOM（variant.generate, export.icon, export.demo-page）
 - 运行 `node scripts/migration-status.js` 查看详情

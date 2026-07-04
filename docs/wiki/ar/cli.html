@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">نقاط الترميز</h3>
+                <div class="reveal">
+                    <p>إدارة نقاط ترميز Unicode للأيقونات (نطاق PUA من E000 إلى F8FF). اكتشاف وإصلاح الرموز المكررة أو غير الصالحة التي قد تُفسد تصدير الخط.</p>
+                    <span class="code-label">أوامر الترميز</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">ملاحظة</div>
+                        الرموز المكررة تجعل الأيقونات تتراكب فوق بعضها البعض عند تصدير الخط. في كل مجموعة مكررة، تحتفظ أول أيقونة غير موجودة في سلة المحذوفات برمزها؛ ويُعاد تخصيص البقية إلى أقرب نقطة ترميز PUA حرة. الرموز غير الصالحة (ليست 4 خانات ست عشرية، أو خارج النطاق E000-F8FF) يُعاد تخصيصها دائمًا. يفشل الأمر برمز <code>PUA_EXHAUSTED</code> عند عدم توفر نقاط ترميز حرة كافية.
+                    </div>
+                </div>
+
                 <h3 class="reveal">المجموعة</h3>
                 <div class="reveal">
                     <p>نظّم الأيقونات في مجموعات مسماة. تتحكم المجموعات في ترتيب العرض في الشريط الجانبي ويمكن استخدامها لتصفية التصدير.</p>

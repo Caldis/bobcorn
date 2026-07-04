@@ -65,6 +65,10 @@ const IconBlock = React.memo(function IconBlock({
       [iconId, data.variantOf]
     )
   );
+  // 撞码标识 — 布尔选择器, 仅撞码状态翻转时重渲染
+  const isDuplicateCode = useAppStore(
+    useCallback((state: any) => !!(code && state.duplicateCodes?.[code.toUpperCase()]), [code])
+  );
 
   // Lazy-load SVG content from database when icon is mounted (visible in viewport)
   // Prefetched content from batch query takes priority over individual lazy-load
@@ -202,10 +206,16 @@ const IconBlock = React.memo(function IconBlock({
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
             'text-[10px] font-semibold tracking-widest',
             'mb-1',
-            'text-foreground-muted/60'
+            isDuplicateCode ? 'text-warning' : 'text-foreground-muted/60'
           )}
           style={{ height: codeVisible ? 18 : 0, overflow: 'hidden' }}
         >
+          {isDuplicateCode && (
+            <span
+              className="inline-block align-middle mr-1 h-[5px] w-[5px] rounded-full bg-danger"
+              aria-hidden
+            />
+          )}
           {code}
         </p>
       </div>

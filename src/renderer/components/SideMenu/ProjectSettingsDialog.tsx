@@ -8,6 +8,7 @@ import { cn } from '../../lib/utils';
 import { isnContainSpace } from '../../utils/tools';
 import { getFileDisplayName } from '../../hooks/useRecentProjects';
 import { ProjectAvatar, AVATAR_COLORS } from '../ProjectItem';
+import CodeCoverageMatrix from './CodeCoverageMatrix';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.settings
 import db from '../../database';
 import useAppStore, { analyticsTrack } from '../../store';
@@ -344,6 +345,9 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
                 {stats.groupCount} {t('projectSettings.groups')}
               </span>
             </div>
+
+            {/* Code coverage */}
+            <CodeCoverageMatrix />
 
             {/* Dates */}
             <div className="flex items-center gap-2">

@@ -66,11 +66,18 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
 
   const handleCopy = useCallback(
     (targetGroup: string) => {
-      db.duplicateIcons(selectedIds, targetGroup);
-      syncLeft();
-      clearBatchSelection();
-      message.success(t('batch.copied', { count: selectedIds.length }));
-      analyticsTrack('batch.operation', { operation: 'copy' });
+      db.duplicateIcons(selectedIds, targetGroup, (result) => {
+        syncLeft();
+        clearBatchSelection();
+        if (result && result.failed > 0) {
+          message.warning(
+            t('batch.copyCodeExhausted', { added: result.added, failed: result.failed })
+          );
+        } else {
+          message.success(t('batch.copied', { count: selectedIds.length }));
+        }
+        analyticsTrack('batch.operation', { operation: 'copy' });
+      });
     },
     [selectedIds]
   );
@@ -142,6 +149,7 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         setVariantProgress({ current: 0, total, active: true });
         let done = 0;
         let failed = 0;
+        let codeExhausted = false;
 
         for (const iconId of selectedIds) {
           const iconData = db.getIconData(iconId);
@@ -162,12 +170,18 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
               const meta = buildVariantMeta(weight, scale);
               db.addVariant(iconId, svg, name, meta);
               done++;
-            } catch {
+            } catch (err) {
               failed++;
+              if ((err as Error)?.message === 'PUA_EXHAUSTED') {
+                // 码点用尽, 后续生成必然全部失败, 提前终止
+                codeExhausted = true;
+                break;
+              }
             }
             setVariantProgress({ current: done + failed, total, active: true });
           }
 
+          if (codeExhausted) break;
           if (!useAppStore.getState().variantProgress?.active) break;
         }
 
@@ -175,7 +189,9 @@ function BatchPanel({ selectedGroup }: { selectedGroup: string }) {
         syncLeft();
         clearBatchSelection();
 
-        if (failed > 0) {
+        if (codeExhausted) {
+          message.error(t('variant.codeExhausted'));
+        } else if (failed > 0) {
           message.warning(t('variant.batchFailed', { failed, total }));
         } else {
           message.success(t('variant.generated', { count: done }));

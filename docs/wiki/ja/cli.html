@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">コードポイント</h3>
+                <div class="reveal">
+                    <p>アイコンの Unicode コードポイント（PUA 範囲 E000-F8FF）を管理。フォントエクスポートを損なう可能性のある重複または無効なコードを検出して修復します。</p>
+                    <span class="code-label">コードコマンド</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">注意</div>
+                        重複したコードポイントがあると、フォントエクスポート時にアイコンのグリフが互いに上書きされます。重複グループごとに、回収されていない最初のアイコンがコードポイントを保持し、残りは次の空いている PUA コードポイントに再割り当てされます。無効なコードポイント（4桁の16進数でない、または E000-F8FF の範囲外）は常に再割り当てされます。空いているコードポイントが不足している場合は <code>PUA_EXHAUSTED</code> で失敗します。
+                    </div>
+                </div>
+
                 <h3 class="reveal">グループ</h3>
                 <div class="reveal">
                     <p>アイコンを名前付きグループに整理。グループはサイドバーの表示順序を制御し、エクスポートのフィルタリングに使用できます。</p>

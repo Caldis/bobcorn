@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">Points de code</h3>
+                <div class="reveal">
+                    <p>Gerer les points de code Unicode des icones (plage PUA E000-F8FF). Detecter et reparer les codes dupliques ou invalides qui peuvent corrompre l'export de police.</p>
+                    <span class="code-label">Commandes de code</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Note</div>
+                        Les points de code dupliques font que les icones ecrasent mutuellement leurs glyphes lors de l'export de police. Pour chaque groupe de doublons, la premiere icone non recyclee conserve son point de code ; les autres sont reassignes au prochain point de code PUA libre. Les points de code invalides (pas un hex a 4 chiffres, ou hors de E000-F8FF) sont toujours reassignes. Echoue avec <code>PUA_EXHAUSTED</code> quand il ne reste pas assez de points de code libres.
+                    </div>
+                </div>
+
                 <h3 class="reveal">Groupe</h3>
                 <div class="reveal">
                     <p>Organisez les icones en groupes nommes. Les groupes controlent l'ordre d'affichage dans la barre laterale et peuvent etre utilises pour filtrer les exportations.</p>

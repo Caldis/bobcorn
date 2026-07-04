@@ -57,6 +57,9 @@ export interface State {
 
   // Variant counts cache — plain object for Zustand equality check
   variantCounts: Record<string, number>;
+
+  // 重复字码缓存 (归一化大写 hex → true) — 供 IconBlock/SideEditor 撞码标识, 单次 GROUP BY 查询避免 N+1
+  duplicateCodes: Record<string, true>;
 }
 
 export interface Actions {
@@ -102,6 +105,7 @@ export interface Actions {
     progress: { current: number; total: number; active: boolean } | null
   ) => void;
   refreshVariantCounts: () => void;
+  refreshDuplicateCodes: () => void;
 }
 
 const useAppStore = create<State & Actions>((set, get) => ({
@@ -152,6 +156,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // Variant counts cache
   variantCounts: {},
+  duplicateCodes: {},
 
   // Actions
   showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
@@ -272,6 +277,8 @@ const useAppStore = create<State & Actions>((set, get) => ({
       /* db not initialized yet */
     }
     set({ groupData: data, projectName, projectDescription, projectColor });
+    // 字码变动路径 (导入/复制/改码/修复/载入项目) 都会走 syncLeft, 顺带刷新撞码缓存
+    get().refreshDuplicateCodes();
   },
 
   // 轻同步：只通知图标内容变了（不触发分组列表/计数/网格重载）
@@ -374,6 +381,20 @@ const useAppStore = create<State & Actions>((set, get) => ({
       set({ variantCounts: obj });
     } catch {
       set({ variantCounts: {} });
+    }
+  },
+
+  // 重复字码缓存刷新 — 单次 GROUP BY, 在 syncLeft 内触发 (所有字码变动路径都会 syncLeft)
+  refreshDuplicateCodes: () => {
+    try {
+      const list: string[] = (db as any).getDuplicateIconCodes();
+      const obj: Record<string, true> = {};
+      list.forEach((code) => {
+        obj[code] = true;
+      });
+      set({ duplicateCodes: obj });
+    } catch {
+      set({ duplicateCodes: {} });
     }
   },
 }));

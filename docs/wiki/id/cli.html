@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">Titik kode</h3>
+                <div class="reveal">
+                    <p>Kelola titik kode Unicode ikon (rentang PUA E000-F8FF). Deteksi dan perbaiki kode duplikat atau tidak valid yang dapat merusak ekspor font.</p>
+                    <span class="code-label">Perintah kode</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Catatan</div>
+                        Titik kode duplikat menyebabkan ikon saling menimpa glyph satu sama lain saat ekspor font. Untuk setiap grup duplikat, ikon pertama yang tidak didaur ulang tetap mempertahankan titik kodenya; sisanya dialokasikan ulang ke titik kode PUA bebas berikutnya. Titik kode tidak valid (bukan hex 4 digit, atau di luar E000-F8FF) selalu dialokasikan ulang. Gagal dengan <code>PUA_EXHAUSTED</code> jika titik kode bebas tidak cukup.
+                    </div>
+                </div>
+
                 <h3 class="reveal">Grup</h3>
                 <div class="reveal">
                     <p>Atur ikon ke dalam grup bernama. Grup mengontrol urutan tampilan di sidebar dan dapat digunakan untuk memfilter ekspor.</p>

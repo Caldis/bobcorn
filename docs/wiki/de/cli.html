@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">Codepunkte</h3>
+                <div class="reveal">
+                    <p>Unicode-Codepunkte von Icons verwalten (PUA-Bereich E000-F8FF). Doppelte oder ungueltige Codes erkennen und reparieren, die den Font-Export beschaedigen koennen.</p>
+                    <span class="code-label">Code-Befehle</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Hinweis</div>
+                        Doppelte Codepunkte fuehren dazu, dass sich Icons beim Font-Export gegenseitig ueberschreiben. Fuer jede Gruppe doppelter Codes behaelt das erste nicht im Papierkorb befindliche Icon seinen Codepunkt; die uebrigen werden dem naechsten freien PUA-Codepunkt zugewiesen. Ungueltige Codepunkte (kein 4-stelliger Hex-Wert oder ausserhalb von E000-F8FF) werden immer neu zugewiesen. Schlaegt mit <code>PUA_EXHAUSTED</code> fehl, wenn nicht genuegend freie Codepunkte vorhanden sind.
+                    </div>
+                </div>
+
                 <h3 class="reveal">Gruppe</h3>
                 <div class="reveal">
                     <p>Icons in benannte Gruppen organisieren. Gruppen steuern die Anzeigereihenfolge in der Seitenleiste und koennen zum Filtern von Exporten verwendet werden.</p>

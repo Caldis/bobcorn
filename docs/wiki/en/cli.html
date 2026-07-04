@@ -280,6 +280,24 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <!-- Code Commands -->
+                <h3 class="reveal">Code Points</h3>
+                <div class="reveal">
+                    <p>Manage icon Unicode code points (PUA range E000-F8FF). Detect and repair duplicate or invalid codes that can corrupt font exports.</p>
+
+                    <span class="code-label">Code commands</span>
+<pre><code><span class="code-cmt"># Preview the fix plan without modifying the project</span>
+bobcorn code fix --dry-run
+
+<span class="code-cmt"># Apply fixes: reassign duplicate codes, replace invalid codes</span>
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Note</div>
+                        Duplicate code points make icons overwrite each other's glyphs during font export. For each duplicate group, the first non-recycled icon keeps its code point; the rest are reassigned to the next free PUA code point. Invalid code points (not 4-digit hex, or outside E000-F8FF) are always reassigned. Fails with <code>PUA_EXHAUSTED</code> when there aren't enough free code points left.
+                    </div>
+                </div>
+
                 <!-- Group Commands -->
                 <h3 class="reveal">Group</h3>
                 <div class="reveal">

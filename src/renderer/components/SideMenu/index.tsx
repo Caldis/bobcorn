@@ -76,8 +76,14 @@ const SideMenu = React.memo(function SideMenu({
         case 'import-icons':
           iconImporter({
             onSelectSVG: (files: any[]) => {
-              db.addIcons(files, selectedGroup, () => {
-                message.success(t('import.success', { count: files.length }));
+              db.addIcons(files, selectedGroup, (result) => {
+                if (result && result.failed > 0) {
+                  message.warning(
+                    t('import.codeExhausted', { added: result.added, failed: result.failed })
+                  );
+                } else {
+                  message.success(t('import.success', { count: files.length }));
+                }
                 syncLeft();
                 analyticsTrack('icon.import');
               });

@@ -9,7 +9,7 @@
  * so we avoid side-effects like `window.db` assignment.
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import initSqlJs from 'sql.js/dist/sql-asm.js';
 
 // ---------------------------------------------------------------------------
@@ -40,7 +40,7 @@ const generateUUID = () => {
 const PUBLIC_RANGE_DEC_MIN = 57344;
 const PUBLIC_RANGE_DEC_MAX = 63743;
 const PUBLIC_RANGE_HEX_MIN = 'E000';
-const PUBLIC_RANGE_DEC_LIST = Array.from({ length: 6399 }, (_, i) => i + 57344);
+const PUBLIC_RANGE_DEC_LIST = Array.from({ length: 6400 }, (_, i) => i + 57344);
 
 // Table names (mirrors database/index.js)
 const T_PROJECT = 'projectAttributes';
@@ -75,6 +75,8 @@ class TestDatabase {
     this.SQL = SQL;
     this.db = null;
     this.dbInited = false;
+    // Mirrors production getOption('codeAllocationMode'), default 'append'
+    this.codeAllocationMode = 'append';
   }
 
   // -- low-level helpers (copied verbatim from src/renderer/database/index.js) ------
@@ -372,9 +374,21 @@ class TestDatabase {
     return this.getDataCountsOfTable(T_ICON, targetDataSet);
   }
 
+  // Mirrors production: export set excludes deleted + recycle bin + variants
+  // (注: 基础 TestDatabase schema 无 variantOf 列, variantOf 过滤在 variants 专属测试文件覆盖)
   getIconList() {
-    const targetDataSet = { iconGroup: sf('resource-deleted') };
-    return this.getDataOfTable(T_ICON, targetDataSet, { where: true, equal: false }) || [];
+    const rawData = this.db.exec(
+      `SELECT * FROM ${T_ICON} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`,
+    );
+    if (!rawData.length) return [];
+    const colNameList = rawData[0].columns;
+    return rawData[0].values.map((row) => {
+      const rowData = {};
+      row.forEach((colData, index) => {
+        rowData[colNameList[index]] = colData;
+      });
+      return rowData;
+    });
   }
 
   getIconListFromGroup(targetGroup) {
@@ -432,20 +446,119 @@ class TestDatabase {
     this.addDataToTable(T_ICON, dataSet, callback);
   }
 
+  getAllIconCodes() {
+    const rawData = this.db.exec(`SELECT iconCode FROM ${T_ICON}`);
+    if (!rawData.length) return [];
+    return rawData[0].values.map((row) => String(row[0] ?? ''));
+  }
+
+  // Mirrors production: exhaustion returns null (no silent E000 fallback);
+  // append mode allocates past the highest used code (falls back to hole-filling when tail is full)
   getNewIconCode(type, test) {
     const rawData = this.db.exec(`SELECT iconCode from ${T_ICON}`);
     if (rawData.length) {
-      const usedIconCodeList = rawData[0].values.map((code) => code[0]);
-      const unusedIconCodeList = PUBLIC_RANGE_DEC_LIST.concat();
-      usedIconCodeList.forEach((code) =>
-        unusedIconCodeList.splice(unusedIconCodeList.indexOf(hexToDec(code)), 1),
-      );
-      const newIconCode = type === 'dec' ? unusedIconCodeList[0] : decToHex(unusedIconCodeList[0]);
-      !test && unusedIconCodeList.splice(0, 1);
-      return newIconCode;
+      const usedCodeSet = new Set(rawData[0].values.map((code) => hexToDec(code[0])));
+      if (this.codeAllocationMode === 'append') {
+        let highest = PUBLIC_RANGE_DEC_MIN - 1;
+        usedCodeSet.forEach((c) => {
+          if (Number.isFinite(c) && c > highest && c <= PUBLIC_RANGE_DEC_MAX) highest = c;
+        });
+        const next = highest + 1;
+        if (next <= PUBLIC_RANGE_DEC_MAX) {
+          return type === 'dec' ? next : decToHex(next);
+        }
+        // 尾部已满 → 回退填充孔洞
+      }
+      for (const code of PUBLIC_RANGE_DEC_LIST) {
+        if (!usedCodeSet.has(code)) {
+          return type === 'dec' ? code : decToHex(code);
+        }
+      }
+      return null;
     } else {
       return type === 'dec' ? PUBLIC_RANGE_DEC_MIN : PUBLIC_RANGE_HEX_MIN;
     }
+  }
+
+  requireNewIconCode() {
+    const code = this.getNewIconCode();
+    if (code === null) throw new Error('PUA_EXHAUSTED');
+    return code;
+  }
+
+  // Mirrors production planIconCodeFixes (dry-run duplicate/invalid code reassignment plan)
+  planIconCodeFixes() {
+    const rawData = this.db.exec(`SELECT id, iconName, iconCode, iconGroup FROM ${T_ICON}`);
+    if (!rawData.length) return [];
+    const rows = rawData[0].values.map((r) => ({
+      id: String(r[0]),
+      iconName: String(r[1] ?? ''),
+      iconCode: String(r[2] ?? ''),
+      iconGroup: String(r[3] ?? ''),
+    }));
+    const normalize = (raw) => {
+      const hex = raw.trim().toUpperCase();
+      if (!/^[0-9A-F]{4}$/.test(hex)) return null;
+      const decCode = parseInt(hex, 16);
+      return decCode >= PUBLIC_RANGE_DEC_MIN && decCode <= PUBLIC_RANGE_DEC_MAX ? decCode : null;
+    };
+    const byCode = new Map();
+    const invalidRows = [];
+    for (const row of rows) {
+      const decCode = normalize(row.iconCode);
+      if (decCode === null) invalidRows.push(row);
+      else {
+        const list = byCode.get(decCode);
+        if (list) list.push(row);
+        else byCode.set(decCode, [row]);
+      }
+    }
+    const freeCodes = [];
+    for (let c = PUBLIC_RANGE_DEC_MIN; c <= PUBLIC_RANGE_DEC_MAX; c++) {
+      if (!byCode.has(c)) freeCodes.push(c);
+    }
+    let freeIdx = 0;
+    const nextFree = () => {
+      if (freeIdx >= freeCodes.length) throw new Error('PUA_EXHAUSTED');
+      return decToHex(freeCodes[freeIdx++]);
+    };
+    const isRecycled = (g) => g === 'resource-recycleBin' || g === 'resource-deleted';
+    const fixes = [];
+    const dupGroups = [...byCode.entries()]
+      .filter(([, list]) => list.length > 1)
+      .sort((a, b) => a[0] - b[0]);
+    for (const [, list] of dupGroups) {
+      const keeperIdx = Math.max(0, list.findIndex((r) => !isRecycled(r.iconGroup)));
+      list.forEach((row, i) => {
+        if (i === keeperIdx) return;
+        fixes.push({
+          id: row.id,
+          iconName: row.iconName,
+          oldCode: row.iconCode,
+          newCode: nextFree(),
+          reason: 'duplicate',
+        });
+      });
+    }
+    for (const row of invalidRows) {
+      fixes.push({
+        id: row.id,
+        iconName: row.iconName,
+        oldCode: row.iconCode,
+        newCode: nextFree(),
+        reason: 'invalid',
+      });
+    }
+    return fixes;
+  }
+
+  applyIconCodeFixes(fixes, callback) {
+    for (const fix of fixes) {
+      this.db.run(
+        `UPDATE ${T_ICON} SET iconCode = ${sf(fix.newCode.toUpperCase())} WHERE id = ${sf(fix.id)}`,
+      );
+    }
+    callback && callback();
   }
 
   iconCodeInRange(iconCode) {
@@ -533,6 +646,15 @@ beforeEach(() => {
   db = new TestDatabase(SQL);
   db.initDatabases();
   db.initNewProject();
+});
+
+afterEach(() => {
+  // 释放 sql.js asm 堆内存 — 大数据量测试 (如 6400 码点填充) 不释放会导致后续测试 OOM
+  try {
+    db?.db?.close();
+  } catch {
+    /* already closed */
+  }
 });
 
 // ===========================================================================
@@ -697,6 +819,14 @@ describe('addIcons (raw insertion with fixture SVGs)', () => {
 // getIconListFromGroup / getIconCount
 // ===========================================================================
 describe('getIconListFromGroup / getIconCount', () => {
+  test('getIconList (export set) excludes recycle bin and deleted icons', () => {
+    insertIcon({ id: 'active', iconCode: 'E000' });
+    insertIcon({ id: 'recycled', iconCode: 'E001', iconGroup: 'resource-recycleBin' });
+    insertIcon({ id: 'deleted', iconCode: 'E002', iconGroup: 'resource-deleted' });
+    const list = db.getIconList();
+    expect(list.map((i) => i.id)).toEqual(['active']);
+  });
+
   test('getIconListFromGroup with string group id', () => {
     let gId;
     db.addGroup('G1', (g) => { gId = g.id; });
@@ -776,6 +906,60 @@ describe('getNewIconCode / iconCodeInRange / iconCodeCanUse', () => {
     expect(code1).toBe(code2);
   });
 
+  /** Fill the icon table with every PUA code except those in `holes` */
+  function fillAllCodes(holes = []) {
+    const holeSet = new Set(holes.map((h) => hexToDec(h)));
+    // Multi-row INSERT in batches (SQLite compound-select term limit)
+    for (let start = 57344; start <= 63743; start += 400) {
+      const rows = [];
+      for (let c = start; c < Math.min(start + 400, 63744); c++) {
+        if (holeSet.has(c)) continue;
+        rows.push(
+          `('id-${c}', '${decToHex(c)}', 'fill', 'resource-uncategorized', 1, 'svg', '<svg/>')`,
+        );
+      }
+      if (rows.length) {
+        db.db.run(
+          `INSERT INTO ${T_ICON} (id, iconCode, iconName, iconGroup, iconSize, iconType, iconContent) VALUES ${rows.join(',')}`,
+        );
+      }
+    }
+  }
+
+  test('getNewIconCode can allocate the final code point F8FF (off-by-one guard)', () => {
+    fillAllCodes(['F8FF']);
+    expect(db.getNewIconCode()).toBe('F8FF');
+  });
+
+  test('append mode (default) skips holes and allocates past the highest used code', () => {
+    insertIcon({ iconCode: 'E000' });
+    insertIcon({ iconCode: 'E005' }); // E001-E004 为孔洞
+    expect(db.getNewIconCode()).toBe('E006');
+  });
+
+  test('fill mode reuses the first free hole', () => {
+    db.codeAllocationMode = 'fill';
+    insertIcon({ iconCode: 'E000' });
+    insertIcon({ iconCode: 'E005' });
+    expect(db.getNewIconCode()).toBe('E001');
+  });
+
+  test('append mode falls back to hole-filling when the tail is full', () => {
+    fillAllCodes(['E050']); // 只有 E050 空闲, 最高已用码是 F8FF
+    expect(db.getNewIconCode()).toBe('E050');
+  });
+
+  test('getNewIconCode returns null when all 6400 codes are used', () => {
+    fillAllCodes();
+    expect(db.getNewIconCode()).toBeNull();
+    expect(db.getNewIconCode('dec')).toBeNull();
+  });
+
+  test('requireNewIconCode throws PUA_EXHAUSTED when codes are exhausted', () => {
+    fillAllCodes();
+    expect(() => db.requireNewIconCode()).toThrow('PUA_EXHAUSTED');
+  });
+
   test('iconCodeInRange accepts valid codes', () => {
     expect(db.iconCodeInRange('E000')).toBe(true);
     expect(db.iconCodeInRange('F8FF')).toBe(true);
@@ -806,6 +990,79 @@ describe('getNewIconCode / iconCodeInRange / iconCodeCanUse', () => {
   test('iconCodeCanUse returns false for out-of-range code', () => {
     expect(db.iconCodeCanUse('0001')).toBe(false);
     expect(db.iconCodeCanUse('FFFF')).toBe(false);
+  });
+});
+
+// ===========================================================================
+// getAllIconCodes (unfiltered — feeds the code coverage visualization)
+// ===========================================================================
+describe('getAllIconCodes', () => {
+  test('returns [] on an empty table', () => {
+    expect(db.getAllIconCodes()).toEqual([]);
+  });
+
+  test('returns every row unfiltered: recycle bin, deleted and duplicates included', () => {
+    // Codes in soft-delete buckets still occupy their code point, and rows may
+    // share a code — the coverage view must see all of them.
+    insertIcon({ iconCode: 'E000' });
+    insertIcon({ iconCode: 'E001', iconGroup: 'resource-recycleBin' });
+    insertIcon({ iconCode: 'E002', iconGroup: 'resource-deleted' });
+    insertIcon({ iconCode: 'E000' }); // duplicate code
+    const codes = db.getAllIconCodes();
+    expect(codes).toHaveLength(4);
+    expect(codes.filter((c) => c === 'E000')).toHaveLength(2);
+    expect(codes).toContain('E001');
+    expect(codes).toContain('E002');
+  });
+});
+
+// ===========================================================================
+// planIconCodeFixes / applyIconCodeFixes (duplicate & invalid code repair)
+// ===========================================================================
+describe('planIconCodeFixes / applyIconCodeFixes', () => {
+  test('clean project → empty plan', () => {
+    insertIcon({ iconCode: 'E000' });
+    insertIcon({ iconCode: 'E001' });
+    expect(db.planIconCodeFixes()).toEqual([]);
+  });
+
+  test('duplicate group keeps first non-recycled occupant, reassigns the rest', () => {
+    insertIcon({ id: 'r1', iconCode: 'E005', iconGroup: 'resource-recycleBin' });
+    insertIcon({ id: 'a1', iconCode: 'E005' });
+    insertIcon({ id: 'a2', iconCode: 'E005' });
+    const plan = db.planIconCodeFixes();
+    expect(plan).toHaveLength(2);
+    // keeper = a1 (第一个非回收站占用者); r1 与 a2 按行序重分配到 E000/E001
+    expect(plan[0]).toMatchObject({ id: 'r1', oldCode: 'E005', newCode: 'E000', reason: 'duplicate' });
+    expect(plan[1]).toMatchObject({ id: 'a2', oldCode: 'E005', newCode: 'E001', reason: 'duplicate' });
+  });
+
+  test('all-recycled duplicate group keeps the first row', () => {
+    insertIcon({ id: 'r1', iconCode: 'E005', iconGroup: 'resource-recycleBin' });
+    insertIcon({ id: 'r2', iconCode: 'E005', iconGroup: 'resource-deleted' });
+    const plan = db.planIconCodeFixes();
+    expect(plan).toHaveLength(1);
+    expect(plan[0].id).toBe('r2');
+  });
+
+  test('invalid codes are reassigned after duplicates', () => {
+    insertIcon({ id: 'ok', iconCode: 'E000' });
+    insertIcon({ id: 'bad', iconCode: 'ZZZZ' });
+    insertIcon({ id: 'oob', iconCode: 'F900' });
+    const plan = db.planIconCodeFixes();
+    expect(plan).toHaveLength(2);
+    expect(plan[0]).toMatchObject({ id: 'bad', oldCode: 'ZZZZ', newCode: 'E001', reason: 'invalid' });
+    expect(plan[1]).toMatchObject({ id: 'oob', oldCode: 'F900', newCode: 'E002', reason: 'invalid' });
+  });
+
+  test('apply resolves all issues — re-plan is empty and codes are unique', () => {
+    insertIcon({ id: 'a', iconCode: 'E000' });
+    insertIcon({ id: 'b', iconCode: 'E000' });
+    insertIcon({ id: 'c', iconCode: 'xyz' });
+    db.applyIconCodeFixes(db.planIconCodeFixes());
+    const codes = db.getAllIconCodes();
+    expect(new Set(codes).size).toBe(3);
+    expect(db.planIconCodeFixes()).toEqual([]);
   });
 });
 

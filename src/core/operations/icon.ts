@@ -6,7 +6,7 @@
  */
 import type { IoAdapter } from '../io';
 import type { IconData } from '../types';
-import { openProject, saveProject } from '../database';
+import { openProject, saveProject, type IconCodeFix } from '../database';
 import crypto from 'crypto';
 
 /** Environment-agnostic byte length (avoids Node-only Buffer) */
@@ -405,6 +405,54 @@ export async function setIconCode(
     await saveProject(io, resolvedPath, db);
 
     return { id, oldCode, newCode: normalized };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Fix Codes
+// ---------------------------------------------------------------------------
+
+export interface FixCodesResult {
+  fixes: IconCodeFix[];
+  applied: boolean;
+}
+
+/**
+ * Fix duplicate/invalid icon unicode codes by reassigning them to free PUA
+ * code points (E000-F8FF).
+ *
+ * Scans ALL iconData rows (including recycle bin and variant rows). For each
+ * duplicate code group the first non-recycled occupant keeps its code; every
+ * other row gets the next free code point. Rows with invalid codes (not
+ * 4-digit hex or outside the PUA range) are reassigned after duplicates.
+ *
+ * With opts.dryRun the plan is returned without touching the project file.
+ * Throws PUA_EXHAUSTED when there are not enough free code points.
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param opts - Optional: dryRun to preview the plan without writing
+ */
+export async function fixIconCodes(
+  io: IoAdapter,
+  projectPath: string,
+  opts?: { dryRun?: boolean }
+): Promise<FixCodesResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const fixes = db.planIconCodeFixes();
+    if (opts?.dryRun || fixes.length === 0) {
+      return { fixes, applied: false };
+    }
+
+    db.applyIconCodeFixes(fixes);
+    await saveProject(io, resolvedPath, db);
+
+    return { fixes, applied: true };
   } finally {
     db.close();
   }

@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">Codepunten</h3>
+                <div class="reveal">
+                    <p>Beheer Unicode-codepunten van iconen (PUA-bereik E000-F8FF). Detecteer en herstel dubbele of ongeldige codes die de font-export kunnen beschadigen.</p>
+                    <span class="code-label">Codecommando's</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Opmerking</div>
+                        Dubbele codepunten zorgen ervoor dat iconen elkaars glyphs overschrijven tijdens de font-export. Voor elke groep dubbele codes behoudt het eerste niet-gerecyclede icoon zijn codepunt; de rest wordt toegewezen aan het eerstvolgende vrije PUA-codepunt. Ongeldige codepunten (geen 4-cijferige hex, of buiten E000-F8FF) worden altijd opnieuw toegewezen. Mislukt met <code>PUA_EXHAUSTED</code> als er niet genoeg vrije codepunten over zijn.
+                    </div>
+                </div>
+
                 <h3 class="reveal">Groep</h3>
                 <div class="reveal">
                     <p>Organiseer iconen in benoemde groepen. Groepen bepalen de weergavevolgorde in de zijbalk en kunnen worden gebruikt om exports te filteren.</p>

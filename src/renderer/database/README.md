@@ -93,7 +93,7 @@ import { dbReady } from '../database'; // Init promise
 | `addIcons(filesData, group, cb?)` | Import from file paths |
 | `addIconsFromData(data, group, cb?)` | Import from data objects |
 | `delIcon(id, cb?)` | Delete icon |
-| `getIconList()` | All icons (excludes deleted) |
+| `getIconList()` | Export set (excludes deleted, recycle bin, variants) |
 | `getIconListFromGroup(group)` | Icons in group (accepts string or array) |
 | `getIconCount()` | Total icon count |
 | `setIconName(id, name, cb?)` | Rename icon |

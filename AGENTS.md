@@ -23,9 +23,8 @@ Bobcorn 是一个 Electron + React 的图标字体管理/生成桌面工具。
 ## 开发环境
 
 ```bash
-# 切换 Node 版本 (必须)
-FNM="/c/Users/mail/AppData/Local/Microsoft/WinGet/Packages/Schniz.fnm_Microsoft.Winget.Source_8wekyb3d8bbwe/fnm.exe"
-eval "$("$FNM" env --shell bash)" && "$FNM" use 18
+# 切换 Node 版本 (必须) — 直接把 fnm 的 Node 18 加入 PATH
+export PATH="$HOME/AppData/Roaming/fnm/node-versions/v18.20.8/installation:$PATH"
 
 # 开发模式 (HMR 热更新，首选)
 cd /d/Code/bobcorn && npx electron-vite dev

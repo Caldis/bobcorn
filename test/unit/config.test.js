@@ -68,9 +68,12 @@ describe('config default export', () => {
   });
 
   it('generates correct unicode lists', () => {
-    expect(config.publicRangeUnicodeDecList).toHaveLength(6399);
+    // 63743 - 57344 + 1 = 6400 (含两端) — 曾因 off-by-one 只有 6399 项导致 F8FF 永不被分配
+    expect(config.publicRangeUnicodeDecList).toHaveLength(6400);
     expect(config.publicRangeUnicodeDecList[0]).toBe(57344);
+    expect(config.publicRangeUnicodeDecList[6399]).toBe(63743);
     expect(config.publicRangeUnicodeHexList[0]).toBe('E000');
+    expect(config.publicRangeUnicodeHexList[6399]).toBe('F8FF');
   });
 });
 
@@ -89,6 +92,7 @@ describe('defOption', () => {
       autoCheckUpdate: true,
       autoDownloadUpdate: false,
       updateChannel: 'stable',
+      codeAllocationMode: 'append',
       exportFontSettings: {
         groupSelected: 'all',
         optionalFormats: { woff: true, eot: true },

@@ -252,6 +252,18 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   }, []);
 
   // ── Drag & drop (useDropzone hook — shares ref with scroll container) ──
+  // 导入结果反馈: 码点用尽导致部分失败时警告, 否则按调用方给定的成功文案提示
+  const reportImportResult = useCallback(
+    (result: { added: number; failed: number } | undefined, successMessage: string) => {
+      if (result && result.failed > 0) {
+        message.warning(t('import.codeExhausted', { added: result.added, failed: result.failed }));
+      } else {
+        message.success(successMessage);
+      }
+    },
+    [t]
+  );
+
   const onIconDrop = useCallback(
     (acceptedFiles: File[]) => {
       const acceptableIcons = acceptedFiles.filter((file) =>
@@ -263,8 +275,8 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
           /* TODO: accept project file */
         }
         if (acceptableIcons.length > 0) {
-          db.addIcons(acceptableIcons, selectedGroup, () => {
-            message.success(t('import.success', { count: acceptableIcons.length }));
+          db.addIcons(acceptableIcons, selectedGroup, (result) => {
+            reportImportResult(result, t('import.success', { count: acceptableIcons.length }));
             syncLeft();
             sync();
           });
@@ -278,8 +290,9 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
             content: t('import.incompatibleContent'),
             okText: t('import.importCompatible'),
             onOk() {
-              db.addIcons(acceptableIcons, selectedGroup, () => {
-                message.success(
+              db.addIcons(acceptableIcons, selectedGroup, (result) => {
+                reportImportResult(
+                  result,
                   t('import.partialSuccess', {
                     total: acceptedFiles.length,
                     count: acceptableIcons.length,
@@ -294,15 +307,15 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
             },
           });
         } else {
-          db.addIcons(acceptableIcons, selectedGroup, () => {
-            message.success(t('import.success', { count: acceptableIcons.length }));
+          db.addIcons(acceptableIcons, selectedGroup, (result) => {
+            reportImportResult(result, t('import.success', { count: acceptableIcons.length }));
             syncLeft();
             sync();
           });
         }
       }
     },
-    [selectedGroup, syncLeft, sync, t]
+    [selectedGroup, syncLeft, sync, t, reportImportResult]
   );
 
   const dropDisabled =

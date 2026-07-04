@@ -32,6 +32,7 @@ import {
   searchIcons as coreSearchIcons,
   listFavorites as coreListFavorites,
   setIconColor as coreSetIconColor,
+  fixIconCodes as coreFixIconCodes,
 } from '../core/operations/icon';
 import {
   listVariants as coreListVariants,
@@ -773,6 +774,63 @@ icon
       meta.duration_ms = Date.now() - start;
       const code = err.message.includes('not found') ? 'ICON_NOT_FOUND' : 'FILE_IO_ERROR';
       const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
+
+// ---------------------------------------------------------------------------
+// code
+// ---------------------------------------------------------------------------
+const codeCmd = program
+  .command('code')
+  .description(
+    'Manage icon unicode code points (PUA range E000-F8FF). Use "code fix" to repair duplicate or invalid codes.'
+  );
+
+codeCmd
+  .command('fix [icp]')
+  .option('--dry-run', 'Preview the fix plan without modifying the project file')
+  .description(
+    'Fix duplicate and invalid icon unicode codes. Scans ALL icon rows (including recycle bin and variant rows) ' +
+      'and reassigns problem rows to free PUA code points (E000-F8FF). For each duplicate code group the first ' +
+      'non-recycled occupant keeps its code; every other row gets the next free code point (ascending). Rows with ' +
+      'invalid codes (not 4-digit hex or outside the PUA range) are reassigned after duplicates, in table order. ' +
+      'Duplicate codes corrupt font export (glyphs overwrite each other), so run this after importing .cp/.icp files ' +
+      'of unknown origin. Use --dry-run to preview without writing. The project is saved when fixes are applied. ' +
+      'Fails with PUA_EXHAUSTED when there are not enough free code points.'
+  )
+  .action(async (icpPath: string | undefined, opts: { dryRun?: boolean }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('code fix', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const fixResult = await coreFixIconCodes(nodeIo, resolvedPath, { dryRun: opts.dryRun });
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(fixResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (fixResult.fixes.length === 0) {
+          console.log('No duplicate or invalid icon codes found. Nothing to fix.');
+        } else {
+          const verb = fixResult.applied ? 'Fixed' : 'Planned (dry-run)';
+          console.log(`${verb} ${fixResult.fixes.length} icon code(s):`);
+          for (const f of fixResult.fixes) {
+            console.log(
+              `  ${(f.oldCode || '(empty)').padEnd(8)} -> ${f.newCode}  ${f.iconName}  [${f.reason}]`
+            );
+          }
+          if (!fixResult.applied) {
+            console.log('\nDry-run only — run again without --dry-run to apply.');
+          }
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const errCode = err.message.startsWith('PUA_EXHAUSTED') ? 'PUA_EXHAUSTED' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, errCode, meta);
       printResult(result, jsonMode);
       process.exit(2);
     }

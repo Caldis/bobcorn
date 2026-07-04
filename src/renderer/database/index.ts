@@ -6,7 +6,7 @@ import { extractSvgColors, replaceSvgColor } from '../utils/svg/colors';
 // SQLite (use ASM build - pure JS, no WASM file needed)
 import initSqlJs from 'sql.js/dist/sql-asm.js';
 // Config
-import config from '../config';
+import config, { getOption } from '../config';
 // Utils
 import {
   generateUUID,
@@ -823,7 +823,7 @@ class Database {
     const content = sf(svg.formatSVG().getOuterHTML());
     return {
       id: sf(generateUUID()),
-      iconCode: sf(this.getNewIconCode() as string),
+      iconCode: sf(this.requireNewIconCode()),
       iconName: sf(nameOfFile(nameOfPath(path))),
       iconGroup: sf(targetGroup),
       iconSize: electronAPI.statSync(path).size,
@@ -837,7 +837,7 @@ class Database {
     const content = sf(svg.formatSVG().getOuterHTML());
     return {
       id: sf(generateUUID()),
-      iconCode: sf(this.getNewIconCode() as string),
+      iconCode: sf(this.requireNewIconCode()),
       iconName: sf(obj.iconName),
       iconGroup: sf(targetGroup),
       iconSize: sizeOfString(obj.iconContent),
@@ -860,8 +860,28 @@ class Database {
       iconContentOriginal: content,
     };
   };
-  // 获取一个可用的图标字码
-  getNewIconCode = (type?: string, test?: boolean): string | number => {
+  // 全表重复字码列表 (归一化大写) — 供网格/编辑器撞码标识, 单次 GROUP BY 避免 N+1
+  getDuplicateIconCodes = (): string[] => {
+    dev && console.log('getDuplicateIconCodes');
+    const rawData = this.db!.exec(
+      `SELECT UPPER(iconCode) AS c FROM ${iconData} GROUP BY UPPER(iconCode) HAVING COUNT(*) > 1`
+    );
+    if (!rawData.length) return [];
+    return rawData[0].values.map((row: any[]) => String(row[0]));
+  };
+  // 获取全部图标字码原始值 (含回收站/已删除/变体, 不做任何过滤) — 供字码覆盖可视化
+  getAllIconCodes = (): string[] => {
+    dev && console.log('getAllIconCodes');
+    const rawData = this.db!.exec(`SELECT iconCode FROM ${iconData}`);
+    if (!rawData.length) return [];
+    return rawData[0].values.map((row: any[]) => String(row[0] ?? ''));
+  };
+
+  // 获取一个可用的图标字码; 6400 个 PUA 码点全部用尽时返回 null (不再静默回退 E000 制造重复码)
+  // 分配模式跟随设置 codeAllocationMode:
+  //   append (默认) — 顺延到已用最高码之后, 不复用孔洞 (保护已发布 CSS 的引用稳定); 尾部用尽回退填洞
+  //   fill — 升序返回首个空闲码 (优先填充孔洞, 最大化码位利用)
+  getNewIconCode = (type?: string, _test?: boolean): string | number | null => {
     dev && console.log('getNewIconCode');
     const rawData = this.db!.exec(`SELECT iconCode from ${iconData}`);
     if (rawData.length) {
@@ -869,16 +889,145 @@ class Database {
       const usedCodeSet = new Set(
         rawData[0].values.map((code: any[]) => hexToDec(code[0] as string))
       );
+      let mode = 'append';
+      try {
+        mode = (getOption('codeAllocationMode') as string) || 'append';
+      } catch {
+        /* localStorage 不可用时用默认 */
+      }
+      if (mode === 'append') {
+        let highest = config.publicRangeUnicodeDecMin - 1;
+        usedCodeSet.forEach((c: number) => {
+          if (Number.isFinite(c) && c > highest && c <= config.publicRangeUnicodeDecMax) {
+            highest = c;
+          }
+        });
+        const next = highest + 1;
+        if (next <= config.publicRangeUnicodeDecMax) {
+          return type === 'dec' ? next : decToHex(next);
+        }
+        // 尾部已满 → 回退到填充孔洞
+      }
       for (const code of config.publicRangeUnicodeDecList) {
         if (!usedCodeSet.has(code)) {
           return type === 'dec' ? code : decToHex(code);
         }
       }
       // 所有字码用完
-      return type === 'dec' ? config.publicRangeUnicodeDecMin : config.publicRangeUnicodeHexMin;
+      return null;
     } else {
       return type === 'dec' ? config.publicRangeUnicodeDecMin : config.publicRangeUnicodeHexMin;
     }
+  };
+  // 获取一个可用的图标字码, 用尽时抛出 PUA_EXHAUSTED (供分配路径统一处理)
+  requireNewIconCode = (): string => {
+    const code = this.getNewIconCode();
+    if (code === null) throw new Error('PUA_EXHAUSTED');
+    return code as string;
+  };
+  // 计算字码修复计划 (dry-run, 不写库): 重复组保留第一个非回收站占用者, 其余行与非法码行重分配到空闲码点
+  // 空闲码点不足时抛 PUA_EXHAUSTED
+  planIconCodeFixes = (): {
+    id: string;
+    iconName: string;
+    oldCode: string;
+    newCode: string;
+    reason: 'duplicate' | 'invalid';
+  }[] => {
+    dev && console.log('planIconCodeFixes');
+    const rawData = this.db!.exec(`SELECT id, iconName, iconCode, iconGroup FROM ${iconData}`);
+    if (!rawData.length) return [];
+    const rows = rawData[0].values.map((r: any[]) => ({
+      id: String(r[0]),
+      iconName: String(r[1] ?? ''),
+      iconCode: String(r[2] ?? ''),
+      iconGroup: String(r[3] ?? ''),
+    }));
+
+    const PUA_MIN = config.publicRangeUnicodeDecMin;
+    const PUA_MAX = config.publicRangeUnicodeDecMax;
+    const normalize = (raw: string): number | null => {
+      const hex = raw.trim().toUpperCase();
+      if (!/^[0-9A-F]{4}$/.test(hex)) return null;
+      const decCode = parseInt(hex, 16);
+      return decCode >= PUA_MIN && decCode <= PUA_MAX ? decCode : null;
+    };
+
+    const byCode = new Map<number, typeof rows>();
+    const invalidRows: typeof rows = [];
+    for (const row of rows) {
+      const decCode = normalize(row.iconCode);
+      if (decCode === null) {
+        invalidRows.push(row);
+      } else {
+        const list = byCode.get(decCode);
+        if (list) list.push(row);
+        else byCode.set(decCode, [row]);
+      }
+    }
+
+    // 空闲码点池 (升序)
+    const freeCodes: number[] = [];
+    for (let c = PUA_MIN; c <= PUA_MAX; c++) {
+      if (!byCode.has(c)) freeCodes.push(c);
+    }
+    let freeIdx = 0;
+    const nextFree = (): string => {
+      if (freeIdx >= freeCodes.length) throw new Error('PUA_EXHAUSTED');
+      return decToHex(freeCodes[freeIdx++]);
+    };
+
+    const isRecycled = (g: string) => g === 'resource-recycleBin' || g === 'resource-deleted';
+    const fixes: {
+      id: string;
+      iconName: string;
+      oldCode: string;
+      newCode: string;
+      reason: 'duplicate' | 'invalid';
+    }[] = [];
+
+    // 重复组按码升序; 组内保留者以外的行重分配
+    const dupGroups = [...byCode.entries()]
+      .filter(([, list]) => list.length > 1)
+      .sort((a, b) => a[0] - b[0]);
+    for (const [, list] of dupGroups) {
+      const keeperIdx = Math.max(
+        0,
+        list.findIndex((r) => !isRecycled(r.iconGroup))
+      );
+      list.forEach((row, i) => {
+        if (i === keeperIdx) return;
+        fixes.push({
+          id: row.id,
+          iconName: row.iconName,
+          oldCode: row.iconCode,
+          newCode: nextFree(),
+          reason: 'duplicate',
+        });
+      });
+    }
+    // 非法码行按表顺序重分配
+    for (const row of invalidRows) {
+      fixes.push({
+        id: row.id,
+        iconName: row.iconName,
+        oldCode: row.iconCode,
+        newCode: nextFree(),
+        reason: 'invalid',
+      });
+    }
+    return fixes;
+  };
+  // 执行字码修复计划
+  applyIconCodeFixes = (fixes: { id: string; newCode: string }[], callback?: () => void): void => {
+    dev && console.log('applyIconCodeFixes');
+    for (const fix of fixes) {
+      this.db!.run(
+        `UPDATE ${iconData} SET iconCode = ${sf(fix.newCode.toUpperCase())} WHERE id = ${sf(fix.id)}`
+      );
+    }
+    this.notifyMutation();
+    callback && callback();
   };
   // 测试图标字码是否在可用字码段内
   iconCodeInRange = (iconCode: string): boolean => {
@@ -901,20 +1050,22 @@ class Database {
   addIcons = (
     iconFilesData: (IconFileData | File)[],
     targetGroup: string,
-    callback?: () => void
+    callback?: (result?: { added: number; failed: number }) => void
   ): void => {
     dev && console.log('addIcons');
     const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
     let pending = iconFilesData.length;
     if (pending === 0) {
-      callback && callback();
+      callback && callback({ added: 0, failed: 0 });
       return;
     }
 
+    let added = 0;
+    let failed = 0;
     const done = () => {
       if (--pending <= 0) {
         // notifyMutation auto-fired by each addDataToTable call
-        callback && callback();
+        callback && callback({ added, failed });
       }
     };
 
@@ -922,8 +1073,13 @@ class Database {
       const filePath = (data as any).path;
       if (filePath && typeof filePath === 'string' && filePath.length > 1) {
         // Electron File with real path — read via fs
-        const dataSet = this.formatIconDataFromFilePath(filePath, group);
-        this.addDataToTable(iconData, dataSet);
+        try {
+          const dataSet = this.formatIconDataFromFilePath(filePath, group);
+          this.addDataToTable(iconData, dataSet);
+          added += 1;
+        } catch {
+          failed += 1; // 码点用尽
+        }
         done();
       } else {
         // Browser File without path — read via FileReader
@@ -931,15 +1087,20 @@ class Database {
         const reader = new FileReader();
         reader.onload = () => {
           const content = reader.result as string;
-          const dataSet = this.formatIconDataFromData(
-            {
-              iconName: file.name.replace(/\.[^.]+$/, ''),
-              iconContent: content,
-              iconType: file.name.split('.').pop() || 'svg',
-            },
-            group
-          );
-          this.addDataToTable(iconData, dataSet);
+          try {
+            const dataSet = this.formatIconDataFromData(
+              {
+                iconName: file.name.replace(/\.[^.]+$/, ''),
+                iconContent: content,
+                iconType: file.name.split('.').pop() || 'svg',
+              },
+              group
+            );
+            this.addDataToTable(iconData, dataSet);
+            added += 1;
+          } catch {
+            failed += 1; // 码点用尽
+          }
           done();
         };
         reader.readAsText(file);
@@ -949,19 +1110,26 @@ class Database {
   addIconsFromData = (
     iconFilesData: IconImportData[],
     targetGroup: string,
-    callback?: () => void
+    callback?: (result?: { added: number; failed: number }) => void
   ): void => {
     dev && console.log('addIcons');
+    let added = 0;
+    let failed = 0;
     iconFilesData.forEach((data) => {
       // 如果加入到 all 分组, 则转换为加入 未分类 分组
-      const dataSet = this.formatIconDataFromData(
-        data,
-        targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup
-      );
-      this.addDataToTable(iconData, dataSet);
+      try {
+        const dataSet = this.formatIconDataFromData(
+          data,
+          targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup
+        );
+        this.addDataToTable(iconData, dataSet);
+        added += 1;
+      } catch {
+        failed += 1; // 码点用尽
+      }
     });
     // notifyMutation auto-fired by addDataToTable
-    callback && callback();
+    callback && callback({ added, failed });
   };
   addIconsFromCpData = (
     iconFilesData: CpIconData[],
@@ -1013,10 +1181,30 @@ class Database {
     });
   };
   // 取所有图标
+  // 导出集的字码元数据 (WHERE 条件与 getIconList 保持一致, 顺序即字体生成顺序) — 供导出前字码审计
+  getExportIconCodeMeta = (): {
+    id: string;
+    iconName: string;
+    iconCode: string;
+    iconGroup: string;
+  }[] => {
+    dev && console.log('getExportIconCodeMeta');
+    const rawData = this.db!.exec(
+      `SELECT id, iconName, iconCode, iconGroup FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' AND variantOf IS NULL`
+    );
+    if (rawData.length === 0) return [];
+    return rawData[0].values.map((row) => ({
+      id: String(row[0]),
+      iconName: String(row[1] ?? ''),
+      iconCode: String(row[2] ?? ''),
+      iconGroup: String(row[3] ?? ''),
+    }));
+  };
+  // 导出集: 排除已删除与回收站 (回收站图标不应被导出进字体), 排除变体
   getIconList = (): Record<string, any>[] => {
     dev && console.log('getIconList');
     const rawData = this.db!.exec(
-      `SELECT * FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND variantOf IS NULL`
+      `SELECT * FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' AND variantOf IS NULL`
     );
     if (rawData.length === 0) return [];
     const cols = rawData[0].columns;
@@ -1189,7 +1377,7 @@ class Database {
     const sourceIconData = this.getIconData(id);
     const dataSet: DataSet = {
       id: sf(generateUUID()),
-      iconCode: sf(this.getNewIconCode() as string),
+      iconCode: sf(this.requireNewIconCode()),
       iconName: sf(sourceIconData.iconName),
       iconGroup: sf(targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup),
       iconSize: sourceIconData.iconSize,
@@ -1235,14 +1423,28 @@ class Database {
     this.runMutation(`DELETE FROM ${iconData} WHERE id IN (${placeholders})`, ids);
     callback && callback();
   };
-  duplicateIcons = (ids: string[], targetGroup: string, callback?: () => void): void => {
+  duplicateIcons = (
+    ids: string[],
+    targetGroup: string,
+    callback?: (result?: { added: number; failed: number }) => void
+  ): void => {
     dev && console.log('duplicateIcons');
     const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
-    ids.forEach((id) => {
+    let failed = 0;
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i];
+      let newCode: string;
+      try {
+        newCode = this.requireNewIconCode();
+      } catch {
+        // 码点已用尽, 后续必然全部失败, 直接停止
+        failed = ids.length - i;
+        break;
+      }
       const source = this.getIconData(id);
       const dataSet: DataSet = {
         id: sf(generateUUID()),
-        iconCode: sf(this.getNewIconCode() as string),
+        iconCode: sf(newCode),
         iconName: sf(source.iconName),
         iconGroup: sf(group),
         iconSize: source.iconSize,
@@ -1251,9 +1453,9 @@ class Database {
         iconContentOriginal: sf(this.getOriginalContent(source)),
       };
       this.addDataToTable(iconData, dataSet);
-    });
+    }
     // notifyMutation auto-fired by each addDataToTable call
-    callback && callback();
+    callback && callback({ added: ids.length - failed, failed });
   };
   updateIconsColor = (ids: string[], targetColor: string, callback?: () => void): void => {
     dev && console.log('updateIconsColor');

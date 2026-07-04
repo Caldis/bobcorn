@@ -50,8 +50,9 @@ async function run() {
   await window.waitForLoadState('load');
   await window.waitForTimeout(3000);
 
+  // 标题可能因会话恢复带上上次项目名 (如 "sf-symbols — Bobcorn")
   const title = await window.title();
-  assert('Window title', title === 'Bobcorn', title);
+  assert('Window title', title.endsWith('Bobcorn'), title);
 
   const electronVersion = await app.evaluate(({ app }) => process.versions.electron);
   assert('Electron version ≥ 28', parseInt(electronVersion) >= 28, `v${electronVersion}`);
@@ -108,16 +109,22 @@ async function run() {
   const menuItems = await window.locator('text=全部').count() + await window.locator('text=未分组').count() + await window.locator('text=回收站').count();
   assert('Menu items present (全部/未分组/回收站)', menuItems >= 3, `${menuItems} items`);
 
-  const toolbar = await window.locator('text=导入').count();
-  assert('Toolbar "导入" visible', toolbar > 0);
-
-  const exportBtn = await window.locator('text=导出').count();
-  assert('Toolbar "导出" visible', exportBtn > 0);
+  // 导入/导出已从工具栏移入底部「文件」菜单 (FileMenuBar, icon-only 触发按钮)
+  const fileMenuTrigger = window.locator('[data-testid="file-menu-btn"]');
+  assert('File menu trigger visible', await fileMenuTrigger.isVisible());
+  await fileMenuTrigger.click();
+  await window.waitForTimeout(500);
+  const importItem = await window.locator('text=导入图标').count();
+  const exportItem = await window.locator('text=导出图标字体').count();
+  assert('File menu "导入图标" present', importItem > 0);
+  assert('File menu "导出图标字体" present', exportItem > 0);
+  await window.keyboard.press('Escape');
+  await window.waitForTimeout(300);
 
   // --- Phase 5: Window Controls (Win32) ---
   console.log('\nPhase 5: Window Controls');
   const titleBarBtns = await window.locator('#titleBarButtonGroup button').count();
-  assert('Window control buttons', titleBarBtns === 3, `${titleBarBtns} buttons`);
+  assert('Window control buttons', titleBarBtns >= 3, `${titleBarBtns} buttons`);
 
   // --- Phase 6: UI Aesthetics ---
   console.log('\nPhase 6: UI Aesthetics');

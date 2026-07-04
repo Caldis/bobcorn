@@ -42,6 +42,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const [autoCheck, setAutoCheck] = useState(opts.autoCheckUpdate);
   const [autoDownload, setAutoDownload] = useState(opts.autoDownloadUpdate);
   const [channel, setChannel] = useState<'stable' | 'beta'>(opts.updateChannel);
+  const [codeMode, setCodeMode] = useState<'append' | 'fill'>(opts.codeAllocationMode || 'append');
   const themeMode = useAppStore((s: any) => s.themeMode);
   const setThemeMode = useAppStore((s: any) => s.setThemeMode);
   const analyticsBasic = useAppStore((s: any) => s.analyticsBasicEnabled);
@@ -266,6 +267,51 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               ))}
             </div>
           </div>
+        </section>
+
+        {/* ── Divider ───────────────────────────────────── */}
+        <div className="border-t border-border" />
+
+        {/* ── Code Allocation ─────────────────────────── */}
+        <section>
+          <h4
+            className={cn(
+              'text-[11px] font-semibold uppercase tracking-widest',
+              'text-foreground-muted/60 mb-2.5'
+            )}
+          >
+            {t('settings.codeAllocation')}
+          </h4>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-foreground">{t('settings.codeAllocationMode')}</span>
+            <div className="inline-flex rounded-md border border-border overflow-hidden">
+              {(['append', 'fill'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => {
+                    setCodeMode(mode);
+                    setOption({ codeAllocationMode: mode });
+                    analyticsTrack('settings.change', { setting: 'codeAllocation', value: mode });
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 text-[11px] font-medium transition-colors duration-100',
+                    codeMode === mode
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-foreground-muted hover:bg-surface-accent'
+                  )}
+                >
+                  {t(
+                    mode === 'append'
+                      ? 'settings.codeAllocationAppend'
+                      : 'settings.codeAllocationFill'
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="text-[11px] text-foreground-muted/50 mt-1.5 leading-relaxed">
+            {t('settings.codeAllocationDesc')}
+          </p>
         </section>
 
         {/* ── Divider ───────────────────────────────────── */}

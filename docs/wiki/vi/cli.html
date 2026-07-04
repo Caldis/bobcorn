@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">Diem ma</h3>
+                <div class="reveal">
+                    <p>Quan ly diem ma Unicode cua bieu tuong (pham vi PUA E000-F8FF). Phat hien va sua cac ma trung lap hoac khong hop le co the lam hong khi xuat font.</p>
+                    <span class="code-label">Lenh ma</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Luu y</div>
+                        Ma trung lap khien cac bieu tuong de len glyph cua nhau khi xuat font. Voi moi nhom trung lap, bieu tuong dau tien khong bi thu hoi se giu nguyen diem ma; cac bieu tuong con lai duoc gan lai diem ma PUA trong tiep theo. Ma khong hop le (khong phai hex 4 ky tu, hoac ngoai pham vi E000-F8FF) luon duoc gan lai. That bai voi <code>PUA_EXHAUSTED</code> khi khong con du diem ma trong.
+                    </div>
+                </div>
+
                 <h3 class="reveal">Nhom</h3>
                 <div class="reveal">
                     <p>To chuc bieu tuong thanh cac nhom duoc dat ten. Nhom kiem soat thu tu hien thi trong thanh ben va co the dung de loc xuat.</p>

@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">Puntos de codigo</h3>
+                <div class="reveal">
+                    <p>Administra los puntos de codigo Unicode de los iconos (rango PUA E000-F8FF). Detecta y repara codigos duplicados o invalidos que pueden danar la exportacion de fuentes.</p>
+                    <span class="code-label">Comandos de codigo</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Nota</div>
+                        Los puntos de codigo duplicados hacen que los iconos se sobrescriban entre si al exportar la fuente. En cada grupo duplicado, el primer icono no reciclado conserva su punto de codigo; el resto se reasigna al siguiente punto de codigo PUA libre. Los puntos de codigo invalidos (que no sean hex de 4 digitos, o esten fuera de E000-F8FF) siempre se reasignan. Falla con <code>PUA_EXHAUSTED</code> cuando no quedan suficientes puntos de codigo libres.
+                    </div>
+                </div>
+
                 <h3 class="reveal">Grupo</h3>
                 <div class="reveal">
                     <p>Organiza iconos en grupos con nombre. Los grupos controlan el orden de visualizacion en la barra lateral y se pueden usar para filtrar exportaciones.</p>

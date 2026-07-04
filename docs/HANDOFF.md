@@ -96,18 +96,29 @@
 2. **变体对比视图** — 并排查看所有变体
 3. **变体参数批量调整** — 修改已生成变体的参数
 
-## 已知问题
+## 已知问题 (2026-07-04 更新)
 
 1. **electron-pixel-picker 打包** — macOS/Linux/Windows 分发包缺失 EPP 模块
-2. **ESLint warnings** — 已降级为 warn
+2. **lint 门禁失效** — `npm run lint` (`--max-warnings 0`) 有 60+ 存量 warning 无法通过
+3. **full-e2e.js 与当前 UI 严重脱节** — 10/17 步失败（断言已被移入 FileMenuBar 的"导入"工具栏按钮、旧设置对话框触发方式、不存在的 fixture 路径），失败在 master 上同样存在，需系统性重写；acceptance.js 的同类漂移已修复（22/22）
+4. **seo-inject.py 与站点结构脱节** — 每次运行会用过时硬编码模板覆盖手工维护的 `docs/sitemap.xml` / `docs/robots.txt`（Content-Signal/AI 爬虫规则/Schemamap 等）。运行后务必 `git diff` 检查这两个文件；根治需同步脚本模板
+5. **打包版持锁导致 dev 静默退出** — 安装版 `Bobcorn.exe` 运行时持有单实例锁，`electron-vite dev` 会 exit 0 无报错退出；杀进程命令只匹配 `electron.exe` 杀不到它。先 `(Get-Process -Name Bobcorn).CloseMainWindow()` 优雅关闭再启动 dev
+6. **sf-symbols fixture 为本地生成物**（`test/fixtures/*` 除 icons/ 外全部 gitignore）— 用 `node test/fixtures/sf-symbols/generate-icp.js` 从旧 icp 重建；分组名需 PascalCase（generator 已处理），CI 上相关测试自动跳过
+
+### v1.13.0 已修复
+
+- CLI sf-symbols 测试失败 → fixture 重新生成（28 组 PascalCase / 7007 图标）
+- AGENTS.md/本文档 fnm 路径过时 → 已更新为 `~/AppData/Roaming/fnm/node-versions/v18.20.8/installation`
+- 字码耗尽静默重复分配 + 码表 off-by-one → 耗尽显式报错（PUA_EXHAUSTED），F8FF 可分配
+- 重复字码全链路静默导致导出产物损坏 → 字码覆盖可视化 + 导出审计 + 导入审计 + 一键修复 + 网格/编辑器标识 + CLI `code fix` 全链路落地；回收站图标不再被导出
 
 ## 测试命令
 
 ```bash
-FNM="/c/Users/mail/AppData/Local/Microsoft/WinGet/Packages/Schniz.fnm_Microsoft.Winget.Source_8wekyb3d8bbwe/fnm.exe"
-eval "$("$FNM" env --shell bash)" && "$FNM" use 18
+# Node 18 (fnm 的 WinGet 安装路径已失效, 直接用版本目录)
+export PATH="$HOME/AppData/Roaming/fnm/node-versions/v18.20.8/installation:$PATH"
 
-npx vitest run                    # 370 passing
+npx vitest run                    # 725 tests
 npx electron-vite build           # clean build
 npx electron-vite dev             # dev mode
 ```

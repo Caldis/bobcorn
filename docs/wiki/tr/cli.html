@@ -238,6 +238,19 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <h3 class="reveal">Kod noktalari</h3>
+                <div class="reveal">
+                    <p>Ikonlarin Unicode kod noktalarini yonetin (PUA araligi E000-F8FF). Font disa aktarmayi bozabilecek yinelenen veya gecersiz kodlari tespit edin ve onarin.</p>
+                    <span class="code-label">Kod komutlari</span>
+<pre><code>bobcorn code fix --dry-run
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">Not</div>
+                        Yinelenen kod noktalari, font disa aktarma sirasinda ikonlarin birbirinin glifini ezmesine neden olur. Her yineleme grubunda, geri donusumde olmayan ilk ikon kod noktasini korur; digerleri bir sonraki bos PUA kod noktasina yeniden atanir. Gecersiz kod noktalari (4 haneli hex olmayan veya E000-F8FF disindaki) her zaman yeniden atanir. Yeterli bos kod noktasi kalmadiginda <code>PUA_EXHAUSTED</code> ile basarisiz olur.
+                    </div>
+                </div>
+
                 <h3 class="reveal">Grup</h3>
                 <div class="reveal">
                     <p>Ikonlari adlandirilmis gruplara duzenleyin. Gruplar yan cubukta gosterim sirasini kontrol eder ve disa aktarmalari filtrelemek icin kullanilabilir.</p>

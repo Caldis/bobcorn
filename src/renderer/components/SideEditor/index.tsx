@@ -17,6 +17,7 @@ import {
   Info,
   Palette,
   Wrench,
+  TriangleAlert,
 } from 'lucide-react';
 // Components
 import EnhanceInput from '../enhance/input';
@@ -115,6 +116,7 @@ const SideEditor = React.memo(function SideEditor({
   // Subscribe to store changes to trigger re-sync
   const groupData = useAppStore((state: any) => state.groupData);
   const iconContentVersion = useAppStore((state: any) => state.iconContentVersion);
+  const duplicateCodes = useAppStore((state: any) => state.duplicateCodes);
   useEffect(() => {
     if (selectedIcon) {
       sync(selectedIcon);
@@ -334,11 +336,19 @@ const SideEditor = React.memo(function SideEditor({
   };
   const handleEnsureIconGroupEdit = () => {
     if (iconGroupEditModelType === 'duplicate') {
-      db.duplicateIconGroup(selectedIcon, iconGroupEditModelTarget, () => {
-        message.success(t('editor.copiedToGroup'));
-        syncLeft();
-        selectIcon(null);
-      });
+      try {
+        db.duplicateIconGroup(selectedIcon, iconGroupEditModelTarget, () => {
+          message.success(t('editor.copiedToGroup'));
+          syncLeft();
+          selectIcon(null);
+        });
+      } catch (err) {
+        if ((err as Error)?.message === 'PUA_EXHAUSTED') {
+          message.error(t('editor.codeExhausted'));
+        } else {
+          throw err;
+        }
+      }
     }
     if (iconGroupEditModelType === 'move') {
       db.moveIconWithVariants(selectedIcon, iconGroupEditModelTarget, () => {
@@ -539,6 +549,20 @@ const SideEditor = React.memo(function SideEditor({
               inputSave={iconCodeCanSave()}
               inputSaveClick={handleIconCodeSave}
             />
+            {/* 当前图标的已存字码与其他图标撞码时的警示 (如导入带入) */}
+            {!!(iconData.iconCode && duplicateCodes?.[String(iconData.iconCode).toUpperCase()]) && (
+              <div
+                className={cn(
+                  'mt-1.5 flex items-start gap-1.5 rounded-md',
+                  'border border-warning/30 bg-warning-subtle px-2 py-1.5'
+                )}
+              >
+                <TriangleAlert size={12} className="text-warning shrink-0 mt-px" />
+                <span className="text-[11px] text-foreground leading-snug">
+                  {t('editor.codeDuplicateBanner')}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Section: 基本信息 */}

@@ -19,11 +19,13 @@ import {
   iconfontSymbolGenerator,
 } from '../../utils/generators/demopageGenerator';
 import { zipSync } from 'fflate';
+import { TriangleAlert } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { analyticsTrack } from '../../store';
 import { getOption, setOption, type ExportFontSettings } from '../../config';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.set-name, project.set-prefix, export.font, export.svg
 import db from '../../database';
+import { auditIconCodes } from './codeCoverage';
 import type { ExportGroupOption } from './types';
 
 // ── 路径工具 (内联,仅本组件使用) ────────────────────────────────
@@ -189,6 +191,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     isZip: boolean;
   } | null>(null);
 
+  // 字码审计详情弹窗
+  const [auditDetailVisible, setAuditDetailVisible] = useState(false);
+
   // Preview panel
   const [previewVisible, setPreviewVisible] = useState(false);
 
@@ -268,6 +273,26 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       return '';
     }
   }, [previewVisible, visible, selectedFormats.js]);
+
+  // 导出前字码审计 — 跟随分组选择, 检出导出集内的重复/非法字码
+  const codeAudit = useMemo(() => {
+    if (!visible) return null;
+    try {
+      const allGroupSelected =
+        exportGroupSelected.length === 0 ||
+        exportGroupFullList.length === exportGroupSelected.length;
+      const meta = db.getExportIconCodeMeta();
+      const selected = allGroupSelected
+        ? meta
+        : meta.filter((m: any) => exportGroupSelected.includes(m.iconGroup));
+      return auditIconCodes(selected);
+    } catch {
+      return null;
+    }
+  }, [visible, exportGroupSelected, exportGroupFullList]);
+  const auditDuplicateIconCount = codeAudit
+    ? codeAudit.duplicateGroups.reduce((sum, g) => sum + g.icons.length, 0)
+    : 0;
 
   // 当 visible 变为 true 时初始化 (load persisted settings + groups)
   const prevVisibleRef = useRef(false);
@@ -396,9 +421,23 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     const allGroupSelected =
       exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
     const allIcons = db.getIconList();
-    const icons = allGroupSelected
+    const selectedIcons = allGroupSelected
       ? allIcons
       : allIcons.filter((icon: any) => exportGroupSelected.includes(icon.iconGroup));
+
+    // 非法字码图标无法生成字形 (String.fromCodePoint 会抛 RangeError), 从导出集跳过
+    const invalidIds = new Set(
+      auditIconCodes(
+        selectedIcons.map((i: any) => ({ id: i.id, iconName: i.iconName, iconCode: i.iconCode }))
+      ).invalidIcons.map((i) => i.id)
+    );
+    const icons = invalidIds.size
+      ? selectedIcons.filter((icon: any) => !invalidIds.has(icon.id))
+      : selectedIcons;
+    if (!icons.length) {
+      message.warning(t('export.noIconsWarning'));
+      return;
+    }
 
     const projectName = db.getProjectName();
     const dirPath = joinPath(exportParentDir, finalDirName);
@@ -435,6 +474,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       const nextPct = () => Math.min(98, Math.round((++completedSteps / totalSteps) * 98));
 
       await step(nextPct(), t('export.progress.preparing', { count: icons.length }));
+      if (invalidIds.size) {
+        addExportLog(t('export.progress.skippedInvalid', { num: invalidIds.size }));
+      }
 
       const groups = db.getGroupList();
       groups.push({
@@ -714,6 +756,41 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                 </div>
               </div>
             </div>
+
+            {/* 字码审计警示 — 导出集内存在重复/非法字码时提示, 可查看详情, 不阻断导出 */}
+            {codeAudit && !codeAudit.ok && (
+              <div className="mt-3 rounded-md border border-warning/30 bg-warning-subtle px-3 py-2">
+                <div className="flex items-start gap-2">
+                  <TriangleAlert size={14} className="text-warning shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0 text-xs text-foreground leading-relaxed">
+                    <p>
+                      {codeAudit.duplicateGroups.length > 0 &&
+                        t('export.codeAuditDuplicates', {
+                          codes: codeAudit.duplicateGroups.length,
+                          icons: auditDuplicateIconCount,
+                        })}
+                      {codeAudit.duplicateGroups.length > 0 &&
+                        codeAudit.invalidIcons.length > 0 && (
+                          <span className="mx-1 text-foreground-muted/50">·</span>
+                        )}
+                      {codeAudit.invalidIcons.length > 0 &&
+                        t('export.codeAuditInvalid', { num: codeAudit.invalidIcons.length })}
+                    </p>
+                    <p className="text-foreground-muted mt-0.5">{t('export.codeAuditNote')}</p>
+                  </div>
+                  <button
+                    onClick={() => setAuditDetailVisible(true)}
+                    className={cn(
+                      'shrink-0 px-2 py-0.5 rounded text-xs font-medium',
+                      'text-warning border border-warning/40',
+                      'hover:bg-warning/10 transition-colors duration-100'
+                    )}
+                  >
+                    {t('export.codeAuditView')}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* 必选格式 */}
             {/* 必选字体格式 */}
@@ -1040,6 +1117,73 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
               name: conflictPending.baseName + (conflictPending.isZip ? '.zip' : ''),
             })}
           </p>
+        )}
+      </Dialog>
+
+      {/* 字码审计详情弹窗 — 按码分组列出受影响图标 (保留/丢弃/跳过) */}
+      <Dialog
+        open={auditDetailVisible}
+        onClose={() => setAuditDetailVisible(false)}
+        title={t('export.codeAuditTitle')}
+        footer={
+          <Button type="primary" onClick={() => setAuditDetailVisible(false)}>
+            {t('common.close')}
+          </Button>
+        }
+      >
+        {codeAudit && (
+          <div className="max-h-[50vh] overflow-y-auto space-y-3 text-sm pr-1">
+            {codeAudit.duplicateGroups.length > 0 && (
+              <div>
+                <p className="text-xs text-foreground-muted mb-1.5">
+                  {t('export.codeAuditDupSection', { num: codeAudit.duplicateGroups.length })}
+                </p>
+                <div className="space-y-1.5">
+                  {codeAudit.duplicateGroups.map((group) => (
+                    <div key={group.code} className="rounded-md border border-border px-2.5 py-1.5">
+                      <div className="font-mono text-xs font-semibold text-foreground">
+                        {group.code}
+                      </div>
+                      <div className="mt-1 space-y-0.5">
+                        {group.icons.map((icon, i) => (
+                          <div
+                            key={icon.id}
+                            className="flex items-center justify-between gap-2 text-xs"
+                          >
+                            <span className="truncate text-foreground-muted">{icon.iconName}</span>
+                            <span
+                              className={cn(
+                                'shrink-0 text-[10px] px-1.5 py-px rounded-full',
+                                i === 0 ? 'bg-accent/10 text-accent' : 'bg-danger/10 text-danger'
+                              )}
+                            >
+                              {i === 0 ? t('export.codeAuditKeep') : t('export.codeAuditDrop')}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {codeAudit.invalidIcons.length > 0 && (
+              <div>
+                <p className="text-xs text-foreground-muted mb-1.5">
+                  {t('export.codeAuditInvalidSection', { num: codeAudit.invalidIcons.length })}
+                </p>
+                <div className="space-y-0.5 rounded-md border border-border px-2.5 py-1.5">
+                  {codeAudit.invalidIcons.map((icon) => (
+                    <div key={icon.id} className="flex items-center justify-between gap-2 text-xs">
+                      <span className="truncate text-foreground-muted">{icon.iconName}</span>
+                      <span className="shrink-0 font-mono text-danger">{icon.iconCode || '∅'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <p className="text-[11px] text-foreground-muted">{t('export.codeAuditFixHint')}</p>
+          </div>
         )}
       </Dialog>
 

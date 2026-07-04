@@ -280,6 +280,24 @@ bobcorn icon set-color &lt;id&gt; --from "#000" --to "#333"
 bobcorn icon get-content &lt;id&gt;</code></pre>
                 </div>
 
+                <!-- Code Commands -->
+                <h3 class="reveal">码位</h3>
+                <div class="reveal">
+                    <p>管理图标的 Unicode 码位（PUA 范围 E000-F8FF）。检测并修复可能导致字体导出损坏的重复或非法码位。</p>
+
+                    <span class="code-label">码位命令</span>
+<pre><code><span class="code-cmt"># 预览修复计划，不修改项目文件</span>
+bobcorn code fix --dry-run
+
+<span class="code-cmt"># 应用修复：重新分配重复码位，替换非法码位</span>
+bobcorn code fix</code></pre>
+
+                    <div class="callout callout-note">
+                        <div class="callout-label">注意</div>
+                        重复码位会导致图标在字体导出时字形互相覆盖。对于每组重复码位，第一个非回收站占用者保留原码位，其余重新分配到下一个空闲 PUA 码位。非法码位（非 4 位十六进制，或超出 E000-F8FF 范围）总是会被重新分配。空闲码位不足时会失败并返回 <code>PUA_EXHAUSTED</code>。
+                    </div>
+                </div>
+
                 <!-- Group Commands -->
                 <h3 class="reveal">分组</h3>
                 <div class="reveal">

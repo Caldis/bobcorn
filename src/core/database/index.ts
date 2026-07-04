@@ -74,6 +74,21 @@ function rowsToObjects(result: SqlJsQueryResult[]): Record<string, any>[] {
 }
 
 // ---------------------------------------------------------------------------
+// Shared result shapes
+// ---------------------------------------------------------------------------
+
+/** One planned icon-code reassignment (see ProjectDb.planIconCodeFixes) */
+export interface IconCodeFix {
+  id: string;
+  iconName: string;
+  /** Original code as stored (may be invalid / empty) */
+  oldCode: string;
+  /** New 4-digit uppercase hex code in the PUA range */
+  newCode: string;
+  reason: 'duplicate' | 'invalid';
+}
+
+// ---------------------------------------------------------------------------
 // Lazy sql.js loader — cached singleton
 // ---------------------------------------------------------------------------
 
@@ -295,15 +310,15 @@ export class ProjectDb {
 
   getIconList(): IconData[] {
     const result = this.db.exec(
-      `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE iconGroup != 'resource-deleted' AND variantOf IS NULL`
+      `SELECT ${ProjectDb.LIST_COLS} FROM ${TABLE_ICON} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' AND variantOf IS NULL`
     );
     return rowsToObjects(result) as unknown as IconData[];
   }
 
-  /** Get all non-variant, non-deleted icons WITH iconContent (for font generation). */
+  /** Get all non-variant, non-deleted, non-recycled icons WITH iconContent (for font generation). */
   getIconListWithContent(): IconData[] {
     const result = this.db.exec(
-      `SELECT * FROM ${TABLE_ICON} WHERE iconGroup != 'resource-deleted' AND variantOf IS NULL`
+      `SELECT * FROM ${TABLE_ICON} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' AND variantOf IS NULL`
     );
     return rowsToObjects(result) as unknown as IconData[];
   }
@@ -371,6 +386,8 @@ export class ProjectDb {
   /**
    * Get the next available unicode code point (hex string, e.g. "E000").
    * Scans all existing codes in PUA range E000-F8FF and returns the first unused.
+   * Throws PUA_EXHAUSTED when all 6400 code points are in use — callers must
+   * not silently reuse an occupied code (duplicate codes corrupt font export).
    */
   getNewIconCode(): string {
     const PUA_MIN = 0xe000; // 57344
@@ -388,8 +405,7 @@ export class ProjectDb {
         return code.toString(16).toUpperCase();
       }
     }
-    // All codes exhausted — return min as fallback
-    return PUA_MIN.toString(16).toUpperCase();
+    throw new Error('PUA_EXHAUSTED: all 6400 code points (E000-F8FF) are in use');
   }
 
   /**
@@ -549,6 +565,114 @@ export class ProjectDb {
     this.db.run(
       `UPDATE ${TABLE_ICON} SET iconCode = ${sf(code.toUpperCase())} WHERE id = ${sf(id)}`
     );
+  }
+
+  /**
+   * Compute a fix plan for duplicate/invalid icon codes (dry-run — does NOT write).
+   *
+   * Scans ALL iconData rows (including recycle bin / deleted / variant rows, in
+   * natural table order). A code is valid when trim+uppercase matches /^[0-9A-F]{4}$/
+   * and falls in the PUA range E000-F8FF. Rows are grouped by normalized code value:
+   * - Duplicate groups (>1 row per code, processed in ascending code order): the
+   *   first row whose iconGroup is not recycled ('resource-recycleBin' /
+   *   'resource-deleted') keeps its code (falls back to the group's first row when
+   *   all are recycled); every other row is reassigned to the next free code point.
+   * - Invalid rows are reassigned after all duplicates, in table order.
+   * Free code points are the ascending unused values in E000-F8FF.
+   * Throws PUA_EXHAUSTED when there are not enough free code points.
+   */
+  planIconCodeFixes(): IconCodeFix[] {
+    const result = this.db.exec(`SELECT id, iconName, iconCode, iconGroup FROM ${TABLE_ICON}`);
+    if (result.length === 0) return [];
+    const rows = result[0].values.map((r) => ({
+      id: String(r[0]),
+      iconName: String(r[1] ?? ''),
+      iconCode: String(r[2] ?? ''),
+      iconGroup: String(r[3] ?? ''),
+    }));
+
+    const PUA_MIN = 0xe000;
+    const PUA_MAX = 0xf8ff;
+    const normalize = (raw: string): number | null => {
+      const hex = raw.trim().toUpperCase();
+      if (!/^[0-9A-F]{4}$/.test(hex)) return null;
+      const decCode = parseInt(hex, 16);
+      return decCode >= PUA_MIN && decCode <= PUA_MAX ? decCode : null;
+    };
+
+    const byCode = new Map<number, typeof rows>();
+    const invalidRows: typeof rows = [];
+    for (const row of rows) {
+      const decCode = normalize(row.iconCode);
+      if (decCode === null) {
+        invalidRows.push(row);
+      } else {
+        const list = byCode.get(decCode);
+        if (list) list.push(row);
+        else byCode.set(decCode, [row]);
+      }
+    }
+
+    // Free code point pool (ascending)
+    const freeCodes: number[] = [];
+    for (let c = PUA_MIN; c <= PUA_MAX; c++) {
+      if (!byCode.has(c)) freeCodes.push(c);
+    }
+    let freeIdx = 0;
+    const nextFree = (): string => {
+      if (freeIdx >= freeCodes.length) {
+        throw new Error(
+          'PUA_EXHAUSTED: not enough free code points (E000-F8FF) to fix all icon codes'
+        );
+      }
+      return freeCodes[freeIdx++].toString(16).toUpperCase();
+    };
+
+    const isRecycled = (g: string) => g === 'resource-recycleBin' || g === 'resource-deleted';
+    const fixes: IconCodeFix[] = [];
+
+    // Duplicate groups in ascending code order; reassign everything but the keeper
+    const dupGroups = [...byCode.entries()]
+      .filter(([, list]) => list.length > 1)
+      .sort((a, b) => a[0] - b[0]);
+    for (const [, list] of dupGroups) {
+      const keeperIdx = Math.max(
+        0,
+        list.findIndex((r) => !isRecycled(r.iconGroup))
+      );
+      list.forEach((row, i) => {
+        if (i === keeperIdx) return;
+        fixes.push({
+          id: row.id,
+          iconName: row.iconName,
+          oldCode: row.iconCode,
+          newCode: nextFree(),
+          reason: 'duplicate',
+        });
+      });
+    }
+    // Invalid rows reassigned in table order, after duplicates
+    for (const row of invalidRows) {
+      fixes.push({
+        id: row.id,
+        iconName: row.iconName,
+        oldCode: row.iconCode,
+        newCode: nextFree(),
+        reason: 'invalid',
+      });
+    }
+    return fixes;
+  }
+
+  /**
+   * Apply a fix plan produced by planIconCodeFixes() — UPDATEs each row's iconCode.
+   */
+  applyIconCodeFixes(fixes: { id: string; newCode: string }[]): void {
+    for (const fix of fixes) {
+      this.db.run(
+        `UPDATE ${TABLE_ICON} SET iconCode = ${sf(fix.newCode.toUpperCase())} WHERE id = ${sf(fix.id)}`
+      );
+    }
   }
 
   /**

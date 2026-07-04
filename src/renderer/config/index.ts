@@ -48,6 +48,8 @@ export interface OptionData {
   updateChannel: 'stable' | 'beta';
   // 导出字体设置 (用户级偏好,跨项目持久化)
   exportFontSettings: ExportFontSettings;
+  // 字码分配模式: append = 顺延到已用最高码之后 (尾满回退填洞); fill = 升序填充首个空闲码 (含孔洞)
+  codeAllocationMode: 'append' | 'fill';
 }
 
 // 全局参数相关
@@ -58,14 +60,14 @@ const config: AppConfig = {
   acceptableIconTypes: ['image/svg+xml'],
   // 可读取的项目文件格式: json 为旧版项目, icp为本工具项目文件
   acceptableProjectTypes: ['json', 'icp'],
-  // 可用的 Unicode 公用字码范围, 从 57344 到 63743 共 6399 个
+  // 可用的 Unicode 公用字码范围, 从 57344 到 63743 共 6400 个
   publicRangeUnicodeDecMin: 57344,
   publicRangeUnicodeHexMin: 'E000',
   publicRangeUnicodeDecMax: 63743,
   publicRangeUnicodeHexMax: 'F8FF',
-  // 完整的 Unicode 可用字码范围表
-  publicRangeUnicodeDecList: Array.from(new Array(6399), (_val, index) => index + 57344),
-  publicRangeUnicodeHexList: Array.from(new Array(6399), (_val, index) => decToHex(index + 57344)),
+  // 完整的 Unicode 可用字码范围表 (63743 - 57344 + 1 = 6400, 含两端)
+  publicRangeUnicodeDecList: Array.from(new Array(6400), (_val, index) => index + 57344),
+  publicRangeUnicodeHexList: Array.from(new Array(6400), (_val, index) => decToHex(index + 57344)),
 };
 export default config;
 
@@ -99,6 +101,8 @@ export const defOption: OptionData = {
     parentDir: null,
     customDirName: null,
   },
+  // 字码分配默认顺延末尾 — 避免新图标复用已删图标的码位, 保护已发布 CSS 的引用稳定
+  codeAllocationMode: 'append',
 };
 // 重置设置
 export const resetOption = (): void => {

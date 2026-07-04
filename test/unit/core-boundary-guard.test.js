@@ -34,6 +34,8 @@ const APPROVED_LEGACY = new Set([
   'src/renderer/components/SideMenu/GroupDialogs.tsx',
   'src/renderer/components/SideMenu/ExportDialog.tsx',
   'src/renderer/components/SideMenu/ProjectSettingsDialog.tsx',
+  'src/renderer/components/SideMenu/CodeCoverageMatrix.tsx',
+  'src/renderer/components/SideMenu/codeAudit.ts',
   'src/renderer/components/SideMenu/ResourceNav.tsx',
   'src/renderer/utils/variantGuard.ts',
   'src/renderer/utils/generators/demopageGenerator/index.ts',

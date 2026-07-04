@@ -15,6 +15,7 @@ import { cn } from '../../lib/utils';
 import { preventDrop, disableChromeAutoFocus, platform } from '../../utils/tools';
 import { projImporter } from '../../utils/importer';
 import { cpLoader, icpLoader } from '../../utils/loaders';
+import { warnIfProjectCodeIssues } from '../../components/SideMenu/codeAudit';
 // Database
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.save, project.open-file, project.reset
 import db from '../../database';
@@ -161,6 +162,7 @@ function MainContainer() {
             useAppStore.getState().syncLeft();
             useAppStore.getState().selectGroup('resource-all');
             message.success(t('file.opened'));
+            warnIfProjectCodeIssues();
             analyticsTrack('project.open');
           });
         },
@@ -172,6 +174,7 @@ function MainContainer() {
             useAppStore.getState().syncLeft();
             useAppStore.getState().selectGroup('resource-all');
             message.success(t('file.opened'));
+            warnIfProjectCodeIssues();
             analyticsTrack('project.open');
           });
         },
