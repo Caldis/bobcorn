@@ -5,7 +5,7 @@
  * All file I/O goes through IoAdapter.
  */
 import type { IoAdapter } from '../io';
-import type { IconData } from '../types';
+import type { IconData, CodeAllocationMode } from '../types';
 import { openProject, saveProject, type IconCodeFix } from '../database';
 import crypto from 'crypto';
 
@@ -90,13 +90,14 @@ export interface ImportResult {
  * @param io - File system adapter
  * @param projectPath - Path to the .icp file
  * @param svgPaths - Paths to SVG files to import
- * @param opts - Optional: target group name (default: uncategorized)
+ * @param opts - Optional: target group name (default: uncategorized), and
+ *   codeMode to control PUA code allocation ('append' default, or 'fill')
  */
 export async function importIcons(
   io: IoAdapter,
   projectPath: string,
   svgPaths: string[],
-  opts?: { group?: string }
+  opts?: { group?: string; codeMode?: CodeAllocationMode }
 ): Promise<ImportResult> {
   const resolvedPath = io.resolve(projectPath);
   const db = await openProject(io, resolvedPath);
@@ -121,7 +122,8 @@ export async function importIcons(
       const sanitized = sanitizeSvgForCli(content);
 
       const id = crypto.randomUUID();
-      const iconCode = db.getNewIconCode();
+      // Allocate inside the target group's declared range when it has one.
+      const iconCode = db.getNewIconCode(opts?.codeMode, targetGroupId);
       const iconName = io.basename(svgPath, io.extname(svgPath));
       const iconSize = byteLength(sanitized);
 
@@ -241,21 +243,33 @@ export interface MoveResult {
   moved: number;
   ids: string[];
   targetGroup: string;
+  /** Icons whose out-of-range codes were reassigned into the target range (only when reassignOutOfRange). */
+  reassigned: { id: string; oldCode: string; newCode: string }[];
 }
 
 /**
  * Move icons to a different group. Variants follow their parent.
  *
+ * By default codes are kept exactly as-is (reassignOutOfRange = false), so the
+ * behaviour is unchanged for callers that don't opt in. When
+ * reassignOutOfRange is true AND the target group declares a code range, every
+ * moved icon (and its variants) whose code falls outside that range is
+ * reallocated to a free code point inside the range. The batch shares a single
+ * allocation baseline so the new codes never collide with each other.
+ * Throws GROUP_RANGE_EXHAUSTED when the range cannot fit all out-of-range icons.
+ *
  * @param io - File system adapter
  * @param projectPath - Path to the .icp file
  * @param ids - Icon UUIDs to move
  * @param targetGroupName - Target group name
+ * @param opts - reassignOutOfRange (default false) + codeMode for the reassignment ('append' default)
  */
 export async function moveIcons(
   io: IoAdapter,
   projectPath: string,
   ids: string[],
-  targetGroupName: string
+  targetGroupName: string,
+  opts?: { reassignOutOfRange?: boolean; codeMode?: CodeAllocationMode }
 ): Promise<MoveResult> {
   const resolvedPath = io.resolve(projectPath);
   const db = await openProject(io, resolvedPath);
@@ -269,9 +283,14 @@ export async function moveIcons(
     const targetGroupId = group.id as string;
 
     db.moveIcons(ids, targetGroupId);
+
+    const reassigned = opts?.reassignOutOfRange
+      ? db.reassignIconsIntoRange(ids, targetGroupId, opts?.codeMode)
+      : [];
+
     await saveProject(io, resolvedPath, db);
 
-    return { moved: ids.length, ids, targetGroup: targetGroupName };
+    return { moved: ids.length, ids, targetGroup: targetGroupName, reassigned };
   } finally {
     db.close();
   }
@@ -326,12 +345,15 @@ export interface CopyResult {
  * @param projectPath - Path to the .icp file
  * @param ids - Icon UUIDs to copy
  * @param targetGroupName - Target group name
+ * @param opts - Optional: codeMode to control PUA code allocation ('append'
+ *   default, or 'fill')
  */
 export async function copyIcons(
   io: IoAdapter,
   projectPath: string,
   ids: string[],
-  targetGroupName: string
+  targetGroupName: string,
+  opts?: { codeMode?: CodeAllocationMode }
 ): Promise<CopyResult> {
   const resolvedPath = io.resolve(projectPath);
   const db = await openProject(io, resolvedPath);
@@ -345,7 +367,7 @@ export async function copyIcons(
 
     const copied: { id: string; name: string; code: string }[] = [];
     for (const sourceId of ids) {
-      const result = db.copyIcon(sourceId, targetGroupId);
+      const result = db.copyIcon(sourceId, targetGroupId, opts?.codeMode);
       copied.push({ id: result.id, name: result.iconName, code: result.iconCode });
     }
 

@@ -8,7 +8,9 @@ import type { IoAdapter } from '../io';
 import { openProject, createEmptyProject, saveProject } from '../database';
 
 export interface InspectResult {
+  /** User-facing project name (displayName, falls back to prefix) */
   name: string;
+  /** Icon code prefix (font family name / CSS class prefix) */
   prefix: string;
   iconCount: number;
   groupCount: number;
@@ -20,17 +22,19 @@ export interface InspectResult {
  *
  * @param io - File system adapter
  * @param outputPath - Path where the .icp file will be written
- * @param projectName - Optional font prefix / project name (defaults to 'iconfont')
+ * @param projectName - Optional icon code prefix / font family name (defaults to 'iconfont')
+ * @param displayName - Optional user-facing project name (falls back to the prefix)
  * @returns The resolved path of the created project
  */
 export async function createProject(
   io: IoAdapter,
   outputPath: string,
-  projectName?: string
+  projectName?: string,
+  displayName?: string
 ): Promise<{ projectPath: string }> {
   const resolvedPath = io.resolve(outputPath);
 
-  const db = await createEmptyProject(projectName);
+  const db = await createEmptyProject(projectName, displayName);
   try {
     await saveProject(io, resolvedPath, db);
   } finally {
@@ -64,8 +68,10 @@ export async function inspectProject(io: IoAdapter, projectPath: string): Promis
     }));
 
     return {
-      name: attrs.projectName,
-      prefix: attrs.projectName, // projectName IS the prefix in Bobcorn
+      // Human-facing name = displayName; falls back to prefix when unset (legacy files)
+      name: attrs.displayName || attrs.projectName,
+      // Icon code prefix = projectName (font family / CSS class prefix)
+      prefix: attrs.projectName,
       iconCount,
       groupCount: groups.length,
       groups: groupsWithCounts,

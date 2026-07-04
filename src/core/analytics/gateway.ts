@@ -7,6 +7,7 @@ import { collectEnvironmentMeta } from './environment';
 import { sendToGA4 } from './ga4';
 import { recordEvent } from './local-store';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- consent gating temporarily disabled (see TODO below); kept for re-enabling
 let consent: AnalyticsConsent = { ...CONSENT_DEFAULTS };
 let envMeta: EnvironmentMeta | null = null;
 let currentProject: string | null = null;

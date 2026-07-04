@@ -55,6 +55,38 @@ describe('project create', () => {
     expect(json.data.name).toBe('my-icons');
     expect(json.data.prefix).toBe('my-icons');
   });
+
+  it('creates project with separate display name and code prefix', async () => {
+    const tmp = await tmpProject();
+    cleanup = tmp.cleanup;
+
+    const icpPath = join(tmp.dir, 'split.icp');
+    await run([
+      'project',
+      'create',
+      icpPath,
+      '--name',
+      'myfont',
+      '--display-name',
+      'My Project',
+    ]);
+
+    const { json } = await runJson(['project', 'inspect', icpPath]);
+    expect(json.data.name).toBe('My Project'); // human-readable display name
+    expect(json.data.prefix).toBe('myfont'); // icon code prefix
+  });
+
+  it('display name falls back to prefix when --display-name is omitted', async () => {
+    const tmp = await tmpProject();
+    cleanup = tmp.cleanup;
+
+    const icpPath = join(tmp.dir, 'fallback.icp');
+    await run(['project', 'create', icpPath, '--name', 'fallbackfont']);
+
+    const { json } = await runJson(['project', 'inspect', icpPath]);
+    expect(json.data.name).toBe('fallbackfont');
+    expect(json.data.prefix).toBe('fallbackfont');
+  });
 });
 
 describe('project inspect', () => {

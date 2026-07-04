@@ -28,7 +28,8 @@ export const OPERATIONS: OpEntry[] = [
   // ── Project ─────────────────────────────────────────────
   {
     id: 'project.create',
-    description: 'Create a new .icp project file',
+    description:
+      'Create a new .icp project file (--name = icon code prefix, --display-name = human-readable name)',
     status: OpStatus.Core,
     corePath: 'src/core/operations/project.ts#createProject',
     legacyPaths: ['src/renderer/database/index.ts#initDatabases'],
@@ -91,7 +92,8 @@ export const OPERATIONS: OpEntry[] = [
   // ── Icon ────────────────────────────────────────────────
   {
     id: 'icon.import',
-    description: 'Import SVG files into project (sanitize + insert)',
+    description:
+      'Import SVG files into project (sanitize + insert). Supports --code-mode append|fill for new icon code allocation (default: append)',
     status: OpStatus.Core,
     corePath: 'src/core/operations/icon.ts#importIcons',
     legacyPaths: ['src/renderer/store/index.ts#importIcons', 'src/renderer/utils/importer/'],
@@ -123,7 +125,8 @@ export const OPERATIONS: OpEntry[] = [
   },
   {
     id: 'icon.copy',
-    description: 'Copy icon(s) to a different group (batch)',
+    description:
+      "Copy icon(s) to a different group (batch). Supports --code-mode append|fill for the new copies' icon codes (default: append)",
     status: OpStatus.Core,
     corePath: 'src/core/operations/icon.ts#copyIcons',
     legacyPaths: ['src/renderer/components/BatchPanel/index.tsx'],
@@ -256,6 +259,33 @@ export const OPERATIONS: OpEntry[] = [
     corePath: 'src/core/operations/group.ts#setGroupDescription',
     legacyPaths: ['src/renderer/components/SideMenu/GroupDialogs.tsx'],
     cliCommand: 'group set-description',
+  },
+  {
+    id: 'group.set-code-range',
+    description:
+      "Set or clear a group's PUA code range (E000-F8FF). Icons added to the group allocate codes inside the range; the global pool skips it. Validates PUA bounds, start<=end, and no overlap with other groups.",
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/group.ts#setGroupCodeRange',
+    legacyPaths: [],
+    cliCommand: 'group set-code-range',
+  },
+  {
+    id: 'group.inspect',
+    description:
+      'Inspect a group: its code range (if any) and range occupancy stats (capacity/used/free + out-of-range icon count)',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/group.ts#inspectGroup',
+    legacyPaths: [],
+    cliCommand: 'group inspect',
+  },
+  {
+    id: 'group.range-violations',
+    description:
+      'List icons whose unicode code falls outside the code range declared by their own group (feeds code-health markers)',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/group.ts#rangeViolations',
+    legacyPaths: [],
+    cliCommand: 'group check',
   },
   {
     id: 'group.move-icons',

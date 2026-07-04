@@ -45,6 +45,9 @@ import {
   deleteGroup as coreDeleteGroup,
   reorderGroups as coreReorderGroups,
   setGroupDescription as coreSetGroupDescription,
+  setGroupCodeRange as coreSetGroupCodeRange,
+  inspectGroup as coreInspectGroup,
+  rangeViolations as coreRangeViolations,
 } from '../core/operations/group';
 import {
   setProjectName as coreSetProjectName,
@@ -52,12 +55,13 @@ import {
 } from '../core/operations/project';
 import { exportFont as coreExportFont } from '../core/operations/export-font';
 import { exportBatchSvg as coreExportBatchSvg } from '../core/operations/export-svg';
+import type { CodeAllocationMode } from '../core/types';
 
 // Read version from package.json at build time (tsup bundles it)
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version: VERSION } = require('../../package.json');
 
-function stubAction(commandName: string) {
+function stubAction(_commandName: string) {
   return () => {
     console.error('Not yet implemented \u2014 awaiting core migration');
     process.exit(1);
@@ -71,6 +75,35 @@ function makeMeta(command: string, projectPath: string, start: number): CliMeta 
     duration_ms: Date.now() - start,
     version: VERSION,
   };
+}
+
+/**
+ * Validate the --code-mode option (new icon code allocation mode).
+ *
+ * Resolution chain: explicit --code-mode flag > 'append' default. Unlike most
+ * project settings, the GUI's codeAllocationMode preference lives in renderer
+ * localStorage (a global user preference), not in the .icp file itself — there
+ * is no per-project value persisted for the CLI to fall back to.
+ *
+ * Returns undefined when not passed (core operations default to 'append').
+ * Prints an INVALID_CODE_MODE error and exits(2) on invalid values.
+ */
+function validateCodeMode(
+  raw: string | undefined,
+  meta: CliMeta,
+  jsonMode: boolean,
+  start: number
+): CodeAllocationMode | undefined {
+  if (raw === undefined) return undefined;
+  if (raw === 'append' || raw === 'fill') return raw;
+  meta.duration_ms = Date.now() - start;
+  const result = jsonError(
+    `Invalid --code-mode value: "${raw}". Must be "append" or "fill".`,
+    'INVALID_CODE_MODE',
+    meta
+  );
+  printResult(result, jsonMode);
+  process.exit(2);
 }
 
 const program = new Command()
@@ -132,7 +165,8 @@ const project = program
 project
   .command('inspect [icp]')
   .description(
-    'Show project metadata: name, prefix, icon/group counts, and per-group breakdown. Use --json for structured output.'
+    'Show project metadata: name (human-readable display name), prefix (icon code prefix / font family name), ' +
+      'icon/group counts, and per-group breakdown. Use --json for structured output.'
   )
   .action(async (icpPath?: string) => {
     const start = Date.now();
@@ -173,15 +207,18 @@ project
 project
   .command('create <path>')
   .description(
-    'Create a new empty .icp project file. Use --name to set the font family name (default: "iconfont").'
+    'Create a new empty .icp project file. Use --name to set the icon code prefix / font family name ' +
+      '(default: "iconfont", used for the font name, CSS class prefix and export directory). ' +
+      'Use --display-name to set a separate human-readable project name (optional; falls back to the prefix).'
   )
-  .option('--name <name>', 'Project / font prefix name', 'iconfont')
-  .action(async (icpPath: string, opts: { name: string }) => {
+  .option('--name <name>', 'Icon code prefix / font family name', 'iconfont')
+  .option('--display-name <name>', 'Human-readable project name (optional; falls back to --name)')
+  .action(async (icpPath: string, opts: { name: string; displayName?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
     const meta = makeMeta('project create', icpPath, start);
     try {
-      const { projectPath } = await coreCreateProject(nodeIo, icpPath, opts.name);
+      const { projectPath } = await coreCreateProject(nodeIo, icpPath, opts.name, opts.displayName);
       meta.duration_ms = Date.now() - start;
       meta.projectPath = projectPath;
       const result = jsonOutput({ projectPath }, meta);
@@ -352,10 +389,14 @@ icon
 icon
   .command('import <svgsOrIcp...>')
   .description(
-    'Import SVG files into a project. Each SVG is sanitized (scripts and event handlers removed), assigned a UUID and the next available PUA unicode code point (E000-F8FF), and inserted into the iconData table. Icons go to "uncategorized" by default. Use --group to specify a target group by name. The project file is saved after import.'
+    'Import SVG files into a project. Each SVG is sanitized (scripts and event handlers removed), assigned a UUID and the next available PUA unicode code point (E000-F8FF), and inserted into the iconData table. Icons go to "uncategorized" by default. Use --group to specify a target group by name. Use --code-mode to control code allocation: "append" (default) allocates past the highest used code, falling back to hole-filling only when the tail is full; "fill" always reuses the first free (lowest) code point. Fails with PUA_EXHAUSTED when there are not enough free code points. The project file is saved after import.'
   )
   .option('--group <name>', 'Target group name (exact match)')
-  .action(async (args: string[], opts: { group?: string }) => {
+  .option(
+    '--code-mode <mode>',
+    'New icon code allocation mode: "append" (default) or "fill". Invalid values exit with INVALID_CODE_MODE.'
+  )
+  .action(async (args: string[], opts: { group?: string; codeMode?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
     // If the first arg ends with .icp, treat it as the project path (backward compat)
@@ -369,6 +410,7 @@ icon
     }
     const meta = makeMeta('icon import', icpPath ?? '', start);
     try {
+      const codeMode = validateCodeMode(opts.codeMode, meta, jsonMode, start);
       const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
       meta.projectPath = resolvedPath;
       if (svgs.length === 0) {
@@ -389,6 +431,7 @@ icon
       }
       const importResult = await coreImportIcons(nodeIo, resolvedPath, svgs, {
         group: opts.group,
+        codeMode,
       });
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(importResult, meta);
@@ -401,7 +444,12 @@ icon
       }
     } catch (err: any) {
       meta.duration_ms = Date.now() - start;
-      const result = jsonError(err.message, 'IMPORT_ERROR', meta);
+      const errCode = err.message.startsWith('PUA_EXHAUSTED')
+        ? 'PUA_EXHAUSTED'
+        : err.message.startsWith('GROUP_RANGE_EXHAUSTED')
+          ? 'GROUP_RANGE_EXHAUSTED'
+          : 'IMPORT_ERROR';
+      const result = jsonError(err.message, errCode, meta);
       printResult(result, jsonMode);
       process.exit(2);
     }
@@ -443,53 +491,79 @@ icon
 icon
   .command('move <idsOrIcp...>')
   .option('--to <group>', 'Target group name (exact match, required)')
-  .description(
-    'Move one or more icons to a different group by UUID. Pass multiple UUIDs for batch move. Variant icons follow their parent icon automatically. The --to flag specifies the target group name (exact match). The project is saved after the move.'
+  .option(
+    '--reassign',
+    'When the target group has a code range, reallocate out-of-range icons into free code points inside the range (batch shares one allocation baseline).'
   )
-  .action(async (args: string[], opts: { to?: string }) => {
-    const start = Date.now();
-    const jsonMode = program.opts().json;
-    let icpPath: string | undefined;
-    let ids: string[];
-    if (args[0]?.endsWith('.icp')) {
-      icpPath = args[0];
-      ids = args.slice(1);
-    } else {
-      ids = args;
-    }
-    const meta = makeMeta('icon move', icpPath ?? '', start);
-    try {
-      if (!opts.to) {
+  .option(
+    '--keep-codes',
+    'Keep icon codes exactly as-is (the default). Explicit opposite of --reassign.'
+  )
+  .description(
+    "Move one or more icons to a different group by UUID. Pass multiple UUIDs for batch move. Variant icons follow their parent icon automatically. The --to flag specifies the target group name (exact match). By default codes are preserved; with --reassign, icons whose code is outside the target group's declared range are reallocated inside it (fails with GROUP_RANGE_EXHAUSTED if the range is too small). The project is saved after the move."
+  )
+  .action(
+    async (args: string[], opts: { to?: string; reassign?: boolean; keepCodes?: boolean }) => {
+      const start = Date.now();
+      const jsonMode = program.opts().json;
+      let icpPath: string | undefined;
+      let ids: string[];
+      if (args[0]?.endsWith('.icp')) {
+        icpPath = args[0];
+        ids = args.slice(1);
+      } else {
+        ids = args;
+      }
+      const meta = makeMeta('icon move', icpPath ?? '', start);
+      try {
+        if (!opts.to) {
+          meta.duration_ms = Date.now() - start;
+          const result = jsonError('--to <group> is required', 'MISSING_OPTION', meta);
+          printResult(result, jsonMode);
+          process.exit(2);
+        }
+        const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+        meta.projectPath = resolvedPath;
+        const moveResult = await coreMoveIcons(nodeIo, resolvedPath, ids, opts.to, {
+          reassignOutOfRange: !!opts.reassign,
+        });
         meta.duration_ms = Date.now() - start;
-        const result = jsonError('--to <group> is required', 'MISSING_OPTION', meta);
+        const result = jsonOutput(moveResult, meta);
+        printResult(result, jsonMode);
+        if (!jsonMode) {
+          console.log(`Moved ${moveResult.moved} icon(s) to "${moveResult.targetGroup}"`);
+          if (moveResult.reassigned.length > 0) {
+            console.log(`  Reassigned ${moveResult.reassigned.length} out-of-range code(s):`);
+            for (const r of moveResult.reassigned) {
+              console.log(`    ${r.oldCode || '(empty)'} -> ${r.newCode}`);
+            }
+          }
+        }
+      } catch (err: any) {
+        meta.duration_ms = Date.now() - start;
+        const code = err.message.startsWith('GROUP_RANGE_EXHAUSTED')
+          ? 'GROUP_RANGE_EXHAUSTED'
+          : err.message.includes('not found')
+            ? 'GROUP_NOT_FOUND'
+            : 'FILE_IO_ERROR';
+        const result = jsonError(err.message, code, meta);
         printResult(result, jsonMode);
         process.exit(2);
       }
-      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
-      meta.projectPath = resolvedPath;
-      const moveResult = await coreMoveIcons(nodeIo, resolvedPath, ids, opts.to);
-      meta.duration_ms = Date.now() - start;
-      const result = jsonOutput(moveResult, meta);
-      printResult(result, jsonMode);
-      if (!jsonMode) {
-        console.log(`Moved ${moveResult.moved} icon(s) to "${moveResult.targetGroup}"`);
-      }
-    } catch (err: any) {
-      meta.duration_ms = Date.now() - start;
-      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
-      const result = jsonError(err.message, code, meta);
-      printResult(result, jsonMode);
-      process.exit(2);
     }
-  });
+  );
 
 icon
   .command('copy <idsOrIcp...>')
   .option('--to <group>', 'Target group name (exact match, required)')
-  .description(
-    'Copy one or more icons to a different group. Creates independent copies with new UUIDs and unicode codes. Variants are NOT copied.'
+  .option(
+    '--code-mode <mode>',
+    'New icon code allocation mode for the copies: "append" (default) or "fill". Invalid values exit with INVALID_CODE_MODE.'
   )
-  .action(async (args: string[], opts: { to?: string }) => {
+  .description(
+    'Copy one or more icons to a different group. Creates independent copies with new UUIDs and unicode codes. Variants are NOT copied. Use --code-mode to control code allocation: "append" (default) allocates past the highest used code, falling back to hole-filling only when the tail is full; "fill" always reuses the first free (lowest) code point. Fails with PUA_EXHAUSTED when there are not enough free code points.'
+  )
+  .action(async (args: string[], opts: { to?: string; codeMode?: string }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
     let icpPath: string | undefined;
@@ -508,9 +582,10 @@ icon
         printResult(result, jsonMode);
         process.exit(2);
       }
+      const codeMode = validateCodeMode(opts.codeMode, meta, jsonMode, start);
       const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
       meta.projectPath = resolvedPath;
-      const copyResult = await coreCopyIcons(nodeIo, resolvedPath, ids, opts.to);
+      const copyResult = await coreCopyIcons(nodeIo, resolvedPath, ids, opts.to, { codeMode });
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(copyResult, meta);
       printResult(result, jsonMode);
@@ -522,8 +597,14 @@ icon
       }
     } catch (err: any) {
       meta.duration_ms = Date.now() - start;
-      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
-      const result = jsonError(err.message, code, meta);
+      const errCode = err.message.startsWith('PUA_EXHAUSTED')
+        ? 'PUA_EXHAUSTED'
+        : err.message.startsWith('GROUP_RANGE_EXHAUSTED')
+          ? 'GROUP_RANGE_EXHAUSTED'
+          : err.message.includes('not found')
+            ? 'GROUP_NOT_FOUND'
+            : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, errCode, meta);
       printResult(result, jsonMode);
       process.exit(2);
     }
@@ -863,14 +944,39 @@ group
         if (groups.length === 0) {
           console.log('No groups found.');
         } else {
+          const toHex = (v: unknown): string =>
+            v === null || v === undefined
+              ? ''
+              : Number(v).toString(16).toUpperCase().padStart(4, '0');
+          const rangeOf = (g: (typeof groups)[number]): string => {
+            const s = toHex(g.codeRangeStart);
+            const e = toHex(g.codeRangeEnd);
+            return s && e ? `${s}-${e}` : '';
+          };
+          const anyRange = groups.some((g) => rangeOf(g));
           const nameWidth = Math.max(4, ...groups.map((g) => g.groupName.length));
           const orderWidth = Math.max(5, ...groups.map((g) => String(g.groupOrder).length));
-          console.log(`  ${'Name'.padEnd(nameWidth)}  ${'Order'.padEnd(orderWidth)}`);
-          console.log(`  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(orderWidth, '-')}`);
-          for (const g of groups) {
+          const rangeWidth = Math.max(5, ...groups.map((g) => rangeOf(g).length));
+          if (anyRange) {
             console.log(
-              `  ${g.groupName.padEnd(nameWidth)}  ${String(g.groupOrder).padEnd(orderWidth)}`
+              `  ${'Name'.padEnd(nameWidth)}  ${'Order'.padEnd(orderWidth)}  ${'Range'.padEnd(rangeWidth)}`
             );
+            console.log(
+              `  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(orderWidth, '-')}  ${''.padEnd(rangeWidth, '-')}`
+            );
+            for (const g of groups) {
+              console.log(
+                `  ${g.groupName.padEnd(nameWidth)}  ${String(g.groupOrder).padEnd(orderWidth)}  ${rangeOf(g).padEnd(rangeWidth)}`
+              );
+            }
+          } else {
+            console.log(`  ${'Name'.padEnd(nameWidth)}  ${'Order'.padEnd(orderWidth)}`);
+            console.log(`  ${''.padEnd(nameWidth, '-')}  ${''.padEnd(orderWidth, '-')}`);
+            for (const g of groups) {
+              console.log(
+                `  ${g.groupName.padEnd(nameWidth)}  ${String(g.groupOrder).padEnd(orderWidth)}`
+              );
+            }
           }
           console.log(`\n${groups.length} group(s) total`);
         }
@@ -1040,6 +1146,175 @@ group
       meta.duration_ms = Date.now() - start;
       const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
       const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
+
+group
+  .command('set-code-range <args...>')
+  .option('--clear', "Remove the group's code range (icons keep their current codes)")
+  .description(
+    'Set or clear a group\'s PUA code range. Provide the range as hex bounds "E100-E1FF" (case-insensitive, inclusive). ' +
+      'Icons added to the group afterwards allocate their unicode codes inside this range; the global/uncategorized ' +
+      'pool automatically skips the reserved range. Validates that both bounds fall in the PUA range E000-F8FF, that ' +
+      "start <= end, and that the range does not overlap any other group's range (overlap is rejected with " +
+      'CODE_RANGE_OVERLAP). Use --clear to remove the range. The project is saved after the change. ' +
+      'Usage: group set-code-range <group> <E100-E1FF>  |  group set-code-range <group> --clear'
+  )
+  .action(async (args: string[], opts: { clear?: boolean }) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    let icpPath: string | undefined;
+    let rest = args;
+    if (args[0]?.endsWith('.icp')) {
+      icpPath = args[0];
+      rest = args.slice(1);
+    }
+    const groupName = rest[0];
+    const rangeStr = rest[1];
+    const meta = makeMeta('group set-code-range', icpPath ?? '', start);
+    try {
+      if (!groupName) {
+        meta.duration_ms = Date.now() - start;
+        const result = jsonError('Group name is required', 'MISSING_ARGUMENT', meta);
+        printResult(result, jsonMode);
+        process.exit(2);
+      }
+
+      let range: { start: number; end: number } | null = null;
+      if (!opts.clear) {
+        if (!rangeStr) {
+          meta.duration_ms = Date.now() - start;
+          const result = jsonError(
+            'A range "E100-E1FF" or --clear is required',
+            'MISSING_ARGUMENT',
+            meta
+          );
+          printResult(result, jsonMode);
+          process.exit(2);
+        }
+        const m = /^([0-9a-fA-F]{1,6})-([0-9a-fA-F]{1,6})$/.exec(rangeStr.trim());
+        if (!m) {
+          meta.duration_ms = Date.now() - start;
+          const result = jsonError(
+            `Invalid range "${rangeStr}". Expected hex bounds like "E100-E1FF".`,
+            'INVALID_CODE_RANGE',
+            meta
+          );
+          printResult(result, jsonMode);
+          process.exit(2);
+        }
+        range = { start: parseInt(m[1], 16), end: parseInt(m[2], 16) };
+      }
+
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const rangeResult = await coreSetGroupCodeRange(nodeIo, resolvedPath, groupName, range);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(rangeResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (rangeResult.cleared) {
+          console.log(`Cleared code range for "${rangeResult.groupName}"`);
+        } else {
+          const s = rangeResult.codeRangeStart!.toString(16).toUpperCase().padStart(4, '0');
+          const e = rangeResult.codeRangeEnd!.toString(16).toUpperCase().padStart(4, '0');
+          console.log(`Set code range for "${rangeResult.groupName}": ${s}-${e}`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.startsWith('CODE_RANGE_OVERLAP')
+        ? 'CODE_RANGE_OVERLAP'
+        : err.message.startsWith('INVALID_CODE_RANGE')
+          ? 'INVALID_CODE_RANGE'
+          : err.message.includes('not found')
+            ? 'GROUP_NOT_FOUND'
+            : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
+
+group
+  .command('inspect <nameOrIcp> [name]')
+  .description(
+    'Inspect a group: its declared code range (if any) plus range occupancy stats — capacity, used and free ' +
+      "code points inside the range, and how many of the group's own icons fall outside the range."
+  )
+  .action(async (arg1: string, arg2?: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const name = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('group inspect', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const info = await coreInspectGroup(nodeIo, resolvedPath, name);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(info, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        console.log(`Group:  ${info.groupName}`);
+        console.log(`Icons:  ${info.iconCount}`);
+        if (info.codeRangeStartHex && info.codeRangeEndHex) {
+          console.log(`Range:  ${info.codeRangeStartHex}-${info.codeRangeEndHex}`);
+          console.log(
+            `Occupancy: ${info.rangeUsed}/${info.rangeCapacity} used (${info.rangeFree} free)`
+          );
+          console.log(`Out of range: ${info.outOfRangeCount} icon(s) in this group`);
+        } else {
+          console.log('Range:  (none)');
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const code = err.message.includes('not found') ? 'GROUP_NOT_FOUND' : 'FILE_IO_ERROR';
+      const result = jsonError(err.message, code, meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
+
+group
+  .command('check [icp]')
+  .description(
+    'List icons whose unicode code falls outside the code range declared by their own group. Groups without a ' +
+      'range are not checked. Use this to audit range health; the GUI surfaces the same data as out-of-range markers.'
+  )
+  .action(async (icpPath?: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const meta = makeMeta('group check', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const info = await coreRangeViolations(nodeIo, resolvedPath);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(info, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (info.checkedGroups === 0) {
+          console.log('No groups declare a code range. Nothing to check.');
+        } else if (info.violations.length === 0) {
+          console.log(
+            `All icons are within range (${info.checkedGroups} ranged group(s) checked).`
+          );
+        } else {
+          console.log(`${info.violations.length} out-of-range icon(s):`);
+          for (const v of info.violations) {
+            console.log(
+              `  ${(v.iconCode || '(empty)').padEnd(8)} ${v.iconName}  [${v.groupName} ${v.codeRangeStartHex}-${v.codeRangeEndHex}]  ${v.id}`
+            );
+          }
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
       printResult(result, jsonMode);
       process.exit(2);
     }

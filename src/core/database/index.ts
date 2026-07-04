@@ -8,7 +8,8 @@
  * Uses sql.js ASM build (same as renderer) for cross-platform compatibility.
  */
 import type { IoAdapter } from '../io';
-import type { IconData, GroupData, ProjectAttributes } from '../types';
+import type { IconData, GroupData, ProjectAttributes, CodeAllocationMode } from '../types';
+import { allocateIconCodeDec, planRangeReassignments, type CodeRange } from '../code-allocation';
 import crypto from 'crypto';
 
 // ---------------------------------------------------------------------------
@@ -132,21 +133,29 @@ export class ProjectDb {
    * Create the full schema for a new empty project.
    * Mirrors renderer's initNewProject() exactly.
    */
-  initSchema(projectName: string = 'iconfont'): void {
-    // Project attributes table
+  initSchema(projectName: string = 'iconfont', displayName?: string): void {
+    // Project attributes table.
+    // projectName = icon code prefix (technical); displayName = user-facing project name.
     this.db.run(
-      `CREATE TABLE ${TABLE_PROJECT} (id varchar(255), projectName varchar(255), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${TABLE_PROJECT} (id varchar(255), projectName varchar(255), displayName varchar(255), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db.run(
       `CREATE TRIGGER ${TRIGGER_PROJECT} AFTER UPDATE ON ${TABLE_PROJECT} FOR EACH ROW BEGIN UPDATE ${TABLE_PROJECT} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
     );
-    this.db.run(
-      `INSERT INTO ${TABLE_PROJECT} (id, projectName) VALUES ('projectAttributes', ${sf(projectName)})`
-    );
+    if (displayName) {
+      this.db.run(
+        `INSERT INTO ${TABLE_PROJECT} (id, projectName, displayName) VALUES ('projectAttributes', ${sf(projectName)}, ${sf(displayName)})`
+      );
+    } else {
+      this.db.run(
+        `INSERT INTO ${TABLE_PROJECT} (id, projectName) VALUES ('projectAttributes', ${sf(projectName)})`
+      );
+    }
 
     // Group data table
+    // codeRangeStart/codeRangeEnd = optional per-group PUA code range (decimal code points).
     this.db.run(
-      `CREATE TABLE ${TABLE_GROUP} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, groupIcon TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${TABLE_GROUP} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, groupIcon TEXT, codeRangeStart int, codeRangeEnd int, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db.run(
       `CREATE TRIGGER ${TRIGGER_GROUP} AFTER UPDATE ON ${TABLE_GROUP} FOR EACH ROW BEGIN UPDATE ${TABLE_GROUP} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -179,9 +188,24 @@ export class ProjectDb {
    * Safe to call multiple times — each migration checks before altering.
    */
   runMigrations(): void {
+    this.migrateProjectColumns();
     this.migrateIconColumns();
     this.migrateGroupColumns();
     this.migrateVariantColumns();
+  }
+
+  private migrateProjectColumns(): void {
+    try {
+      const colNames = this.getColumnNames(TABLE_PROJECT);
+      if (colNames.length === 0) return;
+
+      // Split project name (icon code prefix) from user-facing display name.
+      if (!colNames.includes('displayName')) {
+        this.db.run(`ALTER TABLE ${TABLE_PROJECT} ADD COLUMN displayName varchar(255)`);
+      }
+    } catch (_) {
+      // Column might already exist
+    }
   }
 
   private getColumnNames(table: string): string[] {
@@ -217,6 +241,14 @@ export class ProjectDb {
 
       if (!colNames.includes('groupIcon')) {
         this.db.run(`ALTER TABLE ${TABLE_GROUP} ADD COLUMN groupIcon TEXT`);
+      }
+
+      // Per-group code range (optional PUA sub-range, decimal code points)
+      if (!colNames.includes('codeRangeStart')) {
+        this.db.run(`ALTER TABLE ${TABLE_GROUP} ADD COLUMN codeRangeStart int`);
+      }
+      if (!colNames.includes('codeRangeEnd')) {
+        this.db.run(`ALTER TABLE ${TABLE_GROUP} ADD COLUMN codeRangeEnd int`);
       }
 
       // Cleanup triggers (drop + create for idempotency)
@@ -274,6 +306,21 @@ export class ProjectDb {
     this.db.run(
       `UPDATE ${TABLE_PROJECT} SET projectName = ${sf(name)} WHERE id = 'projectAttributes'`
     );
+  }
+
+  /** Human-readable project name (separate from the icon code prefix). */
+  getProjectDisplayName(): string | null {
+    return (this.getProjectAttributes().displayName as string | undefined) || null;
+  }
+
+  setProjectDisplayName(displayName: string | null): void {
+    if (displayName) {
+      this.db.run(
+        `UPDATE ${TABLE_PROJECT} SET displayName = ${sf(displayName)} WHERE id = 'projectAttributes'`
+      );
+    } else {
+      this.db.run(`UPDATE ${TABLE_PROJECT} SET displayName = NULL WHERE id = 'projectAttributes'`);
+    }
   }
 
   // ── Group queries ───────────────────────────────────────────
@@ -385,27 +432,152 @@ export class ProjectDb {
 
   /**
    * Get the next available unicode code point (hex string, e.g. "E000").
-   * Scans all existing codes in PUA range E000-F8FF and returns the first unused.
+   * Mirrors the renderer's codeAllocationMode semantics exactly
+   * (src/renderer/database/index.ts#getNewIconCode):
+   *   append (default) — allocate past the highest currently-used code in the
+   *     PUA range, protecting already-published CSS references from code
+   *     reuse. Falls back to hole-filling when the tail is full (next code
+   *     would exceed F8FF).
+   *   fill — always return the lowest free code point (fills holes first).
    * Throws PUA_EXHAUSTED when all 6400 code points are in use — callers must
    * not silently reuse an occupied code (duplicate codes corrupt font export).
    */
-  getNewIconCode(): string {
-    const PUA_MIN = 0xe000; // 57344
-    const PUA_MAX = 0xf8ff; // 63743
-
+  getNewIconCode(mode: CodeAllocationMode = 'append', targetGroupId?: string): string {
     const result = this.db.exec(`SELECT iconCode FROM ${TABLE_ICON}`);
-    if (result.length === 0) {
-      return PUA_MIN.toString(16).toUpperCase();
+    const usedSet = new Set<number>();
+    if (result.length > 0) {
+      result[0].values.forEach((row) => {
+        const c = parseInt(row[0] as string, 16);
+        if (Number.isFinite(c)) usedSet.add(c);
+      });
     }
 
-    const usedSet = new Set(result[0].values.map((row) => parseInt(row[0] as string, 16)));
+    // A ranged target group allocates strictly inside its range; otherwise the
+    // global pool allocation skips every declared range (reserved code points).
+    const targetRange = this.getGroupCodeRange(targetGroupId);
+    const reserved = targetRange ? [] : this.getAllGroupCodeRanges();
+    const dec = allocateIconCodeDec(mode, usedSet, targetRange, reserved);
+    return dec.toString(16).toUpperCase();
+  }
 
-    for (let code = PUA_MIN; code <= PUA_MAX; code++) {
-      if (!usedSet.has(code)) {
-        return code.toString(16).toUpperCase();
+  /**
+   * Resolve a group's declared code range, or null when the group has none
+   * (also null for virtual groups such as 'resource-uncategorized').
+   */
+  getGroupCodeRange(groupId?: string): CodeRange | null {
+    if (!groupId || groupId.startsWith('resource-')) return null;
+    let rows: any[][];
+    try {
+      const result = this.db.exec(
+        `SELECT codeRangeStart, codeRangeEnd FROM ${TABLE_GROUP} WHERE id = ${sf(groupId)}`
+      );
+      if (result.length === 0 || result[0].values.length === 0) return null;
+      rows = result[0].values;
+    } catch {
+      return null; // columns not present (unmigrated file)
+    }
+    const [start, end] = rows[0];
+    if (start === null || start === undefined || end === null || end === undefined) return null;
+    return { start: Number(start), end: Number(end) };
+  }
+
+  /** All declared group code ranges (groups with both bounds set). */
+  getAllGroupCodeRanges(): CodeRange[] {
+    try {
+      const result = this.db.exec(
+        `SELECT codeRangeStart, codeRangeEnd FROM ${TABLE_GROUP} WHERE codeRangeStart IS NOT NULL AND codeRangeEnd IS NOT NULL`
+      );
+      if (result.length === 0) return [];
+      return result[0].values.map((r) => ({ start: Number(r[0]), end: Number(r[1]) }));
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Set or clear a group's code range. Pass null/null to clear.
+   * Values are decimal PUA code points; no validation here (callers validate).
+   */
+  setGroupCodeRange(id: string, start: number | null, end: number | null): void {
+    if (start === null || end === null) {
+      this.db.run(
+        `UPDATE ${TABLE_GROUP} SET codeRangeStart = NULL, codeRangeEnd = NULL WHERE id = ${sf(id)}`
+      );
+    } else {
+      this.db.run(
+        `UPDATE ${TABLE_GROUP} SET codeRangeStart = ${Math.trunc(start)}, codeRangeEnd = ${Math.trunc(end)} WHERE id = ${sf(id)}`
+      );
+    }
+  }
+
+  /**
+   * Every group's declared range plus identity, for overlap checks and inspection.
+   * Returns only groups that actually declare a range.
+   */
+  getGroupRanges(): { id: string; groupName: string; start: number; end: number }[] {
+    let result: SqlJsQueryResult[];
+    try {
+      result = this.db.exec(
+        `SELECT id, groupName, codeRangeStart, codeRangeEnd FROM ${TABLE_GROUP} WHERE codeRangeStart IS NOT NULL AND codeRangeEnd IS NOT NULL`
+      );
+    } catch {
+      return [];
+    }
+    if (result.length === 0) return [];
+    return result[0].values.map((r) => ({
+      id: String(r[0]),
+      groupName: String(r[1] ?? ''),
+      start: Number(r[2]),
+      end: Number(r[3]),
+    }));
+  }
+
+  /**
+   * Icons in a group whose code is invalid or outside [start, end] (parents and
+   * variants). Feeds group inspect / range-violations.
+   */
+  getGroupIconsOutOfRange(
+    groupId: string,
+    start: number,
+    end: number
+  ): { id: string; iconName: string; iconCode: string }[] {
+    const result = this.db.exec(
+      `SELECT id, iconName, iconCode FROM ${TABLE_ICON} WHERE iconGroup = ${sf(groupId)}`
+    );
+    if (result.length === 0) return [];
+    const out: { id: string; iconName: string; iconCode: string }[] = [];
+    for (const row of result[0].values) {
+      const iconCode = String(row[2] ?? '');
+      const dec = parseInt(iconCode, 16);
+      const inRange = Number.isFinite(dec) && dec >= start && dec <= end;
+      if (!inRange) {
+        out.push({ id: String(row[0]), iconName: String(row[1] ?? ''), iconCode });
       }
     }
-    throw new Error('PUA_EXHAUSTED: all 6400 code points (E000-F8FF) are in use');
+    return out;
+  }
+
+  /** Count of a group's icons whose code is invalid or outside [start, end]. */
+  countGroupIconsOutOfRange(groupId: string, start: number, end: number): number {
+    return this.getGroupIconsOutOfRange(groupId, start, end).length;
+  }
+
+  /**
+   * Range occupancy: how many distinct code points inside [start, end] are
+   * occupied by ANY icon (used), the range capacity, and the free remainder.
+   */
+  getRangeOccupancy(start: number, end: number): { used: number; capacity: number; free: number } {
+    const capacity = end - start + 1;
+    const result = this.db.exec(`SELECT iconCode FROM ${TABLE_ICON}`);
+    const inRange = new Set<number>();
+    if (result.length > 0) {
+      result[0].values.forEach((row) => {
+        const c = parseInt(row[0] as string, 16);
+        if (Number.isFinite(c) && c >= start && c <= end) inRange.add(c);
+      });
+    }
+    const used = inRange.size;
+    return { used, capacity, free: capacity - used };
   }
 
   /**
@@ -483,6 +655,49 @@ export class ProjectDb {
     );
   }
 
+  /**
+   * Reallocate icons (given by parent id, variants included) whose code is
+   * outside the target group's declared range into free code points inside it.
+   * No-op (returns []) when the group has no range. Shares one allocation
+   * baseline across the batch so reassigned codes never collide. Throws
+   * GROUP_RANGE_EXHAUSTED when the range cannot fit every out-of-range icon.
+   */
+  reassignIconsIntoRange(
+    parentIds: string[],
+    targetGroupId: string,
+    mode: CodeAllocationMode = 'append'
+  ): { id: string; oldCode: string; newCode: string }[] {
+    const range = this.getGroupCodeRange(targetGroupId);
+    if (!range || parentIds.length === 0) return [];
+
+    // Baseline snapshot of every used code point (taken once for the batch).
+    const usedSet = new Set<number>();
+    const allCodes = this.db.exec(`SELECT iconCode FROM ${TABLE_ICON}`);
+    if (allCodes.length > 0) {
+      allCodes[0].values.forEach((row) => {
+        const c = parseInt(row[0] as string, 16);
+        if (Number.isFinite(c)) usedSet.add(c);
+      });
+    }
+
+    // Affected rows = the moved icons + all their variants, ordered stably.
+    const inClause = parentIds.map((id) => sf(id)).join(',');
+    const affectedResult = this.db.exec(
+      `SELECT id, iconCode FROM ${TABLE_ICON} WHERE id IN (${inClause}) OR variantOf IN (${inClause})`
+    );
+    if (affectedResult.length === 0) return [];
+    const affected = affectedResult[0].values.map((row) => ({
+      id: String(row[0]),
+      code: String(row[1] ?? ''),
+    }));
+
+    const reassigned = planRangeReassignments(mode, usedSet, affected, range);
+    for (const r of reassigned) {
+      this.setIconCode(r.id, r.newCode);
+    }
+    return reassigned;
+  }
+
   // ── Group mutations ─────────────────────────────────────────
 
   /**
@@ -540,14 +755,16 @@ export class ProjectDb {
    */
   copyIcon(
     sourceId: string,
-    targetGroupId: string
+    targetGroupId: string,
+    mode: CodeAllocationMode = 'append'
   ): { id: string; iconCode: string; iconName: string } {
     const source = this.getIcon(sourceId);
     if (!source) throw new Error(`Icon not found: ${sourceId}`);
 
     const id = crypto.randomUUID();
-    const iconCode = this.getNewIconCode();
     const group = targetGroupId === 'resource-all' ? 'resource-uncategorized' : targetGroupId;
+    // Allocate inside the target group's range when it declares one.
+    const iconCode = this.getNewIconCode(mode, group);
 
     this.db.run(
       `INSERT INTO ${TABLE_ICON} (id, iconCode, iconName, iconGroup, iconSize, iconType, iconContent, iconContentOriginal) VALUES (${sf(id)}, ${sf(iconCode)}, ${sf(source.iconName as string)}, ${sf(group)}, ${source.iconSize}, ${sf(source.iconType as string)}, ${sf(source.iconContent as string)}, ${sf((source.iconContentOriginal ?? source.iconContent) as string)})`
@@ -805,13 +1022,17 @@ export async function openProject(io: IoAdapter, path: string): Promise<ProjectD
 
 /**
  * Create a new empty in-memory database with the full schema.
- * @param projectName - Font prefix / project name (defaults to 'iconfont')
+ * @param projectName - Icon code prefix / font family name (defaults to 'iconfont')
+ * @param displayName - Optional user-facing project name (falls back to projectName)
  */
-export async function createEmptyProject(projectName?: string): Promise<ProjectDb> {
+export async function createEmptyProject(
+  projectName?: string,
+  displayName?: string
+): Promise<ProjectDb> {
   const SQL = await getSqlJs();
   const db = new SQL.Database();
   const projectDb = new ProjectDb(db);
-  projectDb.initSchema(projectName);
+  projectDb.initSchema(projectName, displayName);
   return projectDb;
 }
 

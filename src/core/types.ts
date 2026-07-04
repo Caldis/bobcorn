@@ -35,6 +35,9 @@ export interface GroupData {
   groupColor?: string;
   groupDescription?: string;
   groupIcon?: string;
+  /** Optional per-group PUA code range (decimal code points). */
+  codeRangeStart?: number | null;
+  codeRangeEnd?: number | null;
   createTime?: string;
   updateTime?: string;
 }
@@ -42,10 +45,34 @@ export interface GroupData {
 /** Project attributes as stored in the database */
 export interface ProjectAttributes {
   id: string;
+  /** Icon code prefix (technical: font family name / CSS class prefix / export dir) */
   projectName: string;
+  /** Human-readable project name (user-facing). Optional; falls back to projectName. */
+  displayName?: string;
   createTime?: string;
   updateTime?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Icon code allocation
+// ---------------------------------------------------------------------------
+
+/**
+ * New-icon unicode code allocation mode. Mirrors the GUI's "codeAllocationMode"
+ * setting (src/renderer/config/index.ts) so CLI and GUI produce identical codes
+ * given the same project state and mode:
+ *   append (default) — allocate past the highest currently-used PUA code point,
+ *     protecting already-published CSS class references from code reuse. Falls
+ *     back to hole-filling only when the tail is full (next code > F8FF).
+ *   fill — always return the lowest free PUA code point (fills holes first,
+ *     maximizes code point utilization).
+ *
+ * NOTE: unlike most GUI settings, codeAllocationMode is a global renderer
+ * localStorage preference, NOT a field persisted in the .icp project file —
+ * there is no per-project value for the CLI to read. The CLI only supports
+ * an explicit --code-mode flag, defaulting to 'append' when omitted.
+ */
+export type CodeAllocationMode = 'append' | 'fill';
 
 // ---------------------------------------------------------------------------
 // Export types (from renderer/utils/export/presets.ts)

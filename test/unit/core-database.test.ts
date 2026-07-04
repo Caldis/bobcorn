@@ -7,6 +7,38 @@
 
 import { describe, test, expect } from 'vitest';
 import { createEmptyProject, ProjectDb } from '../../src/core/database/index';
+import { createProject, inspectProject } from '../../src/core/operations/project';
+import type { IoAdapter } from '../../src/core/io';
+
+// Minimal in-memory IoAdapter for testing core operations without disk I/O.
+function memIo(): IoAdapter {
+  const files = new Map<string, Uint8Array>();
+  return {
+    async readFile(p) {
+      const data = files.get(p);
+      if (!data) throw new Error(`File not found: ${p}`);
+      return data;
+    },
+    async writeFile(p, data) {
+      files.set(p, data);
+    },
+    async exists(p) {
+      return files.has(p);
+    },
+    async mkdir() {
+      /* no-op */
+    },
+    resolve: (...parts) => parts.join('/'),
+    join: (...parts) => parts.join('/'),
+    basename: (p) => p.split('/').pop() || p,
+    dirname: (p) => p.split('/').slice(0, -1).join('/') || '.',
+    extname: (p) => {
+      const b = p.split('/').pop() || '';
+      const i = b.lastIndexOf('.');
+      return i > 0 ? b.slice(i) : '';
+    },
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -167,5 +199,79 @@ describe('groupIcon cleanup triggers', () => {
     expect(after[0].values[0][0]).toBeNull();
 
     db.close();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Project name (displayName) vs icon code prefix (projectName) split
+// ---------------------------------------------------------------------------
+
+describe('displayName (project name) vs projectName (icon code prefix)', () => {
+  test('createEmptyProject sets prefix; displayName defaults to null', async () => {
+    const db = await createEmptyProject('myfont');
+    expect(db.getProjectName()).toBe('myfont');
+    expect(db.getProjectDisplayName()).toBeNull();
+    db.close();
+  });
+
+  test('createEmptyProject accepts a separate displayName', async () => {
+    const db = await createEmptyProject('myfont', 'My Project');
+    expect(db.getProjectName()).toBe('myfont');
+    expect(db.getProjectDisplayName()).toBe('My Project');
+    db.close();
+  });
+
+  test('setProjectDisplayName round-trips and can be cleared without touching the prefix', async () => {
+    const db = await createEmptyProject('iconfont');
+    db.setProjectDisplayName('Hello');
+    expect(db.getProjectDisplayName()).toBe('Hello');
+    db.setProjectDisplayName(null);
+    expect(db.getProjectDisplayName()).toBeNull();
+    expect(db.getProjectName()).toBe('iconfont'); // prefix untouched
+    db.close();
+  });
+
+  test('migration adds displayName column to legacy projects (no displayName)', async () => {
+    const db = await createEmptyProject('legacy');
+    const rawDb = (db as any).db;
+    // Simulate an old .icp: recreate projectAttributes without the displayName column
+    rawDb.run('DROP TABLE projectAttributes');
+    rawDb.run(
+      `CREATE TABLE projectAttributes (id varchar(255), projectName varchar(255), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+    );
+    rawDb.run(
+      `INSERT INTO projectAttributes (id, projectName) VALUES ('projectAttributes', 'legacy')`
+    );
+
+    db.runMigrations();
+
+    // Column now exists; getter returns null (not throw) and can be set afterwards
+    expect(db.getProjectDisplayName()).toBeNull();
+    db.setProjectDisplayName('Recovered');
+    expect(db.getProjectDisplayName()).toBe('Recovered');
+    db.close();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Core operation: createProject / inspectProject with the name/prefix split
+// ---------------------------------------------------------------------------
+
+describe('createProject + inspectProject (name/prefix split)', () => {
+  test('inspect reports display name and prefix separately', async () => {
+    const io = memIo();
+    await createProject(io, 'proj.icp', 'myfont', 'My Project');
+    const info = await inspectProject(io, 'proj.icp');
+    expect(info.name).toBe('My Project'); // human-facing display name
+    expect(info.prefix).toBe('myfont'); // icon code prefix
+    expect(info.iconCount).toBe(0);
+  });
+
+  test('inspect name falls back to prefix when display name is unset', async () => {
+    const io = memIo();
+    await createProject(io, 'proj.icp', 'fallbackfont');
+    const info = await inspectProject(io, 'proj.icp');
+    expect(info.name).toBe('fallbackfont');
+    expect(info.prefix).toBe('fallbackfont');
   });
 });
