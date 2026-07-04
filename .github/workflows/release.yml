@@ -75,6 +75,9 @@ jobs:
       - name: Build
         run: npx electron-vite build
 
+      - name: Build CLI
+        run: npx tsup
+
       - name: Package (no publish)
         if: matrix.platform != 'mac'
         run: npx electron-builder ${{ matrix.builder_args }} --publish never
@@ -145,45 +148,83 @@ jobs:
           fi
           echo "All 3 platforms verified."
 
-      - name: Generate changelog
+      - name: Generate release notes
         run: |
-          PREV_TAG=$(git tag --sort=-creatordate | head -2 | tail -1)
+          set -euo pipefail
           CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${CURRENT_TAG#v}
 
-          echo "## What's Changed" > changelog.md
-          echo "" >> changelog.md
-
-          if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
-            FEATS=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^feat" 2>/dev/null || true)
-            FIXES=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^fix" 2>/dev/null || true)
-            OTHER=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^refactor\|^build\|^test\|^docs\|^ci\|^chore\|^security" 2>/dev/null || true)
-
-            if [ -n "$FEATS" ]; then
-              echo "### Features" >> changelog.md
-              echo "$FEATS" >> changelog.md
-              echo "" >> changelog.md
-            fi
-
-            if [ -n "$FIXES" ]; then
-              echo "### Bug Fixes" >> changelog.md
-              echo "$FIXES" >> changelog.md
-              echo "" >> changelog.md
-            fi
-
-            if [ -n "$OTHER" ]; then
-              echo "### Other Changes" >> changelog.md
-              echo "$OTHER" >> changelog.md
-              echo "" >> changelog.md
-            fi
-
-            # Fallback if no conventional commits matched
-            if [ -z "$FEATS" ] && [ -z "$FIXES" ] && [ -z "$OTHER" ]; then
-              echo "- Bug fixes and improvements" >> changelog.md
-              echo "" >> changelog.md
-            fi
-          else
-            echo "Initial release." >> changelog.md
+          IS_PRERELEASE=0
+          if [[ "${CURRENT_TAG}" == *"-beta"* || "${CURRENT_TAG}" == *"-alpha"* || "${CURRENT_TAG}" == *"-rc"* ]]; then
+            IS_PRERELEASE=1
           fi
+
+          # Preferred source: curated docs/changelog.json entry for this version.
+          # This becomes the GitHub Release body and, via electron-updater, the
+          # in-app update card's release notes. Keep both in sync from one source.
+          if node scripts/changelog-to-release-notes.js "${VERSION}" > changelog.md 2>notes-err.log; then
+            echo "Using curated changelog for ${VERSION}"
+          else
+            echo "::warning::No curated changelog entry for ${VERSION}."
+            cat notes-err.log || true
+
+            if [ "${IS_PRERELEASE}" -eq 1 ]; then
+              # Pre-releases may ship without a curated changelog — fall back to
+              # a commit-derived summary so beta/alpha/rc builds still publish.
+              echo "Falling back to commit-based changelog for pre-release ${CURRENT_TAG}"
+              # `|| true` guards against SIGPIPE from `head` under `set -o pipefail`.
+              PREV_TAG=$(git tag --sort=-creatordate | head -2 | tail -1 || true)
+
+              echo "## What's Changed" > changelog.md
+              echo "" >> changelog.md
+
+              if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
+                FEATS=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^feat" 2>/dev/null || true)
+                FIXES=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^fix" 2>/dev/null || true)
+                OTHER=$(git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^refactor\|^build\|^test\|^docs\|^ci\|^chore\|^security" 2>/dev/null || true)
+
+                if [ -n "$FEATS" ]; then
+                  echo "### Features" >> changelog.md
+                  echo "$FEATS" >> changelog.md
+                  echo "" >> changelog.md
+                fi
+
+                if [ -n "$FIXES" ]; then
+                  echo "### Bug Fixes" >> changelog.md
+                  echo "$FIXES" >> changelog.md
+                  echo "" >> changelog.md
+                fi
+
+                if [ -n "$OTHER" ]; then
+                  echo "### Other Changes" >> changelog.md
+                  echo "$OTHER" >> changelog.md
+                  echo "" >> changelog.md
+                fi
+
+                # Fallback if no conventional commits matched
+                if [ -z "$FEATS" ] && [ -z "$FIXES" ] && [ -z "$OTHER" ]; then
+                  echo "- Bug fixes and improvements" >> changelog.md
+                  echo "" >> changelog.md
+                fi
+              else
+                echo "Initial release." >> changelog.md
+              fi
+            else
+              # Stable release without a changelog entry: refuse to publish an
+              # update with no release notes (guards against "发版无说明").
+              echo "::error::Stable release ${CURRENT_TAG} has no entry in docs/changelog.json. Refusing to publish without release notes. Add a changelog entry and re-tag."
+              exit 1
+            fi
+          fi
+
+          # Final guard: never publish an empty body.
+          if [ ! -s changelog.md ]; then
+            echo "::error::Generated release notes are empty for ${CURRENT_TAG}."
+            exit 1
+          fi
+
+          echo "----- release notes -----"
+          cat changelog.md
 
       - name: Create release and upload all assets
         env:
