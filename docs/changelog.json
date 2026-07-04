@@ -1,5 +1,39 @@
 [
   {
+    "version": "1.13.0",
+    "date": "2026-07-04",
+    "summary": {
+      "zh": "新增字码覆盖可视化与全链路字码健康：重复、非法、耗尽字码在导入、导出、编辑的每个触点可见并可一键修复；新增字码分配模式设置",
+      "en": "New code coverage visualization and end-to-end code health: duplicate, invalid and exhausted code points are now visible and fixable at every import/export/edit touchpoint, plus a new code allocation mode setting"
+    },
+    "changes": {
+      "zh": [
+        "新增：项目设置 → 项目信息新增「字码覆盖」方块矩阵，可视化 PUA 区 6400 个码位的占用、孔洞与尾部剩余空间，hover 查看区间详情",
+        "新增：检测到重复/越界字码时可一键修复，修复前逐项预览每个图标的 原码 → 新码 变更",
+        "新增：导出前字码审计——发现重复/非法字码时警告并可查看受影响图标清单（保留/丢弃/跳过），非法字码图标自动跳过，防止导出中途失败",
+        "新增：打开 .cp/.icp 项目后自动审计字码，发现问题时提示前往字码覆盖处理",
+        "新增：网格卡片与编辑器对重复字码显示琥珀色标识与警示条",
+        "新增：设置 → 字码分配，可选「顺延末尾」（默认，不复用已删图标的码位，保护已发布样式的引用稳定）或「填充孔洞」（最大化码位利用率）",
+        "新增：CLI `code fix` 命令（支持 --dry-run / --json），批量修复重复与非法字码",
+        "修复：字码耗尽时不再静默复用 E000 制造重复码，导入/复制/批量复制/变体生成均明确报错并汇报部分成功数量",
+        "修复：回收站中的图标不再被导出进字体与 CSS",
+        "修复：字码范围 off-by-one，最后一个码位 F8FF 现在可以被分配"
+      ],
+      "en": [
+        "New: Project Settings → Project Info gains a Code Coverage block matrix visualizing occupancy, holes and tail space of all 6400 PUA code points, with per-range hover details",
+        "New: One-click fix for duplicate/out-of-range codes, with a per-icon old → new preview before applying",
+        "New: Pre-export code audit — duplicates and invalid codes trigger a warning with an affected-icons list (kept/dropped/skipped); icons with invalid codes are skipped automatically so export no longer fails mid-pipeline",
+        "New: Opening a .cp/.icp project audits codes automatically and points to Code Coverage when issues are found",
+        "New: Grid cards and the editor highlight duplicate codes with amber markers and a warning banner",
+        "New: Settings → Code Allocation lets you choose Append (default — never reuses codes from deleted icons, keeping published stylesheets stable) or Fill gaps (maximizes code point utilization)",
+        "New: CLI `code fix` command (with --dry-run / --json) batch-repairs duplicate and invalid codes",
+        "Fixed: Code point exhaustion no longer silently reuses E000 and creates duplicates — import/copy/batch copy/variant generation now report errors with partial-success counts",
+        "Fixed: Icons in the recycle bin are no longer exported into fonts and CSS",
+        "Fixed: Off-by-one in the code range — the final code point F8FF can now be allocated"
+      ]
+    }
+  },
+  {
     "version": "1.12.5",
     "date": "2026-05-10",
     "summary": {
