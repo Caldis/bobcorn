@@ -14,7 +14,7 @@ Bobcorn 是一个 Electron + React 的图标字体管理/生成桌面工具。
 | 组件库 | Radix UI + Tailwind + lucide-react | — |
 | 状态管理 | Zustand | latest |
 | 构建 | electron-vite | 3.x |
-| 打包 | electron-builder | 24.13 |
+| 打包 | electron-builder | 26.8 |
 | 数据库 | sql.js (WASM) | 1.14 |
 | 类型 | TypeScript (渐进迁移中) | 5.x |
 | 测试 | Vitest + Playwright | 3.x / 1.58 |
@@ -147,4 +147,4 @@ CI 失败时：查看日志 → 修复 → 删 tag 重打 → 重新 push。
 - electron-vite CJS renderer: 自定义 `electronCjsHtmlPlugin` 处理 HTML
 - 不要手动编辑 `out/` 目录 — 它们是构建产物
 - **i18n 必须遵守**: 所有用户可见字符串必须使用 `t()` 函数（`react-i18next`），不允许硬编码中文或英文。新增功能时必须同时在 `src/locales/zh-CN.json` 和 `src/locales/en.json` 中添加翻译 key。详见 `docs/CONVENTIONS.md` 的 i18n 章节。
-- **core-first 开发**: 所有新增用户操作必须先在 `src/core/operations/` 实现，store action 仅做薄封装 (调用 core → 更新 UI state)。组件不允许直接导入 `database/`。详见 `docs/MIGRATION.md`。
+- **CLI-first 开发**: 任何新增用户操作必须先在 `src/core/operations/` 实现 + 在 `src/core/registry.ts` 登记 + 暴露 `src/cli/index.ts` CLI 命令，最后 GUI 才通过 store 薄封装调用 (调用 core → 更新 UI state)；组件不允许直接导入 `database/`，也不允许往 `src/renderer/database/index.ts` 新增方法。守门测试 `test/unit/core-parity-guard.test.js`（冻结 renderer database 方法面 + registry↔CLI 覆盖）与 `test/unit/core-boundary-guard.test.js` 会拦截违规，CI 变红。详见 `docs/MIGRATION.md` 与 `docs/CLI.md`。

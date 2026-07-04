@@ -81,7 +81,9 @@ gh release download v1.8.7 --pattern "latest.yml" --output -
 
 | 文件 | 职责 |
 |------|------|
-| `.github/workflows/release.yml` | 3 平台构建 + changelog 生成 + pre-release 标记 |
+| `.github/workflows/release.yml` | 3 平台构建 + release notes 生成 + pre-release 标记 |
+| `scripts/changelog-to-release-notes.js` | 从 `docs/changelog.json` 提取版本条目 → Release body Markdown（缺条目非零退出）|
+| `scripts/check-site-release.js` | `docs:check` 校验站点元数据 + 当前版本 changelog 条目存在（稳定版）|
 | `dev-app-update.yml` | Dev 模式下 autoUpdater 的 publish 配置 |
 
 ## 偏好设置双层同步
@@ -147,7 +149,19 @@ Main 进程通过 `updaterLog()` 将日志发送到 renderer DevTools Console（
 
 ## Changelog 生成
 
-CI 自动从 conventional commits 生成：
+### Release body 来源（稳定版）
+
+CI `publish` job 从 **`docs/changelog.json`** 提取当前版本条目生成 Release body：
+
+- `scripts/changelog-to-release-notes.js <version>` 读取匹配条目 → 输出双语 Markdown（英文 summary + `## What's Changed` 列表，再 `---` 中文 summary + `## 更新内容` 列表）。
+- 找不到条目 / summary 为空 → 脚本非零退出，稳定版 workflow **直接 fail**（防止发空说明）。
+- 该 Markdown 即 GitHub Release body，electron-updater (GitHub provider) 将其作为 `updateInfo.releaseNotes`（HTML）下发给客户端。
+
+**硬约束**：稳定版必须在 `docs/changelog.json` 有当前版本条目，`npm run docs:check`（CI + 本地）会校验，缺失即失败。详见 `docs/RELEASE.md`。
+
+### 预发布（beta/alpha/rc）
+
+版本号含 `-` 时豁免上述约束，release body 回退为按 conventional commits 生成：
 
 - `feat(...)` → Features
 - `fix(...)` → Bug Fixes
@@ -155,9 +169,19 @@ CI 自动从 conventional commits 生成：
 - 三个 section 都为空 → 兜底 "Bug fixes and improvements"
 - 空 section 不输出标题
 
+### 更新卡片的 release notes 来源与兜底
+
+`UpdateIndicator` hover 卡片按优先级取更新说明：
+
+1. **首选**：在线拉取 `https://bobcorn.caldis.me/changelog.json`（结构化 zh/en，按 `version` 匹配）。
+2. **兜底**：`store.updateReleaseNotes`（= electron-updater 下发的 GitHub Release body，无需额外网络）。UI 用 `releaseNotesToText()` 经 `DOMParser` 转纯文本渲染（不注入 HTML，XSS-safe）。
+3. 两者都为空 → 显示 `update.noChangelog`（「暂无更新说明」）。
+
+> 历史问题：v1.13.0 升级时卡片空白 —— 卡片当时**只**依赖在线 changelog.json，而 GitHub Pages 尚未刷新出新条目，又没有兜底。现已加入 (2) 兜底 + Release body 改由 changelog.json 生成。
+
 ### 客户端 i18n
 
-Changelog 内容保持英文（commit message 原文），section 标题在客户端替换为当前语言：
+预发布回退生成的英文 section 标题在客户端替换为当前语言：
 - "What's Changed" → 更新内容
 - "Features" → 新功能
 - "Bug Fixes" → 问题修复

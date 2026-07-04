@@ -179,14 +179,15 @@ Rules:
 - The `track()` function's TypeScript type ensures only registered events compile
 - Local store recording is always on (user's own data); GA4 is gated by consent
 
-## Core Operations Layer
+## Core Operations Layer (CLI-first)
 
-All user-facing operations MUST be implemented in `src/core/operations/` first.
+All user-facing operations MUST be built CLI-first: core operation + registry +
+CLI command land first, and the GUI is only a thin wrapper on top.
 
 - Core operations receive `IoAdapter` as a parameter -- never import `fs`, `path`, `window`, or `electronAPI` directly
+- Register operations in `src/core/registry.ts` and expose a command in `src/cli/index.ts`
 - Store actions are thin wrappers: call core operation -> update UI state
-- Register operations in `src/core/registry.ts`
-- Add corresponding CLI commands in `src/cli/commands/`
 - Components must not import from `src/renderer/database/` -- go through operations or store
+- Never add methods to `src/renderer/database/index.ts` -- `test/unit/core-parity-guard.test.js` freezes its method surface and fails on new ones; it also asserts every registry `cliCommand` is registered in the CLI
 
-See `docs/MIGRATION.md` for the full migration process.
+See `docs/MIGRATION.md` (parity rules + backlog) and `docs/CLI.md` (收口流程) for details.

@@ -1,12 +1,28 @@
-# Session Handoff — 2026-04-04
+# Session Handoff — 2026-07-04
 
 > 前一个 Claude Code session 的完整交接。新 session 请先读此文档 + AGENTS.md。
 
 ## 项目状态
 
-**版本**: v1.8.10 | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
+**版本**: v1.13.0（未发版改动见下方 2026-07-04 摘要） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
 
 **分支**: `master`
+
+## 2026-07-04 Session 摘要（多代理并行，未提交）
+
+**综合小优化（19 项）**：回收站字码占用提示条；字码分配 desc 随 append/fill 联动；字码覆盖 6400/PUA 科普 tooltip；项目名称(displayName)与图标字码前缀(projectName)拆分（双端 schema 迁移 + NewProjectDialog + 设置页可编辑 + CLI --display-name）；左下角 SlidersHorizontal 入口 = 显示+排序合并面板（排序真正接线：4 字段×升降序，store→viewModel）；批量按钮 grid-cols 过渡动画；搜索框/面板 text-xs；图标网格框选（基于虚拟化行几何命中 + 自动滚动 + Escape 还原）；图标右键菜单（IconContextMenu，普通/回收站两套菜单，variantGuard 全流程）；移动/复制弹窗统一为共享 GroupPickerDialog（未分组项带标签 + 分组封面图标，单选/批量/右键三路径共用）；批量收藏实时同步 + 混合态 StarHalf "收藏 (N/M)"；批量变体 beta 标；取色器改 portal 定位（单选/批量）；导入 toast 区分追加末尾/填充孔洞（addIcons 返回 appended/filled）；toast ✓✗! 换内联 SVG；项目选择器箭头收起指左展开指上。
+
+**发版遗留清账**：seo-inject.py 默认只读校验 + `--force-seo-files`；electron-pixel-picker 打包"缺失"确认为过期问题（e9ba047 已修，A/B 打包实证）；CLI `--code-mode append|fill`（顺带修复 core 分配长期缺 append 语义的分叉）；full-e2e.js 系统性重写（20 步，两次全绿）；lint 63 warning 清零（门禁恢复）。
+
+**临时发现修复**：更新卡片"无更新说明"（根因：只读线上 changelog.json 无兜底 + Release body 从不来自 changelog；现三层校验 + releaseNotes 纯文本兜底）+ 更新弹窗左缘截断（portal clamp）；设置弹窗 CLI 检测阻塞 3-5s（main 进程 execSync → 异步 + 缓存）；打包版缺 CLI 产物（release 构建作业漏 tsup，已挂进 build 链，本地实证产物在位）。
+
+**CLI-first 机制落地**：`test/unit/core-parity-guard.test.js`（renderer database 94 方法冻结清单 + registry↔CLI 覆盖检查）；AGENTS/FEATURE_WORKFLOW/CONVENTIONS 文档硬化；`docs/MIGRATION.md` 新增 Renderer↔Core parity 矩阵与 13 条 backlog。已知机制盲区（绕过 database 直接在组件/store 写业务、行为等价性无自动验证）记录在该代理汇报中，靠 backlog 逐条对齐。
+
+**新功能：分组字码区间（已完成）**：设计定稿 `docs/superpowers/specs/2026-07-04-group-code-ranges-design.md`（含用户确认的三决策：移动越界=弹窗内联选择默认重分配、预留语义=全局分配避开各组区间、禁止区间重叠）。三波交付：① core+CLI——`groupData` 双端加 `codeRangeStart/End` 列+迁移；**单一真相源 `src/core/code-allocation.ts` 纯函数，core 与 renderer 分配逻辑共用**（区间内 append/fill、GROUP_RANGE_EXHAUSTED、全局池跳过预留区）；CLI `group set-code-range <g> E100-E1FF|--clear`、`group inspect`（区间+占用）、`group check`（越界清单）、`icon move --reassign|--keep-codes`；② 共享矩阵——`components/CodeMatrix/`（display|range-select 双模式、缩放 64/16/4/1 码/格、拖选吸附 hex 边界遇预留截断、hex 输入双向同步、6400 格事件委托），CodeCoverageMatrix 变 display 薄壳零回归；③ GUI——分组新建/编辑弹窗区间区块（GroupDialogs，经扩展的 `setGroupInfo` 落库）、GroupPickerDialog 越界内联单选（SideEditor/BatchPanel/右键三路径统一透传 `opts.reassignOutOfRange`）、网格琥珀越界标识（store `outOfRangeCodes` 仿 duplicateCodes）、项目设置覆盖矩阵展示各组预留区。**后续项**：字码健康"一键修复"并入越界回填（需整条修复链 range-aware，已评估暂缓）；CLI wiki 16 语言文档。
+
+**验收状态（最终）**：lint 0 warning；vitest 832 passed / 0 failed；acceptance 22/22；full-e2e 21/21（含区间流程新步骤）两连跑；security-audit 0 issue；三守门测试 59/59。
+
+**本次教训**：lint 代理给 useEffect 补依赖时把组件内**声明在 hook 之后**的 useCallback 放进 deps 数组，触发 TDZ ReferenceError 导致工作区白屏——单测不渲染组件抓不到，靠 e2e 才拦截。未来清 exhaustive-deps 必须核对被补标识符的声明顺序。
 
 ## 本 Session 完成的工作
 
@@ -98,12 +114,15 @@
 
 ## 已知问题 (2026-07-04 更新)
 
-1. **electron-pixel-picker 打包** — macOS/Linux/Windows 分发包缺失 EPP 模块
-2. **lint 门禁失效** — `npm run lint` (`--max-warnings 0`) 有 60+ 存量 warning 无法通过
-3. **full-e2e.js 与当前 UI 严重脱节** — 10/17 步失败（断言已被移入 FileMenuBar 的"导入"工具栏按钮、旧设置对话框触发方式、不存在的 fixture 路径），失败在 master 上同样存在，需系统性重写；acceptance.js 的同类漂移已修复（22/22）
-4. **seo-inject.py 与站点结构脱节** — 每次运行会用过时硬编码模板覆盖手工维护的 `docs/sitemap.xml` / `docs/robots.txt`（Content-Signal/AI 爬虫规则/Schemamap 等）。运行后务必 `git diff` 检查这两个文件；根治需同步脚本模板
-5. **打包版持锁导致 dev 静默退出** — 安装版 `Bobcorn.exe` 运行时持有单实例锁，`electron-vite dev` 会 exit 0 无报错退出；杀进程命令只匹配 `electron.exe` 杀不到它。先 `(Get-Process -Name Bobcorn).CloseMainWindow()` 优雅关闭再启动 dev
-6. **sf-symbols fixture 为本地生成物**（`test/fixtures/*` 除 icons/ 外全部 gitignore）— 用 `node test/fixtures/sf-symbols/generate-icp.js` 从旧 icp 重建；分组名需 PascalCase（generator 已处理），CI 上相关测试自动跳过
+1. **打包版持锁导致 dev/E2E 静默失败** — 安装版 `Bobcorn.exe` 运行时持有单实例锁，`electron-vite dev` 与 Playwright 启动会 exit 0 无报错退出；杀进程命令只匹配 `electron.exe` 杀不到它。先 `(Get-Process -Name Bobcorn).CloseMainWindow()` 优雅关闭再启动
+2. **sf-symbols fixture 为本地生成物**（`test/fixtures/*` 除 icons/ 外全部 gitignore）— 用 `node test/fixtures/sf-symbols/generate-icp.js` 从旧 icp 重建；分组名需 PascalCase（generator 已处理），CI 上相关测试自动跳过
+
+### 2026-07-04 已解决（原 #1–#4）
+
+- ~~electron-pixel-picker 打包缺失~~ → 过期陈述：2026-03-28 commit `e9ba047`（移除 files 里的 `"!node_modules"`）已根治，本次 A/B 打包实证 EPP 在 `app.asar.unpacked` 在位
+- ~~lint 门禁失效~~ → 63 warning 清零，`npm run lint` 退出码 0（exhaustive-deps 处理见 Session 摘要"本次教训"）
+- ~~full-e2e.js 脱节~~ → 系统性重写为 20 步（Playwright + data-testid 策略，覆盖本次全部新交互），连续两轮全绿；详见 docs/TESTING.md
+- ~~seo-inject.py 覆盖手工文件~~ → sitemap/robots 默认只读校验，覆盖需显式 `--force-seo-files`
 
 ### v1.13.0 已修复
 

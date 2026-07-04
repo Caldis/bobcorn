@@ -1,5 +1,10 @@
 # Feature Development Workflow
 
+> **CLI-first**: any new user operation is built in the core + CLI first, and the
+> GUI is only a thin wrapper on top. See [`CLI.md`](./CLI.md) (收口清单) and
+> [`MIGRATION.md`](./MIGRATION.md) (parity rules). New methods on
+> `src/renderer/database/index.ts` are rejected by `core-parity-guard`.
+
 ## 7-Step Process
 
 ### 1. Branch
@@ -10,26 +15,33 @@ git checkout -b feat/description master
 
 Naming: `feat/`, `fix/`, `refactor/`, `test/`, `docs/`
 
-### 2. Write Tests First
+### 2. Core operation + CLI + tests (CLI-first)
 
-Create test files before implementation:
+Build the capability headless before any UI exists:
 
-- **Unit:** `test/unit/<module>.test.js` (Vitest)
-- **E2E:** `test/e2e/<feature>.test.js` (Playwright)
+- Implement the pure function in `src/core/operations/<domain>.ts` (receives
+  `IoAdapter`; no `window`/`fs`/`electronAPI`/`import.meta.env`).
+- Register it in `src/core/registry.ts` (`status: Core`, `corePath`, `cliCommand`).
+- Expose the command in `src/cli/index.ts`.
+- Write tests first: `test/cli/<domain>.test.ts` (CLI) + `test/unit/<module>.test.js`
+  (Vitest). Run `npx vitest run test/unit/<module>.test.js`.
 
-```bash
-npx vitest run test/unit/<module>.test.js
-```
+Do **not** add methods to `src/renderer/database/index.ts` — `core-parity-guard`
+fails on new methods there.
 
-### 3. Implement
+### 3. GUI wrapper
 
-Edit files under `src/`. Follow conventions in [`CONVENTIONS.md`](./CONVENTIONS.md).
+Wire the UI on top of the core operation — a thin `src/renderer/store/index.js`
+action calls `core.operations.*` then updates Zustand UI state; components call
+the store action (never `database/` directly). Follow conventions in
+[`CONVENTIONS.md`](./CONVENTIONS.md).
 
 Key decisions:
 - New component? Create `src/renderer/components/<Name>/index.jsx` + `index.module.css`
-- New state? Add to `src/renderer/store/index.js`
+- New state? Add a thin action to `src/renderer/store/index.js`
 - New IPC channel? Add handler in `main.js`, expose in `preload.js`
-- Database schema change? Edit `database/index.js` `initNewProject()`
+- Schema change? Edit both `src/core/database/index.ts` (`initSchema` + migration)
+  and `src/renderer/database/index.ts` (`initNewProject`) so CLI and GUI agree
 
 ### 4. Visual Verification
 
@@ -80,6 +92,7 @@ Post-merge: re-run acceptance tests to confirm no regressions.
 
 ## Checklist
 
+- [ ] New operation built CLI-first (core + registry + CLI) before the GUI wrapper; no new methods on renderer `database/`
 - [ ] Tests written and passing
 - [ ] No ESLint errors (`npm run lint`)
 - [ ] Build succeeds (`npx electron-vite build`)
