@@ -4,11 +4,11 @@
 
 ## 项目状态
 
-**版本**: v1.13.0（未发版改动见下方 2026-07-04 摘要） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
+**版本**: v1.14.0（下方摘要已全部随 v1.14.0 发布，release 三平台产物+更新元数据齐全） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
 
 **分支**: `master`
 
-## 2026-07-04 Session 摘要（多代理并行，未提交）
+## 2026-07-04 Session 摘要（多代理并行，已随 v1.14.0 发布）
 
 **综合小优化（19 项）**：回收站字码占用提示条；字码分配 desc 随 append/fill 联动；字码覆盖 6400/PUA 科普 tooltip；项目名称(displayName)与图标字码前缀(projectName)拆分（双端 schema 迁移 + NewProjectDialog + 设置页可编辑 + CLI --display-name）；左下角 SlidersHorizontal 入口 = 显示+排序合并面板（排序真正接线：4 字段×升降序，store→viewModel）；批量按钮 grid-cols 过渡动画；搜索框/面板 text-xs；图标网格框选（基于虚拟化行几何命中 + 自动滚动 + Escape 还原）；图标右键菜单（IconContextMenu，普通/回收站两套菜单，variantGuard 全流程）；移动/复制弹窗统一为共享 GroupPickerDialog（未分组项带标签 + 分组封面图标，单选/批量/右键三路径共用）；批量收藏实时同步 + 混合态 StarHalf "收藏 (N/M)"；批量变体 beta 标；取色器改 portal 定位（单选/批量）；导入 toast 区分追加末尾/填充孔洞（addIcons 返回 appended/filled）；toast ✓✗! 换内联 SVG；项目选择器箭头收起指左展开指上。
 
