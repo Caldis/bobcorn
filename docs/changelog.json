@@ -1,5 +1,45 @@
 [
   {
+    "version": "1.14.0",
+    "date": "2026-07-05",
+    "summary": {
+      "zh": "新增分组字码区间、图标框选与右键菜单、真实生效的排序与筛选、项目名称与字码前缀拆分；修复更新说明缺失、设置弹窗卡顿与分发包缺失 CLI 等问题",
+      "en": "New per-group code ranges, marquee selection and right-click context menu, working sort & filter, project name / code prefix split; fixes missing release notes, settings dialog freeze and missing CLI in packaged builds"
+    },
+    "changes": {
+      "zh": [
+        "新增：分组字码区间——为分组声明专属 PUA 区间（如 E100–E1FF），加入该组的图标自动在区间内按顺延/填洞分配字码；全局分配自动避开各组预留区；区间之间禁止重叠",
+        "新增：区间可视化选择矩阵（与项目设置的字码覆盖共用同一组件），支持 64/32/16/8 码/格缩放、拖拽框选并吸附十六进制边界、起止码直接输入；编辑区间导致本组图标越界时琥珀警示并需确认",
+        "新增：移动图标到有区间的分组时可选择「重新分配到区间内」或「保持原字码」；网格与编辑器对非本组字码显示琥珀标识，编辑器提供一键重新分配；筛选器新增「非本组字码」",
+        "新增：CLI 同步支持——group set-code-range / group check / icon move --reassign|--keep-codes / icon import --code-mode / project create --display-name",
+        "新增：图标网格框选（离屏图标可选中、边缘自动滚动、Ctrl 并集、Escape 取消）与图标右键菜单（收藏/移动/复制/导出/回收；回收站内恢复/彻底删除）",
+        "新增：排序真正生效（导入时间/更新时间/字码/名称 × 升降序），显示、排序与筛选合并为左下角单一面板，浮层带上滑过渡动画",
+        "新增：项目名称与图标字码前缀拆分为独立字段，新建项目对话框可分别填写，项目设置页均可编辑；字体产物命名继续跟随前缀",
+        "新增：移动/复制到分组统一为同一弹窗（含「未分组」选项与分组封面图标），单个、批量与右键三种入口交互一致",
+        "新增：导入成功提示区分「追加至字码末尾/填充空闲字码」；回收站顶部提示其中图标仍占用字码",
+        "改进：批量收藏状态实时同步并以半星区分混合状态；批量按钮展开/收缩过渡动画；取色器弹窗定位修复；提示图标由字符改为矢量图标；三栏空态字号统一；「未保存的更改」弹窗提供「保存并…/直接…」双操作",
+        "修复：更新卡片显示「无更新说明」——发布说明现直接来自 changelog 并新增发布门禁校验，弹窗不再被窗口左缘截断",
+        "修复：打开设置弹窗时 CLI 状态检测阻塞界面 3-5 秒（改为异步检测 + 会话缓存）；分发包缺失 CLI 组件导致安装失败（CLI 构建已挂入出包链）",
+        "修复：CLI 与图形界面字码分配语义分叉（命令行长期缺少「顺延末尾」模式）——分配逻辑统一为单一内核模块并由守门测试锁定"
+      ],
+      "en": [
+        "New: Per-group code ranges — reserve a dedicated PUA range (e.g. E100–E1FF) for a group; icons added to it are allocated within the range using append/fill; global allocation skips reserved ranges; ranges cannot overlap",
+        "New: Visual range picker matrix (shared with Project Settings code coverage), with 64/32/16/8 codes-per-cell zoom, drag selection snapping to hex boundaries and direct start/end input; editing a range warns and confirms when existing group icons would fall outside",
+        "New: Moving icons into a ranged group offers \"reassign into range\" or \"keep codes\"; out-of-range icons get an amber badge in grid and editor, with one-click reassign in the editor; new \"out-of-range codes\" filter",
+        "New: CLI parity — group set-code-range / group check / icon move --reassign|--keep-codes / icon import --code-mode / project create --display-name",
+        "New: Marquee (box) selection in the icon grid (off-screen icons selectable, edge auto-scroll, Ctrl union, Escape cancel) and right-click context menu (favorite/move/copy/export/recycle; restore/delete permanently in trash)",
+        "New: Sorting now actually works (import time / update time / code / name × asc/desc); display, sort and filter merged into a single bottom-left panel with slide-up transition",
+        "New: Project name and icon code prefix are now separate fields — set independently in the new-project dialog and editable in project settings; font artifacts keep following the prefix",
+        "New: Move/copy-to-group unified into one dialog (with an Ungrouped option and group cover icons), consistent across single, batch and context-menu entry points",
+        "New: Import toast distinguishes \"appended to end\" vs \"filled gaps\"; trash view notes that its icons still occupy code points",
+        "Improved: Batch favorite state syncs in real time with a half-star mixed indicator; batch button expand/collapse animation; color picker positioning fixed; character glyphs in toasts replaced with vector icons; empty-state typography unified; the unsaved-changes dialog now offers \"Save & …\" / \"… anyway\"",
+        "Fixed: Update card showing \"no release notes\" — release notes now come straight from the changelog with a publish gate, and the popup is no longer clipped by the window edge",
+        "Fixed: Settings dialog freezing 3-5s on open due to blocking CLI detection (now async with session cache); packaged builds missing the CLI component (CLI build wired into the packaging chain)",
+        "Fixed: Code allocation semantics diverging between CLI and GUI (append mode was missing in the CLI path) — allocation logic unified into a single kernel module locked by guard tests"
+      ]
+    }
+  },
+  {
     "version": "1.13.0",
     "date": "2026-07-04",
     "summary": {
