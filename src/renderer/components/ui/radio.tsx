@@ -8,15 +8,31 @@ interface RadioGroupProps {
   onChange?: (e: { target: { value: any } }) => void;
   children?: React.ReactNode;
   className?: string;
+  /** Layout direction. 'col' (default) keeps the existing vertical list behavior
+   *  (used by the standard `Radio` list-item), 'row' lays children out as an
+   *  inline segmented control (used by `RadioButton`). */
+  direction?: 'row' | 'col';
 }
 
-export function RadioGroup({ value, onChange, children, className }: RadioGroupProps) {
+export function RadioGroup({
+  value,
+  onChange,
+  children,
+  className,
+  direction = 'col',
+}: RadioGroupProps) {
   const handleChange = (newValue: any) => {
     onChange?.({ target: { value: newValue } });
   };
 
   return (
-    <div className={cn('flex flex-col gap-0', className)}>
+    <div
+      className={cn(
+        'flex',
+        direction === 'row' ? 'flex-row items-center gap-1' : 'flex-col gap-0',
+        className
+      )}
+    >
       {React.Children.map(children, (child) => {
         if (React.isValidElement<any>(child)) {
           return React.cloneElement(child, {
@@ -56,13 +72,11 @@ export function RadioButton({
       onClick={() => _onChange?.(value)}
       style={style}
       className={cn(
-        'inline-flex items-center px-3 py-1 text-xs font-medium',
-        'border border-border',
+        'inline-flex items-center whitespace-nowrap rounded px-2 py-1 text-xs font-medium',
         'transition-colors duration-150',
-        '-ml-px first:ml-0 first:rounded-l-md last:rounded-r-md',
         _selected
-          ? 'bg-accent text-accent-foreground border-accent z-[1]'
-          : 'bg-surface text-foreground hover:bg-surface-muted hover:text-accent',
+          ? 'bg-accent text-accent-foreground'
+          : 'text-foreground-muted hover:bg-surface-muted hover:text-foreground',
         className
       )}
     >
@@ -78,18 +92,28 @@ interface RadioProps {
   children?: React.ReactNode;
   style?: React.CSSProperties;
   className?: string;
+  disabled?: boolean;
   // Internal props injected by RadioGroup
   _selected?: boolean;
   _onChange?: (value: any) => void;
 }
 
-export function Radio({ value, children, style, className, _selected, _onChange }: RadioProps) {
+export function Radio({
+  value,
+  children,
+  style,
+  className,
+  disabled,
+  _selected,
+  _onChange,
+}: RadioProps) {
   return (
     <label
       className={cn(
-        'flex items-center gap-2.5 cursor-pointer text-sm',
+        'flex items-center gap-2.5 text-sm',
         'px-2.5 py-2 rounded-md transition-colors duration-150',
-        _selected ? 'bg-accent-subtle' : 'hover:bg-surface-muted',
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+        _selected ? 'bg-accent-subtle' : !disabled && 'hover:bg-surface-muted',
         className
       )}
       style={style}
@@ -97,7 +121,8 @@ export function Radio({ value, children, style, className, _selected, _onChange 
       <input
         type="radio"
         checked={_selected}
-        onChange={() => _onChange?.(value)}
+        disabled={disabled}
+        onChange={() => !disabled && _onChange?.(value)}
         className="accent-accent shrink-0 m-0 w-3.5 h-3.5"
       />
       <span className={cn('text-foreground truncate', _selected && 'font-medium text-accent')}>

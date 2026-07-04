@@ -52,11 +52,13 @@ export function Dropdown({ menu, children }: DropdownProps) {
 
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- hover wiring intentionally disabled below (onMouseEnter/onMouseLeave commented out), kept for quick re-enable
   const handleMouseEnter = useCallback(() => {
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
     hoverTimerRef.current = setTimeout(() => setOpen(true), 200);
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- hover wiring intentionally disabled below (onMouseEnter/onMouseLeave commented out), kept for quick re-enable
   const handleMouseLeave = useCallback(() => {
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
     hoverTimerRef.current = setTimeout(() => setOpen(false), 300);

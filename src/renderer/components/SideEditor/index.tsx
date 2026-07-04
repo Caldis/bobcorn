@@ -1,11 +1,11 @@
 // Electron API (via preload contextBridge)
 const { electronAPI } = window;
 // React
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 // UI
-import { Dialog, Button, message, confirm } from '../ui';
-import { Radio, RadioGroup } from '../ui/radio';
+import { Button, message, confirm } from '../ui';
 // Color picker
 import { HexColorPicker } from 'react-colorful';
 import {
@@ -44,8 +44,10 @@ import VariantPanel from './VariantPanel';
 // Export dialog
 import { IconExportDialog } from '../IconExportDialog';
 import type { IconExportTarget } from '../IconExportDialog';
-
-const radioStyle: React.CSSProperties = {};
+// Group picker (move/copy to group)
+import { GroupPickerDialog } from '../GroupPickerDialog';
+import type { GroupPickerGroup } from '../GroupPickerDialog';
+import { parseHex } from '../CodeMatrix/rangeMath';
 
 interface IconDataRecord {
   id: string;
@@ -84,11 +86,7 @@ const SideEditor = React.memo(function SideEditor({
   const [iconCode, setIconCode] = useState<string | null>(null);
   const [iconCodeErrText, setIconCodeErrText] = useState<string | null>(null);
   const [iconGroupEditModelType, setIconGroupEditModelType] = useState<string | null>(null);
-  const [iconGroupEditModelTitle, setIconGroupEditModelTitle] = useState<string | null>(null);
   const [iconGroupEditModelVisible, setIconGroupEditModelVisible] = useState<boolean>(false);
-  const [iconGroupEditModelTarget, setIconGroupEditModelTarget] = useState<string | null>(
-    selectedGroup || null
-  );
   const [exportDialogVisible, setExportDialogVisible] = useState(false);
 
   const prevSelectedIconRef = useRef<string | null>(selectedIcon);
@@ -103,7 +101,6 @@ const SideEditor = React.memo(function SideEditor({
       setIconNameErrText(null);
       setIconCode(data.iconCode);
       setIconCodeErrText(null);
-      setIconGroupEditModelTarget(selectedGroup);
     }
   };
 
@@ -111,6 +108,7 @@ const SideEditor = React.memo(function SideEditor({
     if (selectedIcon) {
       sync(selectedIcon);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only run; selectedIcon transitions are handled by the ref-guarded effect below, adding it here would double-sync
   }, []);
 
   // Subscribe to store changes to trigger re-sync
@@ -121,6 +119,7 @@ const SideEditor = React.memo(function SideEditor({
     if (selectedIcon) {
       sync(selectedIcon);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally scoped to groupData/iconContentVersion refreshes only; `sync` is unmemoized (recreated every render) so adding it (or selectedIcon) would re-sync on every render and clobber in-progress name/code edits
   }, [groupData, iconContentVersion]);
 
   useEffect(() => {
@@ -134,6 +133,7 @@ const SideEditor = React.memo(function SideEditor({
         setEditingColorIdx(null);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sync` is unmemoized (recreated every render); adding it here would trip a separate exhaustive-deps warning to wrap it in useCallback, which risks its own behavior change, so it's intentionally left out. The ref-guard above makes selectedIcon the only real trigger anyway
   }, [selectedIcon]);
 
   // 图标名称与字码修改相关
@@ -193,6 +193,30 @@ const SideEditor = React.memo(function SideEditor({
       setIconCodeErrText(t('editor.codeEmpty'));
     }
   };
+  // 字码越界一键重新分配 —— 组合既有方法 (不新增 db 方法, core-parity-guard 冻结):
+  // requireNewIconCode(targetGroupId) 在图标所属分组的区间内按分配模式取一个新字码
+  // (区间耗尽时抛 GROUP_RANGE_EXHAUSTED / 全局池耗尽抛 PUA_EXHAUSTED), 再走既有的
+  // setIconCode 改码路径落库, 与手动改码 (handleIconCodeSave) 保持一致的撞码校验/健康刷新
+  const handleReassignCode = () => {
+    if (!selectedIcon) return;
+    try {
+      const newCode = db.requireNewIconCode(iconData.iconGroup);
+      db.setIconCode(selectedIcon, newCode, () => {
+        message.success(t('editor.codeReassigned'));
+        syncIconContent();
+        syncLeft();
+        sync(selectedIcon);
+      });
+    } catch (err) {
+      if (String((err as Error)?.message).startsWith('GROUP_RANGE_EXHAUSTED')) {
+        message.warning(t('editor.codeRangeExhausted'));
+      } else if ((err as Error)?.message === 'PUA_EXHAUSTED') {
+        message.error(t('editor.codeExhausted'));
+      } else {
+        throw err;
+      }
+    }
+  };
 
   // 替换图标相关
   const handleIconContentUpdate = async () => {
@@ -235,30 +259,6 @@ const SideEditor = React.memo(function SideEditor({
 
   // 图标导出相关
   const handleIconExport = () => setExportDialogVisible(true);
-  const handleAllIconExport = async () => {
-    const result = await electronAPI.showSaveDialog({
-      title: t('editor.exportAllIcons'),
-      defaultPath: `${db.getProjectName()}`,
-    });
-    if (!result.canceled && result.filePath) {
-      const dirPath = result.filePath;
-      if (!electronAPI.accessSync(dirPath)) {
-        electronAPI.mkdirSync(dirPath);
-      }
-      try {
-        const icons = db.getIconList();
-        icons.forEach((icon: any) => {
-          electronAPI.writeFileSync(
-            `${dirPath}/${icon.iconName}-${icon.iconCode}.${icon.iconType}`,
-            icon.iconContent
-          );
-        });
-        message.success(t('editor.allExported', { count: icons.length }));
-      } catch (err: any) {
-        message.error(t('editor.exportError', { error: err.message }));
-      }
-    }
-  };
 
   // 删除图标相关（通过 variantGuard 统一处理）
   const handleIconRecycle = () => {
@@ -319,25 +319,20 @@ const SideEditor = React.memo(function SideEditor({
   const handleShowIconGroupEdit = (type: string) => {
     if (type === 'duplicate') {
       setIconGroupEditModelType('duplicate');
-      setIconGroupEditModelTitle(t('editor.copyToGroup'));
       setIconGroupEditModelVisible(true);
-      setIconGroupEditModelTarget(
-        selectedGroup === 'resource-uncategorized' ? null : iconGroupEditModelTarget
-      );
     }
     if (type === 'move') {
       setIconGroupEditModelType('move');
-      setIconGroupEditModelTitle(t('editor.moveToGroup'));
       setIconGroupEditModelVisible(true);
-      setIconGroupEditModelTarget(
-        selectedGroup === 'resource-uncategorized' ? null : iconGroupEditModelTarget
-      );
     }
   };
-  const handleEnsureIconGroupEdit = () => {
+  const handleEnsureIconGroupEdit = (
+    targetGroupId: string,
+    opts?: { reassignOutOfRange: boolean }
+  ) => {
     if (iconGroupEditModelType === 'duplicate') {
       try {
-        db.duplicateIconGroup(selectedIcon, iconGroupEditModelTarget, () => {
+        db.duplicateIconGroup(selectedIcon, targetGroupId, () => {
           message.success(t('editor.copiedToGroup'));
           syncLeft();
           selectIcon(null);
@@ -351,46 +346,99 @@ const SideEditor = React.memo(function SideEditor({
       }
     }
     if (iconGroupEditModelType === 'move') {
-      db.moveIconWithVariants(selectedIcon, iconGroupEditModelTarget, () => {
-        message.success(t('editor.movedToGroup'));
-        syncLeft();
-        selectIcon(null);
-      });
+      db.moveIconWithVariants(
+        selectedIcon,
+        targetGroupId,
+        (reassignedCount) => {
+          if (reassignedCount && reassignedCount > 0) {
+            message.success(t('editor.movedToGroupReassigned', { count: reassignedCount }));
+          } else {
+            message.success(t('editor.movedToGroup'));
+          }
+          syncLeft();
+          selectIcon(null);
+        },
+        opts
+      );
     }
     setIconGroupEditModelVisible(false);
   };
   const handleCancelIconGroupEdit = () => {
     setIconGroupEditModelVisible(false);
   };
-  const onTargetGroupChange = (e: { target: { value: any } }) => {
-    setIconGroupEditModelTarget(e.target.value);
-  };
 
   // Cache group list — re-derive only when groupData subscription changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- groupData intentionally used as a refresh signal only (not read in the callback), see comment above
   const groupList = useMemo(() => db.getGroupList(), [groupData]);
+  const groupPickerGroups: GroupPickerGroup[] = useMemo(
+    () => groupList.map((g: any) => ({ id: g.id, groupName: g.groupName, groupIcon: g.groupIcon })),
+    [groupList]
+  );
 
-  // 构建模态框内的分组列表
-  const buildSelectableGroupList = () => {
-    return groupList.map((group: any) => {
-      return (
-        <Radio key={group.id} style={radioStyle} value={group.id}>
-          {group.groupName}
-        </Radio>
-      );
-    });
-  };
+  // 目标分组声明的字码区间 (供移动越界内联选择)
+  const groupRangeById = useMemo(() => {
+    const m = new Map<string, { start: number; end: number }>();
+    for (const g of groupList as any[]) {
+      if (g.codeRangeStart != null && g.codeRangeEnd != null) {
+        m.set(g.id, { start: Number(g.codeRangeStart), end: Number(g.codeRangeEnd) });
+      }
+    }
+    return m;
+  }, [groupList]);
+
+  // 待移动图标 (当前单选图标) 落在目标区间外的数量: 0 或 1。
+  const getMoveOutOfRangeCount = useCallback(
+    (targetGroupId: string): number => {
+      const r = groupRangeById.get(targetGroupId);
+      if (!r || !selectedIcon) return 0;
+      const data = db.getIconData(selectedIcon);
+      const dec = parseHex(String(data?.iconCode ?? ''));
+      if (dec === null) return 0;
+      return dec < r.start || dec > r.end ? 1 : 0;
+    },
+    [groupRangeById, selectedIcon]
+  );
+
+  // 当前图标的已存字码是否落在其所属分组声明的区间之外 (行内提示)
+  const codeOutOfGroupRange = useMemo(() => {
+    const r = groupRangeById.get(String(iconData?.iconGroup ?? ''));
+    if (!r || !iconData?.iconCode) return false;
+    const dec = parseHex(String(iconData.iconCode));
+    return dec !== null && (dec < r.start || dec > r.end);
+  }, [groupRangeById, iconData]);
 
   const groupNum = groupList.length;
 
+  // 组选择模态框内的变体警告 — 有变体时提示移动/复制会如何处理变体
+  const buildGroupPickerWarning = (): React.ReactNode => {
+    if (!selectedIcon) return null;
+    const guard = checkVariants(selectedIcon);
+    if (!guard.hasVariants) return null;
+    const key = iconGroupEditModelType === 'duplicate' ? 'variant.copyNote' : 'variant.moveNote';
+    return (
+      <p className="mb-2 flex items-start gap-1.5 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+        <TriangleAlert size={13} className="mt-px shrink-0" />
+        <span>{t(key, { count: guard.count })}</span>
+      </p>
+    );
+  };
+
   // 颜色编辑
   const colorSectionRef = useRef<HTMLDivElement>(null);
+  // 取色器弹窗的定位锚点（色板行）与弹窗自身节点（经 portal 渲染到 document.body）
+  const swatchesRowRef = useRef<HTMLDivElement>(null);
+  const pickerPanelRef = useRef<HTMLDivElement>(null);
   const [editingColorIdx, setEditingColorIdx] = useState<number | null>(null);
   const [colorInputValue, setColorInputValue] = useState<string>('');
   const [colorInputError, setColorInputError] = useState<boolean>(false);
   const [originalIconContent, setOriginalIconContent] = useState<string | null>(null);
+  const [pickerPos, setPickerPos] = useState<{ top: number; left: number; width: number } | null>(
+    null
+  );
 
   // 解析 currentColor 为当前主题的实际前景色
   // darkMode 作为依赖确保主题切换时重新解析
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- darkMode intentionally used as a refresh signal only (not read in the callback), see comment above
   const resolvedForeground = useMemo(() => resolveCurrentColor(), [darkMode]);
 
   const svgColors = useMemo(() => {
@@ -398,17 +446,50 @@ const SideEditor = React.memo(function SideEditor({
     return extractSvgColors(iconData.iconContent, resolvedForeground);
   }, [iconData.iconContent, resolvedForeground]);
 
-  // 点击颜色区域外部时关闭编辑面板（取色期间跳过）
+  // 点击颜色区域外部时关闭编辑面板（取色期间跳过；弹窗经 portal 渲染到 body，需一并判定）
   useEffect(() => {
     if (editingColorIdx === null) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (isPickingRef.current) return;
-      if (colorSectionRef.current && !colorSectionRef.current.contains(e.target as Node)) {
-        setEditingColorIdx(null);
-      }
+      const target = e.target as Node;
+      if (colorSectionRef.current && colorSectionRef.current.contains(target)) return;
+      if (pickerPanelRef.current && pickerPanelRef.current.contains(target)) return;
+      setEditingColorIdx(null);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [editingColorIdx]);
+
+  // 取色器弹窗定位 —— 经 portal 渲染到 document.body 并用 fixed 定位，
+  // 紧邻色板行出现（下方优先，空间不足时翻转到上方），并 clamp 在视口内；
+  // 侧栏内容区可滚动，故额外监听 resize/scroll（capture）以保持弹窗跟随色板行
+  useLayoutEffect(() => {
+    if (editingColorIdx === null) {
+      setPickerPos(null);
+      return;
+    }
+    const gap = 6;
+    const estimatedHeight = 220;
+    const updatePosition = () => {
+      const triggerEl = swatchesRowRef.current;
+      if (!triggerEl) return;
+      const rect = triggerEl.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const placeAbove = spaceBelow < estimatedHeight + gap && spaceAbove >= estimatedHeight + gap;
+      let top = placeAbove ? rect.top - estimatedHeight - gap : rect.bottom + gap;
+      top = Math.min(Math.max(top, gap), Math.max(gap, window.innerHeight - estimatedHeight - gap));
+      const maxLeft = window.innerWidth - rect.width - gap;
+      const left = Math.min(Math.max(rect.left, gap), Math.max(gap, maxLeft));
+      setPickerPos({ top, left, width: rect.width });
+    };
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    document.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      document.removeEventListener('scroll', updatePosition, true);
+    };
   }, [editingColorIdx]);
 
   // 当切换编辑的颜色时，同步输入框
@@ -417,6 +498,7 @@ const SideEditor = React.memo(function SideEditor({
       setColorInputValue(svgColors[editingColorIdx].color);
       setColorInputError(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally re-syncs the input only when the edited swatch index changes, not on every svgColors recompute (e.g. from applying a color), to avoid clobbering in-progress input
   }, [editingColorIdx]);
 
   const applyColor = useCallback(
@@ -434,7 +516,15 @@ const SideEditor = React.memo(function SideEditor({
       syncIconContent();
       patchIconContent(selectedIcon, updatedSvg);
     },
-    [editingColorIdx, svgColors, iconData.iconContent, selectedIcon]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sync` is unmemoized (recreated every render); adding it would trip a separate "wrap in useCallback" warning, so it's intentionally left out (called explicitly with selectedIcon, not read from closure). syncIconContent/patchIconContent are stable store references
+    [
+      editingColorIdx,
+      svgColors,
+      iconData.iconContent,
+      selectedIcon,
+      syncIconContent,
+      patchIconContent,
+    ]
   );
 
   const handleColorChange = useCallback(
@@ -491,7 +581,8 @@ const SideEditor = React.memo(function SideEditor({
     syncIconContent();
     patchIconContent(selectedIcon, originalIconContent);
     setEditingColorIdx(null);
-  }, [originalIconContent, selectedIcon]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sync` is unmemoized (recreated every render); adding it would trip a separate "wrap in useCallback" warning, so it's intentionally left out (called explicitly with selectedIcon, not read from closure). syncIconContent/patchIconContent are stable store references
+  }, [originalIconContent, selectedIcon, syncIconContent, patchIconContent]);
 
   return (
     <div
@@ -563,6 +654,36 @@ const SideEditor = React.memo(function SideEditor({
                 </span>
               </div>
             )}
+            {/* 字码落在所属分组声明的区间之外时的行内提示 + 一键重新分配 */}
+            {codeOutOfGroupRange && (
+              <div
+                className={cn(
+                  'mt-1.5 flex items-start gap-1.5 rounded-md',
+                  'border border-amber-500/30 bg-amber-500/10 px-2 py-1.5'
+                )}
+              >
+                <TriangleAlert
+                  size={12}
+                  className="text-amber-600 dark:text-amber-400 shrink-0 mt-px"
+                />
+                <span className="text-[11px] text-foreground leading-snug flex-1">
+                  {t('editor.codeOutOfGroupRange')}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleReassignCode}
+                  className={cn(
+                    'shrink-0 -my-0.5 px-1.5 py-0.5 rounded',
+                    'text-xs font-medium',
+                    'text-amber-600 dark:text-amber-400',
+                    'hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/15',
+                    'transition-colors duration-150 cursor-pointer'
+                  )}
+                >
+                  {t('editor.reassignCode')}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Section: 基本信息 */}
@@ -632,7 +753,7 @@ const SideEditor = React.memo(function SideEditor({
                 )}
               </h4>
               <div ref={colorSectionRef}>
-                <div className="flex flex-wrap gap-1.5 mb-2">
+                <div ref={swatchesRowRef} className="flex flex-wrap gap-1.5 mb-2">
                   {svgColors.map((c, i) => (
                     <button
                       key={`${c.color}-${c.isCurrentColor}`}
@@ -665,10 +786,21 @@ const SideEditor = React.memo(function SideEditor({
                     </button>
                   ))}
                 </div>
-                {editingColorIdx !== null && svgColors[editingColorIdx] && (
+              </div>
+              {editingColorIdx !== null &&
+                svgColors[editingColorIdx] &&
+                pickerPos &&
+                createPortal(
                   <div
+                    ref={pickerPanelRef}
+                    style={{
+                      position: 'fixed',
+                      top: pickerPos.top,
+                      left: pickerPos.left,
+                      width: pickerPos.width,
+                    }}
                     className={cn(
-                      'absolute left-0 right-0 z-50 mx-3',
+                      'z-50',
                       'rounded-lg border border-border',
                       'bg-surface',
                       'shadow-lg',
@@ -740,9 +872,9 @@ const SideEditor = React.memo(function SideEditor({
                         style={{ backgroundColor: colorInputValue }}
                       />
                     </div>
-                  </div>
+                  </div>,
+                  document.body
                 )}
-              </div>
             </div>
           )}
 
@@ -846,56 +978,23 @@ const SideEditor = React.memo(function SideEditor({
           )}
         >
           <img className="w-[120px] mb-3 opacity-60" src={selectedIconHint} alt="" />
-          <p className="text-sm mb-1">{t('editor.selectIconHint')}</p>
-          <p className="text-xs">{t('editor.editPropsHint')}</p>
+          <p className="text-sm text-foreground-muted">{t('editor.selectIconHint')}</p>
+          <p className="text-xs text-foreground-muted/60 mt-1">{t('editor.editPropsHint')}</p>
         </div>
       )}
 
       {/* 组选择模态框 */}
-      <Dialog
+      <GroupPickerDialog
         open={iconGroupEditModelVisible}
-        onClose={handleCancelIconGroupEdit}
-        title={iconGroupEditModelTitle}
-        footer={[
-          <Button key="cancel" onClick={handleCancelIconGroupEdit}>
-            {t('common.cancel')}
-          </Button>,
-          <Button
-            disabled={
-              iconGroupEditModelTarget === 'resource-uncategorized' ||
-              iconGroupEditModelTarget === 'resource-all' ||
-              !iconGroupEditModelTarget
-            }
-            key="ensure"
-            type="primary"
-            onClick={handleEnsureIconGroupEdit}
-          >
-            {t('common.confirm')}
-          </Button>,
-        ]}
-      >
-        <div className="max-h-[60vh] overflow-y-auto -mx-2 px-2">
-          {iconGroupEditModelType === 'duplicate' && (
-            <p className="mb-2 text-xs text-foreground-muted">{t('editor.duplicateHint')}</p>
-          )}
-          {/* Variant warning in copy/move dialog */}
-          {selectedIcon &&
-            (() => {
-              const guard = checkVariants(selectedIcon);
-              if (!guard.hasVariants) return null;
-              const key =
-                iconGroupEditModelType === 'duplicate' ? 'variant.copyNote' : 'variant.moveNote';
-              return (
-                <p className="mb-2 px-2.5 py-1.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-medium">
-                  ⚠ {t(key, { count: guard.count })}
-                </p>
-              );
-            })()}
-          <RadioGroup onChange={onTargetGroupChange} value={iconGroupEditModelTarget}>
-            {buildSelectableGroupList()}
-          </RadioGroup>
-        </div>
-      </Dialog>
+        onOpenChange={(open) => !open && handleCancelIconGroupEdit()}
+        mode={iconGroupEditModelType === 'duplicate' ? 'copy' : 'move'}
+        groups={groupPickerGroups}
+        currentGroupId={iconData.iconGroup}
+        initialTargetId={selectedGroup}
+        warning={buildGroupPickerWarning()}
+        getOutOfRangeCount={getMoveOutOfRangeCount}
+        onConfirm={handleEnsureIconGroupEdit}
+      />
 
       <IconExportDialog
         visible={exportDialogVisible}

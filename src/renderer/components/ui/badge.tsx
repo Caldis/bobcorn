@@ -8,6 +8,8 @@ interface BadgeProps {
   /** Status dot mode (for EnhanceBadge) */
   status?: 'success' | 'processing' | 'default' | 'error' | 'warning';
   text?: string;
+  /** Plain standalone label pill (e.g. tagging a list item as "System") */
+  label?: string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -18,7 +20,24 @@ const STATUS_COLORS: Record<string, string> = {
   warning: 'bg-warning',
 };
 
-export function Badge({ count, children, className, status, text }: BadgeProps) {
+export function Badge({ count, children, className, status, text, label }: BadgeProps) {
+  // Plain label pill mode
+  if (label) {
+    return (
+      <span
+        className={cn(
+          'inline-flex items-center justify-center',
+          'px-1.5 py-0.5 rounded',
+          'bg-surface-muted text-foreground-muted',
+          'text-[10px] font-medium leading-none',
+          className
+        )}
+      >
+        {label}
+      </span>
+    );
+  }
+
   // Status dot mode
   if (status) {
     return (

@@ -1,6 +1,5 @@
 // src/renderer/components/IconExportDialog/ExportRow.tsx
 import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { buildFilename } from '../../utils/export/presets';
@@ -17,7 +16,6 @@ interface ExportRowProps {
 }
 
 export function ExportRow({ row, iconName, viewBoxSize, onChange, onDelete }: ExportRowProps) {
-  const { t } = useTranslation();
   const isVector = row.format === 'svg' || row.format === 'pdf';
 
   const filename = useMemo(() => buildFilename(iconName, row), [iconName, row]);

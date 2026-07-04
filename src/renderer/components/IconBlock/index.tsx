@@ -1,5 +1,6 @@
 // React
 import React, { useMemo, useCallback, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 // Style — minimal residual CSS module for SVG sizing rules only
 import style from './index.module.css';
 // UI
@@ -27,6 +28,7 @@ interface IconBlockProps {
   nameVisible?: boolean;
   codeVisible?: boolean;
   handleIconSelected?: (id: string, data: IconData, e?: React.MouseEvent) => void;
+  handleIconContextMenu?: (id: string, data: IconData, e: React.MouseEvent) => void;
   // Selection state (lifted from store to props)
   selected?: boolean;
   batchSelected?: boolean;
@@ -45,12 +47,14 @@ const IconBlock = React.memo(function IconBlock({
   nameVisible = true,
   codeVisible = true,
   handleIconSelected,
+  handleIconContextMenu,
   selected = false,
   batchSelected = false,
   showCheckbox = false,
   isFavorite = false,
   staggerIndex = 0,
 }: IconBlockProps) {
+  const { t } = useTranslation();
   // Store subscriptions — stable selectors to avoid unnecessary re-renders
   const iconId = data.id;
   const patchedContent = useAppStore(
@@ -68,6 +72,10 @@ const IconBlock = React.memo(function IconBlock({
   // 撞码标识 — 布尔选择器, 仅撞码状态翻转时重渲染
   const isDuplicateCode = useAppStore(
     useCallback((state: any) => !!(code && state.duplicateCodes?.[code.toUpperCase()]), [code])
+  );
+  // 越界标识 — 所属分组声明了区间且字码落在区间外 (琥珀色, 与撞码红点视觉可区分)
+  const isOutOfRange = useAppStore(
+    useCallback((state: any) => !!(code && state.outOfRangeCodes?.[code.toUpperCase()]), [code])
   );
 
   // Lazy-load SVG content from database when icon is mounted (visible in viewport)
@@ -93,6 +101,13 @@ const IconBlock = React.memo(function IconBlock({
       handleIconSelected?.(data.id, data, e);
     },
     [data, handleIconSelected]
+  );
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      handleIconContextMenu?.(data.id, data, e);
+    },
+    [data, handleIconContextMenu]
   );
 
   const handleFavoriteToggle = useCallback(
@@ -121,6 +136,7 @@ const IconBlock = React.memo(function IconBlock({
         batchSelected && !selected && ['bg-accent-subtle border-accent/40']
       )}
       onClick={handleSelected}
+      onContextMenu={handleContextMenu}
     >
       {showCheckbox && (
         <div
@@ -206,13 +222,24 @@ const IconBlock = React.memo(function IconBlock({
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
             'text-[10px] font-semibold tracking-widest',
             'mb-1',
-            isDuplicateCode ? 'text-warning' : 'text-foreground-muted/60'
+            isDuplicateCode
+              ? 'text-warning'
+              : isOutOfRange
+                ? 'text-amber-600 dark:text-amber-400'
+                : 'text-foreground-muted/60'
           )}
           style={{ height: codeVisible ? 18 : 0, overflow: 'hidden' }}
+          title={isOutOfRange ? t('editor.codeOutOfGroupRange') : undefined}
         >
           {isDuplicateCode && (
             <span
               className="inline-block align-middle mr-1 h-[5px] w-[5px] rounded-full bg-danger"
+              aria-hidden
+            />
+          )}
+          {!isDuplicateCode && isOutOfRange && (
+            <span
+              className="inline-block align-middle mr-1 h-[5px] w-[5px] rounded-[1px] bg-amber-500 ring-1 ring-surface"
               aria-hidden
             />
           )}

@@ -28,6 +28,8 @@ import { guardDirtyState } from '../../utils/dirtyGuard';
 import useAppStore, { analyticsTrack } from '../../store';
 // Analytics consent
 import ConsentDialog from '../../components/ConsentDialog';
+// New project dialog (project name + icon code prefix)
+import NewProjectDialog from '../../components/NewProjectDialog';
 
 const { electronAPI } = window;
 
@@ -101,8 +103,10 @@ function MainContainer() {
   const selectedIcons = useAppStore((state: any) => state.selectedIcons);
 
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
+  const projectDisplayName = useAppStore((s: any) => s.projectDisplayName);
   const isDirty = useAppStore((s: any) => s.isDirty);
   const [resizing, setResizing] = useState(false);
+  const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
 
   const selectGroup = useAppStore((state: any) => state.selectGroup);
   const selectIcon = useAppStore((state: any) => state.selectIcon);
@@ -115,8 +119,6 @@ function MainContainer() {
   };
   const [leftWidth, setLeftWidth] = useState(opts.sideMenuWidth || 250);
   const [rightWidth, setRightWidth] = useState(opts.sideEditorWidth || 250);
-  const setSideMenuVisible = useAppStore((state: any) => state.setSideMenuVisible);
-  const setSideEditorVisible = useAppStore((state: any) => state.setSideEditorVisible);
 
   const handleLeftResize = useCallback((delta: number) => {
     setLeftWidth((w) => {
@@ -133,55 +135,6 @@ function MainContainer() {
       return next;
     });
   }, []);
-
-  /** Unified project open — used by menu, splash screen, and file association */
-  const handleOpenProject = useCallback(
-    async (filePath?: string) => {
-      const dirty = useAppStore.getState().isDirty;
-      if (dirty) {
-        const proceed = await new Promise<boolean>((resolve) => {
-          confirm({
-            title: t('file.unsavedTitle'),
-            content: t('file.unsavedContent'),
-            okText: t('file.continue'),
-            okType: 'danger',
-            onOk: () => resolve(true),
-            onCancel: () => resolve(false),
-          });
-        });
-        if (!proceed) return;
-      }
-
-      projImporter({
-        path: filePath,
-        onSelectCP: (project: any) => {
-          cpLoader({ data: project.data }, () => {
-            useAppStore.getState().showSplashScreen(false);
-            useAppStore.getState().setCurrentFilePath(null);
-            useAppStore.getState().markClean();
-            useAppStore.getState().syncLeft();
-            useAppStore.getState().selectGroup('resource-all');
-            message.success(t('file.opened'));
-            warnIfProjectCodeIssues();
-            analyticsTrack('project.open');
-          });
-        },
-        onSelectICP: (project: any) => {
-          icpLoader(project.data, () => {
-            useAppStore.getState().showSplashScreen(false);
-            useAppStore.getState().setCurrentFilePath(project.path || null);
-            useAppStore.getState().markClean();
-            useAppStore.getState().syncLeft();
-            useAppStore.getState().selectGroup('resource-all');
-            message.success(t('file.opened'));
-            warnIfProjectCodeIssues();
-            analyticsTrack('project.open');
-          });
-        },
-      });
-    },
-    [t]
-  );
 
   /** Save As — always shows dialog */
   const handleSaveAs = useCallback(async () => {
@@ -248,58 +201,90 @@ function MainContainer() {
     }
   }, [handleSaveAs, t]);
 
-  /** New project */
-  const handleNewProject = useCallback(async () => {
-    const dirty = useAppStore.getState().isDirty;
-    if (dirty) {
-      const proceed = await new Promise<boolean>((resolve) => {
-        confirm({
-          title: t('file.unsavedTitle'),
-          content: t('file.unsavedContent'),
-          okText: t('file.continue'),
-          okType: 'danger',
-          onOk: () => resolve(true),
-          onCancel: () => resolve(false),
-        });
+  /** Unified project open — used by menu, splash screen, and file association */
+  const handleOpenProject = useCallback(
+    async (filePath?: string) => {
+      const canProceed = await guardDirtyState({
+        saveHandler: handleSave,
+        action: t('dirtyGuard.actionOpen'),
       });
-      if (!proceed) return;
-    }
-    db.resetProject();
-    useAppStore.getState().setCurrentFilePath(null);
-    useAppStore.getState().markClean();
-    useAppStore.getState().syncLeft();
-    useAppStore.getState().selectGroup('resource-all');
-    useAppStore.getState().showSplashScreen(false);
-    analyticsTrack('project.create');
-  }, [t]);
+      if (!canProceed) return;
+
+      projImporter({
+        path: filePath,
+        onSelectCP: (project: any) => {
+          cpLoader({ data: project.data }, () => {
+            useAppStore.getState().showSplashScreen(false);
+            useAppStore.getState().setCurrentFilePath(null);
+            useAppStore.getState().markClean();
+            useAppStore.getState().syncLeft();
+            useAppStore.getState().selectGroup('resource-all');
+            message.success(t('file.opened'));
+            warnIfProjectCodeIssues();
+            analyticsTrack('project.open');
+          });
+        },
+        onSelectICP: (project: any) => {
+          icpLoader(project.data, () => {
+            useAppStore.getState().showSplashScreen(false);
+            useAppStore.getState().setCurrentFilePath(project.path || null);
+            useAppStore.getState().markClean();
+            useAppStore.getState().syncLeft();
+            useAppStore.getState().selectGroup('resource-all');
+            message.success(t('file.opened'));
+            warnIfProjectCodeIssues();
+            analyticsTrack('project.open');
+          });
+        },
+      });
+    },
+    [handleSave, t]
+  );
+
+  /** New project — 先做脏数据确认，再弹出命名对话框 */
+  const handleNewProject = useCallback(async () => {
+    const canProceed = await guardDirtyState({
+      saveHandler: handleSave,
+      action: t('dirtyGuard.actionNew'),
+    });
+    if (!canProceed) return;
+    setNewProjectDialogOpen(true);
+  }, [handleSave, t]);
+
+  /** 命名对话框确认 — displayName 为项目名称, prefix 为图标字码前缀 */
+  const handleCreateProject = useCallback(
+    ({ displayName, prefix }: { displayName: string; prefix: string }) => {
+      setNewProjectDialogOpen(false);
+      db.resetProject(prefix, displayName || undefined);
+      useAppStore.getState().setCurrentFilePath(null);
+      useAppStore.getState().markClean();
+      useAppStore.getState().syncLeft();
+      useAppStore.getState().selectGroup('resource-all');
+      useAppStore.getState().showSplashScreen(false);
+      analyticsTrack('project.create');
+    },
+    []
+  );
 
   /** Close project — return to welcome screen */
   const handleCloseProject = useCallback(async () => {
-    const dirty = useAppStore.getState().isDirty;
-    if (dirty) {
-      const proceed = await new Promise<boolean>((resolve) => {
-        confirm({
-          title: t('file.unsavedTitle'),
-          content: t('file.unsavedContent'),
-          okText: t('file.continue'),
-          okType: 'danger',
-          onOk: () => resolve(true),
-          onCancel: () => resolve(false),
-        });
-      });
-      if (!proceed) return;
-    }
+    const canProceed = await guardDirtyState({
+      saveHandler: handleSave,
+      action: t('dirtyGuard.actionClose'),
+    });
+    if (!canProceed) return;
     db.resetProject();
     useAppStore.getState().setCurrentFilePath(null);
     useAppStore.getState().markClean();
     useAppStore.getState().syncLeft();
     useAppStore.getState().showSplashScreen(true);
-  }, [t]);
+  }, [handleSave, t]);
 
   /** Install update with dirty-state protection */
   const handleInstallUpdate = useCallback(async () => {
     const canProceed = await guardDirtyState({
       saveHandler: handleSave,
+      action: t('dirtyGuard.actionUpdate'),
     });
     if (!canProceed) return;
 
@@ -335,13 +320,14 @@ function MainContainer() {
     };
     mq.addEventListener('change', handleSystemChange);
     return () => mq.removeEventListener('change', handleSystemChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only run; `opts` is a fresh object every render (getOption() is unmemoized), so adding it would re-run this on every render instead of just once
   }, []);
 
   // ── Analytics consent — load on mount ─────────────────────────
   const loadAnalyticsConsent = useAppStore((s: any) => s.loadAnalyticsConsent);
   useEffect(() => {
     loadAnalyticsConsent();
-  }, []);
+  }, [loadAnalyticsConsent]);
 
   // ── Menu IPC listeners (Electron menu) ────────────────────────────
   useEffect(() => {
@@ -396,32 +382,15 @@ function MainContainer() {
   // ── Close guard ──────────────────────────────────────────────────
   useEffect(() => {
     const cleanup = electronAPI.onConfirmClose(async () => {
-      const dirty = useAppStore.getState().isDirty;
-      if (!dirty) {
-        electronAPI.confirmClose();
-        return;
-      }
-      confirm({
-        title: t('file.unsavedTitle'),
-        content: t('file.unsavedCloseContent'),
-        okText: t('file.saveAndClose'),
-        cancelText: t('common.cancel'),
-        dangerText: t('file.discardAndClose'),
-        onOk: async () => {
-          try {
-            await handleSave();
-            electronAPI.confirmClose();
-          } catch {
-            electronAPI.closeCancelled();
-          }
-        },
-        onDanger: () => {
-          electronAPI.confirmClose();
-        },
-        onCancel: () => {
-          electronAPI.closeCancelled();
-        },
+      const canProceed = await guardDirtyState({
+        saveHandler: handleSave,
+        action: t('dirtyGuard.actionClose'),
       });
+      if (canProceed) {
+        electronAPI.confirmClose();
+      } else {
+        electronAPI.closeCancelled();
+      }
     });
 
     return cleanup;
@@ -480,10 +449,13 @@ function MainContainer() {
   }, [handleInstallUpdate]);
 
   // ── Title bar sync ───────────────────────────────────────────────
+  // 回退链: 项目名称(displayName) → 文件名 → Untitled
   useEffect(() => {
-    const name = currentFilePath ? electronAPI.pathBasename(currentFilePath, '.icp') : 'Untitled';
+    const name =
+      projectDisplayName ||
+      (currentFilePath ? electronAPI.pathBasename(currentFilePath, '.icp') : 'Untitled');
     document.title = `${name}${isDirty ? '*' : ''} — Bobcorn`;
-  }, [currentFilePath, isDirty]);
+  }, [projectDisplayName, currentFilePath, isDirty]);
 
   return (
     <div className="flex h-full w-full flex-row flex-nowrap">
@@ -555,6 +527,13 @@ function MainContainer() {
 
       {/* Analytics consent dialog — shown once on first launch */}
       <ConsentDialog />
+
+      {/* New project dialog — project name + icon code prefix */}
+      <NewProjectDialog
+        open={newProjectDialogOpen}
+        onClose={() => setNewProjectDialogOpen(false)}
+        onConfirm={handleCreateProject}
+      />
     </div>
   );
 }

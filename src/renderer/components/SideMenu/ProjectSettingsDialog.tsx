@@ -26,8 +26,10 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
   const syncProjectMeta = useAppStore((s: any) => s.syncProjectMeta);
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
   const projectName = useAppStore((s: any) => s.projectName);
+  const projectDisplayName = useAppStore((s: any) => s.projectDisplayName);
 
   // ── Editable state ──────────────────────────────────────────────
+  const [displayNameText, setDisplayNameText] = useState('');
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
@@ -46,6 +48,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
   // Reset state when dialog opens
   useEffect(() => {
     if (!visible) return;
+    setDisplayNameText((db as any).getProjectDisplayName?.() || '');
     setDescription((db as any).getProjectDescription?.() || '');
     setSelectedColor((db as any).getProjectColor?.() || null);
     setPrefixText((db as any).getProjectName() || 'iconfont');
@@ -58,6 +61,14 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
   }, [visible]);
 
   // ── Identity handlers ───────────────────────────────────────────
+
+  const handleDisplayNameBlur = useCallback(() => {
+    const val = displayNameText.trim() || null;
+    (db as any).setProjectDisplayName(val, () => {
+      syncProjectMeta();
+      analyticsTrack('project_settings.change', { setting: 'displayName' });
+    });
+  }, [displayNameText, syncProjectMeta]);
 
   const handleDescBlur = useCallback(() => {
     const val = description.trim() || null;
@@ -127,8 +138,10 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
   }, [onClose]);
 
   // ── Derived display ─────────────────────────────────────────────
-
-  const displayName = currentFilePath ? getFileDisplayName(currentFilePath) : projectName;
+  // 回退链: 项目名称(displayName) → 文件名 → 图标字码前缀
+  const fileFallback = currentFilePath ? getFileDisplayName(currentFilePath) : '';
+  const namePlaceholder = fileFallback || t('projectSettings.displayNamePlaceholder');
+  const resolvedName = projectDisplayName || fileFallback || projectName;
 
   const formatDate = (iso: string | null) => {
     if (!iso) return '—';
@@ -154,15 +167,24 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
             {t('projectSettings.identity')}
           </h4>
 
-          {/* Avatar + Name */}
+          {/* Avatar + editable project name */}
           <div className="flex items-center gap-3 mb-3">
-            <ProjectAvatar name={displayName} size={36} color={selectedColor} />
-            <span
-              className="text-sm font-medium text-foreground truncate"
-              title={t('projectSettings.nameHint')}
-            >
-              {displayName}
-            </span>
+            <ProjectAvatar name={resolvedName} size={36} color={selectedColor} />
+            <input
+              type="text"
+              value={displayNameText}
+              onChange={(e) => setDisplayNameText(e.target.value)}
+              onBlur={handleDisplayNameBlur}
+              placeholder={namePlaceholder}
+              title={t('projectSettings.displayName')}
+              className={cn(
+                'flex-1 min-w-0 px-2.5 py-1.5 rounded-md text-sm font-medium',
+                'border border-border bg-surface text-foreground',
+                'placeholder:text-foreground-muted/40 placeholder:font-normal',
+                'focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30',
+                'transition-colors duration-150'
+              )}
+            />
           </div>
 
           {/* Description */}
@@ -223,7 +245,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
         {/* ── Divider ──────────────────────────────────── */}
         <div className="border-t border-border" />
 
-        {/* ── Font Prefix ──────────────────────────────── */}
+        {/* ── Icon Code Prefix ─────────────────────────── */}
         <section>
           <h4
             className={cn(
@@ -231,7 +253,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
               'text-danger/70 mb-2.5'
             )}
           >
-            {t('projectSettings.fontPrefix')}
+            {t('projectSettings.iconCodePrefix')}
           </h4>
           <div className="rounded-md border border-danger/20 bg-danger-subtle p-3">
             <div className="flex items-center gap-2">
@@ -262,7 +284,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
             </div>
             {prefixErr && <p className="text-[11px] text-danger mt-1">{prefixErr}</p>}
             <p className="text-[11px] text-danger/50 mt-1.5 leading-relaxed">
-              {t('settings.prefixDesc')}
+              {t('projectSettings.iconCodePrefixDesc')}
             </p>
           </div>
         </section>

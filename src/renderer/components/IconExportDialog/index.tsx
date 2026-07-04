@@ -130,7 +130,6 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
 
     let dirPath: string | null = null;
     let singleFilePath: string | null = null;
-    const baseName: string | null = null;
 
     if (isBatch) {
       // Batch: must pick a directory

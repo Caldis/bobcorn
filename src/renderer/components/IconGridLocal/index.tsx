@@ -5,16 +5,34 @@ import { useTranslation } from 'react-i18next';
 import { useVirtualizer } from '@tanstack/react-virtual';
 // React Dropzone
 import { useDropzone } from 'react-dropzone';
+// Icons
+import {
+  Info,
+  Star,
+  StarOff,
+  FolderInput,
+  Copy,
+  Download,
+  Trash2,
+  RotateCcw,
+  TriangleAlert,
+} from 'lucide-react';
 // UI
 import { message, confirm } from '../ui';
 // Components
 import IconBlock from '../IconBlock';
 import IconToolbar from '../IconToolbar';
 import GroupIconPreview from '../GroupIconPreview';
+import IconContextMenu, { type ContextMenuItem } from '../IconContextMenu';
+import { GroupPickerDialog, type GroupPickerGroup } from '../GroupPickerDialog';
+import { IconExportDialog, type IconExportTarget } from '../IconExportDialog';
+import { parseHex } from '../CodeMatrix/rangeMath';
 // ViewModel
-import { computeIconGridViewModel, type IconItem } from './viewModel';
+import { computeIconGridViewModel, type IconItem, type VirtualRow } from './viewModel';
 // Utils
 import { cn } from '../../lib/utils';
+import { checkVariants, buildVariantWarning } from '../../utils/variantGuard';
+import { buildImportSuccessMessage } from '../../utils/importFeedback';
 // Database
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.list, favorite.list
 import db from '../../database';
@@ -34,16 +52,33 @@ interface IconGridLocalProps {
 
 const HEADER_HEIGHT = 52; // estimate: accent bar + py-1.5 (12) + content (~20) + mt-3 (12) + pb-2 (8)
 
+// ── Marquee (box) selection tuning ──────────────────────────────────
+const MARQUEE_THRESHOLD = 4; // px of movement before a drag becomes a marquee
+const MARQUEE_EDGE = 40; // px from top/bottom edge that triggers auto-scroll
+const MARQUEE_AUTOSCROLL_STEP = 16; // px scrolled per frame while near an edge
+
+interface MarqueeRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps) {
   const { t } = useTranslation();
   const options = getOption() as OptionData;
   const syncLeft = useAppStore((state: any) => state.syncLeft);
   const selectGroup = useAppStore((state: any) => state.selectGroup);
+  const selectIcon = useAppStore((state: any) => state.selectIcon);
 
   // Selection state — subscribed once at grid level, passed as props to IconBlock
   const selectedIconStore = useAppStore((state: any) => state.selectedIcon);
   const selectedIcons = useAppStore((state: any) => state.selectedIcons);
   const showCheckbox = useAppStore((state: any) => state.batchMode || state.selectedIcons.size > 0);
+  const iconSortField = useAppStore((state: any) => state.iconSortField);
+  const iconSortDirection = useAppStore((state: any) => state.iconSortDirection);
+  const filterOutOfRange = useAppStore((state: any) => state.filterOutOfRange);
+  const outOfRangeCodes = useAppStore((state: any) => state.outOfRangeCodes);
 
   // Event-time reads via getState()
   const getStore = () => useAppStore.getState();
@@ -61,6 +96,19 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const [containerWidth, setContainerWidth] = useState(0);
   const [ready, setReady] = useState(false);
 
+  // Marquee (box) selection
+  const [marqueeRect, setMarqueeRect] = useState<MarqueeRect | null>(null);
+  const [marqueeDragging, setMarqueeDragging] = useState(false);
+
+  // Icon right-click context menu + its move/copy group picker
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; ids: string[] } | null>(
+    null
+  );
+  const [groupPickerMode, setGroupPickerMode] = useState<'move' | 'copy' | null>(null);
+  const groupPickerIdsRef = useRef<string[]>([]);
+  const [exportDialogVisible, setExportDialogVisible] = useState(false);
+  const exportDialogIdsRef = useRef<string[]>([]);
+
   // ── Refs ────────────────────────────────────────────────────────────
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevSelectedGroupRef = useRef<string>(selectedGroup);
@@ -70,6 +118,33 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const widthTmpRef = useRef<number | null>(null);
   const widthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollCacheRef = useRef<Map<string, number>>(new Map());
+
+  // ── Marquee refs (mutable drag state, no re-render) ─────────────────
+  const marqueeStartRef = useRef<{ cx: number; cy: number } | null>(null); // content coords
+  const marqueeStartClientRef = useRef<{ x: number; y: number } | null>(null); // viewport coords
+  const marqueeLastPointerRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 }); // viewport coords
+  const marqueeActiveRef = useRef(false);
+  const marqueePendingRef = useRef(false);
+  const marqueeCtrlRef = useRef(false);
+  const marqueeBaseRef = useRef<Set<string>>(new Set()); // selection before drag (Ctrl union)
+  const marqueeRafRef = useRef<number | null>(null);
+  const marqueeAppliedRef = useRef<string>(''); // signature of last applied selection
+  const justMarqueedRef = useRef(false); // swallow the click that follows a marquee
+  // Live geometry snapshot read by the (stable) drag handlers to avoid stale closures.
+  const geomRef = useRef<{ columns: number; containerWidth: number; rows: VirtualRow[] }>({
+    columns: 1,
+    containerWidth: 0,
+    rows: [],
+  });
+  // Holds the (stable) virtualizer instance for the drag handlers; typed as
+  // any to avoid the invariant Virtualizer generic. We only call
+  // getMeasurements() on it.
+  const virtualizerRef = useRef<any>(null);
+  const marqueeHandlersRef = useRef<{
+    move?: (e: MouseEvent) => void;
+    up?: () => void;
+    key?: (e: KeyboardEvent) => void;
+  }>({});
 
   // ── Grid layout constants ──────────────────────────────────────────
   const GRID_COL_GAP = 4; // px column-gap between cells
@@ -105,6 +180,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       ro.disconnect();
       if (widthTimerRef.current) clearTimeout(widthTimerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally keyed on the containerWidth===0 boolean (not the raw width) so the observer is only re-created once, on first measurement; see comment above
   }, [containerWidth === 0]); // only re-run dependency on first mount
 
   // ── Database sync ───────────────────────────────────────────────────
@@ -140,11 +216,12 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     refreshVariantCounts();
     const timer = setTimeout(() => setReady(true), 300);
     return () => clearTimeout(timer);
-  }, [sync]);
+  }, [sync, refreshVariantCounts]);
 
   const groupData = useAppStore((state: any) => state.groupData);
   useEffect(() => {
     sync();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excludes `sync`: this effect refreshes on groupData changes only; selectedGroup-driven syncs are already handled by the effect below, adding `sync` here would double-fire it
   }, [groupData]);
 
   useEffect(() => {
@@ -157,9 +234,11 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       sync(selectedGroup);
       deselectIcon();
     }
-  }, [selectedGroup]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `deselectIcon` is declared later in the component (useCallback below); putting it in the deps array evaluates it during render and throws a TDZ ReferenceError. The effect is guarded by prevSelectedGroupRef, so extra reruns are no-ops.
+  }, [selectedGroup, sync]);
 
   // ── ViewModel ───────────────────────────────────────────────────────
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- groupData is only used as a refresh signal to re-read groupList from db after group changes, not read directly (same pattern as BatchPanel)
   const groupList = useMemo(() => (db as any).getGroupList() || [], [groupData]);
 
   const viewModel = useMemo(() => {
@@ -171,10 +250,24 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       searchKeyword,
       columns,
       groupList,
+      sortField: iconSortField,
+      sortDirection: iconSortDirection,
+      outOfRangeCodes,
+      filterOutOfRange,
     });
     p?.measure('viewModel.compute');
     return result;
-  }, [iconData, selectedGroup, searchKeyword, columns, groupList]);
+  }, [
+    iconData,
+    selectedGroup,
+    searchKeyword,
+    columns,
+    groupList,
+    iconSortField,
+    iconSortDirection,
+    outOfRangeCodes,
+    filterOutOfRange,
+  ]);
 
   // Update flatIconIds ref for Shift+Click range selection
   useEffect(() => {
@@ -200,6 +293,10 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     paddingEnd: GRID_H_PAD,
   });
 
+  // Keep live geometry available to the stable marquee drag handlers.
+  virtualizerRef.current = virtualizer;
+  geomRef.current = { columns, containerWidth, rows: viewModel.rows };
+
   // Restore scroll position on view change
   useEffect(() => {
     if (viewModel.rows.length > 0) {
@@ -210,6 +307,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally keyed on the rows-populated boolean (not the raw length) so scroll restoration only re-runs on the empty<->populated transition, not on every icon add/remove
   }, [selectedGroup, viewModel.rows.length > 0 ? 1 : 0]);
 
   // ── Toolbar callbacks ───────────────────────────────────────────────
@@ -254,7 +352,10 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   // ── Drag & drop (useDropzone hook — shares ref with scroll container) ──
   // 导入结果反馈: 码点用尽导致部分失败时警告, 否则按调用方给定的成功文案提示
   const reportImportResult = useCallback(
-    (result: { added: number; failed: number } | undefined, successMessage: string) => {
+    (
+      result: { added: number; failed: number; appended?: number; filled?: number } | undefined,
+      successMessage: string
+    ) => {
       if (result && result.failed > 0) {
         message.warning(t('import.codeExhausted', { added: result.added, failed: result.failed }));
       } else {
@@ -276,7 +377,10 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         }
         if (acceptableIcons.length > 0) {
           db.addIcons(acceptableIcons, selectedGroup, (result) => {
-            reportImportResult(result, t('import.success', { count: acceptableIcons.length }));
+            reportImportResult(
+              result,
+              buildImportSuccessMessage(t, result, acceptableIcons.length)
+            );
             syncLeft();
             sync();
           });
@@ -293,10 +397,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
               db.addIcons(acceptableIcons, selectedGroup, (result) => {
                 reportImportResult(
                   result,
-                  t('import.partialSuccess', {
-                    total: acceptedFiles.length,
-                    count: acceptableIcons.length,
-                  })
+                  buildImportSuccessMessage(t, result, acceptableIcons.length)
                 );
                 syncLeft();
                 sync();
@@ -308,7 +409,10 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
           });
         } else {
           db.addIcons(acceptableIcons, selectedGroup, (result) => {
-            reportImportResult(result, t('import.success', { count: acceptableIcons.length }));
+            reportImportResult(
+              result,
+              buildImportSuccessMessage(t, result, acceptableIcons.length)
+            );
             syncLeft();
             sync();
           });
@@ -382,9 +486,520 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     [handleIconSelected]
   );
 
+  // ── Marquee (box) selection ─────────────────────────────────────────
+  // Hit-testing is derived from virtualizer row geometry (not DOM), so it
+  // works for rows that aren't currently mounted. All the drag handlers are
+  // created once and read live values through refs to stay stable.
+  useEffect(() => {
+    const computeHits = (r: {
+      left: number;
+      top: number;
+      right: number;
+      bottom: number;
+    }): string[] => {
+      const { columns: n, containerWidth: cw, rows } = geomRef.current;
+      const vz = virtualizerRef.current;
+      if (!vz) return [];
+      const measurements = vz.getMeasurements();
+      const gap = GRID_COL_GAP;
+      const pad = GRID_H_PAD;
+      const avail = Math.max(0, cw - pad * 2);
+      const cellW = n > 0 ? (avail - (n - 1) * gap) / n : avail;
+      const hits: string[] = [];
+      for (let i = 0; i < measurements.length; i++) {
+        const m = measurements[i];
+        const row = rows[m.index];
+        if (!row || row.kind !== 'row') continue; // skip group headers
+        if (m.start >= r.bottom || m.end <= r.top) continue; // no vertical overlap
+        const icons = row.icons;
+        for (let c = 0; c < icons.length; c++) {
+          const cellLeft = pad + c * (cellW + gap);
+          const cellRight = cellLeft + cellW;
+          if (cellLeft < r.right && cellRight > r.left) hits.push(icons[c].id);
+        }
+      }
+      return hits;
+    };
+
+    const step = () => {
+      const el = scrollRef.current;
+      const start = marqueeStartRef.current;
+      if (!el || !start) return;
+      const rect = el.getBoundingClientRect();
+      const p = marqueeLastPointerRef.current;
+
+      // Auto-scroll when the pointer nears the top/bottom edge.
+      const yInView = p.y - rect.top;
+      const maxScroll = el.scrollHeight - el.clientHeight;
+      if (yInView < MARQUEE_EDGE && el.scrollTop > 0) {
+        el.scrollTop = Math.max(0, el.scrollTop - MARQUEE_AUTOSCROLL_STEP);
+      } else if (yInView > el.clientHeight - MARQUEE_EDGE && el.scrollTop < maxScroll) {
+        el.scrollTop = Math.min(maxScroll, el.scrollTop + MARQUEE_AUTOSCROLL_STEP);
+      }
+
+      // Current pointer → content coordinates (clamped to the visible area).
+      const vx = Math.min(Math.max(p.x - rect.left, 0), el.clientWidth);
+      const vy = Math.min(Math.max(p.y - rect.top, 0), el.clientHeight);
+      const curX = vx + el.scrollLeft;
+      const curY = vy + el.scrollTop;
+
+      const left = Math.min(start.cx, curX);
+      const right = Math.max(start.cx, curX);
+      const top = Math.min(start.cy, curY);
+      const bottom = Math.max(start.cy, curY);
+
+      setMarqueeRect((prev) =>
+        prev &&
+        prev.left === left &&
+        prev.top === top &&
+        prev.width === right - left &&
+        prev.height === bottom - top
+          ? prev
+          : { left, top, width: right - left, height: bottom - top }
+      );
+
+      const hits = computeHits({ left, top, right, bottom });
+      let finalIds: string[];
+      if (marqueeCtrlRef.current && marqueeBaseRef.current.size > 0) {
+        const set = new Set(marqueeBaseRef.current);
+        for (const id of hits) set.add(id);
+        finalIds = Array.from(set);
+      } else {
+        finalIds = hits;
+      }
+      const sig = finalIds.slice().sort().join('|');
+      if (sig !== marqueeAppliedRef.current) {
+        marqueeAppliedRef.current = sig;
+        useAppStore.getState().setIconSelection(finalIds);
+      }
+    };
+
+    const runLoop = () => {
+      if (marqueeRafRef.current != null) return;
+      const loop = () => {
+        if (!marqueeActiveRef.current) {
+          marqueeRafRef.current = null;
+          return;
+        }
+        step();
+        marqueeRafRef.current = requestAnimationFrame(loop);
+      };
+      marqueeRafRef.current = requestAnimationFrame(loop);
+    };
+
+    const cleanup = () => {
+      const h = marqueeHandlersRef.current;
+      if (h.move) document.removeEventListener('mousemove', h.move);
+      if (h.up) document.removeEventListener('mouseup', h.up);
+      if (h.key) document.removeEventListener('keydown', h.key, true);
+      if (marqueeRafRef.current != null) {
+        cancelAnimationFrame(marqueeRafRef.current);
+        marqueeRafRef.current = null;
+      }
+    };
+
+    const finishMarquee = (restore: boolean) => {
+      const wasActive = marqueeActiveRef.current;
+      cleanup();
+      marqueeActiveRef.current = false;
+      marqueePendingRef.current = false;
+      marqueeStartRef.current = null;
+      if (restore) {
+        useAppStore.getState().setIconSelection(Array.from(marqueeBaseRef.current));
+      }
+      if (wasActive) {
+        justMarqueedRef.current = true; // swallow the click that follows the drag
+        setMarqueeDragging(false);
+        setMarqueeRect(null);
+      }
+    };
+
+    const move = (e: MouseEvent) => {
+      marqueeLastPointerRef.current = { x: e.clientX, y: e.clientY };
+      if (!marqueeActiveRef.current) {
+        if (!marqueePendingRef.current) return;
+        const start = marqueeStartClientRef.current;
+        if (!start) return;
+        if (Math.hypot(e.clientX - start.x, e.clientY - start.y) < MARQUEE_THRESHOLD) return;
+        marqueeActiveRef.current = true;
+        marqueePendingRef.current = false;
+        setMarqueeDragging(true);
+        runLoop();
+      }
+      step(); // immediate feedback; the rAF loop keeps it live during auto-scroll
+    };
+
+    const up = () => finishMarquee(false);
+
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (!marqueeActiveRef.current && !marqueePendingRef.current) return;
+      e.preventDefault();
+      e.stopPropagation();
+      finishMarquee(true); // cancel + restore pre-drag selection
+    };
+
+    marqueeHandlersRef.current = { move, up, key };
+    return cleanup;
+  }, []);
+
+  const handleGridMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return; // left button only
+    const el = scrollRef.current;
+    if (!el) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-testid="icon-block"]')) return; // preserve icon click behavior
+    if (target.closest('[data-marquee-skip]')) return; // group headers etc.
+    if (geomRef.current.rows.length === 0) return;
+    const rect = el.getBoundingClientRect();
+    // Ignore presses on the scrollbar gutter.
+    if (e.clientX - rect.left >= el.clientWidth) return;
+    if (e.clientY - rect.top >= el.clientHeight) return;
+
+    marqueeStartRef.current = {
+      cx: e.clientX - rect.left + el.scrollLeft,
+      cy: e.clientY - rect.top + el.scrollTop,
+    };
+    marqueeStartClientRef.current = { x: e.clientX, y: e.clientY };
+    marqueeLastPointerRef.current = { x: e.clientX, y: e.clientY };
+    marqueeCtrlRef.current = e.ctrlKey || e.metaKey;
+    marqueeBaseRef.current = new Set(useAppStore.getState().selectedIcons);
+    marqueeActiveRef.current = false;
+    marqueePendingRef.current = true;
+    marqueeAppliedRef.current = '';
+
+    const h = marqueeHandlersRef.current;
+    if (h.move) document.addEventListener('mousemove', h.move);
+    if (h.up) document.addEventListener('mouseup', h.up);
+    if (h.key) document.addEventListener('keydown', h.key, true);
+  }, []);
+
+  // Swallow the click emitted right after a marquee drag so it doesn't
+  // deselect (empty-space overlay) or single-select (icon) the target.
+  const handleGridClickCapture = useCallback((e: React.MouseEvent) => {
+    if (justMarqueedRef.current) {
+      justMarqueedRef.current = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, []);
+
+  // ── Right-click context menu ────────────────────────────────────────
+  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+
+  const handleIconContextMenu = useCallback(
+    (id: string, data: any, e: React.MouseEvent) => {
+      e.preventDefault();
+      const s = useAppStore.getState();
+      let ids: string[];
+      if (s.selectedIcons.has(id) && s.selectedIcons.size > 1) {
+        // Right-clicked an icon inside a multi-selection → act on the whole set.
+        ids = Array.from(s.selectedIcons) as string[];
+      } else {
+        // Otherwise make it the single selection first, then act on it alone.
+        if (s.batchMode || s.selectedIcons.size > 0) s.clearBatchSelection();
+        s.setLastClickedIconId(id);
+        handleIconSelected(id, data);
+        ids = [id];
+      }
+      setContextMenu({ x: e.clientX, y: e.clientY, ids });
+    },
+    [handleIconSelected]
+  );
+
+  const handleCtxFavorite = useCallback(
+    (ids: string[], favorite: boolean) => {
+      if (ids.length === 1) db.setIconFavorite(ids[0], favorite ? 1 : 0);
+      else db.setIconsFavorite(ids, favorite ? 1 : 0);
+      syncLeft();
+      message.success(
+        favorite
+          ? t('batch.favorited', { count: ids.length })
+          : t('batch.unfavorited', { count: ids.length })
+      );
+    },
+    [syncLeft, t]
+  );
+
+  const handleCtxRecycle = useCallback(
+    (ids: string[]) => {
+      const multi = ids.length > 1;
+      const totalVariants = ids.reduce((sum, id) => sum + checkVariants(id).count, 0);
+      confirm({
+        title: multi ? t('batch.deleteTitle') : t('editor.recycleTitle'),
+        content: buildVariantWarning(
+          multi ? t('batch.deleteConfirm', { count: ids.length }) : t('editor.recycleContent'),
+          totalVariants,
+          t,
+          'variant.recycleNote'
+        ),
+        onOk() {
+          db.moveIconsWithVariants(ids, 'resource-recycleBin');
+          syncLeft();
+          useAppStore.getState().clearBatchSelection();
+          selectIcon(null);
+          message.success(
+            multi ? t('contextMenu.recycledCount', { count: ids.length }) : t('editor.recycled')
+          );
+          analyticsTrack('batch.operation', { operation: 'recycle' });
+        },
+      });
+    },
+    [syncLeft, selectIcon, t]
+  );
+
+  const handleCtxRestore = useCallback(
+    (ids: string[]) => {
+      // No original group is tracked, so restore lands in "Ungrouped".
+      db.moveIconsWithVariants(ids, 'resource-uncategorized');
+      syncLeft();
+      useAppStore.getState().clearBatchSelection();
+      selectIcon(null);
+      message.success(
+        ids.length > 1
+          ? t('contextMenu.restoredCount', { count: ids.length })
+          : t('contextMenu.restored')
+      );
+    },
+    [syncLeft, selectIcon, t]
+  );
+
+  const handleCtxDelete = useCallback(
+    (ids: string[]) => {
+      const multi = ids.length > 1;
+      const totalVariants = ids.reduce((sum, id) => sum + checkVariants(id).count, 0);
+      confirm({
+        title: multi
+          ? t('contextMenu.deletePermanentlyCount', { count: ids.length })
+          : t('editor.deleteTitle'),
+        content: buildVariantWarning(
+          multi
+            ? t('contextMenu.deleteConfirmCount', { count: ids.length })
+            : t('editor.deleteContent'),
+          totalVariants,
+          t,
+          'variant.deleteConfirm'
+        ),
+        okType: 'danger',
+        okText: t('common.delete'),
+        onOk() {
+          ids.forEach((id) => db.deleteIconWithVariants(id));
+          syncLeft();
+          useAppStore.getState().clearBatchSelection();
+          selectIcon(null);
+          analyticsTrack('icon.delete');
+          message.success(
+            multi ? t('contextMenu.deletedCount', { count: ids.length }) : t('editor.deleted')
+          );
+        },
+      });
+    },
+    [syncLeft, selectIcon, t]
+  );
+
+  const handleCtxExport = useCallback((ids: string[]) => {
+    exportDialogIdsRef.current = ids;
+    setExportDialogVisible(true);
+    analyticsTrack('batch.operation', { operation: 'export' });
+  }, []);
+
+  // ids captured into exportDialogIdsRef at click time (contextMenu itself is
+  // cleared right after the menu item is selected — see IconContextMenu).
+  const exportDialogIcons: IconExportTarget[] = useMemo(() => {
+    if (!exportDialogVisible) return [];
+    return exportDialogIdsRef.current
+      .map((id) => {
+        const data = db.getIconData(id);
+        return data ? { id, iconName: data.iconName, iconContent: data.iconContent } : null;
+      })
+      .filter(Boolean) as IconExportTarget[];
+  }, [exportDialogVisible]);
+
+  const groupPickerGroups: GroupPickerGroup[] = useMemo(
+    () =>
+      (groupList as any[]).map((g) => ({
+        id: g.id,
+        groupName: g.groupName,
+        groupIcon: g.groupIcon,
+      })),
+    [groupList]
+  );
+
+  const groupPickerWarning = useMemo(() => {
+    if (!groupPickerMode) return null;
+    const ids = groupPickerIdsRef.current;
+    const totalVariants = ids.reduce((sum, id) => sum + checkVariants(id).count, 0);
+    if (totalVariants <= 0) return null;
+    const key = groupPickerMode === 'copy' ? 'variant.copyNote' : 'variant.moveNote';
+    return (
+      <p className="mb-2 flex items-start gap-1.5 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+        <TriangleAlert size={13} className="mt-px shrink-0" />
+        <span>{t(key, { count: totalVariants })}</span>
+      </p>
+    );
+  }, [groupPickerMode, t]);
+
+  // 目标分组区间 + 待移动图标码位 → 移动越界内联选择 (右键菜单/框选路径)
+  const groupRangeById = useMemo(() => {
+    const m = new Map<string, { start: number; end: number }>();
+    for (const g of groupList as any[]) {
+      if (g.codeRangeStart != null && g.codeRangeEnd != null) {
+        m.set(g.id, { start: Number(g.codeRangeStart), end: Number(g.codeRangeEnd) });
+      }
+    }
+    return m;
+  }, [groupList]);
+  const pendingCodesDec = useMemo(() => {
+    if (!groupPickerMode) return [] as number[];
+    const out: number[] = [];
+    for (const id of groupPickerIdsRef.current) {
+      const d = db.getIconData(id);
+      const dec = parseHex(String(d?.iconCode ?? ''));
+      if (dec !== null) out.push(dec);
+    }
+    return out;
+  }, [groupPickerMode]);
+  const getMoveOutOfRangeCount = useCallback(
+    (targetGroupId: string): number => {
+      const r = groupRangeById.get(targetGroupId);
+      if (!r) return 0;
+      return pendingCodesDec.filter((c) => c < r.start || c > r.end).length;
+    },
+    [groupRangeById, pendingCodesDec]
+  );
+
+  const handleGroupPickerConfirm = useCallback(
+    (targetGroupId: string, opts?: { reassignOutOfRange: boolean }) => {
+      const ids = groupPickerIdsRef.current;
+      if (groupPickerMode === 'move') {
+        db.moveIconsWithVariants(
+          ids,
+          targetGroupId,
+          (reassignedCount) => {
+            syncLeft();
+            useAppStore.getState().clearBatchSelection();
+            selectIcon(null);
+            if (reassignedCount && reassignedCount > 0) {
+              message.success(
+                t('batch.movedReassigned', { count: ids.length, reassigned: reassignedCount })
+              );
+            } else {
+              message.success(t('batch.moved', { count: ids.length }));
+            }
+            analyticsTrack('batch.operation', { operation: 'move' });
+          },
+          opts
+        );
+      } else if (groupPickerMode === 'copy') {
+        db.duplicateIcons(ids, targetGroupId, (result) => {
+          syncLeft();
+          useAppStore.getState().clearBatchSelection();
+          selectIcon(null);
+          if (result && result.failed > 0) {
+            message.warning(
+              t('batch.copyCodeExhausted', { added: result.added, failed: result.failed })
+            );
+          } else {
+            message.success(t('batch.copied', { count: ids.length }));
+          }
+          analyticsTrack('batch.operation', { operation: 'copy' });
+        });
+      }
+      setGroupPickerMode(null);
+    },
+    [groupPickerMode, syncLeft, selectIcon, t]
+  );
+
+  const contextItems: ContextMenuItem[] = useMemo(() => {
+    if (!contextMenu) return [];
+    const ids = contextMenu.ids;
+    const count = ids.length;
+    const multi = count > 1;
+
+    if (selectedGroup === 'resource-recycleBin') {
+      return [
+        {
+          key: 'restore',
+          label: multi ? t('contextMenu.restoreCount', { count }) : t('contextMenu.restore'),
+          icon: <RotateCcw size={14} />,
+          onSelect: () => handleCtxRestore(ids),
+        },
+        { key: 'sep', separator: true },
+        {
+          key: 'delete',
+          label: multi
+            ? t('contextMenu.deletePermanentlyCount', { count })
+            : t('contextMenu.deletePermanently'),
+          icon: <Trash2 size={14} />,
+          danger: true,
+          onSelect: () => handleCtxDelete(ids),
+        },
+      ];
+    }
+
+    const allFav = ids.every((id) => (db.getIconData(id) as any)?.isFavorite === 1);
+    return [
+      {
+        key: 'favorite',
+        label: allFav
+          ? multi
+            ? t('contextMenu.unfavoriteCount', { count })
+            : t('batch.unfavorite')
+          : multi
+            ? t('contextMenu.favoriteCount', { count })
+            : t('batch.favorite'),
+        icon: allFav ? <StarOff size={14} /> : <Star size={14} />,
+        onSelect: () => handleCtxFavorite(ids, !allFav),
+      },
+      {
+        key: 'move',
+        label: multi ? t('contextMenu.moveCount', { count }) : t('batch.moveTo'),
+        icon: <FolderInput size={14} />,
+        onSelect: () => {
+          groupPickerIdsRef.current = ids;
+          setGroupPickerMode('move');
+        },
+      },
+      {
+        key: 'copy',
+        label: multi ? t('contextMenu.copyCount', { count }) : t('batch.copyTo'),
+        icon: <Copy size={14} />,
+        onSelect: () => {
+          groupPickerIdsRef.current = ids;
+          setGroupPickerMode('copy');
+        },
+      },
+      {
+        key: 'export',
+        label: multi ? t('contextMenu.exportCount', { count }) : t('contextMenu.export'),
+        icon: <Download size={14} />,
+        onSelect: () => handleCtxExport(ids),
+      },
+      { key: 'sep', separator: true },
+      {
+        key: 'recycle',
+        label: multi ? t('contextMenu.recycleCount', { count }) : t('editor.recycle'),
+        icon: <Trash2 size={14} />,
+        danger: true,
+        onSelect: () => handleCtxRecycle(ids),
+      },
+    ];
+  }, [
+    contextMenu,
+    selectedGroup,
+    t,
+    handleCtxRestore,
+    handleCtxDelete,
+    handleCtxFavorite,
+    handleCtxRecycle,
+    handleCtxExport,
+  ]);
+
   // Escape to exit batch mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Marquee drag owns Escape while active (restores pre-drag selection).
+      if (marqueeActiveRef.current || marqueePendingRef.current) return;
       const s = getStore();
       if (e.key === 'Escape' && (s.batchMode || s.selectedIcons.size > 0)) {
         s.clearBatchSelection();
@@ -429,7 +1044,12 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         <img className="w-[150px]" src={h.img} />
         <div>
           {h.lines.map((line, i) => (
-            <p key={i} className="text-foreground-muted mb-2">
+            <p
+              key={i}
+              className={
+                i === 0 ? 'text-sm text-foreground-muted' : 'mt-1 text-xs text-foreground-muted/60'
+              }
+            >
               {line}
             </p>
           ))}
@@ -469,6 +1089,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       }
     }
     return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally depends on the fresh array from getVirtualItems() (changes every scroll-driven render) to force recompute while scrolling; `virtualizer` itself is a stable ref (per useVirtualizer) and would not retrigger on scroll
   }, [virtualizer.getVirtualItems(), selectedGroup, viewModel.rows]);
 
   // ── Render virtual items ────────────────────────────────────────────
@@ -580,14 +1201,33 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         </div>
       )}
 
+      {/* 回收站字码占用提示条 — 仅回收站视图可见 */}
+      {selectedGroup === 'resource-recycleBin' && (
+        <div
+          className={cn(
+            'shrink-0 mx-3 mt-2 mb-1',
+            'flex items-center gap-1.5',
+            'rounded-md border border-warning/30 bg-warning-subtle/60',
+            'px-3 py-1.5',
+            'text-xs text-foreground-muted'
+          )}
+        >
+          <Info size={13} className="shrink-0 text-warning" />
+          <span>{t('trash.codeOccupancyHint')}</span>
+        </div>
+      )}
+
       <div
         {...dropzoneRootProps}
         ref={mergedScrollRef}
+        onMouseDown={handleGridMouseDown}
+        onClickCapture={handleGridClickCapture}
         className={cn(
           'relative text-center flex-grow',
           'overflow-hidden overflow-y-auto',
           'transition-[filter] duration-300',
-          isDragActive && 'blur-[30px]'
+          isDragActive && 'blur-[30px]',
+          marqueeDragging && 'select-none'
         )}
       >
         <input {...getInputProps()} />
@@ -610,6 +1250,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                   <div
                     key={row.key}
                     data-index={virtualRow.index}
+                    data-marquee-skip
                     ref={virtualizer.measureElement}
                     className="absolute left-0 w-full pb-2"
                     style={{ transform: `translateY(${virtualRow.start}px)` }}
@@ -677,6 +1318,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                       nameVisible={iconBlockNameVisible}
                       codeVisible={iconBlockCodeVisible}
                       handleIconSelected={handleIconClick}
+                      handleIconContextMenu={handleIconContextMenu}
                       selected={selectedIconStore === icon.id}
                       batchSelected={selectedIcons.has(icon.id)}
                       showCheckbox={showCheckbox}
@@ -687,6 +1329,19 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
                 </div>
               );
             })}
+
+            {/* Marquee selection rectangle (content-coordinate space) */}
+            {marqueeRect && (
+              <div
+                className="pointer-events-none absolute z-40 rounded-[1px] border border-accent bg-accent/10"
+                style={{
+                  left: marqueeRect.left,
+                  top: marqueeRect.top,
+                  width: marqueeRect.width,
+                  height: marqueeRect.height,
+                }}
+              />
+            )}
           </div>
         ) : (
           geneNodataBlock()
@@ -724,6 +1379,40 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
           visibleIconIds={flatIconIdsRef.current}
         />
       </div>
+
+      {/* Right-click context menu */}
+      {contextMenu && (
+        <IconContextMenu
+          open
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextItems}
+          onClose={closeContextMenu}
+        />
+      )}
+
+      {/* Move / copy target picker (driven by the context menu) */}
+      <GroupPickerDialog
+        open={groupPickerMode !== null}
+        onOpenChange={(open) => !open && setGroupPickerMode(null)}
+        mode={groupPickerMode ?? 'move'}
+        groups={groupPickerGroups}
+        warning={groupPickerWarning}
+        title={
+          groupPickerMode === 'copy'
+            ? t('batch.copyToTitle', { count: groupPickerIdsRef.current.length })
+            : t('batch.moveToTitle', { count: groupPickerIdsRef.current.length })
+        }
+        getOutOfRangeCount={getMoveOutOfRangeCount}
+        onConfirm={handleGroupPickerConfirm}
+      />
+
+      {/* Export dialog (driven by the context menu's "导出…" item) */}
+      <IconExportDialog
+        visible={exportDialogVisible}
+        onClose={() => setExportDialogVisible(false)}
+        icons={exportDialogIcons}
+      />
     </div>
   );
 }

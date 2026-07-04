@@ -59,6 +59,7 @@ export default function VariantPanel({
   const isOriginal = weightIndex === REGULAR_INDEX && scaleIndex === MEDIUM_SCALE_INDEX;
   const alreadyExists = useMemo(
     () => db.hasVariant(iconId, currentWeight.key, currentScale.key),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `variants` is only a refresh signal so this recomputes after generate/delete; hasVariant() itself reads straight from db
     [iconId, currentWeight.key, currentScale.key, variants]
   );
 
@@ -92,6 +93,7 @@ export default function VariantPanel({
     } finally {
       setGenerating(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted: it's only recreated on language switch and adding it would needlessly recreate this callback then; refreshVariants/refreshVariantCounts/syncLeft are stable store references so omitting/including them doesn't change behavior
   }, [
     iconId,
     iconName,
@@ -101,6 +103,9 @@ export default function VariantPanel({
     isOriginal,
     alreadyExists,
     generating,
+    refreshVariants,
+    refreshVariantCounts,
+    syncLeft,
   ]);
 
   // Generate all variants
@@ -147,12 +152,22 @@ export default function VariantPanel({
     } else {
       message.success(t('variant.generated', { count: done }));
     }
-  }, [iconId, iconName, iconContent, generating]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted (see handleGenerateCurrent above); refreshVariants/refreshVariantCounts/setVariantProgress/syncLeft are stable store references
+  }, [
+    iconId,
+    iconName,
+    iconContent,
+    generating,
+    refreshVariants,
+    refreshVariantCounts,
+    setVariantProgress,
+    syncLeft,
+  ]);
 
   // Cancel generation
   const handleCancel = useCallback(() => {
     setVariantProgress((prev: any) => (prev ? { ...prev, active: false } : null));
-  }, []);
+  }, [setVariantProgress]);
 
   // Delete a variant
   const handleDeleteVariant = useCallback(
@@ -162,7 +177,7 @@ export default function VariantPanel({
       refreshVariantCounts();
       syncLeft();
     },
-    [refreshVariants, refreshVariantCounts]
+    [refreshVariants, refreshVariantCounts, syncLeft]
   );
 
   // Export a single variant as SVG

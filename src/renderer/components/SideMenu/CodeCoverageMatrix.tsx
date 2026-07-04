@@ -1,19 +1,21 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { HelpCircle } from 'lucide-react';
 import { Dialog, Button } from '../ui';
 import { message } from '../ui/toast';
 import { cn } from '../../lib/utils';
 import useAppStore from '../../store';
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.settings
 import db from '../../database';
-import {
-  BLOCK_SIZE,
-  GRID_COLS,
-  CoverageBlock,
-  CoverageModel,
-  buildCoverageModel,
-  partialLevel,
-} from './codeCoverage';
+import { buildCoverageModel, normalizeIconCode } from './codeCoverage';
+import CodeMatrix, { LegendSwatch } from '../CodeMatrix';
+import type { ReservedRange } from '../CodeMatrix';
+
+// reserved 图例斜纹 (与 CodeMatrix 内 RESERVED_STRIPE 视觉一致)
+const RESERVED_STRIPE_STYLE: React.CSSProperties = {
+  backgroundImage:
+    'repeating-linear-gradient(45deg, rgba(130,130,130,0.38) 0, rgba(130,130,130,0.38) 1.5px, transparent 1.5px, transparent 4px)',
+};
 
 interface CodeFixItem {
   id: string;
@@ -23,119 +25,68 @@ interface CodeFixItem {
   reason: 'duplicate' | 'invalid';
 }
 
-// partial 档位 1-4 → accent 透明度梯度 (类名需完整字面量, Tailwind JIT 才能扫描到)
-const PARTIAL_CLS = ['bg-accent/25', 'bg-accent/45', 'bg-accent/65', 'bg-accent/85'];
-
-const cellColorCls = (block: CoverageBlock): string => {
-  if (block.state === 'empty') return 'bg-surface-inset border-border/60';
-  if (block.state === 'full') return 'bg-accent border-transparent';
-  return `${PARTIAL_CLS[partialLevel(block.count) - 1]} border-transparent`;
-};
-
-interface CellProps {
-  block: CoverageBlock;
-  hovered: boolean;
-  onHover: (index: number | null) => void;
-}
-
-const Cell = memo(function Cell({ block, hovered, onHover }: CellProps) {
-  const { t } = useTranslation();
-
-  const stateLabel = t(
-    block.state === 'empty'
-      ? 'projectSettings.coverageStateEmpty'
-      : block.state === 'full'
-        ? 'projectSettings.coverageStateFull'
-        : 'projectSettings.coverageStatePartial'
-  );
-  const usedLabel = t('projectSettings.coverageBlockUsed', {
-    used: block.count,
-    size: BLOCK_SIZE,
-  });
-  const rangeLabel = `${block.startHex} – ${block.endHex}`;
-
-  // 边缘列的 tooltip 分别左/右对齐, 避免越出对话框
-  const col = block.index % GRID_COLS;
-  const tooltipPosCls =
-    col <= 3 ? 'left-0' : col >= GRID_COLS - 4 ? 'right-0' : 'left-1/2 -translate-x-1/2';
-
-  return (
-    <div
-      className="relative aspect-square cursor-default"
-      role="img"
-      aria-label={`${rangeLabel} · ${usedLabel} · ${stateLabel}`}
-      onMouseEnter={() => onHover(block.index)}
-      onMouseLeave={() => onHover(null)}
-    >
-      <span
-        className={cn(
-          'absolute inset-0 rounded-[3px] border transition-all duration-100',
-          cellColorCls(block),
-          hovered && 'scale-[1.35] z-10 shadow-md ring-1 ring-ring/60'
-        )}
-      />
-      {block.hasDuplicates && (
-        <span
-          className={cn(
-            'absolute -top-[2px] -right-[2px] z-20',
-            'h-[5px] w-[5px] rounded-full bg-danger ring-1 ring-surface'
-          )}
-        />
-      )}
-      {hovered && (
-        <div
-          className={cn(
-            'absolute bottom-full mb-1.5 z-50 pointer-events-none',
-            'rounded-md px-2.5 py-1.5 shadow-lg',
-            'bg-foreground text-surface whitespace-nowrap',
-            tooltipPosCls
-          )}
-        >
-          <div className="font-mono text-[11px] font-medium leading-tight">{rangeLabel}</div>
-          <div className="text-[10px] opacity-80 leading-tight mt-0.5">
-            {usedLabel}
-            <span className="mx-1 opacity-60">·</span>
-            {stateLabel}
-          </div>
-          {block.hasDuplicates && (
-            <div className="text-[10px] text-danger leading-tight mt-0.5">
-              {t('projectSettings.coverageHasDuplicates')}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-});
-
-function LegendSwatch({ cls, label }: { cls: string; label: string }) {
-  return (
-    <span className="flex items-center gap-1">
-      <span className={cn('shrink-0', cls)} />
-      {label}
-    </span>
-  );
-}
-
+/**
+ * 项目设置「字码覆盖」。共享 CodeMatrix (display 模式) 渲染网格,
+ * 本壳负责数据获取 (db)、汇总统计、撞码/非法一键修复。
+ */
 function CodeCoverageMatrix() {
   const { t } = useTranslation();
-  const [model, setModel] = useState<CoverageModel | null>(null);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [rawCodes, setRawCodes] = useState<string[] | null>(null);
+  // 各分组声明的字码区间 (display 模式的 reserved 图层)
+  const [groupRanges, setGroupRanges] = useState<ReservedRange[]>([]);
   // 修复预览弹窗: null = 关闭, 数组 = before/after 计划
   const [fixPlan, setFixPlan] = useState<CodeFixItem[] | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
+  const [showPuaHelp, setShowPuaHelp] = useState(false);
 
   // Radix Dialog 关闭即卸载, 挂载时查询一次 = 每次打开对话框自动刷新; 修复后 refreshTick 触发重查
   useEffect(() => {
     try {
       if (!(db as any)?.dbInited) return;
-      setModel(buildCoverageModel((db as any).getAllIconCodes()));
+      setRawCodes((db as any).getAllIconCodes());
+      const groups: any[] = (db as any).getGroupList() || [];
+      setGroupRanges(
+        groups
+          .filter(
+            (g) =>
+              g.codeRangeStart !== null &&
+              g.codeRangeStart !== undefined &&
+              g.codeRangeEnd !== null &&
+              g.codeRangeEnd !== undefined
+          )
+          .map((g) => ({
+            id: g.id,
+            name: g.groupName,
+            start: Number(g.codeRangeStart),
+            end: Number(g.codeRangeEnd),
+          }))
+      );
     } catch {
       /* db 未就绪时整行隐藏 */
     }
   }, [refreshTick]);
 
-  const handleHover = useCallback((index: number | null) => setHoveredIndex(index), []);
+  const model = useMemo(() => (rawCodes ? buildCoverageModel(rawCodes) : null), [rawCodes]);
+
+  // 由原始字码派生 CodeMatrix 所需的 Set (已用 / 撞码)
+  const { usedCodes, duplicateCodes } = useMemo(() => {
+    const used = new Set<number>();
+    const occ = new Map<number, number>();
+    if (rawCodes) {
+      for (const raw of rawCodes) {
+        const dec = normalizeIconCode(raw);
+        if (dec !== null) {
+          used.add(dec);
+          occ.set(dec, (occ.get(dec) || 0) + 1);
+        }
+      }
+    }
+    const dup = new Set<number>();
+    occ.forEach((n, dec) => {
+      if (n > 1) dup.add(dec);
+    });
+    return { usedCodes: used, duplicateCodes: dup };
+  }, [rawCodes]);
 
   const handleOpenFixPlan = useCallback(() => {
     try {
@@ -159,13 +110,30 @@ function CodeCoverageMatrix() {
   }, [fixPlan, t]);
 
   if (!model) return null;
-  const { blocks, summary } = model;
+  const { summary } = model;
   const hasIssues = summary.duplicateCodeCount > 0 || summary.invalidCodeCount > 0;
 
   return (
     <div className="flex items-start gap-2">
-      <span className="text-foreground-muted/50 shrink-0 w-16 text-[12px] pt-0.5">
+      <span className="relative flex items-center gap-1 text-foreground-muted/50 shrink-0 min-w-[4rem] text-[12px] pt-0.5">
         {t('projectSettings.coverage')}
+        <HelpCircle
+          size={12}
+          className="shrink-0 cursor-help text-foreground-muted/40 hover:text-foreground-muted/70 transition-colors"
+          onMouseEnter={() => setShowPuaHelp(true)}
+          onMouseLeave={() => setShowPuaHelp(false)}
+        />
+        {showPuaHelp && (
+          <div
+            className={cn(
+              'absolute left-0 top-full mt-1.5 z-50 pointer-events-none',
+              'w-[270px] rounded-md px-2.5 py-1.5 shadow-lg',
+              'bg-foreground text-surface text-[11px] leading-relaxed whitespace-normal'
+            )}
+          >
+            {t('projectSettings.coveragePuaHelp')}
+          </div>
+        )}
       </span>
       <div className="flex-1 min-w-0 space-y-1.5">
         {/* Summary */}
@@ -192,17 +160,13 @@ function CodeCoverageMatrix() {
           </span>
         </div>
 
-        {/* Matrix */}
-        <div className="grid grid-cols-[repeat(20,minmax(0,1fr))] gap-[3px]">
-          {blocks.map((block) => (
-            <Cell
-              key={block.index}
-              block={block}
-              hovered={hoveredIndex === block.index}
-              onHover={handleHover}
-            />
-          ))}
-        </div>
+        {/* Matrix (共享 CodeMatrix, display 模式) */}
+        <CodeMatrix
+          mode="display"
+          usedCodes={usedCodes}
+          duplicateCodes={duplicateCodes}
+          reservedRanges={groupRanges}
+        />
 
         {/* Legend */}
         <div className="flex items-center justify-between gap-2 text-[10px] text-foreground-muted/60">
@@ -223,6 +187,15 @@ function CodeCoverageMatrix() {
               cls="h-[5px] w-[5px] rounded-full bg-danger"
               label={t('projectSettings.coverageLegendDuplicate')}
             />
+            {groupRanges.length > 0 && (
+              <span className="flex items-center gap-1">
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-[2px] border border-border/40"
+                  style={RESERVED_STRIPE_STYLE}
+                />
+                {t('codeMatrix.legendReserved')}
+              </span>
+            )}
           </div>
           <span className="flex items-center gap-2 shrink-0">
             {summary.duplicateCodeCount > 0 && (

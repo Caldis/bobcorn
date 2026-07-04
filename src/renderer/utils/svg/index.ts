@@ -11,7 +11,7 @@ class SVG {
   // 基本存取
   setSVG = (svgString: string): this => {
     // 清除掉多余的引号
-    svgString = svgString.replaceAll("\'", '"');
+    svgString = svgString.replaceAll("'", '"');
     svgString = svgString.replace(/""(\S+)""/g, '"$1"');
     // 从字符串解析DOM对象
     const parser = new DOMParser();
@@ -108,7 +108,9 @@ class SVG {
       // 莫名其妙报错
       const style = this.SVG!.querySelector('style');
       this.SVG!.removeChild(style!);
-    } catch (err) {}
+    } catch (err) {
+      // style element may not exist; ignore
+    }
 
     // 清除宽高, 重设xy
     this.delWidth().delHeight().setX('0px').setY('0px');

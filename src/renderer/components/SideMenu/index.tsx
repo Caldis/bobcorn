@@ -10,6 +10,7 @@ import style from './index.module.css';
 // Utils
 import { platform } from '../../utils/tools';
 import { iconImporter } from '../../utils/importer';
+import { buildImportSuccessMessage } from '../../utils/importFeedback';
 // Database
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): group.list
 import db from '../../database';
@@ -52,12 +53,13 @@ const SideMenu = React.memo(function SideMenu({
 
   useEffect(() => {
     syncLeft();
-  }, []);
+  }, [syncLeft]);
 
   useEffect(() => {
     if (selectedGroupProp !== selectedGroup) {
       setSelectedGroup(selectedGroupProp);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excludes `selectedGroup`: adding it would re-fire right after handleMenuItemSelected's local setSelectedGroup, before selectedGroupProp catches up, reverting the just-clicked selection back to the stale prop
   }, [selectedGroupProp]);
 
   // 菜单选择
@@ -82,7 +84,7 @@ const SideMenu = React.memo(function SideMenu({
                     t('import.codeExhausted', { added: result.added, failed: result.failed })
                   );
                 } else {
-                  message.success(t('import.success', { count: files.length }));
+                  message.success(buildImportSuccessMessage(t, result, files.length));
                 }
                 syncLeft();
                 analyticsTrack('icon.import');
@@ -106,6 +108,7 @@ const SideMenu = React.memo(function SideMenu({
           break;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted: only recreated on language switch, adding it would needlessly recreate this callback then
     [selectedGroup, syncLeft]
   );
 

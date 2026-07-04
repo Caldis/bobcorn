@@ -32,7 +32,10 @@ export interface State {
   prefetchedContent: Record<string, string>;
 
   // Project
+  // projectName = 图标字码前缀 (技术: 字体名/CSS 类名/导出目录)
   projectName: string;
+  // projectDisplayName = 项目名称 (用户可见, 可空 → UI 回退文件名/前缀)
+  projectDisplayName: string | null;
   projectDescription: string | null;
   projectColor: string | null;
 
@@ -60,6 +63,16 @@ export interface State {
 
   // 重复字码缓存 (归一化大写 hex → true) — 供 IconBlock/SideEditor 撞码标识, 单次 GROUP BY 查询避免 N+1
   duplicateCodes: Record<string, true>;
+
+  // 越界字码缓存 (归一化大写 hex → true) — 所属分组声明了区间且图标字码落在区间外; 仿 duplicateCodes 在 syncLeft 刷新
+  outOfRangeCodes: Record<string, true>;
+
+  // 图标网格排序 — 字段 + 方向 (默认字码升序，等价历史行为)
+  iconSortField: 'createTime' | 'updateTime' | 'iconCode' | 'iconName';
+  iconSortDirection: 'asc' | 'desc';
+
+  // 图标网格筛选 — 开启时仅显示字码不在所属分组声明区间内的图标 (基于 outOfRangeCodes)
+  filterOutOfRange: boolean;
 }
 
 export interface Actions {
@@ -106,6 +119,14 @@ export interface Actions {
   ) => void;
   refreshVariantCounts: () => void;
   refreshDuplicateCodes: () => void;
+  refreshOutOfRangeCodes: () => void;
+
+  // 图标网格排序
+  setIconSortField: (field: State['iconSortField']) => void;
+  setIconSortDirection: (direction: State['iconSortDirection']) => void;
+
+  // 图标网格筛选
+  setFilterOutOfRange: (value: boolean) => void;
 }
 
 const useAppStore = create<State & Actions>((set, get) => ({
@@ -132,6 +153,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // Project
   projectName: 'iconfont',
+  projectDisplayName: null,
   projectDescription: null,
   projectColor: null,
 
@@ -157,6 +179,14 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // Variant counts cache
   variantCounts: {},
   duplicateCodes: {},
+  outOfRangeCodes: {},
+
+  // 图标网格排序 — 默认字码升序，等价历史行为
+  iconSortField: 'iconCode',
+  iconSortDirection: 'asc',
+
+  // 图标网格筛选 — 默认关闭
+  filterOutOfRange: false,
 
   // Actions
   showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
@@ -248,37 +278,42 @@ const useAppStore = create<State & Actions>((set, get) => ({
     set({ lastClickedIconId: id });
   },
 
-  // 项目元数据轻同步：只刷新 projectName/description/color，不触发分组列表/图标重载
+  // 项目元数据轻同步：只刷新 projectName/displayName/description/color，不触发分组列表/图标重载
   syncProjectMeta: () => {
     let projectName = 'iconfont';
+    let projectDisplayName: string | null = null;
     let projectDescription: string | null = null;
     let projectColor: string | null = null;
     try {
       projectName = (db as any).getProjectName() || 'iconfont';
+      projectDisplayName = (db as any).getProjectDisplayName?.() ?? null;
       projectDescription = (db as any).getProjectDescription?.() ?? null;
       projectColor = (db as any).getProjectColor?.() ?? null;
     } catch {
       /* db not initialized yet */
     }
-    set({ projectName, projectDescription, projectColor });
+    set({ projectName, projectDisplayName, projectDescription, projectColor });
   },
 
   // 重同步：刷新分组列表（触发 ResourceNav 计数 + GroupList 计数 + IconGridLocal 重载）
   syncLeft: () => {
     const data = (db as any).getGroupList();
     let projectName = 'iconfont';
+    let projectDisplayName: string | null = null;
     let projectDescription: string | null = null;
     let projectColor: string | null = null;
     try {
       projectName = (db as any).getProjectName() || 'iconfont';
+      projectDisplayName = (db as any).getProjectDisplayName?.() ?? null;
       projectDescription = (db as any).getProjectDescription?.() ?? null;
       projectColor = (db as any).getProjectColor?.() ?? null;
     } catch {
       /* db not initialized yet */
     }
-    set({ groupData: data, projectName, projectDescription, projectColor });
-    // 字码变动路径 (导入/复制/改码/修复/载入项目) 都会走 syncLeft, 顺带刷新撞码缓存
+    set({ groupData: data, projectName, projectDisplayName, projectDescription, projectColor });
+    // 字码变动路径 (导入/复制/改码/修复/载入项目) 都会走 syncLeft, 顺带刷新撞码 + 越界缓存
     get().refreshDuplicateCodes();
+    get().refreshOutOfRangeCodes();
   },
 
   // 轻同步：只通知图标内容变了（不触发分组列表/计数/网格重载）
@@ -397,6 +432,48 @@ const useAppStore = create<State & Actions>((set, get) => ({
       set({ duplicateCodes: {} });
     }
   },
+
+  // 越界字码缓存刷新 — 分组区间 (getGroupList) × 各组图标码位 (getAllIconsGrouped) 客户端一次算出,
+  // 归一化大写 hex → true, 供 IconBlock 网格越界标识。在 syncLeft 内触发。
+  refreshOutOfRangeCodes: () => {
+    try {
+      const groups: any[] = (db as any).getGroupList();
+      const ranges = new Map<string, { start: number; end: number }>();
+      for (const g of groups) {
+        const s = g.codeRangeStart;
+        const e = g.codeRangeEnd;
+        if (s !== null && s !== undefined && e !== null && e !== undefined) {
+          ranges.set(g.id, { start: Number(s), end: Number(e) });
+        }
+      }
+      const obj: Record<string, true> = {};
+      if (ranges.size > 0) {
+        const grouped: Record<string, any[]> = (db as any).getAllIconsGrouped();
+        ranges.forEach((range, gid) => {
+          const icons = grouped[gid];
+          if (!icons) return;
+          for (const ic of icons) {
+            const hex = String(ic.iconCode ?? '')
+              .trim()
+              .toUpperCase();
+            if (!/^[0-9A-F]{4}$/.test(hex)) continue;
+            const dec = parseInt(hex, 16);
+            if (dec < range.start || dec > range.end) obj[hex] = true;
+          }
+        });
+      }
+      set({ outOfRangeCodes: obj });
+    } catch {
+      set({ outOfRangeCodes: {} });
+    }
+  },
+
+  // 图标网格排序
+  setIconSortField: (field) => set({ iconSortField: field }),
+  setIconSortDirection: (direction) => set({ iconSortDirection: direction }),
+
+  // 图标网格筛选
+  setFilterOutOfRange: (value) => set({ filterOutOfRange: value }),
 }));
 
 /**

@@ -144,7 +144,7 @@ const GroupList = React.memo(function GroupList({
       db.reorderGroups(newOrder.map((g: GroupData) => g.id));
       syncLeft();
     },
-    [groupData]
+    [groupData, syncLeft]
   );
 
   return (
@@ -195,8 +195,8 @@ const GroupList = React.memo(function GroupList({
             src={addGroupHint}
             alt={t('group.addHint')}
           />
-          <p className="mb-1 mt-3 text-sm">{t('group.noGroups')}</p>
-          <p className="text-xs text-foreground-muted">{t('group.noGroupsHint')}</p>
+          <p className="mt-3 text-sm text-foreground-muted">{t('group.noGroups')}</p>
+          <p className="mt-1 text-xs text-foreground-muted/60">{t('group.noGroupsHint')}</p>
         </div>
       )}
     </div>

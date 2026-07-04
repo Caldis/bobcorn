@@ -45,6 +45,7 @@ export default function ConsentDialog() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showCard is a plain (non-memoized) closure; including it would re-run this effect (and re-schedule the timer) on every render, not just when splashScreenVisible changes
   }, [splashScreenVisible]);
 
   // Immediately show if user exports (font or icon) — high-value moment
@@ -56,6 +57,7 @@ export default function ConsentDialog() {
     const handler = () => setTimeout(showCard, 3000);
     window.addEventListener('bobcorn:export-triggered', handler);
     return () => window.removeEventListener('bobcorn:export-triggered', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showCard is a plain (non-memoized) closure; including it would re-attach the listener on every render, not just when splashScreenVisible changes
   }, [splashScreenVisible]);
 
   // Slide-in animation

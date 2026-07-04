@@ -289,35 +289,61 @@ if (!gotLock) {
     );
 
     // ── CLI management ──────────────────────────────────────────────
-    ipcMain.handle('cli-detect-status', async () => {
+    // Session-level cache for the CLI detection result. Opening the settings
+    // dialog repeatedly must not re-run detection; the cache is invalidated
+    // after install/uninstall (or when the renderer passes `force`).
+    let cliStatusCache: {
+      installed: boolean;
+      version: string | null;
+      commandName: string;
+    } | null = null;
+
+    // Detect CLI status WITHOUT blocking the main process event loop.
+    // Uses async `exec` (never `execSync`/`spawnSync`) with a short timeout so a
+    // slow/absent `bobcorn` command can't freeze the UI. On timeout or failure
+    // we fall back to a wrapper-file existence check, then to "not installed".
+    const detectCliStatus = (): Promise<{
+      installed: boolean;
+      version: string | null;
+      commandName: string;
+    }> => {
       // In dev, the CLI registers as `bobcorn-dev`; in prod as `bobcorn`
       const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
       const cmd = isDev ? 'bobcorn-dev' : 'bobcorn';
-      const fs = require('fs');
+      const { exec } = require('child_process');
 
-      // First: try running the command (works if PATH already has it)
-      try {
-        const { execSync } = require('child_process');
-        const version = execSync(`${cmd} --version`, {
-          encoding: 'utf8',
-          timeout: 5000,
-        }).trim();
-        return { installed: true, version, commandName: cmd };
-      } catch {
-        // PATH might not have propagated yet — check if wrapper file exists
-        const ext = process.platform === 'win32' ? '.cmd' : '';
-        const wrapperDir =
-          process.platform === 'win32'
-            ? path.join(process.env.LOCALAPPDATA || '', 'Bobcorn', 'cli')
-            : path.join(os.homedir(), '.local', 'bin');
-        const wrapperPath = path.join(wrapperDir, cmd + ext);
-        if (fs.existsSync(wrapperPath)) {
-          // Wrapper exists but not in PATH yet — read version from our own package
-          const version = app.getVersion();
-          return { installed: true, version, commandName: cmd };
-        }
-        return { installed: false, version: null, commandName: cmd };
-      }
+      return new Promise((resolve) => {
+        exec(
+          `${cmd} --version`,
+          { encoding: 'utf8', timeout: 3000, windowsHide: true },
+          (err: NodeJS.ErrnoException | null, stdout: string) => {
+            const version = (stdout || '').trim();
+            if (!err && version) {
+              return resolve({ installed: true, version, commandName: cmd });
+            }
+            // PATH might not have propagated yet — check if wrapper file exists
+            const ext = process.platform === 'win32' ? '.cmd' : '';
+            const wrapperDir =
+              process.platform === 'win32'
+                ? path.join(process.env.LOCALAPPDATA || '', 'Bobcorn', 'cli')
+                : path.join(os.homedir(), '.local', 'bin');
+            const wrapperPath = path.join(wrapperDir, cmd + ext);
+            fs.access(wrapperPath, (accErr) => {
+              if (!accErr) {
+                // Wrapper exists but not in PATH yet — use our own version
+                return resolve({ installed: true, version: app.getVersion(), commandName: cmd });
+              }
+              resolve({ installed: false, version: null, commandName: cmd });
+            });
+          }
+        );
+      });
+    };
+
+    ipcMain.handle('cli-detect-status', async (_event, opts?: { force?: boolean }) => {
+      if (cliStatusCache && !opts?.force) return cliStatusCache;
+      cliStatusCache = await detectCliStatus();
+      return cliStatusCache;
     });
 
     // Resolve CLI binary path — works in both dev and packaged
@@ -352,9 +378,14 @@ if (!gotLock) {
       const fs = require('fs');
       const cliPath = resolveCliPath();
       if (!fs.existsSync(cliPath)) {
+        // In a packaged app this means the distribution is missing the CLI
+        // build artifact — surface a machine code the renderer maps to a
+        // user-friendly, translated message. The developer hint ("npx tsup")
+        // is only meaningful (and only shown) in an unpackaged dev build.
         return Promise.resolve({
           ok: false,
-          error: `CLI not built. Run "npx tsup" first.\n(${cliPath})`,
+          code: 'CLI_NOT_BUILT',
+          error: app.isPackaged ? undefined : `CLI not built. Run "npx tsup" first.\n(${cliPath})`,
         });
       }
       return findNode().then((nodeBin: string) => {
@@ -378,22 +409,26 @@ if (!gotLock) {
     };
 
     ipcMain.handle('cli-install', async () => {
+      // Detection result is now stale — force a fresh check on next detect.
+      cliStatusCache = null;
       try {
         const result: any = await runCli(['install']);
         return result.ok
           ? { success: true, message: 'installed', ...result.data }
-          : { success: false, message: result.error };
+          : { success: false, message: result.error, code: result.code };
       } catch (err: any) {
         return { success: false, message: err.message };
       }
     });
 
     ipcMain.handle('cli-uninstall', async () => {
+      // Detection result is now stale — force a fresh check on next detect.
+      cliStatusCache = null;
       try {
         const result: any = await runCli(['uninstall']);
         return result.ok
           ? { success: true, message: 'uninstalled', ...result.data }
-          : { success: false, message: result.error };
+          : { success: false, message: result.error, code: result.code };
       } catch (err: any) {
         return { success: false, message: err.message };
       }
@@ -442,7 +477,9 @@ if (!gotLock) {
         .join(' ');
       try {
         mainWindow?.webContents.send('updater-debug', msg);
-      } catch {}
+      } catch {
+        // window may be closed/destroyed; ignore
+      }
     };
 
     // Forward autoUpdater events to renderer

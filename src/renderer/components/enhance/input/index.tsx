@@ -40,6 +40,7 @@ function EnhanceInput({
     if (autoFocus && inputRef.current) {
       inputRef.current.focus();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only autofocus; re-running when `autoFocus` later flips would steal focus unexpectedly
   }, []);
 
   return (

@@ -36,6 +36,41 @@ export interface IconGridViewModel {
   totalIconCount: number;
 }
 
+// ── Sort (shared logic) ──────────────────────────────────────────────
+
+export type IconSortField = 'createTime' | 'updateTime' | 'iconCode' | 'iconName';
+export type IconSortDirection = 'asc' | 'desc';
+
+// iconCode 是 4 位十六进制 Unicode 码点 (如 "E001")，按数值比较而非字符串比较
+function hexToNum(code: unknown): number {
+  const n = parseInt(String(code ?? ''), 16);
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function compareIcons(a: IconItem, b: IconItem, field: IconSortField): number {
+  if (field === 'iconName') {
+    return String(a.iconName ?? '').localeCompare(String(b.iconName ?? ''));
+  }
+  if (field === 'iconCode') {
+    return hexToNum(a.iconCode) - hexToNum(b.iconCode);
+  }
+  // createTime / updateTime — 固定格式的 ISO 风格日期时间字符串，直接字符串比较即正确
+  const av = String(a[field] ?? '');
+  const bv = String(b[field] ?? '');
+  if (av < bv) return -1;
+  if (av > bv) return 1;
+  return 0;
+}
+
+function sortIcons(
+  icons: IconItem[],
+  field: IconSortField,
+  direction: IconSortDirection
+): IconItem[] {
+  const dir = direction === 'desc' ? -1 : 1;
+  return icons.slice().sort((a, b) => compareIcons(a, b, field) * dir);
+}
+
 // ── Search filter (shared logic) ────────────────────────────────────
 
 function filterIcons(icons: IconItem[], keyword: string | null): IconItem[] {
@@ -54,6 +89,21 @@ function filterIcons(icons: IconItem[], keyword: string | null): IconItem[] {
       (icon) => icon.iconName.toLowerCase().includes(kw) || icon.iconCode.toLowerCase().includes(kw)
     );
   }
+}
+
+// ── Out-of-range filter (shared logic) ──────────────────────────────
+// outOfRangeCodes is keyed by normalized (uppercase) hex code — same cache
+// IconBlock uses for the amber "out of range" badge (store.outOfRangeCodes,
+// refreshed in syncLeft). Icons already reflect their own group's icons
+// (iconData[groupId]), so a straight code lookup is correct per-section too.
+
+function filterOutOfRangeIcons(
+  icons: IconItem[],
+  outOfRangeCodes: Record<string, true> | undefined,
+  enabled: boolean | undefined
+): IconItem[] {
+  if (!enabled || !outOfRangeCodes) return icons;
+  return icons.filter((icon) => !!outOfRangeCodes[String(icon.iconCode ?? '').toUpperCase()]);
 }
 
 // ── Chunk icons into rows of N columns ──────────────────────────────
@@ -84,8 +134,24 @@ export function computeIconGridViewModel(params: {
   searchKeyword: string | null;
   columns: number;
   groupList: GroupItem[];
+  sortField?: IconSortField;
+  sortDirection?: IconSortDirection;
+  /** 越界字码缓存 (归一化大写 hex → true), 来自 store.outOfRangeCodes */
+  outOfRangeCodes?: Record<string, true>;
+  /** 开启后仅保留字码越界（不在所属分组声明区间内）的图标 */
+  filterOutOfRange?: boolean;
 }): IconGridViewModel {
-  const { iconData, selectedGroup, searchKeyword, columns, groupList } = params;
+  const {
+    iconData,
+    selectedGroup,
+    searchKeyword,
+    columns,
+    groupList,
+    sortField = 'iconCode',
+    sortDirection = 'asc',
+    outOfRangeCodes,
+    filterOutOfRange,
+  } = params;
   const cols = Math.max(1, columns);
 
   const rows: VirtualRow[] = [];
@@ -97,7 +163,15 @@ export function computeIconGridViewModel(params: {
     // "All" view: uncategorized first, then each group with headers
     const sections: { group: GroupItem; icons: IconItem[] }[] = [];
 
-    const uncatIcons = filterIcons(iconData['resource-uncategorized'] || [], searchKeyword);
+    const uncatIcons = sortIcons(
+      filterOutOfRangeIcons(
+        filterIcons(iconData['resource-uncategorized'] || [], searchKeyword),
+        outOfRangeCodes,
+        filterOutOfRange
+      ),
+      sortField,
+      sortDirection
+    );
     if (uncatIcons.length > 0) {
       sections.push({
         group: { id: 'resource-uncategorized', groupName: '\u672A\u5206\u7EC4' },
@@ -106,7 +180,15 @@ export function computeIconGridViewModel(params: {
     }
 
     for (const g of groupList) {
-      const filtered = filterIcons(iconData[g.id] || [], searchKeyword);
+      const filtered = sortIcons(
+        filterOutOfRangeIcons(
+          filterIcons(iconData[g.id] || [], searchKeyword),
+          outOfRangeCodes,
+          filterOutOfRange
+        ),
+        sortField,
+        sortDirection
+      );
       if (filtered.length > 0) {
         sections.push({ group: g, icons: filtered });
       }
@@ -114,7 +196,6 @@ export function computeIconGridViewModel(params: {
 
     for (const { group, icons } of sections) {
       // Header row
-      const headerRowIndex = rows.length;
       rows.push({
         kind: 'header',
         key: `hdr-${group.id}`,
@@ -143,7 +224,15 @@ export function computeIconGridViewModel(params: {
     }
   } else {
     // Single group view
-    const icons = filterIcons(iconData[selectedGroup] || [], searchKeyword);
+    const icons = sortIcons(
+      filterOutOfRangeIcons(
+        filterIcons(iconData[selectedGroup] || [], searchKeyword),
+        outOfRangeCodes,
+        filterOutOfRange
+      ),
+      sortField,
+      sortDirection
+    );
     const iconRows = chunkIntoRows(icons, cols, selectedGroup, 0);
     for (const row of iconRows) {
       const rowIdx = rows.length;

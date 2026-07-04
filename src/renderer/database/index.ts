@@ -7,6 +7,15 @@ import { extractSvgColors, replaceSvgColor } from '../utils/svg/colors';
 import initSqlJs from 'sql.js/dist/sql-asm.js';
 // Config
 import config, { getOption } from '../config';
+// Shared icon-code allocation — single source of truth with the CLI (core)
+import {
+  allocateIconCodeDec,
+  planRangeReassignments,
+  highestUsedInRange,
+  PUA_MIN,
+  PUA_MAX,
+  type CodeRange,
+} from '@core/code-allocation';
 // Utils
 import {
   generateUUID,
@@ -70,6 +79,9 @@ export interface GroupData {
   groupColor?: string;
   groupDescription?: string;
   groupIcon?: string;
+  /** Optional per-group PUA code range (decimal code points). */
+  codeRangeStart?: number | null;
+  codeRangeEnd?: number | null;
   createTime?: string;
   updateTime?: string;
 }
@@ -212,6 +224,21 @@ class Database {
           if (!hasDescCol) {
             this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupDescription TEXT`);
             dev && console.log('Migration: added groupDescription column');
+          }
+          // Migration: add per-group code range columns for existing projects
+          const hasRangeStartCol =
+            groupCols.length > 0 &&
+            groupCols[0].values.some((row: any) => row[1] === 'codeRangeStart');
+          if (!hasRangeStartCol) {
+            this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN codeRangeStart int`);
+            dev && console.log('Migration: added codeRangeStart column');
+          }
+          const hasRangeEndCol =
+            groupCols.length > 0 &&
+            groupCols[0].values.some((row: any) => row[1] === 'codeRangeEnd');
+          if (!hasRangeEndCol) {
+            this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN codeRangeEnd int`);
+            dev && console.log('Migration: added codeRangeEnd column');
           }
           // Migration: add isFavorite column for existing projects
           const hasFavCol =
@@ -471,21 +498,30 @@ class Database {
 
   // 项目相关
   // 初始化新项目
-  initNewProject = (projectName?: string): void => {
+  initNewProject = (projectName?: string, displayName?: string): void => {
     dev && console.log('initNewProject');
     // 创建配置表, 并配置触发器自动更新时间戳, 再初始化数据
+    // projectName = 图标字码前缀 (技术用); displayName = 项目名称 (用户可见, 可空)
     this.db!.run(
       `CREATE TABLE ${projectAttributes} (id varchar(255), projectName varchar(255), displayName varchar(255), description TEXT, projectColor varchar(32), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db!.run(
       `CREATE TRIGGER ${projectAttributesTimeRenewTrigger} AFTER UPDATE ON ${projectAttributes} FOR EACH ROW BEGIN UPDATE ${projectAttributes} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
     );
-    this.db!.run(
-      `INSERT INTO ${projectAttributes} (id, projectName) VALUES ('projectAttributes', ${projectName ? sf(projectName) : sf('iconfont')})`
-    ); // 默认Prefix为iconfont
+    const trimmedDisplay = displayName && displayName.trim() ? displayName.trim() : null;
+    if (trimmedDisplay) {
+      this.db!.run(
+        `INSERT INTO ${projectAttributes} (id, projectName, displayName) VALUES ('projectAttributes', ${projectName ? sf(projectName) : sf('iconfont')}, ${sf(trimmedDisplay)})`
+      );
+    } else {
+      this.db!.run(
+        `INSERT INTO ${projectAttributes} (id, projectName) VALUES ('projectAttributes', ${projectName ? sf(projectName) : sf('iconfont')})`
+      );
+    } // 默认前缀为 iconfont, displayName 默认为空 (UI 回退显示文件名)
     // 创建分组数据表, 并配置触发器自动更新时间戳, 再初始化数据
+    // codeRangeStart/codeRangeEnd = 可选的分组字码区间 (十进制码点)
     this.db!.run(
-      `CREATE TABLE ${groupData} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, groupIcon TEXT, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
+      `CREATE TABLE ${groupData} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, groupIcon TEXT, codeRangeStart int, codeRangeEnd int, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
     );
     this.db!.run(
       `CREATE TRIGGER ${groupDataTimeRenewTrigger} AFTER UPDATE ON ${groupData} FOR EACH ROW BEGIN UPDATE ${groupData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
@@ -537,12 +573,12 @@ class Database {
       dev && console.warn('migrateVariantColumns failed:', e);
     }
   };
-  // 重置项目
-  resetProject = (projectName?: string): void => {
+  // 重置项目 (projectName = 图标字码前缀, displayName = 项目名称)
+  resetProject = (projectName?: string, displayName?: string): void => {
     dev && console.log('resetProject');
     this.destroyDatabase();
     this.initDatabases();
-    this.initNewProject(projectName);
+    this.initNewProject(projectName, displayName);
     // notifyMutation auto-fired by initNewProject → addDataToTable
   };
   // 导出项目
@@ -722,15 +758,19 @@ class Database {
     const dataSet: DataSet = { groupName: sf(groupName) };
     this.setGroupData(id, dataSet, callback);
   };
+  // codeRange 语义: undefined = 不动区间列 (保持原值); null = 清除区间; {start,end} = 设置并校验。
+  // 校验复用 @core/code-allocation 的 PUA 边界常量, 与 core setGroupCodeRange 对齐 (PUA 内 + start<=end + 与其他组不重叠);
+  // 违规抛错 (调用方 try/catch), 正常路径由弹窗层的行内校验拦截, 此处为落库前的兜底防线。
   setGroupInfo = (
     id: string,
     groupName: string,
     groupDescription: string | null,
     callback?: () => void,
-    groupIcon?: string | null
+    groupIcon?: string | null,
+    codeRange?: { start: number; end: number } | null
   ): void => {
     dev && console.log('setGroupInfo');
-    // 确保 groupDescription 列存在（HMR 热更新时可能还没跑过 migration）
+    // 确保 groupDescription / groupIcon / codeRange* 列存在（HMR 热更新时可能还没跑过 migration）
     this.ensureGroupDescriptionColumn();
     this.ensureGroupIconColumn();
     const dataSet: DataSet = {
@@ -739,6 +779,38 @@ class Database {
     };
     if (groupIcon !== undefined) {
       dataSet.groupIcon = groupIcon ? sf(groupIcon) : 'NULL';
+    }
+    if (codeRange !== undefined) {
+      if (codeRange === null) {
+        dataSet.codeRangeStart = 'NULL';
+        dataSet.codeRangeEnd = 'NULL';
+      } else {
+        const { start, end } = codeRange;
+        if (
+          !Number.isInteger(start) ||
+          !Number.isInteger(end) ||
+          start < PUA_MIN ||
+          end > PUA_MAX ||
+          start > end
+        ) {
+          throw new Error('INVALID_CODE_RANGE');
+        }
+        // 与其他分组已声明区间不重叠 (内联查询, 不新增读方法)
+        const others = this.db!.exec(
+          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id != ${sf(id)} AND codeRangeStart IS NOT NULL AND codeRangeEnd IS NOT NULL`
+        );
+        if (others.length) {
+          for (const v of others[0].values) {
+            const os = Number(v[0]);
+            const oe = Number(v[1]);
+            if (Number.isFinite(os) && Number.isFinite(oe) && start <= oe && os <= end) {
+              throw new Error('CODE_RANGE_OVERLAP');
+            }
+          }
+        }
+        dataSet.codeRangeStart = String(start);
+        dataSet.codeRangeEnd = String(end);
+      }
     }
     this.setGroupData(id, dataSet, callback);
   };
@@ -762,6 +834,18 @@ class Database {
       if (!has) {
         this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupIcon TEXT`);
         dev && console.log('Lazy migration: added groupIcon column');
+      }
+      const hasRangeStart =
+        cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'codeRangeStart');
+      if (!hasRangeStart) {
+        this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN codeRangeStart int`);
+        dev && console.log('Lazy migration: added codeRangeStart column');
+      }
+      const hasRangeEnd =
+        cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'codeRangeEnd');
+      if (!hasRangeEnd) {
+        this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN codeRangeEnd int`);
+        dev && console.log('Lazy migration: added codeRangeEnd column');
       }
 
       // Ensure cleanup triggers exist (drop + create for idempotency)
@@ -823,7 +907,7 @@ class Database {
     const content = sf(svg.formatSVG().getOuterHTML());
     return {
       id: sf(generateUUID()),
-      iconCode: sf(this.requireNewIconCode()),
+      iconCode: sf(this.requireNewIconCode(targetGroup)),
       iconName: sf(nameOfFile(nameOfPath(path))),
       iconGroup: sf(targetGroup),
       iconSize: electronAPI.statSync(path).size,
@@ -837,7 +921,7 @@ class Database {
     const content = sf(svg.formatSVG().getOuterHTML());
     return {
       id: sf(generateUUID()),
-      iconCode: sf(this.requireNewIconCode()),
+      iconCode: sf(this.requireNewIconCode(targetGroup)),
       iconName: sf(obj.iconName),
       iconGroup: sf(targetGroup),
       iconSize: sizeOfString(obj.iconContent),
@@ -877,51 +961,95 @@ class Database {
     return rawData[0].values.map((row: any[]) => String(row[0] ?? ''));
   };
 
-  // 获取一个可用的图标字码; 6400 个 PUA 码点全部用尽时返回 null (不再静默回退 E000 制造重复码)
-  // 分配模式跟随设置 codeAllocationMode:
-  //   append (默认) — 顺延到已用最高码之后, 不复用孔洞 (保护已发布 CSS 的引用稳定); 尾部用尽回退填洞
-  //   fill — 升序返回首个空闲码 (优先填充孔洞, 最大化码位利用)
-  getNewIconCode = (type?: string, _test?: boolean): string | number | null => {
+  // 获取当前已用的最高字码 (十进制, 限定在公共码点范围内); 空表或范围内无占用时返回 publicRangeUnicodeDecMin - 1
+  // 供导入结果分类 (appended/filled) 取批次基准 — 与 getNewIconCode 的 append 分支逻辑独立计算, 便于在批次开始前单独取一次快照
+  getHighestUsedIconCodeDec = (): number => {
+    dev && console.log('getHighestUsedIconCodeDec');
+    const rawData = this.db!.exec(`SELECT iconCode from ${iconData}`);
+    let highest = config.publicRangeUnicodeDecMin - 1;
+    if (rawData.length) {
+      rawData[0].values.forEach((row: any[]) => {
+        const c = hexToDec(row[0] as string);
+        if (Number.isFinite(c) && c > highest && c <= config.publicRangeUnicodeDecMax) {
+          highest = c;
+        }
+      });
+    }
+    return highest;
+  };
+  // 获取一个可用的图标字码; 全局池 6400 个 PUA 码点全部用尽时返回 null (不再静默回退 E000 制造重复码)
+  // 分配逻辑与 CLI (src/core) 逐行对齐, 复用同一 @core/code-allocation 纯函数:
+  //   目标分组有区间 → 区间内 append/fill; 区间满抛 GROUP_RANGE_EXHAUSTED
+  //   全局池 (未分组/无区间分组) → append/fill 但跳过所有已声明区间 (预留语义); 耗尽返回 null (PUA_EXHAUSTED)
+  // 分配模式跟随设置 codeAllocationMode: append (默认) / fill
+  // 区间数据在方法内部内联查询 (parity-guard 冻结方法面, 不新增读方法)
+  getNewIconCode = (type?: string, targetGroupId?: string): string | number | null => {
     dev && console.log('getNewIconCode');
     const rawData = this.db!.exec(`SELECT iconCode from ${iconData}`);
+    const usedCodeSet = new Set<number>();
     if (rawData.length) {
-      // Set 查找 O(1)，总复杂度 O(n) 而非 O(n×m)
-      const usedCodeSet = new Set(
-        rawData[0].values.map((code: any[]) => hexToDec(code[0] as string))
-      );
-      let mode = 'append';
+      rawData[0].values.forEach((code: any[]) => {
+        const c = hexToDec(code[0] as string);
+        if (Number.isFinite(c)) usedCodeSet.add(c);
+      });
+    }
+    let mode: 'append' | 'fill' = 'append';
+    try {
+      mode =
+        ((getOption('codeAllocationMode') as string) || 'append') === 'fill' ? 'fill' : 'append';
+    } catch {
+      /* localStorage 不可用时用默认 */
+    }
+    // 目标分组区间 (虚拟分组或列缺失时为 null)
+    let targetRange: CodeRange | null = null;
+    if (targetGroupId && !targetGroupId.startsWith('resource-')) {
       try {
-        mode = (getOption('codeAllocationMode') as string) || 'append';
-      } catch {
-        /* localStorage 不可用时用默认 */
-      }
-      if (mode === 'append') {
-        let highest = config.publicRangeUnicodeDecMin - 1;
-        usedCodeSet.forEach((c: number) => {
-          if (Number.isFinite(c) && c > highest && c <= config.publicRangeUnicodeDecMax) {
-            highest = c;
+        const r = this.db!.exec(
+          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id = ${sf(targetGroupId)}`
+        );
+        if (r.length && r[0].values.length) {
+          const [s, e] = r[0].values[0];
+          if (s !== null && s !== undefined && e !== null && e !== undefined) {
+            targetRange = { start: Number(s), end: Number(e) };
           }
-        });
-        const next = highest + 1;
-        if (next <= config.publicRangeUnicodeDecMax) {
-          return type === 'dec' ? next : decToHex(next);
         }
-        // 尾部已满 → 回退到填充孔洞
+      } catch {
+        /* 列尚未迁移出来 */
       }
-      for (const code of config.publicRangeUnicodeDecList) {
-        if (!usedCodeSet.has(code)) {
-          return type === 'dec' ? code : decToHex(code);
+    }
+    // 全局池需跳过所有已声明区间 (预留语义); 目标有区间时不需要
+    let reserved: CodeRange[] = [];
+    if (!targetRange) {
+      try {
+        const rr = this.db!.exec(
+          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE codeRangeStart IS NOT NULL AND codeRangeEnd IS NOT NULL`
+        );
+        if (rr.length) {
+          reserved = rr[0].values.map((v: any[]) => ({ start: Number(v[0]), end: Number(v[1]) }));
         }
+      } catch {
+        /* 列尚未迁移出来 */
       }
-      // 所有字码用完
+    }
+    try {
+      const dec = allocateIconCodeDec(
+        mode,
+        usedCodeSet,
+        targetRange,
+        reserved,
+        config.publicRangeUnicodeDecMin,
+        config.publicRangeUnicodeDecMax
+      );
+      return type === 'dec' ? dec : decToHex(dec);
+    } catch (e: any) {
+      // 区间耗尽向上抛出 (调用方区分处理); 全局池耗尽退化为 null (兼容既有 requireNewIconCode/addVariant 契约)
+      if (String(e?.message).startsWith('GROUP_RANGE_EXHAUSTED')) throw e;
       return null;
-    } else {
-      return type === 'dec' ? config.publicRangeUnicodeDecMin : config.publicRangeUnicodeHexMin;
     }
   };
   // 获取一个可用的图标字码, 用尽时抛出 PUA_EXHAUSTED (供分配路径统一处理)
-  requireNewIconCode = (): string => {
-    const code = this.getNewIconCode();
+  requireNewIconCode = (targetGroupId?: string): string => {
+    const code = this.getNewIconCode(undefined, targetGroupId);
     if (code === null) throw new Error('PUA_EXHAUSTED');
     return code as string;
   };
@@ -1050,22 +1178,71 @@ class Database {
   addIcons = (
     iconFilesData: (IconFileData | File)[],
     targetGroup: string,
-    callback?: (result?: { added: number; failed: number }) => void
+    callback?: (result?: {
+      added: number;
+      failed: number;
+      // 本批次分配性质统计 (v1.13 append/fill 分配模式反馈): appended = 分配码大于批次开始前已用最高码, filled = 分配码落入已用区间内的空闲孔洞
+      appended?: number;
+      filled?: number;
+    }) => void
   ): void => {
     dev && console.log('addIcons');
     const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
     let pending = iconFilesData.length;
     if (pending === 0) {
-      callback && callback({ added: 0, failed: 0 });
+      callback && callback({ added: 0, failed: 0, appended: 0, filled: 0 });
       return;
+    }
+
+    // 批次开始前取一次基准 (导入前已用的最大字码); 批次内后续追加的图标一律与此基准比较, 不与彼此比较, 避免批内互相比较误判
+    // 目标组有区间时, 基准取"区间内"已用最高码 (而非全局), 使区间内的 appended/filled 分类仍然有意义
+    let baselineMaxCode = this.getHighestUsedIconCodeDec();
+    if (group && !group.startsWith('resource-')) {
+      let range: CodeRange | null = null;
+      try {
+        const rr = this.db!.exec(
+          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id = ${sf(group)}`
+        );
+        if (rr.length && rr[0].values.length) {
+          const [s, e] = rr[0].values[0];
+          if (s !== null && s !== undefined && e !== null && e !== undefined) {
+            range = { start: Number(s), end: Number(e) };
+          }
+        }
+      } catch {
+        /* 列尚未迁移出来 */
+      }
+      if (range) {
+        const usedSet = new Set<number>();
+        const allCodes = this.db!.exec(`SELECT iconCode FROM ${iconData}`);
+        if (allCodes.length) {
+          allCodes[0].values.forEach((row: any[]) => {
+            const c = hexToDec(row[0] as string);
+            if (Number.isFinite(c)) usedSet.add(c);
+          });
+        }
+        baselineMaxCode = highestUsedInRange(usedSet, range.start, range.end);
+      }
     }
 
     let added = 0;
     let failed = 0;
+    let appended = 0;
+    let filled = 0;
+    // 依据分配到的字码 (sf 包裹的 SQL 字面量, 如 "'E000'") 与批次基准比较, 归类为 appended/filled
+    const classifyAllocatedCode = (iconCodeLiteral: string | number) => {
+      const raw = String(iconCodeLiteral).replace(/^'(.*)'$/, '$1');
+      const dec = hexToDec(raw);
+      if (Number.isFinite(dec) && dec > baselineMaxCode) {
+        appended += 1;
+      } else {
+        filled += 1;
+      }
+    };
     const done = () => {
       if (--pending <= 0) {
         // notifyMutation auto-fired by each addDataToTable call
-        callback && callback({ added, failed });
+        callback && callback({ added, failed, appended, filled });
       }
     };
 
@@ -1077,6 +1254,7 @@ class Database {
           const dataSet = this.formatIconDataFromFilePath(filePath, group);
           this.addDataToTable(iconData, dataSet);
           added += 1;
+          classifyAllocatedCode(dataSet.iconCode);
         } catch {
           failed += 1; // 码点用尽
         }
@@ -1098,6 +1276,7 @@ class Database {
             );
             this.addDataToTable(iconData, dataSet);
             added += 1;
+            classifyAllocatedCode(dataSet.iconCode);
           } catch {
             failed += 1; // 码点用尽
           }
@@ -1375,11 +1554,12 @@ class Database {
   duplicateIconGroup = (id: string, targetGroup: string, callback?: () => void): void => {
     dev && console.log('duplicateIconGroup');
     const sourceIconData = this.getIconData(id);
+    const dupGroup = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
     const dataSet: DataSet = {
       id: sf(generateUUID()),
-      iconCode: sf(this.requireNewIconCode()),
+      iconCode: sf(this.requireNewIconCode(dupGroup)),
       iconName: sf(sourceIconData.iconName),
-      iconGroup: sf(targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup),
+      iconGroup: sf(dupGroup),
       iconSize: sourceIconData.iconSize,
       iconType: sf(sourceIconData.iconType),
       iconContent: sf(sourceIconData.iconContent),
@@ -1400,11 +1580,20 @@ class Database {
     callback && callback();
   };
 
-  /** Batch move icons AND their variants to a new group */
-  moveIconsWithVariants = (ids: string[], targetGroup: string, callback?: () => void): void => {
+  /** Batch move icons AND their variants to a new group.
+   *  opts.reassignOutOfRange (default false) reallocates out-of-range codes into the target group's range.
+   *  重分配逻辑内联 (parity-guard 冻结方法面, 不新增方法), 与 CLI core 复用同一 planRangeReassignments 纯函数。 */
+  moveIconsWithVariants = (
+    ids: string[],
+    targetGroup: string,
+    callback?: (reassignedCount?: number) => void,
+    opts?: { reassignOutOfRange?: boolean }
+  ): void => {
     dev && console.log('moveIconsWithVariants');
     const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
     const placeholders = ids.map(() => '?').join(',');
+    // 本批次因越界被重新分配字码的图标数 (含变体), 经 callback 回传给调用方拼装 toast。
+    let reassignedCount = 0;
     // Move the icons themselves
     this.runMutation(`UPDATE ${iconData} SET iconGroup = ? WHERE id IN (${placeholders})`, [
       group,
@@ -1415,7 +1604,61 @@ class Database {
       group,
       ...ids,
     ]);
-    callback && callback();
+    if (opts?.reassignOutOfRange && !group.startsWith('resource-') && ids.length) {
+      // 读取目标组区间 (列缺失时为 null → 跳过)
+      let range: CodeRange | null = null;
+      try {
+        const rr = this.db!.exec(
+          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id = ${sf(group)}`
+        );
+        if (rr.length && rr[0].values.length) {
+          const [s, e] = rr[0].values[0];
+          if (s !== null && s !== undefined && e !== null && e !== undefined) {
+            range = { start: Number(s), end: Number(e) };
+          }
+        }
+      } catch {
+        /* 列尚未迁移出来 */
+      }
+      if (range) {
+        let mode: 'append' | 'fill' = 'append';
+        try {
+          mode =
+            ((getOption('codeAllocationMode') as string) || 'append') === 'fill'
+              ? 'fill'
+              : 'append';
+        } catch {
+          /* 默认 append */
+        }
+        // 批次基准: 一次取全部已用码点 (与 core reassignIconsIntoRange 对齐)
+        const usedSet = new Set<number>();
+        const allCodes = this.db!.exec(`SELECT iconCode FROM ${iconData}`);
+        if (allCodes.length) {
+          allCodes[0].values.forEach((row: any[]) => {
+            const c = hexToDec(row[0] as string);
+            if (Number.isFinite(c)) usedSet.add(c);
+          });
+        }
+        const affectedRaw = this.db!.exec(
+          `SELECT id, iconCode FROM ${iconData} WHERE id IN (${placeholders}) OR variantOf IN (${placeholders})`,
+          [...ids, ...ids]
+        );
+        if (affectedRaw.length) {
+          const affected = affectedRaw[0].values.map((row: any[]) => ({
+            id: String(row[0]),
+            code: String(row[1] ?? ''),
+          }));
+          const reassigned = planRangeReassignments(mode, usedSet, affected, range);
+          for (const r of reassigned) {
+            this.runMutation(
+              `UPDATE ${iconData} SET iconCode = ${sf(r.newCode)} WHERE id = ${sf(r.id)}`
+            );
+          }
+          reassignedCount = reassigned.length;
+        }
+      }
+    }
+    callback && callback(reassignedCount);
   };
   delIcons = (ids: string[], callback?: () => void): void => {
     dev && console.log('delIcons');
@@ -1435,7 +1678,7 @@ class Database {
       const id = ids[i];
       let newCode: string;
       try {
-        newCode = this.requireNewIconCode();
+        newCode = this.requireNewIconCode(group);
       } catch {
         // 码点已用尽, 后续必然全部失败, 直接停止
         failed = ids.length - i;
@@ -1525,9 +1768,10 @@ class Database {
     callback?: () => void
   ): string => {
     dev && console.log('addVariant');
-    const newCode = this.getNewIconCode();
-    if (!newCode) throw new Error('PUA_EXHAUSTED');
     const parentData = this.getIconData(parentId);
+    // 变体沿用父图标分组; 若该组有区间, 变体码也落在区间内
+    const newCode = this.getNewIconCode(undefined, parentData.iconGroup);
+    if (!newCode) throw new Error('PUA_EXHAUSTED');
     const id = generateUUID();
     const dataSet: DataSet = {
       id: sf(id),
@@ -1603,14 +1847,76 @@ class Database {
     callback && callback();
   };
 
-  /** Move parent icon AND its variants to a new group */
-  moveIconWithVariants = (id: string, targetGroup: string, callback?: () => void): void => {
+  /** Move parent icon AND its variants to a new group.
+   *  opts.reassignOutOfRange (default false) reallocates out-of-range codes into the target group's range.
+   *  重分配逻辑内联 (parity-guard 冻结方法面), 与 CLI core 复用同一 planRangeReassignments 纯函数。 */
+  moveIconWithVariants = (
+    id: string,
+    targetGroup: string,
+    callback?: (reassignedCount?: number) => void,
+    opts?: { reassignOutOfRange?: boolean }
+  ): void => {
     dev && console.log('moveIconWithVariants');
     const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
+    // 本次因越界被重新分配字码的图标数 (含变体), 经 callback 回传给调用方拼装 toast。
+    let reassignedCount = 0;
     this.runMutation(
       `UPDATE ${iconData} SET iconGroup = ${sf(group)} WHERE id = ${sf(id)} OR variantOf = ${sf(id)}`
     );
-    callback && callback();
+    if (opts?.reassignOutOfRange && !group.startsWith('resource-')) {
+      // 读取目标组区间 (列缺失时为 null → 跳过)
+      let range: CodeRange | null = null;
+      try {
+        const rr = this.db!.exec(
+          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id = ${sf(group)}`
+        );
+        if (rr.length && rr[0].values.length) {
+          const [s, e] = rr[0].values[0];
+          if (s !== null && s !== undefined && e !== null && e !== undefined) {
+            range = { start: Number(s), end: Number(e) };
+          }
+        }
+      } catch {
+        /* 列尚未迁移出来 */
+      }
+      if (range) {
+        let mode: 'append' | 'fill' = 'append';
+        try {
+          mode =
+            ((getOption('codeAllocationMode') as string) || 'append') === 'fill'
+              ? 'fill'
+              : 'append';
+        } catch {
+          /* 默认 append */
+        }
+        // 批次基准: 一次取全部已用码点 (与 core reassignIconsIntoRange 对齐)
+        const usedSet = new Set<number>();
+        const allCodes = this.db!.exec(`SELECT iconCode FROM ${iconData}`);
+        if (allCodes.length) {
+          allCodes[0].values.forEach((row: any[]) => {
+            const c = hexToDec(row[0] as string);
+            if (Number.isFinite(c)) usedSet.add(c);
+          });
+        }
+        const affectedRaw = this.db!.exec(
+          `SELECT id, iconCode FROM ${iconData} WHERE id = ${sf(id)} OR variantOf = ${sf(id)}`
+        );
+        if (affectedRaw.length) {
+          const affected = affectedRaw[0].values.map((row: any[]) => ({
+            id: String(row[0]),
+            code: String(row[1] ?? ''),
+          }));
+          const reassigned = planRangeReassignments(mode, usedSet, affected, range);
+          for (const r of reassigned) {
+            this.runMutation(
+              `UPDATE ${iconData} SET iconCode = ${sf(r.newCode)} WHERE id = ${sf(r.id)}`
+            );
+          }
+          reassignedCount = reassigned.length;
+        }
+      }
+    }
+    callback && callback(reassignedCount);
   };
 
   /** Delete parent icon AND all its variants */

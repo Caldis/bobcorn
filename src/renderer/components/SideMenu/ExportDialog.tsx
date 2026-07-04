@@ -272,6 +272,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     } catch {
       return '';
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally narrowed to selectedFormats.js (the only field affecting this preview); `t` omitted since it only changes on language switch
   }, [previewVisible, visible, selectedFormats.js]);
 
   // 导出前字码审计 — 跟随分组选择, 检出导出集内的重复/非法字码

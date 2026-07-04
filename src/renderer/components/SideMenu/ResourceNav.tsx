@@ -26,6 +26,7 @@ const ResourceNav = React.memo(function ResourceNav({
         db.getIconCountFromGroup('resource-uncategorized') + db.getIconCountFromGroup('null'),
       recycleBin: db.getIconCountFromGroup('resource-recycleBin'),
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- groupData intentionally used as a refresh signal only (not read in the callback), see comment above
     [groupData]
   );
 

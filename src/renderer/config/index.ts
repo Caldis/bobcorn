@@ -1,5 +1,3 @@
-const dev: boolean = import.meta.env?.DEV ?? false;
-
 // Utils
 import { decToHex } from '../utils/tools';
 

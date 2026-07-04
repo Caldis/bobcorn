@@ -486,6 +486,55 @@ class TestDatabase {
     return code;
   }
 
+  // Mirrors production getHighestUsedIconCodeDec: highest used code (dec, clamped to the
+  // public PUA range), or PUBLIC_RANGE_DEC_MIN - 1 when nothing is used yet. Used as the
+  // addIcons batch baseline for the appended/filled allocation-feedback classification.
+  getHighestUsedIconCodeDec() {
+    const rawData = this.db.exec(`SELECT iconCode from ${T_ICON}`);
+    let highest = PUBLIC_RANGE_DEC_MIN - 1;
+    if (rawData.length) {
+      rawData[0].values.forEach((row) => {
+        const c = hexToDec(row[0]);
+        if (Number.isFinite(c) && c > highest && c <= PUBLIC_RANGE_DEC_MAX) highest = c;
+      });
+    }
+    return highest;
+  }
+
+  // Mirrors production addIcons's allocation-classification logic (synchronous test-double:
+  // no FileReader/fs, items are already-formatted { iconName, iconContent }). The baseline
+  // (highest used code) is captured once before the batch starts, so within-batch appends are
+  // never compared against each other — matches production semantics.
+  addIconsBatch(items, targetGroup) {
+    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
+    const baselineMaxCode = this.getHighestUsedIconCodeDec();
+    let added = 0;
+    let failed = 0;
+    let appended = 0;
+    let filled = 0;
+    for (const item of items) {
+      try {
+        const code = this.requireNewIconCode();
+        const dataSet = {
+          id: sf(generateUUID()),
+          iconCode: sf(code),
+          iconName: sf(item.iconName || 'test-icon'),
+          iconGroup: sf(group),
+          iconSize: item.iconSize || 512,
+          iconType: sf(item.iconType || 'svg'),
+          iconContent: sf(item.iconContent || svgContent('heart.svg')),
+        };
+        this.addIconRaw(dataSet);
+        added += 1;
+        if (hexToDec(code) > baselineMaxCode) appended += 1;
+        else filled += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    return { added, failed, appended, filled };
+  }
+
   // Mirrors production planIconCodeFixes (dry-run duplicate/invalid code reassignment plan)
   planIconCodeFixes() {
     const rawData = this.db.exec(`SELECT id, iconName, iconCode, iconGroup FROM ${T_ICON}`);
@@ -812,6 +861,83 @@ describe('addIcons (raw insertion with fixture SVGs)', () => {
     const icon = insertIcon({ iconContent: raw });
     const stored = db.getIconData(icon.id).iconContent;
     expect(stored).toBe(raw);
+  });
+});
+
+// ===========================================================================
+// addIcons — appended/filled allocation feedback (v1.13 append/fill mode)
+// ===========================================================================
+describe('addIcons — appended/filled allocation feedback', () => {
+  test('all appended when the table is empty (default append mode)', () => {
+    const result = db.addIconsBatch([
+      { iconName: 'a', iconContent: svgContent('heart.svg') },
+      { iconName: 'b', iconContent: svgContent('home.svg') },
+      { iconName: 'c', iconContent: svgContent('search.svg') },
+    ], 'resource-uncategorized');
+    expect(result).toEqual({ added: 3, failed: 0, appended: 3, filled: 0 });
+  });
+
+  test('all filled when every item lands in a pre-existing hole (fill mode)', () => {
+    // E000, E005 used; E001-E004 是孔洞; batch 恰好填满全部 4 个孔洞
+    insertIcon({ iconCode: 'E000' });
+    insertIcon({ iconCode: 'E005' });
+    db.codeAllocationMode = 'fill';
+    const result = db.addIconsBatch([
+      { iconName: 'a' },
+      { iconName: 'b' },
+      { iconName: 'c' },
+      { iconName: 'd' },
+    ], 'resource-uncategorized');
+    expect(result).toEqual({ added: 4, failed: 0, appended: 0, filled: 4 });
+  });
+
+  test('mixed batch: fills the one remaining hole, then appends past the prior max', () => {
+    // E000, E002 used (基准最高码 = E002); E001 是唯一孔洞
+    insertIcon({ iconCode: 'E000' });
+    insertIcon({ iconCode: 'E002' });
+    db.codeAllocationMode = 'fill';
+    const result = db.addIconsBatch([
+      { iconName: 'fills-the-hole' }, // → E001 (<= 基准 E002) → filled
+      { iconName: 'appends-past-max' }, // 孔洞已耗尽 → E003 (> 基准 E002) → appended
+    ], 'resource-uncategorized');
+    expect(result).toEqual({ added: 2, failed: 0, appended: 1, filled: 1 });
+    expect(db.getAllIconCodes().sort()).toEqual(['E000', 'E001', 'E002', 'E003']);
+  });
+
+  test('batch-internal appends are not compared against each other (baseline taken once)', () => {
+    // 空表: append 模式下连续插入 5 个, 每个都应算作 appended (不会因为
+    // "比上一个更高" 而被误判为 filled 之外的东西 — 全部与批次前基准比较)
+    const result = db.addIconsBatch(
+      Array.from({ length: 5 }, (_, i) => ({ iconName: `icon-${i}` })),
+      'resource-uncategorized',
+    );
+    expect(result.appended).toBe(5);
+    expect(result.filled).toBe(0);
+  });
+
+  test('exhaustion still fails without affecting appended/filled classification', () => {
+    // 只剩 1 个空闲码点 (E010), 其余全部占用 (批量 INSERT, 避免 6399 次单条插入拖慢测试);
+    // batch 请求 2 个 → 第 2 个因码点耗尽而 failed
+    const holeCode = hexToDec('E010');
+    for (let start = 57344; start <= 63743; start += 400) {
+      const rows = [];
+      for (let c = start; c < Math.min(start + 400, 63744); c++) {
+        if (c === holeCode) continue;
+        rows.push(`('id-${c}', '${decToHex(c)}', 'fill', 'resource-uncategorized', 1, 'svg', '<svg/>')`);
+      }
+      if (rows.length) {
+        db.db.run(
+          `INSERT INTO ${T_ICON} (id, iconCode, iconName, iconGroup, iconSize, iconType, iconContent) VALUES ${rows.join(',')}`,
+        );
+      }
+    }
+    const result = db.addIconsBatch(
+      [{ iconName: 'last-slot' }, { iconName: 'overflow' }],
+      'resource-uncategorized',
+    );
+    expect(result.added).toBe(1);
+    expect(result.failed).toBe(1);
+    expect(result.appended + result.filled).toBe(1);
   });
 });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ArrowRight } from 'lucide-react';
 import { Dialog } from '../ui';
 import { Switch } from '../ui/switch';
 import { message } from '../ui/toast';
@@ -35,6 +36,17 @@ interface SettingsDialogProps {
   onClose: () => void;
 }
 
+/**
+ * Session-level cache for CLI detection. Persists across dialog opens so that
+ * re-opening Settings shows the last known status instantly instead of
+ * re-triggering detection. Invalidated by passing `force` after install/uninstall.
+ */
+let cliStatusSessionCache: {
+  status: 'installed' | 'not-installed';
+  version: string | null;
+  commandName: string;
+} | null = null;
+
 function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const { t } = useTranslation();
 
@@ -58,19 +70,29 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const [cliActionPending, setCliActionPending] = useState(false);
   const [cliShowRestartHint, setCliShowRestartHint] = useState(false);
 
-  const detectCliStatus = useCallback(async () => {
+  const detectCliStatus = useCallback(async (force = false) => {
+    // Serve from session cache when available — reopening Settings must not
+    // re-detect (detection runs async in main; this avoids even the round-trip).
+    if (!force && cliStatusSessionCache) {
+      setCliCommandName(cliStatusSessionCache.commandName);
+      setCliStatus(cliStatusSessionCache.status);
+      setCliVersion(cliStatusSessionCache.version);
+      return;
+    }
     setCliStatus('checking');
     try {
-      const result = await (window as any).electronAPI.cliDetectStatus();
-      if (result.commandName) setCliCommandName(result.commandName);
-      if (result.installed) {
-        setCliStatus('installed');
-        setCliVersion(result.version);
-      } else {
-        setCliStatus('not-installed');
-        setCliVersion(null);
-      }
+      const result = await (window as any).electronAPI.cliDetectStatus(force);
+      const commandName = result.commandName || 'bobcorn';
+      const status: 'installed' | 'not-installed' = result.installed
+        ? 'installed'
+        : 'not-installed';
+      const version = result.installed ? result.version : null;
+      cliStatusSessionCache = { status, version, commandName };
+      setCliCommandName(commandName);
+      setCliStatus(status);
+      setCliVersion(version);
     } catch {
+      // Don't cache transient failures — allow a retry on next open.
       setCliStatus('not-installed');
       setCliVersion(null);
     }
@@ -78,6 +100,8 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
 
   useEffect(() => {
     if (visible) {
+      // Runs async — the dialog renders immediately; the CLI area shows a
+      // spinner until detection resolves in the background.
       detectCliStatus();
       setCliShowRestartHint(false);
     }
@@ -91,10 +115,14 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
         if (result.commandName) setCliCommandName(result.commandName);
         message.success(t('settings.cli.installSuccess'));
         setCliShowRestartHint(true);
-        await detectCliStatus();
+        await detectCliStatus(true);
         analyticsTrack('settings.change', { setting: 'cliInstall' });
       } else {
-        message.error(t('settings.cli.installError', { error: result.message }));
+        // Map known machine codes to user-friendly translations; fall back to
+        // the raw message (dev builds may include a developer hint).
+        const errText =
+          result.code === 'CLI_NOT_BUILT' ? t('settings.cli.error.notBuilt') : result.message;
+        message.error(t('settings.cli.installError', { error: errText }));
       }
     } catch (err: any) {
       message.error(t('settings.cli.installError', { error: err.message }));
@@ -109,7 +137,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
       const result = await (window as any).electronAPI.cliUninstall();
       if (result.success) {
         setCliShowRestartHint(false);
-        await detectCliStatus();
+        await detectCliStatus(true);
         analyticsTrack('settings.change', { setting: 'cliUninstall' });
       }
     } catch {
@@ -310,7 +338,11 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
             </div>
           </div>
           <p className="text-[11px] text-foreground-muted/50 mt-1.5 leading-relaxed">
-            {t('settings.codeAllocationDesc')}
+            {t(
+              codeMode === 'append'
+                ? 'settings.codeAllocationDescAppend'
+                : 'settings.codeAllocationDescFill'
+            )}
           </p>
         </section>
 
@@ -535,8 +567,8 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
             <span className="text-[12px] text-foreground/80 group-hover/docs:text-foreground transition-colors">
               {t('settings.cli.docs')}
             </span>
-            <span className="text-accent/60 group-hover/docs:text-accent transition-colors text-xs">
-              &rarr;
+            <span className="text-accent/60 group-hover/docs:text-accent transition-colors flex items-center">
+              <ArrowRight size={12} />
             </span>
           </a>
           {cliShowRestartHint && (

@@ -55,6 +55,7 @@ export const throttle = (
 ): ((...args: any[]) => void) => {
   let timer: ReturnType<typeof setTimeout> | null = null;
   return function (this: any, ...args: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias -- capture caller's `this` for the deferred setTimeout callback, whose own `this` would differ
     const context = this;
     clearTimeout(timer!);
     timer = setTimeout(function () {
@@ -72,6 +73,7 @@ export const throttleMustRun = (
   let timer: ReturnType<typeof setTimeout> | null = null;
   let t_start: number | undefined;
   return function (this: any, ...args: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias -- capture caller's `this` for the deferred setTimeout callback, whose own `this` would differ
     const context = this;
     const t_curr = +new Date();
     clearTimeout(timer!);
@@ -118,8 +120,7 @@ function handleKeyDown(e: KeyboardEvent, keyCode: number): void {
 
 // [字符串] 新增方法, 替换字符串中指定字符
 String.prototype.replaceAll = function (search: string, replacement: string): string {
-  const target = this;
-  return target.replace(new RegExp(search, 'g'), replacement);
+  return this.replace(new RegExp(search, 'g'), replacement);
 };
 
 // [数组]新增方法, 移除数组中某个元素, 不会修改原数组
@@ -219,7 +220,7 @@ export const preventDrop = (): void => {
 // 从文件路径获取文件名
 export const nameOfPath = (path: string | null | undefined): string => {
   if (path) {
-    const splitUnix = path.split('\/');
+    const splitUnix = path.split('/');
     const splitWin32 = path.split('\\');
     const splitArr = splitUnix.length > splitWin32.length ? splitUnix : splitWin32;
     return splitArr[splitArr.length - 1];
@@ -233,7 +234,7 @@ export const nameOfFile = (fullName: string): string => {
 };
 // 从文件名获取文件后缀
 export const typeOfFile = (fullName: string): string => {
-  return /\.[^\.]+$/.exec(fullName)![0].replace(/\./, '').toLowerCase();
+  return /\.[^.]+$/.exec(fullName)![0].replace(/\./, '').toLowerCase();
 };
 
 // 从字符串获取文件大小

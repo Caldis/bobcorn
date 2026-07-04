@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Settings, FolderOpen } from 'lucide-react';
+import { Settings, FolderOpen, ChevronLeft } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useRecentProjects, getFileDisplayName } from '../../hooks/useRecentProjects';
 import { ProjectAvatar, ProjectItem } from '../ProjectItem';
@@ -10,12 +10,15 @@ import useAppStore from '../../store';
 const ProjectSwitcher = React.memo(function ProjectSwitcher() {
   const { t } = useTranslation();
   const projectName = useAppStore((s: any) => s.projectName);
+  const projectDisplayName = useAppStore((s: any) => s.projectDisplayName);
   const projectDescription = useAppStore((s: any) => s.projectDescription);
   const projectColor = useAppStore((s: any) => s.projectColor);
   const isDirty = useAppStore((s: any) => s.isDirty);
   const currentFilePath = useAppStore((s: any) => s.currentFilePath);
 
-  const displayName = currentFilePath ? getFileDisplayName(currentFilePath) : projectName;
+  // 回退链: 项目名称(displayName) → 文件名 → 图标字码前缀
+  const displayName =
+    projectDisplayName || (currentFilePath ? getFileDisplayName(currentFilePath) : projectName);
   const { histProj, removeHistItem, refresh } = useRecentProjects();
 
   const [open, setOpen] = useState(false);
@@ -99,19 +102,11 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
         <ProjectAvatar name={displayName} size={20} color={projectColor} />
         <span className="truncate">{displayName}</span>
         {isDirty && <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-foreground-muted/50" />}
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={cn('shrink-0 transition-transform duration-150', open && 'rotate-180')}
-        >
-          <polyline points="18 15 12 9 6 15" />
-        </svg>
+        <ChevronLeft
+          size={10}
+          strokeWidth={2.5}
+          className={cn('shrink-0 transition-transform duration-200', open && 'rotate-90')}
+        />
       </button>
 
       {open &&
