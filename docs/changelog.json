@@ -1,5 +1,25 @@
 [
   {
+    "version": "1.17.0",
+    "date": "2026-07-05",
+    "summary": {
+      "zh": "修复快速框选图标时必现的崩溃（内存耗尽）；欢迎页「启动新项目」现在会弹出对话框设置项目名称与字码前缀",
+      "en": "Fixes a guaranteed crash (out of memory) when rapidly marquee-selecting icons; the welcome screen's New Project button now opens a dialog to set the project name and icon-code prefix"
+    },
+    "changes": {
+      "zh": [
+        "修复：快速拖曳、反复改变框选区域大小时应用必现崩溃（Aborted(OOM)）——数据库查询句柄泄漏已根治，并加入守门测试防止同类问题复发",
+        "改进：框选拖曳时批量面板的数据库查询量降至原来的约三分之一，大量选中图标时拖曳更流畅",
+        "改进：欢迎页「启动新项目」复用常规新建项目流程，弹出对话框可设置项目名称与图标字码前缀"
+      ],
+      "en": [
+        "Fixed: A guaranteed crash (Aborted(OOM)) when rapidly dragging and resizing the marquee selection — the underlying database statement leak is fixed for good, with a guard test preventing regressions",
+        "Improved: The batch panel now issues roughly one third as many database queries while marquee-dragging, keeping large selections smooth",
+        "Improved: The welcome screen's New Project button reuses the standard new-project flow, opening a dialog to set the project name and icon-code prefix"
+      ]
+    }
+  },
+  {
     "version": "1.16.0",
     "date": "2026-07-05",
     "summary": {
