@@ -389,11 +389,16 @@ if (!gotLock) {
         });
       }
       return findNode().then((nodeBin: string) => {
+        // When no system Node exists we fall back to the Electron binary,
+        // which only behaves like Node with ELECTRON_RUN_AS_NODE set —
+        // otherwise it would launch a second GUI instance. Plain Node
+        // ignores this variable, so setting it unconditionally is safe.
+        const env = { ...process.env, ELECTRON_RUN_AS_NODE: '1' };
         return new Promise((resolve) => {
           ef(
             nodeBin,
             [cliPath, ...args, '--json'],
-            { encoding: 'utf8', timeout: 15000 },
+            { encoding: 'utf8', timeout: 15000, env },
             (err: any, stdout: string) => {
               try {
                 const text = (err?.stdout || stdout || '').trim();

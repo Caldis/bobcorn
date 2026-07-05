@@ -130,7 +130,12 @@ function installWindows(source: string): InstallResult {
 
   const nodeBin = findNodeBin();
   const wrapperPath = path.join(cliDir, `${cmd}.cmd`);
-  fs.writeFileSync(wrapperPath, `@echo off\r\n"${nodeBin}" "${source}" %*\r\n`);
+  // ELECTRON_RUN_AS_NODE covers the no-system-Node fallback where nodeBin is
+  // the Electron binary; plain Node ignores the variable entirely.
+  fs.writeFileSync(
+    wrapperPath,
+    `@echo off\r\nset ELECTRON_RUN_AS_NODE=1\r\n"${nodeBin}" "${source}" %*\r\n`
+  );
 
   // Add cliDir to User PATH if not already there
   try {
@@ -215,7 +220,12 @@ function installUnix(source: string): InstallResult {
   const cmd = commandName();
   const nodeBin = findNodeBin();
   const linkPath = path.join(localBin, cmd);
-  fs.writeFileSync(linkPath, `#!/bin/sh\nexec "${nodeBin}" "${source}" "$@"\n`);
+  // ELECTRON_RUN_AS_NODE covers the no-system-Node fallback where nodeBin is
+  // the Electron binary; plain Node ignores the variable entirely.
+  fs.writeFileSync(
+    linkPath,
+    `#!/bin/sh\nexport ELECTRON_RUN_AS_NODE=1\nexec "${nodeBin}" "${source}" "$@"\n`
+  );
   fs.chmodSync(linkPath, 0o755);
 
   // Check if ~/.local/bin is in PATH, suggest shell RC update if not
