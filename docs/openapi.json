@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Bobcorn Public Metadata API",
-    "version": "1.15.0",
+    "version": "1.16.0",
     "summary": "Read-only static metadata endpoints for Bobcorn.",
     "description": "Bobcorn is a local-first desktop app. This OpenAPI document describes public website metadata endpoints only. These endpoints do not provide hosted project storage, OAuth, user accounts, remote export jobs, or webhooks."
   },
