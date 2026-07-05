@@ -35,7 +35,7 @@ export function Progress({
       </div>
       <span
         className={cn(
-          'text-xs font-medium tabular-nums shrink-0 w-9 text-right',
+          't-value tabular-nums shrink-0 w-9 text-right',
           status === 'exception'
             ? 'text-danger'
             : status === 'success'

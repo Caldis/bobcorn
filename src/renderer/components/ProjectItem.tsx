@@ -102,8 +102,8 @@ export function ProjectItem({
       >
         <ProjectAvatar name={name} size={avatarSize} />
         <div className="min-w-0 flex-1 text-left">
-          <div className="text-[13px] font-medium text-foreground truncate">{name}</div>
-          <div className="text-[10px] text-foreground-muted/60 truncate">{path}</div>
+          <div className="t-label truncate">{name}</div>
+          <div className="t-help truncate">{path}</div>
         </div>
       </button>
       {onRemove && (

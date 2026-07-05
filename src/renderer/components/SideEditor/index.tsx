@@ -416,7 +416,7 @@ const SideEditor = React.memo(function SideEditor({
     if (!guard.hasVariants) return null;
     const key = iconGroupEditModelType === 'duplicate' ? 'variant.copyNote' : 'variant.moveNote';
     return (
-      <p className="mb-2 flex items-start gap-1.5 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+      <p className="mb-2 flex items-start gap-1.5 rounded-md bg-warning-subtle px-2.5 py-1.5 text-xs font-medium text-warning">
         <TriangleAlert size={13} className="mt-px shrink-0" />
         <span>{t(key, { count: guard.count })}</span>
       </p>
@@ -649,9 +649,7 @@ const SideEditor = React.memo(function SideEditor({
                 )}
               >
                 <TriangleAlert size={12} className="text-warning shrink-0 mt-px" />
-                <span className="text-[11px] text-foreground leading-snug">
-                  {t('editor.codeDuplicateBanner')}
-                </span>
+                <span className="t-help">{t('editor.codeDuplicateBanner')}</span>
               </div>
             )}
             {/* 字码落在所属分组声明的区间之外时的行内提示 + 一键重新分配 */}
@@ -659,24 +657,19 @@ const SideEditor = React.memo(function SideEditor({
               <div
                 className={cn(
                   'mt-1.5 flex items-start gap-1.5 rounded-md',
-                  'border border-amber-500/30 bg-amber-500/10 px-2 py-1.5'
+                  'border border-warning/30 bg-warning-subtle px-2 py-1.5'
                 )}
               >
-                <TriangleAlert
-                  size={12}
-                  className="text-amber-600 dark:text-amber-400 shrink-0 mt-px"
-                />
-                <span className="text-[11px] text-foreground leading-snug flex-1">
-                  {t('editor.codeOutOfGroupRange')}
-                </span>
+                <TriangleAlert size={12} className="text-warning shrink-0 mt-px" />
+                <span className="t-help flex-1">{t('editor.codeOutOfGroupRange')}</span>
                 <button
                   type="button"
                   onClick={handleReassignCode}
                   className={cn(
                     'shrink-0 -my-0.5 px-1.5 py-0.5 rounded',
                     'text-xs font-medium',
-                    'text-amber-600 dark:text-amber-400',
-                    'hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/15',
+                    'text-warning',
+                    'hover:bg-warning-subtle',
                     'transition-colors duration-150 cursor-pointer'
                   )}
                 >
@@ -691,8 +684,7 @@ const SideEditor = React.memo(function SideEditor({
             <h4
               className={cn(
                 'flex items-center gap-1.5',
-                'text-xs font-semibold uppercase tracking-wider',
-                'text-foreground-muted',
+                't-section',
                 'mb-2 pb-1.5',
                 'border-b border-border'
               )}
@@ -708,14 +700,9 @@ const SideEditor = React.memo(function SideEditor({
                 [t('editor.createDate'), iconData.createTime],
                 [t('editor.updateDate'), iconData.updateTime],
               ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className={cn('flex items-center justify-between', 'text-xs py-0.5')}
-                >
-                  <span className="text-foreground-muted">{label}</span>
-                  <span className="text-foreground font-medium truncate ml-2 max-w-[120px] text-right">
-                    {value}
-                  </span>
+                <div key={label} className={cn('flex items-center justify-between', 'py-0.5')}>
+                  <span className="t-caption">{label}</span>
+                  <span className="t-value truncate ml-2 max-w-[120px] text-right">{value}</span>
                 </div>
               ))}
             </div>
@@ -727,8 +714,7 @@ const SideEditor = React.memo(function SideEditor({
               <h4
                 className={cn(
                   'flex items-center gap-1.5',
-                  'text-xs font-semibold uppercase tracking-wider',
-                  'text-foreground-muted',
+                  't-section',
                   'mb-2 pb-1.5',
                   'border-b border-border'
                 )}
@@ -740,7 +726,7 @@ const SideEditor = React.memo(function SideEditor({
                     onClick={handleResetColors}
                     className={cn(
                       'ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded',
-                      'text-[10px] font-medium normal-case tracking-normal',
+                      't-pill normal-case tracking-normal',
                       'text-foreground-muted hover:text-foreground',
                       'border border-border hover:border-foreground-subtle',
                       'hover:bg-surface-accent',
@@ -893,8 +879,7 @@ const SideEditor = React.memo(function SideEditor({
             <h4
               className={cn(
                 'flex items-center gap-1.5',
-                'text-xs font-semibold uppercase tracking-wider',
-                'text-foreground-muted',
+                't-section',
                 'mb-2 pb-1.5',
                 'border-b border-border'
               )}
@@ -947,8 +932,7 @@ const SideEditor = React.memo(function SideEditor({
             <h4
               className={cn(
                 'flex items-center gap-1.5',
-                'text-xs font-semibold uppercase tracking-wider',
-                'text-foreground-muted',
+                't-section',
                 'mb-2 pb-1.5',
                 'border-b border-border'
               )}
@@ -964,9 +948,7 @@ const SideEditor = React.memo(function SideEditor({
             >
               {t('iconExport.exportIconFiles')}
             </Button>
-            <p className="text-[11px] text-foreground-muted mt-1">
-              {t('iconExport.exportDescription')}
-            </p>
+            <p className="t-help mt-1">{t('iconExport.exportDescription')}</p>
           </div>
         </div>
       ) : (
@@ -978,7 +960,7 @@ const SideEditor = React.memo(function SideEditor({
           )}
         >
           <img className="w-[120px] mb-3 opacity-60" src={selectedIconHint} alt="" />
-          <p className="text-sm text-foreground-muted">{t('editor.selectIconHint')}</p>
+          <p className="t-note">{t('editor.selectIconHint')}</p>
           <p className="text-xs text-foreground-muted/60 mt-1">{t('editor.editPropsHint')}</p>
         </div>
       )}

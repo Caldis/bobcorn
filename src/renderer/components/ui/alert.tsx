@@ -87,7 +87,7 @@ export function Alert({ message: title, description, type = 'info', className }:
     <div className={cn('flex gap-3 rounded-lg border p-3', styles.container, className)}>
       <span className={cn('shrink-0 mt-0.5', styles.icon)}>{ICONS[type]}</span>
       <div className="flex-1 min-w-0">
-        {title && <div className={cn('text-sm font-medium', styles.title)}>{title}</div>}
+        {title && <div className={cn('t-label', styles.title)}>{title}</div>}
         {description && <div className={cn('mt-1 text-sm', styles.desc)}>{description}</div>}
       </div>
     </div>

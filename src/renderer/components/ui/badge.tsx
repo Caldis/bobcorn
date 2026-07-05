@@ -29,7 +29,7 @@ export function Badge({ count, children, className, status, text, label }: Badge
           'inline-flex items-center justify-center',
           'px-1.5 py-0.5 rounded',
           'bg-surface-muted text-foreground-muted',
-          'text-[10px] font-medium leading-none',
+          't-pill',
           className
         )}
       >
@@ -48,7 +48,17 @@ export function Badge({ count, children, className, status, text, label }: Badge
             STATUS_COLORS[status] || STATUS_COLORS.default
           )}
         />
-        {text && <span className="text-xs text-foreground-muted">{text}</span>}
+        {text && (
+          <span
+            className={cn(
+              't-caption',
+              status === 'error' && 'text-danger',
+              status === 'warning' && 'text-warning'
+            )}
+          >
+            {text}
+          </span>
+        )}
       </span>
     );
   }
@@ -66,7 +76,7 @@ export function Badge({ count, children, className, status, text, label }: Badge
               'min-w-[18px] h-[18px] px-1',
               'rounded-full',
               'bg-danger text-accent-foreground',
-              'text-[10px] font-medium leading-none'
+              't-pill'
             )}
           >
             {count > 99 ? '99+' : count}
@@ -85,7 +95,7 @@ export function Badge({ count, children, className, status, text, label }: Badge
           'min-w-[18px] h-[18px] px-1',
           'rounded-full',
           'bg-danger text-accent-foreground',
-          'text-[10px] font-medium leading-none',
+          't-pill',
           className
         )}
       >

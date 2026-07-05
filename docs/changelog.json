@@ -1,5 +1,27 @@
 [
   {
+    "version": "1.16.0",
+    "date": "2026-07-05",
+    "summary": {
+      "zh": "统一全应用的字体、字号、字重与颜色——修复分组、侧栏详情、筛选栏等处标签大小不一，以及字码输入框中文提示文字变形等问题；内置 Inter 字体让各操作系统显示保持一致",
+      "en": "Unifies fonts, sizes, weights and colors across the app — fixes inconsistent label sizing in the group, detail and filter panels and distorted Chinese placeholders in code inputs; bundles the Inter font for consistent rendering on every OS"
+    },
+    "changes": {
+      "zh": [
+        "修复：编辑分组、侧栏详情、底部筛选栏等处的标签字号/字重/颜色不一致（例如「分组名称」明显比「描述」更大更黑）——全应用文本现由统一的排版规范渲染",
+        "修复：字码区间「起始/结束」输入框内的中文提示文字掉入等宽字体而变形",
+        "改进：内置 Inter 与 Cascadia Code 字体随包离线加载，不同操作系统上的字体显示保持一致",
+        "改进：统一次要文字的深浅层级与状态色（警示统一为语义色），整体观感更整齐"
+      ],
+      "en": [
+        "Fixed: Inconsistent label size/weight/color across the edit-group dialog, detail sidebar and bottom filter bar (e.g. the group name appearing noticeably larger than the description) — all text now renders through a unified typography system",
+        "Fixed: Chinese placeholder text in the code-range Start/End inputs falling back to a monospace font and looking distorted",
+        "Improved: Bundles the Inter and Cascadia Code fonts, loaded offline with the app, for consistent rendering across operating systems",
+        "Improved: Unified the shades of secondary text and status colors for a tidier, more consistent look"
+      ]
+    }
+  },
+  {
     "version": "1.15.0",
     "date": "2026-07-05",
     "summary": {

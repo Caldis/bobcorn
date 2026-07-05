@@ -475,7 +475,7 @@ function CodeMatrix({
       data-testid={testId}
       className={cn(
         'w-[68px] h-7 px-2 rounded-md border bg-surface text-sm font-mono uppercase text-foreground',
-        'placeholder:text-foreground-muted/40 outline-none transition-colors',
+        'placeholder:text-foreground-subtle outline-none transition-colors',
         'focus:border-accent focus:ring-2 focus:ring-ring/30',
         rangeError ? 'border-danger/60' : 'border-border'
       )}
@@ -486,11 +486,11 @@ function CodeMatrix({
     <div className={cn('space-y-2', className)}>
       {/* 控件行: 缩放 + 直接输入 + 清除 */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <span className="flex items-center gap-1.5 text-[11px] text-foreground-muted">
+        <span className="flex items-center gap-1.5 t-caption">
           <span className="shrink-0">{t('codeMatrix.zoomLabel')}</span>
           {zoomInput}
         </span>
-        <span className="flex items-center gap-1.5 text-[11px] text-foreground-muted">
+        <span className="flex items-center gap-1.5 t-caption">
           {hexInput(startText, handleStartChange, t('codeMatrix.rangeStart'), 'code-range-start')}
           <span className="text-foreground-muted/50">–</span>
           {hexInput(endText, handleEndChange, t('codeMatrix.rangeEnd'), 'code-range-end')}
@@ -533,7 +533,7 @@ function CodeMatrix({
       </div>
 
       {/* 状态行: hover 明细 或 当前选区 或 提示 */}
-      <div className="min-h-[16px] text-[11px] text-foreground-muted">
+      <div className="min-h-[16px] t-caption">
         {hoveredCell ? (
           <span>
             <span className="font-mono text-foreground">
@@ -568,12 +568,12 @@ function CodeMatrix({
             })}
           </span>
         ) : (
-          <span className="text-foreground-muted/60">{t('codeMatrix.rangeHint')}</span>
+          <span className="text-foreground-subtle">{t('codeMatrix.rangeHint')}</span>
         )}
       </div>
 
       {/* 图例 */}
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px] text-foreground-muted/60">
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 t-pill text-foreground-subtle">
         <LegendSwatch
           cls="h-2.5 w-2.5 rounded-[2px] bg-surface-inset border border-border/60"
           label={t('projectSettings.coverageLegendEmpty')}

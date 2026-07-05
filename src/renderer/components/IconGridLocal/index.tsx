@@ -832,7 +832,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     if (totalVariants <= 0) return null;
     const key = groupPickerMode === 'copy' ? 'variant.copyNote' : 'variant.moveNote';
     return (
-      <p className="mb-2 flex items-start gap-1.5 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+      <p className="mb-2 flex items-start gap-1.5 rounded-md bg-warning-subtle px-2.5 py-1.5 text-xs font-medium text-warning">
         <TriangleAlert size={13} className="mt-px shrink-0" />
         <span>{t(key, { count: totalVariants })}</span>
       </p>
@@ -1044,12 +1044,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         <img className="w-[150px]" src={h.img} />
         <div>
           {h.lines.map((line, i) => (
-            <p
-              key={i}
-              className={
-                i === 0 ? 'text-sm text-foreground-muted' : 'mt-1 text-xs text-foreground-muted/60'
-              }
-            >
+            <p key={i} className={i === 0 ? 't-note' : 'mt-1 t-caption'}>
               {line}
             </p>
           ))}

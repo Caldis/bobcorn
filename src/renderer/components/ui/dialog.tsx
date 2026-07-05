@@ -110,9 +110,7 @@ export function Dialog({
             )}
           >
             {title && (
-              <DialogPrimitive.Title className="text-lg font-semibold text-foreground mb-4">
-                {title}
-              </DialogPrimitive.Title>
+              <DialogPrimitive.Title className="t-title mb-4">{title}</DialogPrimitive.Title>
             )}
             {!title && <DialogPrimitive.Title className="sr-only">Dialog</DialogPrimitive.Title>}
             <div className="text-foreground">{children}</div>

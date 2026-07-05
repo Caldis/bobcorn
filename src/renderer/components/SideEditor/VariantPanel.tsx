@@ -204,19 +204,14 @@ export default function VariantPanel({
   if (isVariant) {
     return (
       <div className="mb-4 opacity-60">
-        <h4
-          className={cn(
-            'text-xs font-semibold uppercase tracking-wider',
-            'text-foreground-muted mb-2 pb-1.5 border-b border-border'
-          )}
-        >
+        <h4 className={cn('t-section', 'mb-2 pb-1.5 border-b border-border')}>
           <Layers size={12} className="inline mr-1.5" />
           {t('variant.title')}
-          <span className="ml-1.5 text-[9px] font-medium normal-case tracking-normal text-accent opacity-80">
+          <span className="ml-1.5 t-pill normal-case tracking-normal text-accent opacity-80">
             beta
           </span>
         </h4>
-        <p className="text-xs text-foreground-muted italic">{t('variant.cannotNest')}</p>
+        <p className="t-caption italic">{t('variant.cannotNest')}</p>
       </div>
     );
   }
@@ -227,8 +222,7 @@ export default function VariantPanel({
       <h4
         className={cn(
           'flex items-center justify-between',
-          'text-xs font-semibold uppercase tracking-wider',
-          'text-foreground-muted',
+          't-section',
           'mb-2 pb-1.5',
           'border-b border-border',
           'cursor-pointer select-none',
@@ -239,11 +233,11 @@ export default function VariantPanel({
         <span className="flex items-center gap-1.5">
           <Layers size={12} />
           {t('variant.title')}
-          <span className="text-[9px] font-medium normal-case tracking-normal text-accent opacity-60 group-hover/variant-header:opacity-100 transition-opacity duration-150">
+          <span className="t-pill normal-case tracking-normal text-accent opacity-60 group-hover/variant-header:opacity-100 transition-opacity duration-150">
             beta
           </span>
         </span>
-        <span className="flex items-center gap-1.5 text-[10px] font-normal">
+        <span className="flex items-center gap-1.5 t-pill font-normal">
           {variants.length}/{TOTAL_VARIANTS}
           <ChevronRight
             size={12}
@@ -259,9 +253,7 @@ export default function VariantPanel({
         <div className="space-y-3">
           {/* Weight slider */}
           <div>
-            <label className="text-xs text-foreground-muted mb-1 block">
-              {t('variant.weight')}
-            </label>
+            <label className="t-label mb-1 block">{t('variant.weight')}</label>
             <input
               type="range"
               min={0}
@@ -281,7 +273,7 @@ export default function VariantPanel({
 
           {/* Scale toggle */}
           <div>
-            <label className="text-xs text-foreground-muted mb-1 block">{t('variant.scale')}</label>
+            <label className="t-label mb-1 block">{t('variant.scale')}</label>
             <div className="flex gap-1">
               {SCALE_LEVELS.map((s, i) => (
                 <button

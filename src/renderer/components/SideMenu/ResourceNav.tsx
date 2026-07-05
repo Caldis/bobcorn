@@ -52,9 +52,7 @@ const ResourceNav = React.memo(function ResourceNav({
     <div className="shrink-0">
       <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
         <LayoutGrid size={14} className="text-foreground-muted" />
-        <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
-          {t('nav.resource')}
-        </span>
+        <span className="t-section">{t('nav.resource')}</span>
       </div>
       <nav className="px-1 py-1">
         {items.map((item) => {
@@ -73,9 +71,7 @@ const ResourceNav = React.memo(function ResourceNav({
             >
               <Icon size={15} />
               <span>{item.label}</span>
-              {item.count !== undefined && (
-                <span className="ml-auto text-xs text-foreground-muted">{item.count}</span>
-              )}
+              {item.count !== undefined && <span className="ml-auto t-caption">{item.count}</span>}
             </button>
           );
         })}

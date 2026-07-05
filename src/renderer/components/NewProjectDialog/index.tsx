@@ -61,9 +61,7 @@ function NewProjectDialog({ open, onClose, onConfirm }: NewProjectDialogProps) {
       <div className="space-y-4">
         {/* 项目名称 */}
         <div>
-          <label className="block text-[12px] font-medium text-foreground mb-1.5">
-            {t('newProject.nameLabel')}
-          </label>
+          <label className="block t-label mb-1.5">{t('newProject.nameLabel')}</label>
           <Input
             autoFocus
             value={displayName}
@@ -71,16 +69,12 @@ function NewProjectDialog({ open, onClose, onConfirm }: NewProjectDialogProps) {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
             onPressEnter={prefixValid ? handleConfirm : undefined}
           />
-          <p className="text-[11px] text-foreground-muted/50 mt-1 leading-relaxed">
-            {t('newProject.nameHint')}
-          </p>
+          <p className="t-help mt-1">{t('newProject.nameHint')}</p>
         </div>
 
         {/* 图标字码前缀 */}
         <div>
-          <label className="block text-[12px] font-medium text-foreground mb-1.5">
-            {t('newProject.prefixLabel')}
-          </label>
+          <label className="block t-label mb-1.5">{t('newProject.prefixLabel')}</label>
           <Input
             value={prefix}
             placeholder={t('newProject.prefixPlaceholder')}
@@ -88,13 +82,9 @@ function NewProjectDialog({ open, onClose, onConfirm }: NewProjectDialogProps) {
             onPressEnter={prefixValid ? handleConfirm : undefined}
           />
           {prefix.trim() !== '' && !prefixValid ? (
-            <p className="text-[11px] text-danger mt-1 leading-relaxed">
-              {t('newProject.prefixInvalid')}
-            </p>
+            <p className="t-help text-danger mt-1">{t('newProject.prefixInvalid')}</p>
           ) : (
-            <p className="text-[11px] text-foreground-muted/50 mt-1 leading-relaxed">
-              {t('newProject.prefixHint')}
-            </p>
+            <p className="t-help mt-1">{t('newProject.prefixHint')}</p>
           )}
         </div>
       </div>

@@ -307,7 +307,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
           title={status === 'error' && error ? error : undefined}
           className={cn(
             'inline-flex items-center gap-1.5 px-2 py-1 rounded-md',
-            'text-[11px] text-foreground-muted',
+            't-help',
             'transition-colors duration-150',
             isClickable && 'cursor-pointer hover:bg-surface-accent hover:text-foreground',
             !isClickable && 'cursor-default'
@@ -410,18 +410,14 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
               <div className="shrink-0 px-3 pt-3 pb-2">
                 <div className="flex items-center gap-1.5">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-success" />
-                  <span className="text-xs font-medium text-foreground">
+                  <span className="t-value">
                     {changelogEntries.length > 1 ? versionRange : `v${version}`}
                   </span>
                   {status === 'downloaded' && (
-                    <span className="text-[10px] text-success font-medium ml-auto">
-                      {t('update.readyBadge')}
-                    </span>
+                    <span className="t-pill text-success ml-auto">{t('update.readyBadge')}</span>
                   )}
                   {status === 'available' && (
-                    <span className="text-[10px] text-accent font-medium ml-auto">
-                      {t('update.newBadge')}
-                    </span>
+                    <span className="t-pill text-accent ml-auto">{t('update.newBadge')}</span>
                   )}
                   <Maximize2 size={11} className="shrink-0 text-foreground-muted/60" />
                 </div>
@@ -445,7 +441,7 @@ function UpdateIndicator({ onInstall }: { onInstall: () => void }) {
         title={
           <span className="flex items-baseline gap-2">
             <span>{t('update.changelog')}</span>
-            <span className="text-sm font-normal text-foreground-muted">{versionRange}</span>
+            <span className="t-note">{versionRange}</span>
           </span>
         }
         footer={null}

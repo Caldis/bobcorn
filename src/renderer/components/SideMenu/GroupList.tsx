@@ -66,15 +66,11 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
       <span className="flex-1 min-w-0">
         <span className="block truncate">{group.groupName}</span>
         {group.groupDescription && (
-          <span className="block truncate text-[11px] leading-tight mt-0.5 font-normal text-foreground-muted/70">
-            {group.groupDescription}
-          </span>
+          <span className="block truncate mt-0.5 t-help">{group.groupDescription}</span>
         )}
       </span>
       <span className="relative shrink-0 w-5 h-5 flex items-center justify-center self-start mt-0.5">
-        <span className="text-xs text-foreground-muted group-hover:opacity-0 transition-opacity">
-          {iconCount}
-        </span>
+        <span className="t-caption group-hover:opacity-0 transition-opacity">{iconCount}</span>
         <span
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={(e) => e.stopPropagation()}
@@ -151,9 +147,7 @@ const GroupList = React.memo(function GroupList({
     <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={sideMenuWrapperRef}>
       <div className="sticky top-0 z-10 flex items-center gap-1.5 px-4 pt-3 pb-1 bg-surface">
         <Tags size={14} className="text-foreground-muted" />
-        <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
-          {t('group.groups')}
-        </span>
+        <span className="t-section">{t('group.groups')}</span>
         <button
           className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-accent-subtle hover:text-accent"
           onClick={onShowAddGroup}
@@ -195,7 +189,7 @@ const GroupList = React.memo(function GroupList({
             src={addGroupHint}
             alt={t('group.addHint')}
           />
-          <p className="mt-3 text-sm text-foreground-muted">{t('group.noGroups')}</p>
+          <p className="mt-3 t-note">{t('group.noGroups')}</p>
           <p className="mt-1 text-xs text-foreground-muted/60">{t('group.noGroupsHint')}</p>
         </div>
       )}

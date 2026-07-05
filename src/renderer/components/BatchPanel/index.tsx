@@ -367,9 +367,7 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {/* Header */}
         <div className="text-center py-4">
-          <div className="text-lg font-semibold text-foreground">
-            {t('batch.selected', { count: selectedIds.length })}
-          </div>
+          <div className="t-title">{t('batch.selected', { count: selectedIds.length })}</div>
         </div>
 
         {/* Thumbnail preview */}
@@ -414,7 +412,7 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
               }}
               className="z-50 p-3 rounded-lg border border-border bg-surface-muted shadow-lg"
             >
-              <div className="text-sm font-medium mb-2">{t('batch.unifyColor')}</div>
+              <div className="t-label mb-2">{t('batch.unifyColor')}</div>
               <HexColorPicker
                 color={batchColor}
                 onChange={handlePickerChange}
@@ -552,7 +550,7 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
             </button>
             <button className={btnClass} onClick={handleBatchGenerateVariants}>
               <Layers size={18} className="text-foreground-muted" /> {t('variant.batchGenerate')}
-              <span className="ml-1.5 text-[9px] font-medium normal-case tracking-normal text-accent opacity-80">
+              <span className="ml-1.5 t-pill normal-case tracking-normal text-accent opacity-80">
                 beta
               </span>
             </button>

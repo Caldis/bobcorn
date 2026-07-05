@@ -176,14 +176,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
       <div className="space-y-5">
         {/* ── Language ──────────────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.language')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('settings.language')}</h4>
           <select
             value={localStorage.getItem('language') === null ? '__system__' : i18n.language}
             onChange={(e) => handleLanguageChange(e.target.value)}
@@ -202,9 +195,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               </option>
             ))}
           </select>
-          <p className="text-[11px] text-foreground-muted/50 mt-1.5 leading-relaxed">
-            {t('settings.languageDesc')}
-          </p>
+          <p className="t-help mt-1.5">{t('settings.languageDesc')}</p>
         </section>
 
         {/* ── Divider ───────────────────────────────────── */}
@@ -212,16 +203,9 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
 
         {/* ── Appearance ──────────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.appearance')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('settings.appearance')}</h4>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground">{t('settings.theme')}</span>
+            <span className="t-label">{t('settings.theme')}</span>
             <div className="inline-flex rounded-md border border-border overflow-hidden">
               {(['system', 'light', 'dark'] as const).map((mode) => (
                 <button
@@ -302,16 +286,9 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
 
         {/* ── Code Allocation ─────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.codeAllocation')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('settings.codeAllocation')}</h4>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground">{t('settings.codeAllocationMode')}</span>
+            <span className="t-label">{t('settings.codeAllocationMode')}</span>
             <div className="inline-flex rounded-md border border-border overflow-hidden">
               {(['append', 'fill'] as const).map((mode) => (
                 <button
@@ -337,7 +314,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               ))}
             </div>
           </div>
-          <p className="text-[11px] text-foreground-muted/50 mt-1.5 leading-relaxed">
+          <p className="t-help mt-1.5">
             {t(
               codeMode === 'append'
                 ? 'settings.codeAllocationDescAppend'
@@ -351,17 +328,10 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
 
         {/* ── Update ─────────────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.update')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('settings.update')}</h4>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-foreground">{t('settings.autoCheck')}</span>
+              <span className="t-label">{t('settings.autoCheck')}</span>
               <Switch
                 checked={autoCheck}
                 onChange={(v) => {
@@ -372,7 +342,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-foreground">{t('settings.autoDownload')}</span>
+              <span className="t-label">{t('settings.autoDownload')}</span>
               <Switch
                 checked={autoDownload}
                 onChange={(v) => {
@@ -383,7 +353,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-foreground">{t('settings.channel')}</span>
+              <span className="t-label">{t('settings.channel')}</span>
               <div className="inline-flex rounded-md border border-border overflow-hidden">
                 {(['stable', 'beta'] as const).map((ch) => (
                   <button
@@ -407,7 +377,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               </div>
             </div>
             <div className="flex items-center justify-between pt-1">
-              <span className="text-sm text-foreground">{t('settings.checkNow')}</span>
+              <span className="t-label">{t('settings.checkNow')}</span>
               <button
                 onClick={() => {
                   // Listen for result once, then clean up
@@ -453,14 +423,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
 
         {/* ── Command Line Interface ─────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.cli.title')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('settings.cli.title')}</h4>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0">
               <span
@@ -478,7 +441,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               {cliStatus === 'installed' && (
                 <span
                   className={cn(
-                    'text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0',
+                    't-pill px-1.5 py-0.5 rounded-full shrink-0',
                     'bg-accent/10 text-accent'
                   )}
                 >
@@ -545,9 +508,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
               ) : null}
             </div>
           </div>
-          <p className="text-[11px] text-foreground-muted/40 mt-1">
-            {t('settings.cli.description')}
-          </p>
+          <p className="t-help mt-1">{t('settings.cli.description')}</p>
           {/* Usage guide — prominent, own line */}
           <a
             href={`https://bobcorn.caldis.me/wiki/${WIKI_LANG_MAP[i18n.language] || 'en'}/cli.html`}
@@ -583,14 +544,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
 
         {/* ── Bobcorn AI ────────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.ai.title')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('settings.ai.title')}</h4>
           <div
             className={cn(
               'rounded-lg p-3',
@@ -599,13 +553,11 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
             )}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] text-foreground-muted/50">
-                {t('settings.ai.description')}
-              </span>
+              <span className="t-help">{t('settings.ai.description')}</span>
               <span
                 className={cn(
-                  'text-[9px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider shrink-0 ml-2',
-                  'bg-violet-500/10 text-violet-500 dark:text-violet-400',
+                  't-pill px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ml-2',
+                  'bg-violet-500/10 text-accent',
                   'border border-violet-500/15'
                 )}
               >
@@ -629,8 +581,8 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 <span
                   key={name}
                   className={cn(
-                    'text-[10px] px-2 py-0.5 rounded-full',
-                    'bg-foreground/[0.04] text-foreground-muted/50',
+                    't-pill px-2 py-0.5 rounded-full',
+                    'bg-foreground/[0.04] text-foreground-muted',
                     'border border-foreground/[0.04]'
                   )}
                 >
@@ -646,21 +598,12 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
 
         {/* ── Data Sharing ──────────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.analytics')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('settings.analytics')}</h4>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex-1 mr-3">
-                <span className="text-sm text-foreground">{t('settings.analyticsBasic')}</span>
-                <p className="text-xs text-foreground-muted/50 mt-0.5">
-                  {t('settings.analyticsBasicHint')}
-                </p>
+                <span className="t-label">{t('settings.analyticsBasic')}</span>
+                <p className="t-help mt-0.5">{t('settings.analyticsBasicHint')}</p>
               </div>
               <Switch
                 checked={analyticsBasic}
@@ -669,17 +612,15 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
             </div>
             <div className="flex items-center justify-between">
               <div className="flex-1 mr-3">
-                <span className="text-sm text-foreground">{t('settings.analyticsDetailed')}</span>
-                <p className="text-xs text-foreground-muted/50 mt-0.5">
-                  {t('settings.analyticsDetailedHint')}
-                </p>
+                <span className="t-label">{t('settings.analyticsDetailed')}</span>
+                <p className="t-help mt-0.5">{t('settings.analyticsDetailedHint')}</p>
               </div>
               <Switch
                 checked={analyticsDetailed}
                 onChange={(v) => setAnalyticsConsent(analyticsBasic, v)}
               />
             </div>
-            <p className="text-xs text-foreground-muted/50 pt-1">
+            <p className="t-help pt-1">
               {t('settings.analyticsFooter')}{' '}
               <a
                 href="#"
@@ -702,14 +643,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
 
         {/* ── Version ────────────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('settings.version')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('settings.version')}</h4>
           <div className="flex items-center gap-2 text-sm text-foreground-muted">
             <img src={appIcon} alt="" className="h-4 w-4" />
             <span>

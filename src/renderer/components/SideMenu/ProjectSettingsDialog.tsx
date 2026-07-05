@@ -158,14 +158,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
       <div className="space-y-5">
         {/* ── Identity ─────────────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-3'
-            )}
-          >
-            {t('projectSettings.identity')}
-          </h4>
+          <h4 className="t-section mb-3">{t('projectSettings.identity')}</h4>
 
           {/* Avatar + editable project name */}
           <div className="flex items-center gap-3 mb-3">
@@ -178,8 +171,8 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
               placeholder={namePlaceholder}
               title={t('projectSettings.displayName')}
               className={cn(
-                'flex-1 min-w-0 px-2.5 py-1.5 rounded-md text-sm font-medium',
-                'border border-border bg-surface text-foreground',
+                'flex-1 min-w-0 px-2.5 py-1.5 rounded-md t-body',
+                'border border-border bg-surface',
                 'placeholder:text-foreground-muted/40 placeholder:font-normal',
                 'focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30',
                 'transition-colors duration-150'
@@ -195,8 +188,8 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
             placeholder={t('projectSettings.descPlaceholder')}
             rows={2}
             className={cn(
-              'w-full px-2.5 py-2 rounded-md text-sm resize-none mb-3',
-              'border border-border bg-surface text-foreground',
+              'w-full px-2.5 py-2 rounded-md t-body resize-none mb-3',
+              'border border-border bg-surface',
               'placeholder:text-foreground-muted/40',
               'focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30',
               'transition-colors duration-150'
@@ -205,9 +198,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
 
           {/* Color palette */}
           <div className="flex items-center gap-2">
-            <span className="text-[11px] text-foreground-muted/50 shrink-0">
-              {t('projectSettings.color')}
-            </span>
+            <span className="t-label shrink-0">{t('projectSettings.color')}</span>
             <div className="flex items-center gap-1.5">
               {AVATAR_COLORS.map((color) => (
                 <button
@@ -229,11 +220,11 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
               <button
                 onClick={() => handleColorSelect(null)}
                 className={cn(
-                  'h-5 px-1.5 rounded-full text-[10px] font-medium',
+                  'h-5 px-1.5 rounded-full t-pill',
                   'border transition-all duration-100',
                   selectedColor === null
                     ? 'border-accent text-accent bg-accent/10'
-                    : 'border-border text-foreground-muted/50 hover:text-foreground-muted'
+                    : 'border-border text-foreground-subtle hover:text-foreground-muted'
                 )}
               >
                 {t('projectSettings.colorAuto')}
@@ -247,14 +238,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
 
         {/* ── Icon Code Prefix ─────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-danger/70 mb-2.5'
-            )}
-          >
-            {t('projectSettings.iconCodePrefix')}
-          </h4>
+          <h4 className="t-section text-danger/70 mb-2.5">{t('projectSettings.iconCodePrefix')}</h4>
           <div className="rounded-md border border-danger/20 bg-danger-subtle p-3">
             <div className="flex items-center gap-2">
               <Input
@@ -282,8 +266,8 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
                 {t('settings.prefixApply')}
               </button>
             </div>
-            {prefixErr && <p className="text-[11px] text-danger mt-1">{prefixErr}</p>}
-            <p className="text-[11px] text-danger/50 mt-1.5 leading-relaxed">
+            {prefixErr && <p className="t-help text-danger mt-1">{prefixErr}</p>}
+            <p className="t-help text-danger/50 mt-1.5">
               {t('projectSettings.iconCodePrefixDesc')}
             </p>
           </div>
@@ -294,26 +278,16 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
 
         {/* ── Project Info ─────────────────────────────── */}
         <section>
-          <h4
-            className={cn(
-              'text-[11px] font-semibold uppercase tracking-widest',
-              'text-foreground-muted/60 mb-2.5'
-            )}
-          >
-            {t('projectSettings.info')}
-          </h4>
+          <h4 className="t-section mb-2.5">{t('projectSettings.info')}</h4>
           <div className="space-y-2 text-sm">
             {/* File path */}
             <div className="flex items-start gap-2">
-              <span className="text-foreground-muted/50 shrink-0 w-16 text-[12px] pt-0.5">
+              <span className="t-caption shrink-0 w-16 pt-0.5">
                 {t('projectSettings.filePath')}
               </span>
               {currentFilePath ? (
                 <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                  <span
-                    className="text-[12px] text-foreground-muted truncate flex-1"
-                    title={currentFilePath}
-                  >
+                  <span className="t-value truncate flex-1" title={currentFilePath}>
                     {currentFilePath}
                   </span>
                   <button
@@ -341,9 +315,7 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-foreground-muted/40 italic">
-                    {t('projectSettings.unsaved')}
-                  </span>
+                  <span className="t-caption italic">{t('projectSettings.unsaved')}</span>
                   <button
                     onClick={handleSaveAs}
                     className={cn(
@@ -360,10 +332,10 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
 
             {/* Stats row */}
             <div className="flex items-center gap-2">
-              <span className="text-foreground-muted/50 shrink-0 w-16 text-[12px]" />
-              <span className="text-[12px] text-foreground-muted">
+              <span className="t-caption shrink-0 w-16" />
+              <span className="t-value">
                 {stats.iconCount} {t('projectSettings.icons')}
-                <span className="mx-1.5 text-foreground-muted/30">·</span>
+                <span className="mx-1.5 text-foreground-subtle">·</span>
                 {stats.groupCount} {t('projectSettings.groups')}
               </span>
             </div>
@@ -373,20 +345,12 @@ function ProjectSettingsDialog({ visible, onClose }: ProjectSettingsDialogProps)
 
             {/* Dates */}
             <div className="flex items-center gap-2">
-              <span className="text-foreground-muted/50 shrink-0 w-16 text-[12px]">
-                {t('projectSettings.created')}
-              </span>
-              <span className="text-[12px] text-foreground-muted">
-                {formatDate(stats.createTime)}
-              </span>
+              <span className="t-caption shrink-0 w-16">{t('projectSettings.created')}</span>
+              <span className="t-value">{formatDate(stats.createTime)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-foreground-muted/50 shrink-0 w-16 text-[12px]">
-                {t('projectSettings.modified')}
-              </span>
-              <span className="text-[12px] text-foreground-muted">
-                {formatDate(stats.updateTime)}
-              </span>
+              <span className="t-caption shrink-0 w-16">{t('projectSettings.modified')}</span>
+              <span className="t-value">{formatDate(stats.updateTime)}</span>
             </div>
           </div>
         </section>

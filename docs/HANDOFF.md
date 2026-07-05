@@ -8,6 +8,20 @@
 
 **分支**: `master`
 
+## 2026-07-05 Session 摘要（全局排版规范化，**未发版**）
+
+**问题**：全应用字体/字号/颜色/字重反复不统一（用户举证：编辑分组弹框「分组名称」比「描述/分组图标」更大更黑；字码区间「起始/结束」input 的中文 placeholder 掉等宽字体；侧栏详情「名称/字码」与「基本信息」不一致；底部筛选栏「图标名称/图标字码」不一致）。多代理审计确认是**框架层三缺失**（根因）：① 声明的 `Inter`/`SF Pro Display`/`Cascadia Code` 从未打包（无 `@font-face`），全靠系统 fallback 跨 OS 漂移；② 无排版 base 层（`globals.css` 只给 body 定 family+色）；③ 无排版原语/token，每组件手搓 `text-[Npx]`/`font-*`/`text-foreground-*/透明度`——同一「区块标题」跨弹框 6 种写法、字段标签 4 种、muted 透明度 6 档。
+
+**方案（已落地）**：
+- **字体资源**：`@fontsource/inter` + `@fontsource/cascadia-code`（仅 latin 子集，woff2 共 ~150KB）经 `entry.ts` 本地打包，**绝不引 CDN**；中文刻意回退系统字体（`tailwind.config.js` 显式列 CJK fallback）。
+- **排版 token 层**：`globals.css` `@layer components` 新增 9 个语义类 `.t-title/.t-section/.t-label/.t-body/.t-note/.t-value/.t-caption/.t-help/.t-pill`（一个类带齐字号+字重+颜色）；标签统一 **13px/500/主色**（用户拍板）；muted 收敛到 `-muted`/`-subtle` 两档。
+- **mono placeholder 守卫**：`input.font-mono::placeholder{font-family:sans}` 全局根治——中文 placeholder 再不掉等宽（`placeholder:` 只能改色不能改字族，无法脱离 mono，故需此守卫）。
+- **全量改造**：4 波子代理改 ~25 文件（原语 `enhance/input`+`ui/*`、7 个弹框、9 个外壳、9 个漏审组件）到语义类；硬编码 `amber/violet` 文本色→`warning/accent` 语义 token（保留收藏星金色、AI 卡片装饰紫）。
+- **守门**：`test/unit/typography-guard.test.js`——① 禁止 `text-<palette>-<n>` 文本色（当前 0）；② 裸 `text-[Npx]` 只允许 12 个 grandfathered 文件（ratchet 只减不增，含合法微观场景：深色底 tooltip、14px 圆内 `text-[7px]` 计数、响应式双尺寸）；③ 防陈旧。
+- **文档**：新增 `docs/TYPOGRAPHY.md`；`AGENTS.md` 关键约定 + 文档索引固化（未来新功能挂 `.t-*` 即自动匹配）。
+
+**验收全绿**：build ✓；vitest **845 passed**（新增 3 守门）；acceptance **22/22**；full-e2e **21/21**；三问题区域 E2E 截图逐一视觉确认（06 SideEditor、09 编辑分组+字码区间、13 工具栏）。**尚未 commit / 未发版**——下个 session 可按需走发版流程（注意 AGENTS.md 里 "169 tests" 已过期，实际 845）。
+
 ## 2026-07-05 Session 摘要（已随 v1.15.0 发布）
 
 **打包版 CLI 完全不可用（P0，比上次"缺 CLI 产物"更深一层）**：v1.14.0 发布后用户点"安装 CLI 到 PATH"报 `Cannot find module 'commander'`。根因：tsup 默认把 package.json `dependencies` 全部 externalize，`out/cli/index.cjs` 顶层 `require("commander")` 等留在 bundle 里；dev 下 node 向上解析命中项目 node_modules，打包后 CLI 在 `app.asar.unpacked` 由系统 Node 运行，依赖在 asar 内普通 Node 读不到 → 启动即崩（不止安装按钮，终端 `bobcorn` 同样崩）。修复：`tsup.config.ts` 加 `noExternal: [/.*/]` 全量打包（11.69 MB，sql-asm.js 占大头；ttf2woff2 走 JS fallback 可打包），干净目录实证 `--version`/`export font` 全格式通过。附带修：`runCli`（main）与 install wrapper 补 `ELECTRON_RUN_AS_NODE=1`，覆盖无系统 Node 时 fallback 到 Electron 本体的场景。

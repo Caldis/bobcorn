@@ -336,11 +336,11 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
           />
         ) : null}
         <div>
-          <div className="font-semibold text-foreground">
+          <div className="t-title">
             {isBatch ? t('iconExport.titleBatch', { count: icons.length }) : firstIcon?.iconName}
           </div>
           {!isBatch && firstIcon && (
-            <div className="text-xs text-foreground-muted mt-1">
+            <div className="t-caption mt-1">
               SVG &middot; {viewBox.w} &times; {viewBox.h}
             </div>
           )}
@@ -349,9 +349,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
 
       {/* Presets */}
       <div className="mb-3">
-        <div className="text-[11px] uppercase tracking-wider text-foreground-muted mb-1.5">
-          {t('iconExport.presets')}
-        </div>
+        <div className="t-section mb-1.5">{t('iconExport.presets')}</div>
         <div className="flex gap-1.5 flex-wrap">
           {PRESETS.map((p) => (
             <button
@@ -372,9 +370,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
 
       {/* Export Rows */}
       <div className="mb-3">
-        <div className="text-[11px] uppercase tracking-wider text-foreground-muted mb-1.5">
-          {t('iconExport.exportSettings')}
-        </div>
+        <div className="t-section mb-1.5">{t('iconExport.exportSettings')}</div>
         <div className="flex flex-col gap-1.5">
           {rows.map((row) => (
             <ExportRow
@@ -403,12 +399,10 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
       {/* Format Settings -- conditional */}
       {hasJpgOrWebp && (
         <div className="mb-3 p-3 rounded-lg border border-border/50 bg-surface-muted/20">
-          <div className="text-[11px] uppercase tracking-wider text-foreground-muted mb-2">
-            {t('iconExport.formatSettings')}
-          </div>
+          <div className="t-section mb-2">{t('iconExport.formatSettings')}</div>
           {rows.some((r) => r.format === 'jpg') && (
             <div className="flex items-center gap-3 mb-2 text-sm text-foreground-muted">
-              <span className="w-28 shrink-0">{t('iconExport.jpgBackground')}</span>
+              <span className="w-28 shrink-0 t-label">{t('iconExport.jpgBackground')}</span>
               <input
                 type="color"
                 value={bgColor}
@@ -419,7 +413,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
             </div>
           )}
           <div className="flex items-center gap-3 text-sm text-foreground-muted">
-            <span className="w-28 shrink-0">{t('iconExport.quality')}</span>
+            <span className="w-28 shrink-0 t-label">{t('iconExport.quality')}</span>
             <Slider
               defaultValue={quality}
               min={10}
@@ -435,18 +429,16 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
 
       {/* ICO Merge -- conditional */}
       {showIcoMerge && (
-        <div className="mb-3 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5">
+        <div className="mb-3 p-3 rounded-lg border border-warning/30 bg-warning-subtle">
           <Checkbox checked={icoMerge} onChange={setIcoMerge}>
-            <span className="text-sm text-amber-600 dark:text-amber-400">
-              {t('iconExport.icoMerge')}
-            </span>
+            <span className="text-sm text-warning">{t('iconExport.icoMerge')}</span>
           </Checkbox>
         </div>
       )}
 
       {/* Progress -- during export */}
       {exporting && (
-        <div className="mb-3 text-sm text-foreground-muted">
+        <div className="mb-3 t-help">
           {t('iconExport.exporting', { current: progress.current, total: progress.total })}
           <div className="mt-1 h-1.5 bg-surface-accent rounded-full overflow-hidden">
             <div
@@ -459,7 +451,7 @@ export function IconExportDialog({ visible, onClose, icons }: IconExportDialogPr
 
       {/* Footer info */}
       {!exporting && (
-        <div className="text-xs text-foreground-muted pt-2 border-t border-border">
+        <div className="t-help pt-2 border-t border-border">
           {isBatch
             ? t('iconExport.fileSummaryBatch', {
                 icons: icons.length,

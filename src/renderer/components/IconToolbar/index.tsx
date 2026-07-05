@@ -109,8 +109,8 @@ function IconToolbar({
       >
         {/* 小节：显示 */}
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs text-foreground-muted/70">{t('toolbar.sectionDisplay')}</span>
-          <label className="flex items-center gap-1.5 text-xs text-foreground">
+          <span className="t-caption">{t('toolbar.sectionDisplay')}</span>
+          <label className="flex items-center gap-1.5 t-label">
             <span>{t('toolbar.iconName')}</span>
             <Switch
               size="small"
@@ -122,7 +122,7 @@ function IconToolbar({
               }}
             />
           </label>
-          <label className="flex items-center gap-1.5 text-xs text-foreground">
+          <label className="flex items-center gap-1.5 t-label">
             <span>{t('toolbar.iconCode')}</span>
             <Switch
               size="small"
@@ -140,7 +140,7 @@ function IconToolbar({
 
         {/* 小节：排序 */}
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-foreground-muted/70">{t('toolbar.sectionSort')}</span>
+          <span className="t-caption">{t('toolbar.sectionSort')}</span>
           <RadioGroup direction="row" value={iconSortField} onChange={handleSortFieldChange}>
             <RadioButton value="createTime">{t('toolbar.sortByCreateTime')}</RadioButton>
             <RadioButton value="updateTime">{t('toolbar.sortByUpdateTime')}</RadioButton>
@@ -161,8 +161,8 @@ function IconToolbar({
 
         {/* 小节：筛选 */}
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs text-foreground-muted/70">{t('toolbar.sectionFilter')}</span>
-          <label className="flex items-center gap-1.5 text-xs text-foreground">
+          <span className="t-caption">{t('toolbar.sectionFilter')}</span>
+          <label className="flex items-center gap-1.5 t-label">
             <span>{t('toolbar.filterOutOfRange')}</span>
             <Switch
               size="small"
@@ -292,7 +292,7 @@ function IconToolbar({
                 'w-48 h-8 pl-7 pr-3 py-1',
                 'rounded-md border border-border',
                 'bg-surface-muted/50',
-                'text-xs text-foreground placeholder:text-foreground-muted/50',
+                'text-xs text-foreground placeholder:text-foreground-subtle',
                 'outline-none',
                 'transition-all duration-200',
                 'focus:border-accent focus:ring-2 focus:ring-ring/30'

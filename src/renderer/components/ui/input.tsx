@@ -61,8 +61,8 @@ export const Input = forwardRef<InputRef, InputProps>(function Input(
       className={cn(
         'w-full h-8 px-3 py-1',
         'rounded-md border border-border',
-        'bg-surface text-sm text-foreground',
-        'placeholder:text-foreground-muted/50',
+        'bg-surface t-body',
+        'placeholder:text-foreground-subtle',
         'outline-none',
         'transition-colors duration-200',
         'focus:border-accent focus:ring-2 focus:ring-ring/30',

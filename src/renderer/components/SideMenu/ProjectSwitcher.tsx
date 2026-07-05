@@ -93,7 +93,7 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
         data-testid="project-switcher-btn"
         className={cn(
           'inline-flex items-center gap-1.5 px-1.5 py-1 rounded-md min-w-0 max-w-full',
-          'text-[13px] font-medium text-foreground-muted',
+          't-label text-foreground-muted',
           'transition-colors duration-100',
           'hover:bg-surface-accent hover:text-foreground',
           open && 'bg-surface-accent text-foreground'
@@ -131,15 +131,10 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
               <div className="flex items-center gap-2.5">
                 <ProjectAvatar name={displayName} size={28} color={projectColor} />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13px] font-semibold text-foreground truncate">
-                    {displayName}
-                  </div>
+                  <div className="t-label truncate">{displayName}</div>
                   {currentFilePath && (
                     <div className="flex items-center gap-1 min-w-0">
-                      <span
-                        className="text-[11px] text-foreground-muted truncate"
-                        title={currentFilePath}
-                      >
+                      <span className="t-help truncate" title={currentFilePath}>
                         {currentFilePath}
                       </span>
                       <button
@@ -161,9 +156,7 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
                 </div>
               </div>
               {projectDescription && (
-                <div className="mt-1.5 ml-[38px] text-[11px] text-foreground-muted/60 leading-relaxed line-clamp-2">
-                  {projectDescription}
-                </div>
+                <div className="mt-1.5 ml-[38px] t-help line-clamp-2">{projectDescription}</div>
               )}
             </div>
 
@@ -176,7 +169,7 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
                 className={cn(
                   'w-full text-left px-2 py-1.5 rounded-md',
                   'flex items-center gap-2.5',
-                  'text-[13px] text-foreground-muted',
+                  't-label text-foreground-muted',
                   'transition-colors duration-75',
                   'hover:bg-surface-accent hover:text-foreground',
                   'group'
@@ -194,9 +187,7 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
 
             {/* ── Recent projects ─────────────────────── */}
             <div className="py-1 px-1">
-              <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground-muted/50">
-                {t('project.recent')}
-              </div>
+              <div className="px-2 py-1 t-section">{t('project.recent')}</div>
 
               {recentProjects.length > 0 ? (
                 <div className="max-h-[240px] overflow-y-auto">
@@ -212,9 +203,7 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
                   ))}
                 </div>
               ) : (
-                <div className="py-4 text-center text-[11px] text-foreground-muted/40">
-                  {t('project.noRecent')}
-                </div>
+                <div className="py-4 text-center t-help">{t('project.noRecent')}</div>
               )}
             </div>
           </div>,

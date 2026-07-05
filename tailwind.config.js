@@ -64,8 +64,20 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['"Inter"', '"SF Pro Display"', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        mono: ['"Cascadia Code"', '"Consolas"', '"SF Mono"', '"Menlo"', 'monospace'],
+        // Inter is bundled locally (see entry.ts). It carries Latin only —
+        // CJK deliberately falls through to the platform system font.
+        sans: [
+          '"Inter"',
+          'system-ui',
+          '-apple-system',
+          '"Segoe UI"',
+          '"PingFang SC"',
+          '"Microsoft YaHei"',
+          '"Noto Sans SC"',
+          'sans-serif',
+        ],
+        // Cascadia Code is bundled locally (Latin only). Used only for hex/codes/paths/shortcuts.
+        mono: ['"Cascadia Code"', '"JetBrains Mono"', '"Consolas"', '"SF Mono"', '"Menlo"', 'monospace'],
       },
     },
   },

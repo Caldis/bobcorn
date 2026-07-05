@@ -126,10 +126,10 @@ export default function ConsentDialog() {
               <path d="M8 17v-3" />
             </svg>
           </div>
-          <h3 className="text-[13px] font-semibold text-foreground">{t('consent.title')}</h3>
+          <h3 className="t-label">{t('consent.title')}</h3>
         </div>
 
-        <p className="text-xs text-foreground-muted leading-relaxed mb-3">{t('consent.body')}</p>
+        <p className="t-caption leading-relaxed mb-3">{t('consent.body')}</p>
 
         {/* Opt-in checkbox */}
         <label
@@ -154,7 +154,7 @@ export default function ConsentDialog() {
 
         {/* Footer */}
         <div className="flex items-end justify-between gap-2">
-          <p className="text-[10px] text-foreground-muted/50 leading-relaxed">
+          <p className="t-help text-foreground-subtle">
             {t('consent.settingsHint')}{' '}
             <a
               href="#"

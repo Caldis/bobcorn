@@ -719,13 +719,11 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         {/* 配置阶段 */}
         {exportPhase === 'config' && (
           <div className="py-2">
-            <p className="text-sm text-foreground-muted leading-relaxed mb-4">
-              {t('export.description')}
-            </p>
+            <p className="t-help mb-4">{t('export.description')}</p>
 
             {/* 分组选择 — 小标题 + 滚动区,无折叠;数量描述置于全选行 */}
             <div>
-              <div className="text-xs text-foreground-muted mb-1.5">{t('export.groups')}</div>
+              <div className="t-section mb-1.5">{t('export.groups')}</div>
               <div className="rounded-lg border border-border max-h-[200px] overflow-y-auto">
                 <div className="px-3 py-2">
                   <div className="flex items-center justify-between gap-2 border-b border-border pb-1.5 mb-1.5">
@@ -736,7 +734,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     >
                       {t('export.selectAll')}
                     </Checkbox>
-                    <span className="text-xs text-foreground-muted shrink-0">
+                    <span className="t-caption shrink-0">
                       {exportGroupCheckAll
                         ? t('export.groupsAll', {
                             groups: exportTotalGroups,
@@ -796,9 +794,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             {/* 必选格式 */}
             {/* 必选字体格式 */}
             <div className="mt-3">
-              <div className="text-xs text-foreground-muted mb-1.5">
-                {t('export.requiredFormats')}
-              </div>
+              <div className="t-section mb-1.5">{t('export.requiredFormats')}</div>
               <div className="flex flex-wrap gap-1.5">
                 {(['svg', 'ttf', 'woff2'] as const).map((key) => (
                   <span
@@ -820,9 +816,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
             {/* 可选字体格式 */}
             <div className="mt-3">
-              <div className="text-xs text-foreground-muted mb-1.5">
-                {t('export.optionalFormats')}
-              </div>
+              <div className="t-section mb-1.5">{t('export.optionalFormats')}</div>
               <div className="flex flex-wrap gap-x-4 gap-y-1">
                 {(
                   [
@@ -859,9 +853,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
             {/* 伴随文件 */}
             <div className="mt-4 pt-3 border-t border-border">
-              <div className="text-xs text-foreground-muted mb-1.5">
-                {t('export.companionFiles')}
-              </div>
+              <div className="t-section mb-1.5">{t('export.companionFiles')}</div>
               <div className="flex flex-col gap-2">
                 {(
                   [
@@ -899,12 +891,12 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                       />
                       <span className="text-foreground">{t(labelKey)}</span>
                       {recommended && (
-                        <span className="px-1.5 py-px rounded text-[10px] font-medium bg-accent-subtle text-accent">
+                        <span className="t-pill px-1.5 py-px rounded bg-accent-subtle text-accent">
                           {t('export.recommended')}
                         </span>
                       )}
                     </label>
-                    <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t(descKey)}</p>
+                    <p className="t-help mt-0.5 ml-5">{t(descKey)}</p>
                   </div>
                 ))}
                 {/* HTML 演示页面 + 预览入口 */}
@@ -920,7 +912,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                         className="rounded border-border"
                       />
                       <span className="text-foreground">{t('export.includeDemo')}</span>
-                      <span className="px-1.5 py-px rounded text-[10px] font-medium bg-accent-subtle text-accent">
+                      <span className="t-pill px-1.5 py-px rounded bg-accent-subtle text-accent">
                         {t('export.recommended')}
                       </span>
                     </label>
@@ -946,9 +938,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                       </button>
                     )}
                   </div>
-                  <p className="text-xs text-foreground-muted mt-0.5 ml-5">
-                    {t('export.includeDemoDesc')}
-                  </p>
+                  <p className="t-help mt-0.5 ml-5">{t('export.includeDemoDesc')}</p>
                 </div>
               </div>
             </div>
@@ -966,9 +956,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                 />
                 <span className="text-foreground">{t('export.includeIcp')}</span>
               </label>
-              <p className="text-xs text-foreground-muted mt-0.5 ml-5">
-                {t('export.includeIcpDesc')}
-              </p>
+              <p className="t-help mt-0.5 ml-5">{t('export.includeIcpDesc')}</p>
               <div className="flex items-center gap-2 p-2 rounded-md bg-info-subtle text-info text-[11px] leading-relaxed mt-1.5 ml-5">
                 <span className="shrink-0">ℹ</span>
                 <span>{t('export.icpMigrationHint')}</span>
@@ -977,7 +965,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
             {/* 导出位置 — 可编辑完整路径 + [选择] 按钮高度对齐;ZIP 复选框置于下方 */}
             <div className="mt-4 pt-3 border-t border-border">
-              <div className="text-xs text-foreground-muted mb-1.5">{t('export.location')}</div>
+              <div className="t-section mb-1.5">{t('export.location')}</div>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
@@ -989,7 +977,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                   spellCheck={false}
                   className="flex-1 min-w-0 h-8 px-2.5 rounded border border-border bg-surface-muted text-xs text-foreground font-mono outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-ring/30"
                 />
-                <Button onClick={handleBrowseDir} className="shrink-0 text-xs h-8">
+                <Button onClick={handleBrowseDir} className="shrink-0 h-8">
                   {t('export.browse')}
                 </Button>
               </div>
@@ -1004,7 +992,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                   />
                   <span className="text-foreground">{t('export.zip')}</span>
                 </label>
-                <p className="text-xs text-foreground-muted mt-0.5 ml-5">{t('export.zipDesc')}</p>
+                <p className="t-help mt-0.5 ml-5">{t('export.zipDesc')}</p>
               </div>
             </div>
           </div>
@@ -1023,7 +1011,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     : 'active'
               }
             />
-            <div className="mt-3 rounded-lg border border-border bg-surface-muted p-3 font-mono text-xs leading-relaxed text-foreground-muted max-h-[180px] overflow-y-auto">
+            <div className="mt-3 rounded-lg border border-border bg-surface-muted p-3 t-caption leading-relaxed max-h-[180px] overflow-y-auto">
               {exportLogs.map((log, i) => (
                 <div
                   key={i}
@@ -1082,9 +1070,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                     {t('export.openDir')}
                   </button>
                 </div>
-                {selectedFormats.icp && (
-                  <p className="text-xs text-foreground-muted">{t('export.icpEditHint')}</p>
-                )}
+                {selectedFormats.icp && <p className="t-help">{t('export.icpEditHint')}</p>}
               </div>
             )}
           </div>
@@ -1113,7 +1099,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         }
       >
         {conflictPending && (
-          <p className="text-sm text-foreground">
+          <p className="t-body">
             {t('export.conflict.content', {
               name: conflictPending.baseName + (conflictPending.isZip ? '.zip' : ''),
             })}
@@ -1136,7 +1122,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
           <div className="max-h-[50vh] overflow-y-auto space-y-3 text-sm pr-1">
             {codeAudit.duplicateGroups.length > 0 && (
               <div>
-                <p className="text-xs text-foreground-muted mb-1.5">
+                <p className="t-section mb-1.5">
                   {t('export.codeAuditDupSection', { num: codeAudit.duplicateGroups.length })}
                 </p>
                 <div className="space-y-1.5">
@@ -1154,7 +1140,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                             <span className="truncate text-foreground-muted">{icon.iconName}</span>
                             <span
                               className={cn(
-                                'shrink-0 text-[10px] px-1.5 py-px rounded-full',
+                                't-pill shrink-0 px-1.5 py-px rounded-full',
                                 i === 0 ? 'bg-accent/10 text-accent' : 'bg-danger/10 text-danger'
                               )}
                             >
@@ -1170,7 +1156,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
             )}
             {codeAudit.invalidIcons.length > 0 && (
               <div>
-                <p className="text-xs text-foreground-muted mb-1.5">
+                <p className="t-section mb-1.5">
                   {t('export.codeAuditInvalidSection', { num: codeAudit.invalidIcons.length })}
                 </p>
                 <div className="space-y-0.5 rounded-md border border-border px-2.5 py-1.5">
@@ -1183,7 +1169,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                 </div>
               </div>
             )}
-            <p className="text-[11px] text-foreground-muted">{t('export.codeAuditFixHint')}</p>
+            <p className="t-help">{t('export.codeAuditFixHint')}</p>
           </div>
         )}
       </Dialog>
@@ -1235,9 +1221,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                   <span className="text-sm font-medium text-foreground">
                     {t('export.previewDemoPage')}
                   </span>
-                  <span className="text-[11px] text-foreground-muted">
-                    {t('export.previewHint')}
-                  </span>
+                  <span className="t-help">{t('export.previewHint')}</span>
                 </div>
                 <button
                   type="button"
@@ -1267,7 +1251,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                   title={t('export.previewDemoPage')}
                 />
               ) : (
-                <div className="flex-1 flex items-center justify-center text-sm text-foreground-muted">
+                <div className="flex-1 flex items-center justify-center t-note">
                   {t('export.previewLoading')}
                 </div>
               )}
@@ -1317,9 +1301,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                   </svg>
                 </button>
               </div>
-              <p className="text-[11px] leading-relaxed text-foreground-muted mt-1">
-                {t(FORMAT_INFO[hoveredFormat].summaryKey)}
-              </p>
+              <p className="t-help mt-1">{t(FORMAT_INFO[hoveredFormat].summaryKey)}</p>
             </div>
           </div>,
           document.body

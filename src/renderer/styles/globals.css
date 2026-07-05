@@ -76,6 +76,70 @@
   body {
     @apply bg-surface text-foreground font-sans;
   }
+  /* Form controls inherit the app font — never a UA serif/mono default. */
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+  }
+}
+
+/* ── Typography scale ──────────────────────────────────────────────────
+   Single source of truth for text. Put exactly ONE `.t-*` class on a text
+   node; it carries size + weight + color together. Do NOT hand-pick
+   text-[Npx] / font-weight / text-foreground-* ad hoc — that is what caused
+   the app-wide drift. New features only need the right `.t-*` to match.
+
+   Muted text uses only two tiers:
+     text-foreground-muted   → secondary
+     text-foreground-subtle  → faint (hints, placeholders, legends)
+   ---------------------------------------------------------------------- */
+@layer components {
+  /* Dialog & panel titles */
+  .t-title {
+    @apply text-[18px] font-semibold leading-snug text-foreground;
+  }
+  /* Section / group headers (uppercase eyebrow) */
+  .t-section {
+    @apply text-xs font-semibold uppercase tracking-wider text-foreground-muted;
+  }
+  /* Form & control labels (13 / 500 / foreground) */
+  .t-label {
+    @apply text-[13px] font-medium leading-tight text-foreground;
+  }
+  /* Primary body text & input values */
+  .t-body {
+    @apply text-sm text-foreground;
+  }
+  /* Body-size secondary text (empty states, secondary paragraphs) */
+  .t-note {
+    @apply text-sm text-foreground-muted;
+  }
+  /* Emphasized inline value (e.g. metadata value in a key/value row) */
+  .t-value {
+    @apply text-xs font-medium text-foreground;
+  }
+  /* Metadata keys & secondary captions */
+  .t-caption {
+    @apply text-xs text-foreground-muted;
+  }
+  /* Help / description / fine print */
+  .t-help {
+    @apply text-[11px] leading-relaxed text-foreground-muted;
+  }
+  /* Badges / pills / tiny tags */
+  .t-pill {
+    @apply text-[10px] font-medium leading-none;
+  }
+}
+
+/* Mono guard: a mono input's placeholder is often a localized (CJK) string.
+   It must NOT inherit the monospace family, or the glyphs fall back to an ugly
+   system mono. The typed value stays mono; the placeholder returns to sans. */
+input.font-mono::placeholder,
+textarea.font-mono::placeholder {
+  font-family: theme('fontFamily.sans');
 }
 
 /* Scrollbar — uses foreground token for automatic theme adaptation */

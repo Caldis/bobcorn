@@ -95,7 +95,7 @@ function SplashScreen() {
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2v11Z" />
             <line x1="9" y1="14" x2="15" y2="14" />
           </svg>
-          <span className="text-sm">{t('splash.noHistory')}</span>
+          <span className="t-note">{t('splash.noHistory')}</span>
         </div>
       );
     }
@@ -113,7 +113,7 @@ function SplashScreen() {
             draggable={false}
           />
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Bobcorn</h1>
-          <p className="mt-1 text-sm text-foreground-muted">{t('splash.welcome')}</p>
+          <p className="mt-1 t-note">{t('splash.welcome')}</p>
         </div>
 
         {/* ── Action Cards ─────────────────────────── */}
@@ -214,14 +214,12 @@ function SplashScreen() {
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span className="text-xs font-medium uppercase tracking-wider text-foreground-muted/60">
-              {t('splash.history')}
-            </span>
+            <span className="t-section">{t('splash.history')}</span>
             {histProj.length > 0 && (
               <button
                 onClick={clearAllHist}
                 className={cn(
-                  'ml-auto text-xs text-foreground-muted/50',
+                  'ml-auto t-caption',
                   'hover:text-danger transition-colors duration-150',
                   'focus:outline-none'
                 )}

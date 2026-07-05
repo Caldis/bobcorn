@@ -115,7 +115,7 @@ function CodeCoverageMatrix() {
 
   return (
     <div className="flex items-start gap-2">
-      <span className="relative flex items-center gap-1 text-foreground-muted/50 shrink-0 min-w-[4rem] text-[12px] pt-0.5">
+      <span className="relative flex items-center gap-1 t-caption shrink-0 min-w-[4rem] pt-0.5">
         {t('projectSettings.coverage')}
         <HelpCircle
           size={12}
@@ -137,7 +137,7 @@ function CodeCoverageMatrix() {
       </span>
       <div className="flex-1 min-w-0 space-y-1.5">
         {/* Summary */}
-        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-foreground-muted">
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 t-caption">
           <span>
             {t('projectSettings.coverageUsed', {
               used: summary.usedCount,
@@ -169,7 +169,7 @@ function CodeCoverageMatrix() {
         />
 
         {/* Legend */}
-        <div className="flex items-center justify-between gap-2 text-[10px] text-foreground-muted/60">
+        <div className="flex items-center justify-between gap-2 t-pill text-foreground-subtle">
           <div className="flex items-center gap-2.5">
             <LegendSwatch
               cls="h-2.5 w-2.5 rounded-[2px] bg-surface-inset border border-border/60"
@@ -240,7 +240,7 @@ function CodeCoverageMatrix() {
       >
         {fixPlan && (
           <div className="space-y-2">
-            <p className="text-xs text-foreground-muted">
+            <p className="t-help">
               {t('projectSettings.coverageFixSummary', {
                 total: fixPlan.length,
                 dup: fixPlan.filter((f) => f.reason === 'duplicate').length,
@@ -255,7 +255,7 @@ function CodeCoverageMatrix() {
                   </span>
                   <span
                     className={cn(
-                      'shrink-0 text-[10px] px-1.5 py-px rounded-full',
+                      't-pill shrink-0 px-1.5 py-px rounded-full',
                       fix.reason === 'duplicate'
                         ? 'bg-danger/10 text-danger'
                         : 'bg-warning/10 text-warning'

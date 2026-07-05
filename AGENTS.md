@@ -76,6 +76,7 @@ bobcorn/
 | `docs/FEATURE_WORKFLOW.md` | 新功能开发 7 步流程 |
 | `docs/TESTING.md` | Vitest 单元测试 + Playwright E2E 指南 |
 | `docs/CONVENTIONS.md` | 代码规范 (hooks only、CSS modules、sanitizeSVG、IPC 模式) |
+| `docs/TYPOGRAPHY.md` | 排版规范 (`.t-*` 语义类、字体资源、颜色 token、守门测试) |
 | `docs/TROUBLESHOOTING.md` | 常见问题速查 |
 | `docs/RELEASE.md` | 发版流程 (每阶段或每 10 commit 发一次) |
 | `docs/SPARKLE.md` | 自动更新维护指南 (架构、发版、调试、Troubleshooting) |
@@ -147,4 +148,5 @@ CI 失败时：查看日志 → 修复 → 删 tag 重打 → 重新 push。
 - electron-vite CJS renderer: 自定义 `electronCjsHtmlPlugin` 处理 HTML
 - 不要手动编辑 `out/` 目录 — 它们是构建产物
 - **i18n 必须遵守**: 所有用户可见字符串必须使用 `t()` 函数（`react-i18next`），不允许硬编码中文或英文。新增功能时必须同时在 `src/locales/zh-CN.json` 和 `src/locales/en.json` 中添加翻译 key。详见 `docs/CONVENTIONS.md` 的 i18n 章节。
+- **排版规范必须遵守**: 所有面向用户的文本用 `.t-*` 语义排版类（`.t-title/.t-section/.t-label/.t-body/.t-note/.t-value/.t-caption/.t-help/.t-pill`，定义在 `src/renderer/styles/globals.css`），一个文本节点挂一个类即带齐字号+字重+颜色；**不允许**散写 `text-[Npx]`/`font-medium`/`text-foreground-*` 手搓排版。颜色只用语义 token（`text-foreground/-muted/-subtle`、`text-danger/warning/success/info/accent`），**禁止硬编码调色板**（`text-amber-*` 等）；`font-mono` 只包 hex/数字/ASCII/路径/快捷键，绝不包中文。字体经 `@fontsource` 本地打包（entry.ts），不引 CDN。守门测试 `test/unit/typography-guard.test.js` 拦截违规。详见 `docs/TYPOGRAPHY.md`。
 - **CLI-first 开发**: 任何新增用户操作必须先在 `src/core/operations/` 实现 + 在 `src/core/registry.ts` 登记 + 暴露 `src/cli/index.ts` CLI 命令，最后 GUI 才通过 store 薄封装调用 (调用 core → 更新 UI state)；组件不允许直接导入 `database/`，也不允许往 `src/renderer/database/index.ts` 新增方法。守门测试 `test/unit/core-parity-guard.test.js`（冻结 renderer database 方法面 + registry↔CLI 覆盖）与 `test/unit/core-boundary-guard.test.js` 会拦截违规，CI 变红。详见 `docs/MIGRATION.md` 与 `docs/CLI.md`。

@@ -127,9 +127,7 @@ export function GroupPickerDialog({
       ]}
     >
       <div className="max-h-[60vh] overflow-y-auto -mx-2 px-2">
-        {mode === 'copy' && (
-          <p className="mb-2 text-xs text-foreground-muted">{t('editor.duplicateHint')}</p>
-        )}
+        {mode === 'copy' && <p className="mb-2 t-help">{t('editor.duplicateHint')}</p>}
         {warning}
         <RadioGroup onChange={(e) => setTarget(e.target.value)} value={target}>
           {showUngrouped && (
@@ -161,9 +159,9 @@ export function GroupPickerDialog({
         {showReassignRow && (
           <div
             data-testid="group-picker-reassign"
-            className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-2"
+            className="mt-3 rounded-md border border-warning/30 bg-warning-subtle px-2.5 py-2"
           >
-            <p className="mb-1.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+            <p className="mb-1.5 text-xs font-medium text-warning">
               {t('groupPicker.outOfRange', { count: outOfRangeCount })}
             </p>
             <RadioGroup

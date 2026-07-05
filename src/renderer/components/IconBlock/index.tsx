@@ -209,7 +209,7 @@ const IconBlock = React.memo(function IconBlock({
         <p
           className={cn(
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
-            'text-xs font-semibold antialiased',
+            'text-xs font-medium antialiased',
             'mb-1',
             'text-foreground'
           )}
@@ -220,13 +220,13 @@ const IconBlock = React.memo(function IconBlock({
         <p
           className={cn(
             'w-full block overflow-hidden whitespace-nowrap text-ellipsis',
-            'text-[10px] font-semibold tracking-widest',
+            't-pill tracking-widest',
             'mb-1',
             isDuplicateCode
               ? 'text-warning'
               : isOutOfRange
-                ? 'text-amber-600 dark:text-amber-400'
-                : 'text-foreground-muted/60'
+                ? 'text-warning'
+                : 'text-foreground-subtle'
           )}
           style={{ height: codeVisible ? 18 : 0, overflow: 'hidden' }}
           title={isOutOfRange ? t('editor.codeOutOfGroupRange') : undefined}
@@ -239,7 +239,7 @@ const IconBlock = React.memo(function IconBlock({
           )}
           {!isDuplicateCode && isOutOfRange && (
             <span
-              className="inline-block align-middle mr-1 h-[5px] w-[5px] rounded-[1px] bg-amber-500 ring-1 ring-surface"
+              className="inline-block align-middle mr-1 h-[5px] w-[5px] rounded-[1px] bg-warning ring-1 ring-surface"
               aria-hidden
             />
           )}

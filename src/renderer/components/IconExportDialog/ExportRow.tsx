@@ -142,7 +142,7 @@ export function ExportRow({ row, iconName, viewBoxSize, onChange, onDelete }: Ex
           }}
           disabled={isVector}
           className={cn(
-            'w-14 px-2 py-1 text-center text-sm bg-transparent text-foreground outline-none',
+            'w-14 px-2 py-1 text-center text-sm tabular-nums bg-transparent text-foreground outline-none',
             '[appearance:textfield]',
             isVector && 'cursor-not-allowed'
           )}
@@ -176,9 +176,7 @@ export function ExportRow({ row, iconName, viewBoxSize, onChange, onDelete }: Ex
         const suffix = filename.slice(iconName.length);
         return (
           <span className="flex-1 min-w-0 relative group flex items-center">
-            <span className="text-xs text-foreground-muted font-mono truncate min-w-0">
-              {iconName}
-            </span>
+            <span className="text-xs text-foreground-muted truncate min-w-0">{iconName}</span>
             <span className="text-xs text-foreground-muted font-mono shrink-0 whitespace-nowrap">
               {suffix}
             </span>

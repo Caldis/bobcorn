@@ -76,7 +76,7 @@ function GroupIconPicker({
   }, [onSelect]);
 
   if (icons.length === 0) {
-    return <div className="text-xs text-foreground-muted/50 py-2">{t('group.iconEmpty')}</div>;
+    return <div className="t-caption py-2">{t('group.iconEmpty')}</div>;
   }
 
   return (
@@ -209,8 +209,8 @@ function GroupCodeRangeSection({
         data-testid="group-range-toggle"
         onClick={() => setUserOpen((o) => !o)}
         className={cn(
-          'flex w-full items-center gap-1.5 text-xs font-medium',
-          'text-foreground-muted hover:text-foreground transition-colors'
+          'flex w-full items-center gap-1.5 t-label',
+          'hover:text-foreground transition-colors'
         )}
       >
         <ChevronRight
@@ -223,16 +223,14 @@ function GroupCodeRangeSection({
             {decToHex4(value.start)}–{decToHex4(value.end)}
           </span>
         ) : (
-          <span className="ml-auto text-[11px] text-foreground-muted/50">
+          <span className="ml-auto text-[11px] text-foreground-subtle">
             {t('group.codeRangeUnset')}
           </span>
         )}
       </button>
       {open && (
         <div className="mt-2 rounded-lg border border-border bg-surface-muted/20 p-2.5">
-          <p className="mb-2 text-[11px] leading-relaxed text-foreground-muted/80">
-            {t('group.codeRangeDesc')}
-          </p>
+          <p className="mb-2 t-help">{t('group.codeRangeDesc')}</p>
           <CodeMatrix
             mode="range-select"
             usedCodes={usedCodes}
@@ -479,11 +477,9 @@ function GroupDialogs({
             inputHintBadgeType="error"
           />
           <div>
-            <label className="block text-xs text-foreground-muted mb-1">
-              {t('group.descriptionOptional')}
-            </label>
+            <label className="block t-label mb-1">{t('group.descriptionOptional')}</label>
             <textarea
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted/50 focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30 resize-none"
+              className="w-full rounded-md border border-border bg-surface px-3 py-2 t-body placeholder:text-foreground-muted/50 focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30 resize-none"
               placeholder={t('group.descriptionPlaceholder')}
               value={newGroupDesc}
               onChange={(e) => setNewGroupDesc(e.target.value)}
@@ -525,11 +521,9 @@ function GroupDialogs({
             inputHintBadgeType="error"
           />
           <div>
-            <label className="block text-xs text-foreground-muted mb-1">
-              {t('group.descriptionOptional')}
-            </label>
+            <label className="block t-label mb-1">{t('group.descriptionOptional')}</label>
             <textarea
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted/50 focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30 resize-none"
+              className="w-full rounded-md border border-border bg-surface px-3 py-2 t-body placeholder:text-foreground-muted/50 focus:border-accent focus:outline-none focus:ring-1 focus:ring-ring/30 resize-none"
               placeholder={t('group.descriptionPlaceholder')}
               value={renameDesc}
               onChange={(e) => setRenameDesc(e.target.value)}
@@ -538,7 +532,7 @@ function GroupDialogs({
             />
           </div>
           <div>
-            <label className="block text-xs text-foreground-muted mb-1">{t('group.icon')}</label>
+            <label className="block t-label mb-1">{t('group.icon')}</label>
             <GroupIconPicker
               groupId={renameGroupData?.id || ''}
               selectedIconId={renameIcon}

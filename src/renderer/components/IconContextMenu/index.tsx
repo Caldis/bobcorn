@@ -134,7 +134,7 @@ const IconContextMenu: React.FC<IconContextMenuProps> = ({ open, x, y, items, on
             }}
             className={cn(
               'flex w-full items-center gap-2.5 px-3 py-1.5 text-left',
-              'text-[13px] transition-colors duration-75',
+              't-label transition-colors duration-75',
               'disabled:opacity-40 disabled:cursor-not-allowed',
               item.danger
                 ? 'text-danger hover:bg-danger/10'

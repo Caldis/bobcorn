@@ -45,7 +45,7 @@ function EnhanceInput({
 
   return (
     <div>
-      <p className="mb-1.5 text-sm text-foreground">{inputTitle}</p>
+      <p className="mb-1.5 t-label">{inputTitle}</p>
       <div className="relative">
         <Input ref={inputRef} {...inputProps} />
         {inputSave && (

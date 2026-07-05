@@ -231,12 +231,8 @@ const FileMenuBar = React.memo(function FileMenuBar({
                       {item.icon}
                     </span>
                     <span className="flex-1 min-w-0">
-                      <span className="block text-[13px] font-medium text-foreground leading-tight">
-                        {item.label}
-                      </span>
-                      <span className="block text-[11px] text-foreground-muted leading-tight mt-0.5">
-                        {item.description}
-                      </span>
+                      <span className="block t-label">{item.label}</span>
+                      <span className="block t-help mt-0.5">{item.description}</span>
                     </span>
                     {item.shortcut && (
                       <span className="shrink-0 mt-0.5 text-[11px] text-foreground-muted/50 font-mono tabular-nums">
