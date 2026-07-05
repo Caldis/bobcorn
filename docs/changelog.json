@@ -1,5 +1,29 @@
 [
   {
+    "version": "1.15.0",
+    "date": "2026-07-05",
+    "summary": {
+      "zh": "修复安装包内 CLI 无法运行的问题；更新提示浮窗限高可滚动、点击可放大查看，跨版本更新时聚合展示沿途所有版本的更新内容",
+      "en": "Fixes the bundled CLI failing to run in packaged builds; the update popup is now height-capped and scrollable with click-to-zoom, and aggregates release notes across all skipped versions"
+    },
+    "changes": {
+      "zh": [
+        "修复：安装包内 CLI 无法运行——点击「安装 CLI 到 PATH」或在终端执行 bobcorn 报 Cannot find module；CLI 产物现已自包含全部依赖，不再依赖应用包内的 node_modules",
+        "修复：未安装系统 Node.js 时，CLI 回退使用应用自带运行时（ELECTRON_RUN_AS_NODE），不再误启动第二个应用实例",
+        "改进：更新提示浮窗最高不超过窗口 1/3 高度，超长更新说明在浮窗内滚动，不再飞出屏幕",
+        "新增：点击更新提示浮窗可在居中弹窗中放大查看完整更新内容",
+        "新增：跨版本更新时聚合展示从当前版本到目标版本之间所有版本的更新说明，并以「v旧 → v新」标注版本区间"
+      ],
+      "en": [
+        "Fixed: The bundled CLI failing to run — \"Install CLI to PATH\" or running bobcorn in a terminal threw Cannot find module; the CLI artifact is now fully self-contained and no longer depends on node_modules inside the app package",
+        "Fixed: Without a system Node.js installed, the CLI now falls back to the app's own runtime (ELECTRON_RUN_AS_NODE) instead of accidentally launching a second app instance",
+        "Improved: The update popup is capped at one third of the window height; long release notes scroll inside it instead of flying off-screen",
+        "New: Click the update popup to zoom into a centered dialog showing the full release notes",
+        "New: Cross-version updates aggregate the release notes of every version between the installed and the target version, labeled with a \"vOld → vNew\" range"
+      ]
+    }
+  },
+  {
     "version": "1.14.0",
     "date": "2026-07-05",
     "summary": {

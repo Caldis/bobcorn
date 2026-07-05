@@ -1,4 +1,4 @@
-# Session Handoff — 2026-07-04
+# Session Handoff — 2026-07-05
 
 > 前一个 Claude Code session 的完整交接。新 session 请先读此文档 + AGENTS.md。
 
@@ -7,6 +7,14 @@
 **版本**: v1.14.0（下方摘要已全部随 v1.14.0 发布，release 三平台产物+更新元数据齐全） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
 
 **分支**: `master`
+
+## 2026-07-05 Session 摘要（未发版，工作区待提交）
+
+**打包版 CLI 完全不可用（P0，比上次"缺 CLI 产物"更深一层）**：v1.14.0 发布后用户点"安装 CLI 到 PATH"报 `Cannot find module 'commander'`。根因：tsup 默认把 package.json `dependencies` 全部 externalize，`out/cli/index.cjs` 顶层 `require("commander")` 等留在 bundle 里；dev 下 node 向上解析命中项目 node_modules，打包后 CLI 在 `app.asar.unpacked` 由系统 Node 运行，依赖在 asar 内普通 Node 读不到 → 启动即崩（不止安装按钮，终端 `bobcorn` 同样崩）。修复：`tsup.config.ts` 加 `noExternal: [/.*/]` 全量打包（11.69 MB，sql-asm.js 占大头；ttf2woff2 走 JS fallback 可打包），干净目录实证 `--version`/`export font` 全格式通过。附带修：`runCli`（main）与 install wrapper 补 `ELECTRON_RUN_AS_NODE=1`，覆盖无系统 Node 时 fallback 到 Electron 本体的场景。
+
+**更新提示浮窗改造（UpdateIndicator）**：① 整卡限高视口 1/3（此前 v1.13.0 无任何限制导致长 changelog 飞出屏幕；v1.14.0 只在 ul 上有 240px 局部限制），header 固定 + body 滚动；② 点击卡片在 Dialog 弹窗中放大展示完整内容（`update.clickToExpand` i18n key 已加 zh/en）；③ 跨版本更新 changelog 聚合：拉取网站 changelog.json 后按 semver 过滤 `(已装版本, 目标版本]` 区间内全部条目倒序展示（`__APP_VERSION__` 做下界），卡片/弹窗标题显示 `v旧 → v新` 区间，找不到区间条目时回退精确匹配目标版本，网站不可达时回退 electron-updater releaseNotes 纯文本。**踩坑**：Dialog 若渲染在 hover 容器 JSX 内，Radix portal 的 React 合成 mouseEnter 会沿 React 树冒泡回容器把 hover 卡片重新唤出（截图实证）——已移出为兄弟节点并加回归断言。
+
+**验收状态**：vitest 842 passed（含 CLI 188）；acceptance 22/22 两连跑；临时 Playwright 验证脚本 12/12（限高/滚动/聚合/放大/卡片关闭回归）。full-e2e 与 security-audit 本次未跑（发版前需补）。
 
 ## 2026-07-04 Session 摘要（多代理并行，已随 v1.14.0 发布）
 
