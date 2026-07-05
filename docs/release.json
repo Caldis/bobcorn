@@ -1,15 +1,15 @@
 {
-  "version": "1.16.0",
-  "tag": "v1.16.0",
+  "version": "1.17.0",
+  "tag": "v1.17.0",
   "repo": "Caldis/bobcorn",
   "releasesUrl": "https://github.com/Caldis/bobcorn/releases",
   "latestUrl": "https://github.com/Caldis/bobcorn/releases/latest",
-  "releaseUrl": "https://github.com/Caldis/bobcorn/releases/tag/v1.16.0",
+  "releaseUrl": "https://github.com/Caldis/bobcorn/releases/tag/v1.17.0",
   "downloads": {
-    "windows": "https://github.com/Caldis/bobcorn/releases/download/v1.16.0/Bobcorn-Setup-1.16.0.exe",
-    "mac": "https://github.com/Caldis/bobcorn/releases/download/v1.16.0/Bobcorn-1.16.0.dmg",
-    "mac-arm64": "https://github.com/Caldis/bobcorn/releases/download/v1.16.0/Bobcorn-1.16.0-arm64.dmg",
-    "linux": "https://github.com/Caldis/bobcorn/releases/download/v1.16.0/Bobcorn-1.16.0.AppImage",
+    "windows": "https://github.com/Caldis/bobcorn/releases/download/v1.17.0/Bobcorn-Setup-1.17.0.exe",
+    "mac": "https://github.com/Caldis/bobcorn/releases/download/v1.17.0/Bobcorn-1.17.0.dmg",
+    "mac-arm64": "https://github.com/Caldis/bobcorn/releases/download/v1.17.0/Bobcorn-1.17.0-arm64.dmg",
+    "linux": "https://github.com/Caldis/bobcorn/releases/download/v1.17.0/Bobcorn-1.17.0.AppImage",
     "default": "https://github.com/Caldis/bobcorn/releases/latest"
   }
 }
