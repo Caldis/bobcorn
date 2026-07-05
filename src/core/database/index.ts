@@ -10,6 +10,7 @@
 import type { IoAdapter } from '../io';
 import type { IconData, GroupData, ProjectAttributes, CodeAllocationMode } from '../types';
 import { allocateIconCodeDec, planRangeReassignments, type CodeRange } from '../code-allocation';
+import { queryFirstRow, type SqlJsSafeStatement } from './safe-stmt';
 import crypto from 'crypto';
 
 // ---------------------------------------------------------------------------
@@ -23,7 +24,7 @@ interface SqlJsStatic {
 interface SqlJsDatabase {
   run(sql: string, params?: any[]): SqlJsDatabase;
   exec(sql: string, params?: any[]): SqlJsQueryResult[];
-  prepare(sql: string): SqlJsStatement;
+  prepare(sql: string): SqlJsSafeStatement;
   export(): Uint8Array;
   close(): void;
 }
@@ -31,12 +32,6 @@ interface SqlJsDatabase {
 interface SqlJsQueryResult {
   columns: string[];
   values: any[][];
-}
-
-interface SqlJsStatement {
-  step(): boolean;
-  getAsObject(params?: Record<string, any>): Record<string, any>;
-  free(): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -291,10 +286,10 @@ export class ProjectDb {
   // ── Project attributes ──────────────────────────────────────
 
   getProjectAttributes(): ProjectAttributes {
-    const stmt = this.db.prepare(`SELECT * FROM ${TABLE_PROJECT} WHERE id = 'projectAttributes'`);
-    stmt.step();
-    const row = stmt.getAsObject();
-    stmt.free();
+    const row = queryFirstRow(
+      this.db,
+      `SELECT * FROM ${TABLE_PROJECT} WHERE id = 'projectAttributes'`
+    );
     return row as unknown as ProjectAttributes;
   }
 
@@ -331,21 +326,14 @@ export class ProjectDb {
   }
 
   getGroupCount(): number {
-    const stmt = this.db.prepare(`SELECT COUNT(*) FROM ${TABLE_GROUP}`);
-    stmt.step();
-    const count = stmt.getAsObject()['COUNT(*)'] as number;
-    stmt.free();
-    return count;
+    return queryFirstRow(this.db, `SELECT COUNT(*) FROM ${TABLE_GROUP}`)['COUNT(*)'] as number;
   }
 
   getIconCountForGroup(groupId: string): number {
-    const stmt = this.db.prepare(
+    return queryFirstRow(
+      this.db,
       `SELECT COUNT(*) FROM ${TABLE_ICON} WHERE iconGroup = ${sf(groupId)} AND variantOf IS NULL`
-    );
-    stmt.step();
-    const count = stmt.getAsObject()['COUNT(*)'] as number;
-    stmt.free();
-    return count;
+    )['COUNT(*)'] as number;
   }
 
   // ── Icon queries ────────────────────────────────────────────
@@ -397,13 +385,10 @@ export class ProjectDb {
   }
 
   getIconCount(): number {
-    const stmt = this.db.prepare(
+    return queryFirstRow(
+      this.db,
       `SELECT COUNT(*) FROM ${TABLE_ICON} WHERE iconGroup != 'resource-deleted' AND variantOf IS NULL`
-    );
-    stmt.step();
-    const count = stmt.getAsObject()['COUNT(*)'] as number;
-    stmt.free();
-    return count;
+    )['COUNT(*)'] as number;
   }
 
   // ── Icon content queries ─────────────────────────────────────
@@ -938,13 +923,10 @@ export class ProjectDb {
    * Get count of variants for a parent icon.
    */
   getVariantCount(parentId: string): number {
-    const stmt = this.db.prepare(
+    return queryFirstRow(
+      this.db,
       `SELECT COUNT(*) FROM ${TABLE_ICON} WHERE variantOf = ${sf(parentId)}`
-    );
-    stmt.step();
-    const count = stmt.getAsObject()['COUNT(*)'] as number;
-    stmt.free();
-    return count;
+    )['COUNT(*)'] as number;
   }
 
   /**

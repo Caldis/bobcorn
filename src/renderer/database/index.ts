@@ -5,6 +5,12 @@ import SVG from '../utils/svg';
 import { extractSvgColors, replaceSvgColor } from '../utils/svg/colors';
 // SQLite (use ASM build - pure JS, no WASM file needed)
 import initSqlJs from 'sql.js/dist/sql-asm.js';
+// eslint-disable-next-line no-restricted-imports -- safe-stmt is sanctioned shared plumbing (sql.js statement lifecycle wrapper), not a business database surface; see test/unit/sqljs-statement-guard.test.js
+import {
+  queryFirstRow,
+  queryFirstValue,
+  type SqlJsSafeStatement,
+} from '../../core/database/safe-stmt';
 // Config
 import config, { getOption } from '../config';
 // Shared icon-code allocation — single source of truth with the CLI (core)
@@ -134,7 +140,7 @@ interface SqlJsStatic {
 interface SqlJsDatabase {
   run(sql: string, params?: any[]): SqlJsDatabase;
   exec(sql: string, params?: any[]): SqlJsQueryResult[];
-  prepare(sql: string): SqlJsStatement;
+  prepare(sql: string): SqlJsSafeStatement;
   export(): Uint8Array;
   close(): void;
 }
@@ -142,11 +148,6 @@ interface SqlJsDatabase {
 interface SqlJsQueryResult {
   columns: string[];
   values: any[][];
-}
-
-interface SqlJsStatement {
-  step(): boolean;
-  getAsObject(params?: Record<string, any>): Record<string, any>;
 }
 
 // 表结构数据
@@ -385,15 +386,12 @@ class Database {
           console.log(
             `SELECT * FROM ${tableName} WHERE ${this.buildDataSTMT(targetDataSet!, { equal: opts.equal })}`
           );
-        const stmt = this.db!.prepare(
+        res = queryFirstRow(
+          this.db!,
           `SELECT * FROM ${tableName} WHERE ${this.buildDataSTMT(targetDataSet!, { equal: opts.equal })}`
         );
-        stmt.step();
-        res = stmt.getAsObject();
       } else {
-        const stmt = this.db!.prepare(`SELECT * FROM ${tableName}`);
-        stmt.step();
-        res = stmt.getAsObject();
+        res = queryFirstRow(this.db!, `SELECT * FROM ${tableName}`);
       }
     } else {
       if (opts.where) {
@@ -470,16 +468,13 @@ class Database {
     if (targetDataSet) {
       dev &&
         console.log(`SELECT COUNT(*) FROM ${tableName} WHERE ${this.buildDataSTMT(targetDataSet)}`);
-      const stmt = this.db!.prepare(
+      return queryFirstRow(
+        this.db!,
         `SELECT COUNT(*) FROM ${tableName} WHERE ${this.buildDataSTMT(targetDataSet)}`
-      );
-      stmt.step();
-      return stmt.getAsObject()['COUNT(*)'] as number;
+      )['COUNT(*)'] as number;
     } else {
       dev && console.log(`SELECT COUNT(*) FROM ${tableName}`);
-      const stmt = this.db!.prepare(`SELECT COUNT(*) FROM ${tableName}`);
-      stmt.step();
-      return stmt.getAsObject()['COUNT(*)'] as number;
+      return queryFirstRow(this.db!, `SELECT COUNT(*) FROM ${tableName}`)['COUNT(*)'] as number;
     }
   };
   // 删库跑路~
@@ -893,12 +888,10 @@ class Database {
     >;
   };
   checkIconCodeDuplicate = (): Record<string, any> => {
-    const stmt = this.db!.prepare(
+    return queryFirstRow(
+      this.db!,
       `SELECT iconCode,COUNT(*) FROM ${iconData} GROUP BY iconCode HAVING COUNT(*) > 1`
     );
-    stmt.step();
-    const res = stmt.getAsObject();
-    return res;
   };
   formatIconDataFromFilePath = (path: string, targetGroup: string): DataSet => {
     const { electronAPI } = window;
@@ -1433,15 +1426,8 @@ class Database {
 
   // 获取单个图标的 SVG 内容 — 用于虚拟化按需加载
   getIconContent = (id: string): string => {
-    const stmt = this.db!.prepare(`SELECT iconContent FROM ${iconData} WHERE id = ?`);
-    stmt.bind([id]);
-    if (stmt.step()) {
-      const result = stmt.get();
-      stmt.free();
-      return (result[0] as string) || '';
-    }
-    stmt.free();
-    return '';
+    const val = queryFirstValue(this.db!, `SELECT iconContent FROM ${iconData} WHERE id = ?`, [id]);
+    return (val as string) || '';
   };
 
   /** Batch-load SVG content for multiple icons in a single query */
@@ -1464,18 +1450,14 @@ class Database {
   /** Lazy backfill: if iconContentOriginal is NULL, copy current iconContent into it.
    *  Called before any content mutation to preserve the pre-edit baseline. */
   ensureOriginalContent = (id: string): void => {
-    const stmt = this.db!.prepare(`SELECT iconContentOriginal FROM ${iconData} WHERE id = ?`);
-    stmt.bind([id]);
-    if (stmt.step()) {
-      const val = stmt.get()[0];
-      stmt.free();
-      if (val === null || val === undefined) {
-        this.db!.run(
-          `UPDATE ${iconData} SET iconContentOriginal = iconContent WHERE id = ${sf(id)}`
-        );
-      }
-    } else {
-      stmt.free();
+    const val = queryFirstValue(
+      this.db!,
+      `SELECT iconContentOriginal FROM ${iconData} WHERE id = ?`,
+      [id]
+    );
+    // undefined = 行不存在（无需回填）；null = 行存在但原始内容从未保存过 → 回填
+    if (val === null) {
+      this.db!.run(`UPDATE ${iconData} SET iconContentOriginal = iconContent WHERE id = ${sf(id)}`);
     }
   };
 
@@ -1750,11 +1732,10 @@ class Database {
 
   getFavoriteCount = (): number => {
     dev && console.log('getFavoriteCount');
-    const stmt = this.db!.prepare(
+    return queryFirstRow(
+      this.db!,
       `SELECT COUNT(*) FROM ${iconData} WHERE isFavorite = 1 AND iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin'`
-    );
-    stmt.step();
-    return stmt.getAsObject()['COUNT(*)'] as number;
+    )['COUNT(*)'] as number;
   };
 
   // ── Variant methods ─────────────────────────────────────────────────

@@ -103,6 +103,29 @@ import logo from '../../resources/logo.png';
 - String values in SQL need wrapping with `sf()` (adds single quotes)
 - All data operations go through the `Database` class singleton
 
+### sql.js prepared statements — never call `db.prepare()` directly
+
+sql.js statements are handles to C-side memory in the Emscripten heap; the JS
+GC can never reclaim them. A `prepare()` without `free()` leaks until the
+(fixed-size) asm.js heap dies with `Aborted(OOM)` — this once crashed marquee
+selection when BatchPanel re-queried on every mousemove.
+
+Use the safe helpers from `src/core/database/safe-stmt.ts` (renderer and core
+database layers both do):
+
+- `queryFirstRow(db, sql, params?)` — prepare → bind? → step → getAsObject → free
+- `queryFirstValue(db, sql, params?)` — first column of first row, `undefined` on no match
+- `withStatement(db, sql, use)` — escape hatch for other shapes (e.g. row
+  iteration); the statement lifecycle stays enclosed in try/finally
+
+`db.exec()`/`db.run()` are self-contained and remain fine to call directly.
+Guard: `test/unit/sqljs-statement-guard.test.js` rejects any raw `.prepare(`
+outside safe-stmt and pins the wrapper's free-on-every-path behavior.
+
+Related render-loop rule: never fan out per-id DB reads from multiple
+`useMemo`s in a component that re-renders on drag (see the snapshot pattern in
+`BatchPanel/index.tsx` — one snapshot memo, everything else derives from it).
+
 ## TypeScript
 
 Gradual migration in progress. New files should prefer `.ts`/`.tsx` when possible.

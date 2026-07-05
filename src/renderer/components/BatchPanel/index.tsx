@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { sanitizeSVG } from '../../utils/sanitize';
+import { platform } from '../../utils/tools';
 import { parseCssColor } from '../../utils/svg/colors';
 import { message, confirm } from '../ui';
 import { allVariantCombinations, buildVariantName } from '../../utils/svg/variants';
@@ -41,32 +42,40 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
 
   const selectedIds = useMemo(() => Array.from(selectedIcons) as string[], [selectedIcons]);
 
-  const iconPreviews = useMemo(() => {
-    return selectedIds.slice(0, 9).map((id: string) => {
-      const data = db.getIconData(id);
-      return { id, content: data?.iconContent || '' };
-    });
-  }, [selectedIds]);
-
-  // 收藏状态统计 —— 依赖 [selectedIds, groupData] 而非仅 [selectedIds]：
-  // groupData 由 syncLeft() 更新，而所有收藏切换路径（本面板的 handleToggleFavorite、
-  // IconBlock 单个图标的收藏切换）都会调用 syncLeft()，因此把 groupData 纳入依赖即可让
-  // 收藏统计在“面板开着时收藏状态被改变”后也能实时刷新（bug 修复）。
-  // 注：Zustand store 目前并没有按 groupId 存放 IconItem[] 的 `iconData` record——那其实是
-  // IconGridLocal 组件内部的本地 state（且该文件本次不允许改动），因此无法采用“从 store.iconData
-  // 派生”的方案 (a)；这里改为复用已存在的 groupData 作为响应式刷新信号，配合 db.getIconData()
-  // 实时读取，效果上覆盖了 (a)/(b) 两种方案的诉求，且不新增 local counter。
+  // 选中图标数据快照 —— 框选拖曳时 selectedIcons 每次 mousemove 都会变化并触发重渲染，
+  // 因此本组件的数据库读取全部收敛到这一个 memo：每个 id 只查一次，下方的缩略图预览/
+  // 收藏统计/码位/导出目标全部从快照派生。绝不要在其他 useMemo 里再逐 id 调 db.getIconData()
+  // ——曾因每帧 3N+9 次查询把 sql.js 固定堆打爆（Aborted(OOM) 崩溃）。
+  //
+  // groupData 作为响应式刷新信号：它由 syncLeft() 更新，而所有会改动图标数据的路径
+  // （收藏切换、改色、移动等，含本面板与 IconBlock 单图标操作）都会调用 syncLeft()，
+  // 因此把它纳入依赖即可让“面板开着时数据被外部改变”后快照实时刷新。
+  // 注：Zustand store 并没有按 groupId 存放 IconItem[] 的 `iconData` record——那是
+  // IconGridLocal 的本地 state，无法直接派生，所以采用刷新信号 + db 实时读取的方案。
   const groupData = useAppStore((state: any) => state.groupData);
-  const favStats = useMemo(() => {
-    const total = selectedIds.length;
-    if (total === 0) return { total: 0, favCount: 0 };
-    const favCount = selectedIds.reduce((count: number, id: string) => {
-      const data = db.getIconData(id);
-      return data?.isFavorite === 1 ? count + 1 : count;
-    }, 0);
-    return { total, favCount };
+  const selectedIconData = useMemo(
+    () => selectedIds.map((id: string) => ({ id, data: db.getIconData(id) })),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- groupData intentionally used as a refresh signal only (not read in the callback), see comment above
-  }, [selectedIds, groupData]);
+    [selectedIds, groupData]
+  );
+
+  const iconPreviews = useMemo(
+    () =>
+      selectedIconData
+        .slice(0, 9)
+        .map(({ id, data }) => ({ id, content: (data?.iconContent as string) || '' })),
+    [selectedIconData]
+  );
+
+  const favStats = useMemo(() => {
+    const total = selectedIconData.length;
+    if (total === 0) return { total: 0, favCount: 0 };
+    const favCount = selectedIconData.reduce(
+      (count: number, { data }) => (data?.isFavorite === 1 ? count + 1 : count),
+      0
+    );
+    return { total, favCount };
+  }, [selectedIconData]);
   const allFavorited = favStats.total > 0 && favStats.favCount === favStats.total;
   const partiallyFavorited = favStats.favCount > 0 && favStats.favCount < favStats.total;
 
@@ -88,13 +97,12 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
   }, [groupList]);
   const pendingCodesDec = useMemo(() => {
     const out: number[] = [];
-    for (const id of selectedIds) {
-      const d = db.getIconData(id);
-      const dec = parseHex(String(d?.iconCode ?? ''));
+    for (const { data } of selectedIconData) {
+      const dec = parseHex(String(data?.iconCode ?? ''));
       if (dec !== null) out.push(dec);
     }
     return out;
-  }, [selectedIds]);
+  }, [selectedIconData]);
   const getMoveOutOfRangeCount = useCallback(
     (targetGroupId: string): number => {
       const r = groupRangeById.get(targetGroupId);
@@ -199,13 +207,12 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
 
   const exportIcons: IconExportTarget[] = useMemo(
     () =>
-      selectedIds
-        .map((id: string) => {
-          const data = db.getIconData(id);
-          return data ? { id, iconName: data.iconName, iconContent: data.iconContent } : null;
-        })
+      selectedIconData
+        .map(({ id, data }) =>
+          data ? { id, iconName: data.iconName, iconContent: data.iconContent } : null
+        )
         .filter(Boolean) as IconExportTarget[],
-    [selectedIds]
+    [selectedIconData]
   );
 
   const handleToggleFavorite = useCallback(() => {
@@ -361,8 +368,11 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
     <div
       className={cn('relative w-full h-full flex flex-col', 'border-l border-border', 'bg-surface')}
     >
-      {/* Win32 title bar spacer */}
-      <div className="h-[32px] shrink-0 [-webkit-app-region:drag]" />
+      {/* Win32 title bar spacer — matches IconInfoBar/SideEditor height so the
+          top divider lines up with them and separates the window controls */}
+      {platform() === 'win32' && (
+        <div className="w-full h-[58px] shrink-0 border-b border-border [-webkit-app-region:drag]" />
+      )}
 
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {/* Header */}
