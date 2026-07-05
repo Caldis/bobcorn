@@ -445,6 +445,7 @@
   "update.newBadge": "新版本",
   "update.changelog": "更新内容",
   "update.noChangelog": "暂无更新说明",
+  "update.clickToExpand": "点击查看完整更新内容",
   "update.cl.whatsChanged": "更新内容",
   "update.cl.features": "新功能",
   "update.cl.bugFixes": "问题修复",

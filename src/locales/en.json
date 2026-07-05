@@ -445,6 +445,7 @@
   "update.newBadge": "New",
   "update.changelog": "What's new",
   "update.noChangelog": "No release notes available",
+  "update.clickToExpand": "Click to view the full changelog",
   "update.cl.whatsChanged": "What's Changed",
   "update.cl.features": "Features",
   "update.cl.bugFixes": "Bug Fixes",
