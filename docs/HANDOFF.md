@@ -4,11 +4,25 @@
 
 ## 项目状态
 
-**版本**: v1.15.0（下方 07-05 摘要已随 v1.15.0 发布，release 三平台产物+更新元数据齐全，官网 Pages 已同步） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
+**版本**: v1.17.0（已发布，release 三平台产物+更新元数据齐全，CI/Pages 全绿） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
 
 **分支**: `master`
 
-## 2026-07-05 Session 摘要（全局排版规范化，**未发版**）
+## 2026-07-05 Session 摘要（框选 OOM 崩溃根治 + sql.js statement 守门，随 v1.17.0 发版）
+
+**问题（用户报障，必现）**：主内容区快速拖曳、反复改变框选区域大小 → `Aborted(OOM)` 崩溃，React 错误边界报在 `<BatchPanel>`。
+
+**根因（三因素叠加）**：① `renderer/database` 6 处 `prepare()` 从未 `free()`——sql.js statement 是 Emscripten 堆的 C 侧句柄，JS GC 收不走；② 项目用 `sql-asm.js`（asm.js 固定堆，不可增长），泄漏必然撞顶；③ BatchPanel 4 个 useMemo（预览/收藏统计/码位/导出目标）各自逐 id 调 `db.getIconData()`，框选每帧 mousemove 触发 3N+9 次泄漏查询。
+
+**修复（已落地）**：
+- **收敛封装**：新增 `src/core/database/safe-stmt.ts`（`queryFirstRow`/`queryFirstValue`/`withStatement`，try/finally 封死 statement 生命周期），renderer+core 共 12 处 prepare 全部改走；renderer database import 处有 no-restricted-imports 行内豁免（gitignore 负模式救不回被父目录排除的路径，配置层放行不可行）。
+- **BatchPanel**：收敛为单一 `selectedIconData` 快照 memo，其余派生；每帧查询 3N+9 → N；groupData 刷新信号语义保留。
+- **守门**：`test/unit/sqljs-statement-guard.test.js`——静态扫描全 src/ 禁裸 `.prepare(`（唯一白名单 safe-stmt）+ 行为测试钉死 helper 成功/异常路径必 free。AGENTS.md 关键约定 + CONVENTIONS.md Database 章节固化。
+- **顺手收口用户 WIP**：SplashScreen「启动新项目」→ dispatch `bobcorn:new-project` 走 NewProjectDialog（工作区中已有接线），acceptance Phase 4 / full-e2e Step 2 适配新流程。
+
+**验收全绿后发版 v1.17.0**：build ✓；vitest **852 passed**（+7 守门）；acceptance **23/23**；full-e2e **21/21**；security-audit 0 issue；另有临时冒烟脚本复刻崩溃场景（7007 图标项目 4 轮×150 次高频框选缩放）零错误。发版小插曲：`npm version` 的 version 钩子要求 `docs/changelog.json` 先有新版本条目，否则 docs:sync 中断——先补 changelog 再 bump。
+
+## 2026-07-05 Session 摘要（全局排版规范化，已随 v1.16.0 发布）
 
 **问题**：全应用字体/字号/颜色/字重反复不统一（用户举证：编辑分组弹框「分组名称」比「描述/分组图标」更大更黑；字码区间「起始/结束」input 的中文 placeholder 掉等宽字体；侧栏详情「名称/字码」与「基本信息」不一致；底部筛选栏「图标名称/图标字码」不一致）。多代理审计确认是**框架层三缺失**（根因）：① 声明的 `Inter`/`SF Pro Display`/`Cascadia Code` 从未打包（无 `@font-face`），全靠系统 fallback 跨 OS 漂移；② 无排版 base 层（`globals.css` 只给 body 定 family+色）；③ 无排版原语/token，每组件手搓 `text-[Npx]`/`font-*`/`text-foreground-*/透明度`——同一「区块标题」跨弹框 6 种写法、字段标签 4 种、muted 透明度 6 档。
 
