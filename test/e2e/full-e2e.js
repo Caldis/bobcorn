@@ -11,7 +11,7 @@
  *
  * Covered flow (see STEP banners below):
  *   1  Launch + splash screen
- *   2  Enter workspace ("启动新项目")
+ *   2  Enter workspace ("启动新项目" → NewProjectDialog 默认值确认)
  *   3  New project via NewProjectDialog (name + icon-code prefix)
  *   4  Import 5 SVG icons  → asserts new toast text pattern (import.success*)
  *   5  Select icon → SideEditor renders
@@ -223,7 +223,14 @@ async function run() {
 
     // ════════════════════════════════════════════════════════════════════════
     await step('Step 2: Enter workspace', async () => {
+      // 欢迎页“启动新项目”走 NewProjectDialog（默认值确认即可），确认后进入工作区
       await win.locator('button:has-text("启动新项目")').click();
+      await sleep(800);
+      assert(
+        await win.getByText('创建新项目').isVisible({ timeout: 3000 }),
+        'NewProjectDialog missing after 启动新项目'
+      );
+      await win.locator('[data-testid="new-project-confirm"]').click();
       await sleep(1800);
       await screenshot(win, 'workspace-empty');
       assert(await win.locator('nav button', { hasText: '全部' }).first().isVisible({ timeout: 5000 }), 'nav 全部 missing');

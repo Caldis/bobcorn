@@ -118,9 +118,11 @@ function SplashScreen() {
 
         {/* ── Action Cards ─────────────────────────── */}
         <div className="grid grid-cols-2 gap-3 w-full mb-6">
-          {/* 启动新项目 */}
+          {/* 启动新项目 — 复用常规新建项目流程：dispatch bobcorn:new-project，
+              由 MainContainer 弹出 NewProjectDialog 收集项目名称/字码前缀，
+              确认后 handleCreateProject 会创建项目并关闭欢迎页 */}
           <button
-            onClick={() => showSplashScreen(false)}
+            onClick={() => window.dispatchEvent(new CustomEvent('bobcorn:new-project'))}
             className={cn(
               'group relative flex flex-col items-center justify-center',
               'gap-2 p-5 rounded-lg',

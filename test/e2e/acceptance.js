@@ -97,7 +97,11 @@ async function run() {
 
   // --- Phase 4: Main Workspace ---
   console.log('\nPhase 4: Main Workspace');
+  // 欢迎页“启动新项目”走 NewProjectDialog（名称可留空、字码前缀默认 iconfont），确认后进入工作区
   await newProjectBtn.click();
+  await window.waitForTimeout(800);
+  assert('NewProjectDialog visible', await window.locator('text=创建新项目').count() > 0);
+  await window.locator('[data-testid="new-project-confirm"]').click();
   await window.waitForTimeout(2000);
   await window.screenshot({ path: path.join(screenshotDir, 'accept-02-workspace.png') });
 
