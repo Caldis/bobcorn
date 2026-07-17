@@ -256,6 +256,7 @@ function MainContainer() {
     ({ displayName, prefix }: { displayName: string; prefix: string }) => {
       setNewProjectDialogOpen(false);
       db.resetProject(prefix, displayName || undefined);
+      useAppStore.getState().resetIconContentCaches();
       useAppStore.getState().setCurrentFilePath(null);
       useAppStore.getState().markClean();
       useAppStore.getState().syncLeft();

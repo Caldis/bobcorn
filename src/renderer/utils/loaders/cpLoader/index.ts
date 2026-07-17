@@ -1,6 +1,8 @@
 // Database
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): project.open-file
 import db from '../../../database';
+// Store
+import useAppStore from '../../../store';
 
 interface CpGroupData {
   name: string;
@@ -21,6 +23,8 @@ const cpLoader = (option: CpLoaderOption, callback?: () => void): void => {
   const _db = option.db || db;
   if (option.data.length > 0) {
     _db.resetProject();
+    // 换库后旧项目的内容缓存必须清空（仅全局 db；传入自定义 db 时不影响画布）
+    if (!option.db) useAppStore.getState().resetIconContentCaches();
     option.data.forEach((group) => {
       const groupName = group.name;
       const groupData = group.listData;

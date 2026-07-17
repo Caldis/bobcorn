@@ -96,6 +96,7 @@ export interface Actions {
   syncIconContent: () => void; // 轻：递增版本号，触发 SideEditor 刷新
   patchIconContent: (iconId: string, content: string) => void; // 最轻：热更新单个图标内容
   prefetchIconContent: (ids: string[]) => void; // 批量预取可见图标的 SVG 内容
+  resetIconContentCaches: () => void; // 项目边界清空内容缓存（防复制的 .icp 同 id 串内容）
   syncAll: () => void;
 
   // File state
@@ -336,6 +337,12 @@ const useAppStore = create<State & Actions>((set, get) => ({
     if (Object.keys(patch).length > 0) {
       set({ prefetchedContent: { ...get().prefetchedContent, ...patch } });
     }
+  },
+
+  // 项目打开/新建时清空 patched/prefetched 缓存 —— 复制出的 .icp 图标 id 相同，
+  // 不清空会把上一个项目的内容缓存串到新项目的画布上
+  resetIconContentCaches: () => {
+    set({ patchedIcons: {}, prefetchedContent: {} });
   },
 
   syncAll: () => {

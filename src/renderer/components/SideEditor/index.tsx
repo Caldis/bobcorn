@@ -234,6 +234,14 @@ const SideEditor = React.memo(function SideEditor({
         }
         db.renewIconData(selectedIcon, newIconFileData, () => {
           message.success(t('editor.dataUpdated'));
+          // 中央画布 IconBlock 的内容缓存 (patched/prefetched/lazy) 不会因 syncLeft 失效，
+          // 必须走 patchIconContent 热更新，否则网格继续显示替换前的旧 SVG
+          const newContent = db.getIconContent(selectedIcon);
+          patchIconContent(selectedIcon, newContent);
+          // renewIconData 已把 iconContentOriginal 一并重置为新内容；本地快照同步跟上，
+          // 避免残留旧原始内容误判 colorChanged、点“重置颜色”时回滚成替换前的旧图标
+          setOriginalIconContent(newContent);
+          setEditingColorIdx(null);
           syncIconContent();
           syncLeft();
         });
