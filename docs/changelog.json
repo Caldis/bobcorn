@@ -1,5 +1,25 @@
 [
   {
+    "version": "1.18.1",
+    "date": "2026-07-18",
+    "summary": {
+      "zh": "修复设计工具布尔运算（减去顶层）图标生成字体后显示实心的问题；新增字形预处理管线统一收口导出兼容性修复",
+      "en": "Fixes boolean-op (subtract) icons from design tools rendering solid after font generation; adds a glyph preprocessing pipeline as the single home for export compatibility fixes"
+    },
+    "changes": {
+      "zh": [
+        "修复：MasterGo/Figma 等设计工具用「减去顶层」布尔运算制作的图标（fill-rule: evenodd），生成字体后镂空处被填成实心——导出时自动将 evenodd 几何归一化为字体唯一支持的 nonzero 绕向规则，SVG 预览与字体渲染从此一致",
+        "架构：新增字形预处理管线（core/svg），导入字体转换前的所有兼容性处理（<use> 内联、退化圆弧修复、不可见几何剥离、绕向归一化）注册制统一执行，单步异常自动降级不影响整体导出，并有守门测试冻结步骤顺序、防止绕过",
+        "改进：图形界面与命令行的字体导出共用同一套预处理实现，行为完全一致"
+      ],
+      "en": [
+        "Fixed: Icons built with subtract boolean operations in design tools like MasterGo/Figma (fill-rule: evenodd) rendered solid after font generation — exports now normalize evenodd geometry to the nonzero winding rule (the only rule fonts support), so SVG previews and font rendering finally agree",
+        "Architecture: New glyph preprocessing pipeline (core/svg) — every pre-conversion compatibility fix (<use> inlining, degenerate arc repair, non-renderable stripping, winding normalization) runs as a registered, order-frozen transform with per-step error isolation and guard tests against bypasses",
+        "Improved: GUI and CLI font exports now share one preprocessing implementation with identical behavior"
+      ]
+    }
+  },
+  {
     "version": "1.18.0",
     "date": "2026-07-17",
     "summary": {
