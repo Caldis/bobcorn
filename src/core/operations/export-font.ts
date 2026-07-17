@@ -15,6 +15,10 @@ import svg2ttf from 'svg2ttf';
 import ttf2woff from 'ttf2woff';
 import ttf2woff2 from 'ttf2woff2';
 import ttf2eot from 'ttf2eot';
+import { prepareSvgForFont } from '../svg/glyph-pipeline';
+import { flattenSvgUseRefs } from '../svg/transforms';
+
+export { flattenSvgUseRefs };
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -42,81 +46,6 @@ export interface ExportFontResult {
   fontName: string;
   iconCount: number;
   duration_ms: number;
-}
-
-// ---------------------------------------------------------------------------
-// SVG cleaning — regex-only, no DOM
-// ---------------------------------------------------------------------------
-
-const ARC_FIX_RE = /a0,0,0,0,1,0,0/g;
-const DEFS_RE = /<defs[\s\S]*?<\/defs>/gi;
-const MASK_ELEM_RE = /<mask[\s\S]*?<\/mask>/gi;
-const CLIP_PATH_ATTR_RE = /\s*clip-path="[^"]*"/gi;
-const MASK_ATTR_RE = /\s*mask="[^"]*"/gi;
-
-/**
- * Flatten <use xlink:href="#id"/> by inlining the referenced element from <defs>.
- * Pure regex — no DOM.
- */
-export function flattenSvgUseRefs(svg: string): string {
-  // Step 1: Build ID -> element map from <defs> blocks
-  const idMap: Record<string, { tag: string; attrs: string; inner?: string }> = {};
-
-  const defsRe = /<defs[^>]*>([\s\S]*?)<\/defs>/gi;
-  let dm;
-  while ((dm = defsRe.exec(svg)) !== null) {
-    const body = dm[1];
-    const elemRe = /<(\w+)\s+([^>]*?\bid="([^"]+)"[^>]*?)(?:\s*\/>|>([\s\S]*?)<\/\1>)/g;
-    let em;
-    while ((em = elemRe.exec(body)) !== null) {
-      const [, tag, allAttrs, id, inner] = em;
-      idMap[id] = {
-        tag,
-        attrs: allAttrs.replace(/\s*\bid="[^"]*"/, '').trim(),
-        inner,
-      };
-    }
-  }
-
-  if (Object.keys(idMap).length === 0) return svg;
-
-  // Step 2: Replace <use href="#id"> with inlined element
-  let result = svg.replace(
-    /<use\s+([^>]*?(?:xlink:)?href="#([^"]+)"[^>]*?)(?:\s*\/>|\s*><\/use>)/gi,
-    (match, allAttrs: string, refId: string) => {
-      const ref = idMap[refId];
-      if (!ref) return match;
-
-      const useAttrs = allAttrs
-        .replace(/\s*(?:xlink:)?href="[^"]*"/g, '')
-        .replace(/\s*\bid="[^"]*"/g, '')
-        .trim();
-
-      const merged = [ref.attrs, useAttrs].filter(Boolean).join(' ');
-
-      return ref.inner != null
-        ? `<${ref.tag} ${merged}>${ref.inner}</${ref.tag}>`
-        : `<${ref.tag} ${merged}/>`;
-    }
-  );
-
-  // Step 3: Remove <defs> and <mask> blocks
-  result = result.replace(/<defs[^>]*>[\s\S]*?<\/defs>/gi, '');
-  result = result.replace(/<mask[^>]*>[\s\S]*?<\/mask>/gi, '');
-
-  return result;
-}
-
-/**
- * Strip non-renderable elements for font generation.
- * Pure regex — no DOM.
- */
-function cleanSVGForFont(svg: string): string {
-  return svg
-    .replace(DEFS_RE, '')
-    .replace(MASK_ELEM_RE, '')
-    .replace(CLIP_PATH_ATTR_RE, '')
-    .replace(MASK_ATTR_RE, '');
 }
 
 // ---------------------------------------------------------------------------
@@ -188,8 +117,7 @@ function generateSvgFont(icons: FontIcon[], fontName: string): Promise<string> {
       });
 
     for (const icon of icons) {
-      const resolved = flattenSvgUseRefs(icon.iconContent);
-      const cleanContent = cleanSVGForFont(resolved.replace(ARC_FIX_RE, ''));
+      const cleanContent = prepareSvgForFont(icon.iconContent);
       const codePoint = parseInt(icon.iconCode, 16);
       const glyph = createGlyphStream(cleanContent, {
         name: `${icon.iconName}_${icon.iconCode}`,

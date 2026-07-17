@@ -58,4 +58,5 @@ database/index.js ──► utils/svg, utils/tools, config
 | `utils/loaders` | `SplashScreen`, `SideMenu` |
 | `utils/importer` | `SplashScreen`, `SideMenu` |
 | `utils/generators/*` | `SideMenu` (export flow) |
+| `core/svg/*` (glyph pipeline) | GUI font export (`iconfontGenerator`) **and** CLI `export font` (`core/operations/export-font`); run `test/unit/glyph-pipeline.test.js` + `test/unit/svg-winding.test.js` |
 | `preload` API surface | Every component using `window.electronAPI.*` |

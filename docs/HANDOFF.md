@@ -1,12 +1,31 @@
-# Session Handoff — 2026-07-17
+# Session Handoff — 2026-07-18
 
 > 前一个 Claude Code session 的完整交接。新 session 请先读此文档 + AGENTS.md。
 
 ## 项目状态
 
-**版本**: v1.18.0（已发布，release 三平台产物+更新元数据齐全，CI/Release/Pages 全绿） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini) / ~/Desktop/Code/bobcorn (Mac)
+**版本**: v1.18.1（发版中，见下方 session 摘要） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini) / ~/Desktop/Code/bobcorn (Mac)
 
 **分支**: `master`
+
+## 2026-07-18 Session 摘要（issue #2 布尔运算图标实心修复 + glyph 预处理管线架构，随 v1.18.1 发版）
+
+**问题（GitHub issue #2，用户报障）**：MasterGo「减去顶层」布尔运算制作的图标，生成字体后显示实心。SVG 预览（应用内 / 浏览器）正常，唯独字体实心。
+
+**根因定性（三角验证：应用内 SVG 预览正常 + 浏览器打开正常 + 字体渲染实心）**：设计工具布尔运算导出单条 path + `fill-rule: evenodd`，所有子路径同绕向，空心依赖 evenodd 奇偶计数。字体格式（TTF/WOFF）只有 nonzero 绕向规则且没有 fill-rule 概念，svgicons2svgfont→svg2ttf 忠实搬运几何但丢失 evenodd 语义 → 同向子路径在 nonzero 下洞被填死。**没有任何第三方库有 bug**，语义丢失发生在 SVG→字体的格式边界，归一化是管线所有者的责任（iconfont.cn/IcoMoon 内部都做了这步）。
+
+**架构（新增 `src/core/svg/` glyph 预处理管线，为未来导出兼容性问题预留扩展点）**：
+- `glyph-pipeline.ts`：`GlyphTransform` 注册表（name/description/apply 纯函数）+ `prepareSvgForFont` 唯一入口；步骤按序执行、单步 throw 自动跳过（错误隔离，一个坏图标/坏步骤不炸整个导出）；所有步骤必须幂等
+- `transforms.ts`：既有三步收编（flatten-use-refs / fix-degenerate-arcs / strip-non-renderable），消灭 core 与 renderer 的两份重复实现
+- `normalize-winding.ts`：新步骤。仅对声明 evenodd 的 path 生效（nonzero 同向嵌套可能是有意并集，绝不动）；svgpath 解析→曲线采样→鞋带公式算绕向→射线法算嵌套深度→奇数层与外层同向则反转子路径；无需改动时字节原样返回（幂等）。已知边界：子路径自相交/部分重叠不处理（布尔导出不会出现）
+- 调用点：`core/operations/export-font.ts`（CLI）与 `renderer/.../iconfontGenerator`（GUI）都改为 import `@core/svg/glyph-pipeline`；顺手删除了零引用的旧版 `renderer/utils/generators/index.ts`（memory-fs + new Buffer 死代码，无预处理，守门测试抓出来的）
+- 依赖：`svgpath@^2.6.0` 从传递依赖提升为直接依赖（tsup noExternal 全打包，CLI 不受影响）
+
+**守门（用户明确要求「增量改动不能弄坏管线」）**：`test/unit/glyph-pipeline.test.js` 四层防护——①步骤清单+顺序冻结（改管线必须同步改测试，强制 review 顺序约束）②每步幂等断言 ③错误隔离断言 ④源码扫描：任何 import svgicons2svgfont 的文件必须走 prepareSvgForFont、任何文件不得重新长出私有 transform 副本。`test/unit/svg-winding.test.js` 13 项：issue #2 三个原始 SVG 为 fixtures（`test/fixtures/issue2-evenodd/`，ASCII 文件名），绕向断言 + 安全契约（nonzero 不动/祖先 g 继承/malformed 不炸/幂等/几何保真）
+
+**验收（全绿）**：build ✓；vitest 898 passed（新增 36）；acceptance 23/23 ✓；full-e2e 21/21 ✓；security-audit 0 ✓；lint 0 警告 ✓；CLI 端到端（create→import 三图标→export font）→ glyph 绕向分析确认洞层反向 + 浏览器加载 woff2 渲染截图确认三图标全部空心
+
+**经验**：①GUI 导出的 demo HTML 内嵌字体 base64（自包含），验证修复必须用新字体文件另写测试页，复用旧 demo 页会看到旧字体的假阴性 ②macOS zip 中文文件名未设 UTF-8 标志位（bit 11），Windows 资源管理器按 GBK 解码失败会静默跳过文件——处理 issue 附件时注意 ③打包版 Bobcorn.exe 持单实例锁会让 E2E 的 electron.launch 静默退出，跑验收前先杀 Bobcorn 进程（已有记忆条目）
 
 ## 2026-07-17 Session 摘要（官网全站重构到 Vercel 设计规范，2026-07-18 已发布）
 

@@ -79,9 +79,27 @@ Global constants and localStorage-backed user preferences.
 |-----------|---------|-------------|
 | `svg/` | SVG parsing and manipulation | `SVG` class (formatSVG, getOuterHTML) |
 | `sanitize.js` | DOMPurify SVG sanitization | `sanitizeSVG(html)` |
-| `generators/iconfontGenerator/` | Font generation (SVG→TTF→WOFF→WOFF2→EOT) | Uses svgicons2svgfont, svg2ttf, ttf2woff, ttf2woff2, ttf2eot |
+| `generators/iconfontGenerator/` | Font generation (SVG→TTF→WOFF→WOFF2→EOT) | Uses svgicons2svgfont, svg2ttf, ttf2woff, ttf2woff2, ttf2eot; glyph preprocessing via `@core/svg/glyph-pipeline` |
 | `generators/demopageGenerator/` | Demo HTML page generation | Generates preview pages for exported fonts |
 | `tools/index.js` | General utilities | `generateUUID`, `sf`, `hexToDec`, `decToHex`, `throttle`, `nameOfPath`, `platform` |
 | `importer/` | Icon import (file, data) | File-based and data-based icon importers |
 | `loaders/` | Project file loaders | `.icp` (native), `.json` (CyberPen), project file formats |
 | `spider/` | iconfont.cn crawler | Web scraping for icon resources |
+
+### `src/core/svg/` — Glyph Preprocessing Pipeline
+
+The single funnel every icon SVG passes through before font conversion. Environment-agnostic
+(renderer / CLI / Node), pure string → string transforms, no DOM. **All export/compatibility
+fixes belong here as registered transforms** — never as patches to converter libraries and
+never inline at call sites.
+
+- **Key files:** `glyph-pipeline.ts` (ordered registry + `prepareSvgForFont` entry point),
+  `transforms.ts` (flatten-use-refs / fix-degenerate-arcs / strip-non-renderable),
+  `normalize-winding.ts` (evenodd→nonzero winding fix for boolean-op icons, issue #2)
+- **Consumers:** `core/operations/export-font.ts` (CLI), `renderer/utils/generators/iconfontGenerator/` (GUI)
+- **Guards:** `test/unit/glyph-pipeline.test.js` — frozen transform manifest (name+order),
+  per-transform idempotence, error isolation, and a source scan that fails if any
+  svgicons2svgfont consumer bypasses `prepareSvgForFont` or re-duplicates a transform.
+- **Adding a transform:** implement pure function → register in `GLYPH_TRANSFORMS` (mind the
+  documented order constraints) → update the frozen manifest in the guard test → add fixture
+  under `test/fixtures/`.
