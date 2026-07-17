@@ -7,6 +7,7 @@ release/
 npm-debug.log*
 test/fixtures/*
 !test/fixtures/icons/
+!test/fixtures/issue2-evenodd/
 docs/locks/*.lock
 .claude/
 .superpowers/
