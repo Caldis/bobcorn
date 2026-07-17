@@ -54,18 +54,23 @@ export async function addGroup(
   projectPath: string,
   name: string
 ): Promise<AddGroupResult> {
+  // 名称落库前 trim — GUI 与 CLI 同口径, 拒绝纯空白名
+  const finalName = name.trim();
+  if (!finalName) {
+    throw new Error('Group name cannot be empty');
+  }
   const resolvedPath = io.resolve(projectPath);
   const db = await openProject(io, resolvedPath);
 
   try {
     // Check for duplicate group name
-    const existing = db.findGroupByName(name);
+    const existing = db.findGroupByName(finalName);
     if (existing) {
-      throw new Error(`Group already exists: ${name}`);
+      throw new Error(`Group already exists: ${finalName}`);
     }
 
     const id = crypto.randomUUID();
-    const result = db.addGroup(id, name);
+    const result = db.addGroup(id, finalName);
     await saveProject(io, resolvedPath, db);
 
     return result;
@@ -98,6 +103,11 @@ export async function renameGroup(
   oldName: string,
   newName: string
 ): Promise<RenameGroupResult> {
+  // 名称落库前 trim — GUI 与 CLI 同口径, 拒绝纯空白名
+  const finalName = newName.trim();
+  if (!finalName) {
+    throw new Error('Group name cannot be empty');
+  }
   const resolvedPath = io.resolve(projectPath);
   const db = await openProject(io, resolvedPath);
 
@@ -108,10 +118,10 @@ export async function renameGroup(
     }
 
     const id = group.id as string;
-    db.setGroupName(id, newName);
+    db.setGroupName(id, finalName);
     await saveProject(io, resolvedPath, db);
 
-    return { id, oldName, newName };
+    return { id, oldName, newName: finalName };
   } finally {
     db.close();
   }

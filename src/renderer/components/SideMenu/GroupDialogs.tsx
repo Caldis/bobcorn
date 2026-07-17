@@ -373,7 +373,9 @@ function GroupDialogs({
   }, [renameGroupVisible, renameGroupData, snapshotUsedCodes, snapshotOwnCodes]);
 
   const handleAddGroup = () => {
-    if (!newGroupName) {
+    // 名称落库前 trim — 避免首尾空白名与纯空白名
+    const finalName = newGroupName.trim();
+    if (!finalName) {
       setNewGroupErr(t('group.nameRequired'));
       return;
     }
@@ -389,14 +391,14 @@ function GroupDialogs({
       }
     };
     db.addGroup(
-      newGroupName,
+      finalName,
       (group: GroupData) => {
         if (newGroupRange) {
           // 创建后补写区间 (校验在 setGroupInfo 内, 兜底 UI 已禁用非法保存)
           try {
             db.setGroupInfo(
               group.id,
-              newGroupName,
+              finalName,
               newGroupDesc.trim() || null,
               () => finalize(group.id),
               undefined,
@@ -414,7 +416,9 @@ function GroupDialogs({
   };
 
   const handleRenameGroup = () => {
-    if (!renameName) {
+    // 名称落库前 trim — 避免首尾空白名与纯空白名
+    const finalName = renameName.trim();
+    if (!finalName) {
       setRenameErr(t('group.nameEmpty'));
       return;
     }
@@ -423,7 +427,7 @@ function GroupDialogs({
       try {
         db.setGroupInfo(
           renameGroupData!.id,
-          renameName,
+          finalName,
           renameDesc.trim() || null,
           () => {
             message.success(t('group.updateSuccess'));
