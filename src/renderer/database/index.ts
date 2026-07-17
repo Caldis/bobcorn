@@ -1466,6 +1466,30 @@ class Database {
     return map;
   };
 
+  /** Batch-load icon metadata (no heavy content columns) in a single query.
+   *  纯 UI 视图聚合 — BatchPanel 选中快照用: 框选拖曳中逐 id SELECT * 会造成
+   *  O(N) 次含 SVG TEXT 的行读取, 这里一次 IN 查询只取元数据列 */
+  getIconMetaBatch = (ids: string[]): Map<string, Record<string, any>> => {
+    if (ids.length === 0) return new Map();
+    const placeholders = ids.map(() => '?').join(',');
+    const result = this.db!.exec(
+      `SELECT ${Database.ICON_META_COLS} FROM ${iconData} WHERE id IN (${placeholders})`,
+      ids
+    );
+    const map = new Map<string, Record<string, any>>();
+    if (result.length > 0) {
+      const cols = result[0].columns;
+      result[0].values.forEach((row: any[]) => {
+        const obj: Record<string, any> = {};
+        row.forEach((val, i) => {
+          obj[cols[i]] = val;
+        });
+        map.set(obj.id as string, obj);
+      });
+    }
+    return map;
+  };
+
   /** Lazy backfill: if iconContentOriginal is NULL, copy current iconContent into it.
    *  Called before any content mutation to preserve the pre-edit baseline. */
   ensureOriginalContent = (id: string): void => {

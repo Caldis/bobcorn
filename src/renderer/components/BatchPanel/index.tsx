@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { HexColorPicker } from 'react-colorful';
@@ -42,9 +42,14 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
   const selectedIds = useMemo(() => Array.from(selectedIcons) as string[], [selectedIcons]);
 
   // 选中图标数据快照 —— 框选拖曳时 selectedIcons 每次 mousemove 都会变化并触发重渲染，
-  // 因此本组件的数据库读取全部收敛到这一个 memo：每个 id 只查一次，下方的缩略图预览/
-  // 收藏统计/码位/导出目标全部从快照派生。绝不要在其他 useMemo 里再逐 id 调 db.getIconData()
-  // ——曾因每帧 3N+9 次查询把 sql.js 固定堆打爆（Aborted(OOM) 崩溃）。
+  // 因此本组件的数据库读取全部收敛到下面的快照 memo。两层防线:
+  //   1. 防抖: 快照跟随 settledIds (选择停稳 80ms 后才更新), 拖曳中零查询;
+  //      计数等轻量 UI 直接用 selectedIds 保持实时。
+  //   2. 轻查询: 元数据一次 IN 批量查询 (getIconMetaBatch, 不含 SVG TEXT 列),
+  //      内容只为前 9 个缩略图批量取一次; 导出目标推迟到导出弹窗打开时再取。
+  // 绝不要在其他 useMemo 里逐 id 调 db.getIconData()——SELECT * 连 iconContent/
+  // iconContentOriginal 一起读, 框选 N 个即 O(N) 次重行读取, 且曾因每帧 3N+9 次
+  // 查询把 sql.js 固定堆打爆（Aborted(OOM) 崩溃）。
   //
   // groupData 作为响应式刷新信号：它由 syncLeft() 更新，而所有会改动图标数据的路径
   // （收藏切换、改色、移动等，含本面板与 IconBlock 单图标操作）都会调用 syncLeft()，
@@ -52,29 +57,34 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
   // 注：Zustand store 并没有按 groupId 存放 IconItem[] 的 `iconData` record——那是
   // IconGridLocal 的本地 state，无法直接派生，所以采用刷新信号 + db 实时读取的方案。
   const groupData = useAppStore((state: any) => state.groupData);
-  const selectedIconData = useMemo(
-    () => selectedIds.map((id: string) => ({ id, data: db.getIconData(id) })),
+  const [settledIds, setSettledIds] = useState<string[]>(selectedIds);
+  useEffect(() => {
+    const timer = setTimeout(() => setSettledIds(selectedIds), 80);
+    return () => clearTimeout(timer);
+  }, [selectedIds]);
+
+  const selectedIconMeta = useMemo(
+    () => db.getIconMetaBatch(settledIds),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- groupData intentionally used as a refresh signal only (not read in the callback), see comment above
-    [selectedIds, groupData]
+    [settledIds, groupData]
   );
 
-  const iconPreviews = useMemo(
-    () =>
-      selectedIconData
-        .slice(0, 9)
-        .map(({ id, data }) => ({ id, content: (data?.iconContent as string) || '' })),
-    [selectedIconData]
-  );
+  const iconPreviews = useMemo(() => {
+    const previewIds = settledIds.slice(0, 9);
+    const contents = db.getIconContentBatch(previewIds);
+    return previewIds.map((id) => ({ id, content: contents.get(id) || '' }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- groupData 同上, 作为刷新信号 (改色后缩略图跟新)
+  }, [settledIds, groupData]);
 
   const favStats = useMemo(() => {
-    const total = selectedIconData.length;
+    const total = selectedIconMeta.size;
     if (total === 0) return { total: 0, favCount: 0 };
-    const favCount = selectedIconData.reduce(
-      (count: number, { data }) => (data?.isFavorite === 1 ? count + 1 : count),
-      0
-    );
+    let favCount = 0;
+    selectedIconMeta.forEach((meta) => {
+      if (meta.isFavorite === 1) favCount += 1;
+    });
     return { total, favCount };
-  }, [selectedIconData]);
+  }, [selectedIconMeta]);
   const allFavorited = favStats.total > 0 && favStats.favCount === favStats.total;
   const partiallyFavorited = favStats.favCount > 0 && favStats.favCount < favStats.total;
 
@@ -96,12 +106,12 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
   }, [groupList]);
   const pendingCodesDec = useMemo(() => {
     const out: number[] = [];
-    for (const { data } of selectedIconData) {
-      const dec = parseHex(String(data?.iconCode ?? ''));
+    selectedIconMeta.forEach((meta) => {
+      const dec = parseHex(String(meta.iconCode ?? ''));
       if (dec !== null) out.push(dec);
-    }
+    });
     return out;
-  }, [selectedIconData]);
+  }, [selectedIconMeta]);
   const getMoveOutOfRangeCount = useCallback(
     (targetGroupId: string): number => {
       const r = groupRangeById.get(targetGroupId);
@@ -204,15 +214,23 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
     analyticsTrack('batch.operation', { operation: 'export' });
   }, []);
 
-  const exportIcons: IconExportTarget[] = useMemo(
-    () =>
-      selectedIconData
-        .map(({ id, data }) =>
-          data ? { id, iconName: data.iconName, iconContent: data.iconContent } : null
-        )
-        .filter(Boolean) as IconExportTarget[],
-    [selectedIconData]
-  );
+  // 导出目标推迟到弹窗打开时构建 — 全量 iconContent 只在真正导出时才批量读取,
+  // 不进入框选路径 (与 IconGridLocal 的 exportDialogIcons 同款模式)。
+  // 直接现查 meta+content 而非依赖防抖后的 settled 快照, 保证与点击瞬间的选择一致
+  const exportIcons: IconExportTarget[] = useMemo(() => {
+    if (!exportDialogVisible) return [];
+    const metas = db.getIconMetaBatch(selectedIds);
+    const contents = db.getIconContentBatch(selectedIds);
+    return selectedIds
+      .map((id) => {
+        const meta = metas.get(id);
+        return meta
+          ? { id, iconName: meta.iconName as string, iconContent: contents.get(id) || '' }
+          : null;
+      })
+      .filter(Boolean) as IconExportTarget[];
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 只在弹窗打开瞬间取一次快照, 打开期间选择集不会变化
+  }, [exportDialogVisible]);
 
   const handleToggleFavorite = useCallback(() => {
     const newValue = allFavorited ? 0 : 1;

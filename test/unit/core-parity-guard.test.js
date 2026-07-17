@@ -61,6 +61,9 @@ const RENDERER_DB_LEGACY_METHODS = new Set([
   // 与 registerOnMutation 同款; 见 src/renderer/store/contentCache.ts
   'registerOnIconContentChanged',
   'emitIconContentChanged',
+  // renderer-only 视图聚合 (无业务语义): BatchPanel 选中快照的元数据批量查询,
+  // 与 getIconContentBatch 同族; 避免框选时逐 id SELECT * 拖垮画布
+  'getIconMetaBatch',
   'init',
   'initDatabases',
   'buildDataSTMT',
