@@ -4,7 +4,7 @@ const { electronAPI } = window;
 import React, { useState, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Dialog, Button, Checkbox, CheckboxGroup, Progress } from '../ui';
+import { Dialog, Button, Checkbox, Progress } from '../ui';
 import { message } from '../ui/toast';
 import {
   svgFontGenerator,
@@ -81,6 +81,8 @@ function findAvailableName(parent: string, base: string, suffix: string = ''): s
 interface ExportDialogProps {
   visible: boolean;
   onClose: () => void;
+  /** 打开时预选的分组 id 列表 (画布右键「导出图标字体」入口传入); 空/未传 = 沿用持久化选择 */
+  initialGroups?: string[] | null;
 }
 
 /** Wiki integration */
@@ -120,7 +122,7 @@ const FORMAT_INFO: Record<string, { wiki: string; summaryKey: string }> = {
   js: { wiki: 'svg-symbol', summaryKey: 'export.fmt.js' },
 };
 
-function ExportDialog({ visible, onClose }: ExportDialogProps) {
+function ExportDialog({ visible, onClose, initialGroups }: ExportDialogProps) {
   const { t, i18n } = useTranslation();
 
   /** Open a wiki page in the default browser, localized to current app language */
@@ -216,53 +218,63 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     // 不用 getIconCount() —— 它连回收站和变体一起算, 会虚高
     const exportMeta = db.getExportIconCodeMeta();
     const totalIcons = exportMeta.length;
+    // 每个分组的可导出图标计数 — 从 exportMeta 聚合 (含未分组虚拟分组), 与导出集口径一致
+    const counts: Record<string, number> = {};
+    exportMeta.forEach((m) => {
+      const gid = effectiveGroupId(m.iconGroup);
+      counts[gid] = (counts[gid] || 0) + 1;
+    });
     const groupList: ExportGroupOption[] = groups.map((group: any) => ({
       label: group.groupName,
       value: group.id,
+      count: counts[group.id] || 0,
     }));
     // 未分组图标作为虚拟分组参与选择, 否则它们无法被勾选,
     // 纯未分组项目 (0 个真实分组) 甚至会因选择集为空而无法导出
-    const uncategorizedCount = exportMeta.filter(
-      (m) => effectiveGroupId(m.iconGroup) === UNCATEGORIZED_ID
-    ).length;
+    const uncategorizedCount = counts[UNCATEGORIZED_ID] || 0;
     if (uncategorizedCount > 0) {
-      groupList.push({ label: t('nav.ungrouped'), value: UNCATEGORIZED_ID });
+      groupList.push({
+        label: t('nav.ungrouped'),
+        value: UNCATEGORIZED_ID,
+        count: uncategorizedCount,
+      });
     }
     setExportGroupFullList(groupList);
 
     // 还原分组选择: 'all' = 全选 (含未来新分组),数组 = 显式列表 (过滤掉已删除的分组)
+    // 空分组 (count=0) 不可选, 全选与还原都只作用于可选分组
     const persisted = (getOption('exportFontSettings') as ExportFontSettings).groupSelected;
-    const allIds = groupList.map((g) => g.value);
+    const selectableIds = groupList.filter((g) => g.count > 0).map((g) => g.value);
     let initialSelected: string[];
     let initialAll: boolean;
-    if (persisted === 'all') {
-      initialSelected = allIds;
+    // 入口指定了预选分组 (如画布右键「导出图标字体」) → 优先于持久化选择
+    const preset = initialGroups?.length
+      ? initialGroups.filter((id) => selectableIds.includes(id))
+      : [];
+    if (preset.length > 0) {
+      initialSelected = preset;
+      initialAll = preset.length === selectableIds.length;
+    } else if (persisted === 'all') {
+      initialSelected = selectableIds;
       initialAll = true;
     } else {
-      const validIds = new Set(allIds);
+      const validIds = new Set(selectableIds);
       initialSelected = (persisted as string[]).filter((id) => validIds.has(id));
       if (initialSelected.length === 0) {
         // 持久化的分组都已不存在 → 回退全选
-        initialSelected = allIds;
+        initialSelected = selectableIds;
         initialAll = true;
       } else {
-        initialAll = initialSelected.length === allIds.length;
+        initialAll = initialSelected.length === selectableIds.length;
       }
     }
     setExportGroupSelected(initialSelected);
     setExportGroupCheckAll(initialAll);
     setExportGroupIndeterminate(!initialAll && initialSelected.length > 0);
 
-    // 预缓存每个分组的图标计数,避免 checkbox 变化时查 DB
-    // 从 exportMeta 聚合 (含未分组虚拟分组), 与导出集口径一致
-    const counts: Record<string, number> = {};
-    exportMeta.forEach((m) => {
-      const gid = effectiveGroupId(m.iconGroup);
-      counts[gid] = (counts[gid] || 0) + 1;
-    });
     groupIconCountsRef.current = counts;
     setExportTotalIcons(totalIcons);
-    setExportTotalGroups(groupList.length);
+    setExportTotalGroups(selectableIds.length);
     setExportSelectedIconCount(
       initialAll ? totalIcons : initialSelected.reduce((sum, id) => sum + (counts[id] || 0), 0)
     );
@@ -296,13 +308,18 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally narrowed to selectedFormats.js (the only field affecting this preview); `t` omitted since it only changes on language switch
   }, [previewVisible, visible, selectedFormats.js]);
 
+  // 可选分组数 (count>0) — 全选/allGroupSelected 均以此为基准, 空分组不参与
+  const selectableGroupCount = useMemo(
+    () => exportGroupFullList.filter((g) => g.count > 0).length,
+    [exportGroupFullList]
+  );
+
   // 导出前字码审计 — 跟随分组选择, 检出导出集内的重复/非法字码
   const codeAudit = useMemo(() => {
     if (!visible) return null;
     try {
       const allGroupSelected =
-        exportGroupSelected.length === 0 ||
-        exportGroupFullList.length === exportGroupSelected.length;
+        exportGroupSelected.length === 0 || selectableGroupCount === exportGroupSelected.length;
       const meta = db.getExportIconCodeMeta();
       const selected = allGroupSelected
         ? meta
@@ -311,7 +328,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     } catch {
       return null;
     }
-  }, [visible, exportGroupSelected, exportGroupFullList]);
+  }, [visible, exportGroupSelected, selectableGroupCount]);
   const auditDuplicateIconCount = codeAudit
     ? codeAudit.duplicateGroups.reduce((sum, g) => sum + g.icons.length, 0)
     : 0;
@@ -405,7 +422,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
 
     // 5. 至少有图标可导出
     const allGroupSelected =
-      exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
+      exportGroupSelected.length === 0 || selectableGroupCount === exportGroupSelected.length;
     const allIcons = db.getIconList();
     const icons = allGroupSelected
       ? allIcons
@@ -443,7 +460,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   // 实际执行导出管线 (校验通过后调用)
   const executeExport = async (finalDirName: string) => {
     const allGroupSelected =
-      exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
+      exportGroupSelected.length === 0 || selectableGroupCount === exportGroupSelected.length;
     // iconGroup 归一化: 让 'null'/空值形态的未分组图标能被过滤命中, 也让 demo 页按虚拟分组正确归类
     const allIcons = db
       .getIconList()
@@ -677,16 +694,22 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   };
 
   const onTargetGroupCheckAllChange = (checked: boolean) => {
-    const selected = checked ? exportGroupFullList.map((group) => group.value) : [];
+    // 全选只作用于可选分组 (count>0), 空分组保持不可选
+    const selected = checked
+      ? exportGroupFullList.filter((group) => group.count > 0).map((group) => group.value)
+      : [];
     setExportGroupSelected(selected);
     setExportGroupIndeterminate(false);
     setExportGroupCheckAll(checked);
     setExportSelectedIconCount(checked ? exportTotalIcons : 0);
   };
 
-  const onTargetGroupChange = (checkedValues: string[]) => {
+  const onTargetGroupToggle = (groupId: string, checked: boolean) => {
+    const checkedValues = checked
+      ? [...exportGroupSelected, groupId]
+      : exportGroupSelected.filter((v) => v !== groupId);
     setExportGroupSelected(checkedValues);
-    const isAll = checkedValues.length === exportGroupFullList.length;
+    const isAll = checkedValues.length === selectableGroupCount;
     setExportGroupIndeterminate(!!checkedValues.length && !isAll);
     setExportGroupCheckAll(isAll);
     // 用预缓存的 per-group 计数，不再查 DB
@@ -773,11 +796,24 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
                           })}
                     </span>
                   </div>
-                  <CheckboxGroup
-                    options={exportGroupFullList}
-                    value={exportGroupSelected}
-                    onChange={onTargetGroupChange}
-                  />
+                  {/* 分组行 — 右侧显示图标计数; 空分组置灰不可选 */}
+                  <div className="flex flex-col gap-1.5">
+                    {exportGroupFullList.map((opt) => (
+                      <div key={opt.value} className="flex items-center justify-between gap-2">
+                        <Checkbox
+                          checked={exportGroupSelected.includes(opt.value)}
+                          disabled={opt.count === 0}
+                          onChange={(checked) => onTargetGroupToggle(opt.value, checked)}
+                          className="min-w-0 [&>span]:truncate"
+                        >
+                          {opt.label}
+                        </Checkbox>
+                        <span className={cn('t-caption shrink-0', opt.count === 0 && 'opacity-50')}>
+                          {opt.count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
