@@ -58,9 +58,13 @@ const ResourceNav = React.memo(function ResourceNav({
         {items.map((item) => {
           const Icon = item.icon;
           const isSelected = selectedGroup === item.key;
+          // 未分组/回收站可作为画布图标拖拽的投放目标 (useIconStackDrag 命中高亮)
+          const isDropTarget =
+            item.key === 'resource-uncategorized' || item.key === 'resource-recycleBin';
           return (
             <button
               key={item.key}
+              {...(isDropTarget ? { 'data-icon-drop-target': item.key } : {})}
               onClick={() => onMenuItemSelected({ key: item.key })}
               className={cn(
                 'flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors',

@@ -48,6 +48,8 @@ const SideMenu = React.memo(function SideMenu({
   const [prefixVisible, setPrefixVisible] = useState(false);
   const [projectSettingsVisible, setProjectSettingsVisible] = useState(false);
   const [exportVisible, setExportVisible] = useState(false);
+  // 画布右键「导出图标字体」入口带来的预选分组; null = 沿用持久化选择
+  const [exportInitialGroups, setExportInitialGroups] = useState<string[] | null>(null);
 
   const sideMenuWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -71,26 +73,35 @@ const SideMenu = React.memo(function SideMenu({
     [handleGroupSelected]
   );
 
+  // 导入图标 — targetGroup 缺省为当前选中分组 (文件菜单路径); 画布右键可显式指定目标
+  const runIconImport = useCallback(
+    (targetGroup: string) => {
+      iconImporter({
+        onSelectSVG: (files: any[]) => {
+          db.addIcons(files, targetGroup, (result) => {
+            if (result && result.failed > 0) {
+              message.warning(
+                t('import.codeExhausted', { added: result.added, failed: result.failed })
+              );
+            } else {
+              message.success(buildImportSuccessMessage(t, result, files.length));
+            }
+            syncLeft();
+            analyticsTrack('icon.import');
+          });
+        },
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted: only recreated on language switch
+    [syncLeft]
+  );
+
   // 文件菜单统一处理
   const handleFileMenuAction = useCallback(
     (key: string) => {
       switch (key) {
         case 'import-icons':
-          iconImporter({
-            onSelectSVG: (files: any[]) => {
-              db.addIcons(files, selectedGroup, (result) => {
-                if (result && result.failed > 0) {
-                  message.warning(
-                    t('import.codeExhausted', { added: result.added, failed: result.failed })
-                  );
-                } else {
-                  message.success(buildImportSuccessMessage(t, result, files.length));
-                }
-                syncLeft();
-                analyticsTrack('icon.import');
-              });
-            },
-          });
+          runIconImport(selectedGroup);
           break;
         case 'export-fonts':
           setExportVisible(true);
@@ -109,12 +120,21 @@ const SideMenu = React.memo(function SideMenu({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted: only recreated on language switch, adding it would needlessly recreate this callback then
-    [selectedGroup, syncLeft]
+    [selectedGroup, syncLeft, runIconImport]
   );
 
   useEffect(() => {
-    const exportHandler = () => setExportVisible(true);
-    const importHandler = () => handleFileMenuAction('import-icons');
+    // detail.groupIds: 画布右键入口预选分组; 无 detail = 沿用持久化选择
+    const exportHandler = (e: Event) => {
+      const groupIds = (e as CustomEvent).detail?.groupIds;
+      setExportInitialGroups(Array.isArray(groupIds) && groupIds.length ? groupIds : null);
+      setExportVisible(true);
+    };
+    // detail.targetGroup: 画布右键入口显式指定导入目标; 无 detail = 当前选中分组
+    const importHandler = (e: Event) => {
+      const target = (e as CustomEvent).detail?.targetGroup;
+      runIconImport(typeof target === 'string' && target ? target : selectedGroup);
+    };
     const settingsHandler = () => setPrefixVisible(true);
     const projectSettingsHandler = () => setProjectSettingsVisible(true);
     window.addEventListener('bobcorn:open-export', exportHandler);
@@ -127,7 +147,7 @@ const SideMenu = React.memo(function SideMenu({
       window.removeEventListener('bobcorn:open-settings', settingsHandler);
       window.removeEventListener('bobcorn:open-project-settings', projectSettingsHandler);
     };
-  }, [handleFileMenuAction]);
+  }, [runIconImport, selectedGroup]);
 
   return (
     <div className="relative flex h-full w-full flex-col bg-surface">
@@ -202,7 +222,14 @@ const SideMenu = React.memo(function SideMenu({
       />
 
       {/* 导出对话框 */}
-      <ExportDialog visible={exportVisible} onClose={() => setExportVisible(false)} />
+      <ExportDialog
+        visible={exportVisible}
+        initialGroups={exportInitialGroups}
+        onClose={() => {
+          setExportVisible(false);
+          setExportInitialGroups(null);
+        }}
+      />
     </div>
   );
 });

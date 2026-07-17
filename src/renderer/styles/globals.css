@@ -132,6 +132,20 @@
   .t-pill {
     @apply text-[10px] font-medium leading-none;
   }
+  /* 图标拖拽聚合角标 — 叠放卡片右上角的数量标识 (useIconStackDrag) */
+  .drag-stack-badge {
+    @apply flex items-center justify-center;
+    @apply min-w-[20px] h-[20px] px-1.5 rounded-full;
+    @apply text-[11px] font-semibold leading-none tabular-nums;
+    @apply bg-accent text-accent-foreground;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* 图标拖拽 — 侧边栏可投放行的悬停高亮 (useIconStackDrag 以 data-drop-hover 标记) */
+[data-icon-drop-target][data-drop-hover] {
+  background-color: hsl(var(--accent-subtle));
+  box-shadow: inset 0 0 0 1.5px hsl(var(--accent));
 }
 
 /* Mono guard: a mono input's placeholder is often a localized (CJK) string.

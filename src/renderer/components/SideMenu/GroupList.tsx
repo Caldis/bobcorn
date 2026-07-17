@@ -51,6 +51,7 @@ const SortableGroupItem = React.memo(function SortableGroupItem({
       style={itemStyle}
       {...attributes}
       {...listeners}
+      data-icon-drop-target={group.id}
       onClick={onSelect}
       className={cn(
         'group flex cursor-pointer items-center rounded-md px-3 py-1.5 text-sm transition-colors',

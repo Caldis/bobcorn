@@ -122,6 +122,7 @@ const IconBlock = React.memo(function IconBlock({
   return (
     <div
       data-testid="icon-block"
+      data-icon-id={iconId}
       className={cn(
         'group/icon',
         'relative text-center z-[1]',
@@ -189,6 +190,7 @@ const IconBlock = React.memo(function IconBlock({
       )}
 
       <div
+        data-icon-preview
         className={cn(style.iconContentContainer, 'mx-auto w-[120px] aspect-square')}
         style={{ width }}
       >

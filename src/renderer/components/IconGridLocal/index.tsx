@@ -16,6 +16,9 @@ import {
   Trash2,
   RotateCcw,
   TriangleAlert,
+  Upload,
+  ListChecks,
+  FileType2,
 } from 'lucide-react';
 // UI
 import { message, confirm } from '../ui';
@@ -29,6 +32,8 @@ import { IconExportDialog, type IconExportTarget } from '../IconExportDialog';
 import { parseHex } from '../CodeMatrix/rangeMath';
 // ViewModel
 import { computeIconGridViewModel, type IconItem, type VirtualRow } from './viewModel';
+// 拖拽聚合 (拖到侧边栏分组)
+import { useIconStackDrag } from './useIconStackDrag';
 // Utils
 import { cn } from '../../lib/utils';
 import { checkVariants, buildVariantWarning } from '../../utils/variantGuard';
@@ -101,9 +106,13 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const [marqueeDragging, setMarqueeDragging] = useState(false);
 
   // Icon right-click context menu + its move/copy group picker
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; ids: string[] } | null>(
-    null
-  );
+  // blank = 点在画布空白处 (ids 为空), 菜单换成视图级便捷操作 (导入/全选/导出字体)
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    ids: string[];
+    blank?: boolean;
+  } | null>(null);
   const [groupPickerMode, setGroupPickerMode] = useState<'move' | 'copy' | null>(null);
   const groupPickerIdsRef = useRef<string[]>([]);
   const [exportDialogVisible, setExportDialogVisible] = useState(false);
@@ -118,6 +127,10 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const widthTmpRef = useRef<number | null>(null);
   const widthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollCacheRef = useRef<Map<string, number>>(new Map());
+
+  // 拖拽聚合入口 — handleGridMouseDown 是空依赖 useCallback, 经 ref 间接调用
+  // 在其后创建的 useIconStackDrag hook, 避免声明顺序与依赖失效问题
+  const pressIconRef = useRef<((e: React.MouseEvent, iconId: string) => void) | null>(null);
 
   // ── Marquee refs (mutable drag state, no re-render) ─────────────────
   const marqueeStartRef = useRef<{ cx: number; cy: number } | null>(null); // content coords
@@ -648,7 +661,13 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     const el = scrollRef.current;
     if (!el) return;
     const target = e.target as HTMLElement;
-    if (target.closest('[data-testid="icon-block"]')) return; // preserve icon click behavior
+    const iconBlock = target.closest('[data-testid="icon-block"]') as HTMLElement | null;
+    if (iconBlock) {
+      // 图标块上的按压交给拖拽聚合 (阈值内仍是普通点击, 由 IconBlock 的 click 处理)
+      const iconId = iconBlock.getAttribute('data-icon-id');
+      if (iconId) pressIconRef.current?.(e, iconId);
+      return;
+    }
     if (target.closest('[data-marquee-skip]')) return; // group headers etc.
     if (geomRef.current.rows.length === 0) return;
     const rect = el.getBoundingClientRect();
@@ -803,6 +822,107 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     analyticsTrack('batch.operation', { operation: 'export' });
   }, []);
 
+  // ── 拖拽聚合 — 框选图标拖到侧边栏 (未分组/回收站/具体分组) ────────────
+  const handleStackDrop = useCallback(
+    (ids: string[], targetGroupId: string) => {
+      const multi = ids.length > 1;
+      if (targetGroupId === 'resource-recycleBin') {
+        db.moveIconsWithVariants(ids, 'resource-recycleBin');
+        syncLeft();
+        useAppStore.getState().clearBatchSelection();
+        selectIcon(null);
+        message.success(
+          multi ? t('contextMenu.recycledCount', { count: ids.length }) : t('editor.recycled')
+        );
+        analyticsTrack('batch.operation', { operation: 'recycle' });
+        return;
+      }
+      db.moveIconsWithVariants(ids, targetGroupId, () => {
+        syncLeft();
+        useAppStore.getState().clearBatchSelection();
+        selectIcon(null);
+        const groupName =
+          targetGroupId === 'resource-uncategorized'
+            ? t('nav.ungrouped')
+            : ((db.getGroupList() as any[]).find((g) => g.id === targetGroupId)?.groupName ??
+              targetGroupId);
+        message.success(t('contextMenu.movedToGroup', { count: ids.length, group: groupName }));
+        analyticsTrack('batch.operation', { operation: 'move' });
+      });
+    },
+    [syncLeft, selectIcon, t]
+  );
+
+  const { pressIcon, dragLayer } = useIconStackDrag({
+    containerRef: scrollRef,
+    onDrop: handleStackDrop,
+    // 拖拽结束后吞掉紧随的 click — 复用 marquee 的同一机制; click 与 mouseup 同步派发,
+    // 下一宏任务即复位, 避免松手在侧边栏 (无 click 进画布) 时误吞后续正常点击
+    onDragFinish: () => {
+      justMarqueedRef.current = true;
+      window.setTimeout(() => {
+        justMarqueedRef.current = false;
+      }, 0);
+    },
+  });
+  pressIconRef.current = pressIcon;
+
+  // ── 画布空白区右键菜单 ───────────────────────────────────────────────
+  const handleBlankContextMenu = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // 图标块上的右键由 IconBlock 自己的 handler 处理 (事件会冒泡到这里, 必须跳过)
+    if (target.closest('[data-testid="icon-block"]')) return;
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, ids: [], blank: true });
+  }, []);
+
+  // 导入目标: 真实分组导入到该分组, 资源视图 (全部/收藏/最近/未分组) 统一落到未分组
+  const isRealGroup = !selectedGroup.startsWith('resource-');
+  const blankContextItems: ContextMenuItem[] = useMemo(() => {
+    const visibleIds = flatIconIdsRef.current;
+    return [
+      {
+        key: 'import',
+        label: isRealGroup ? t('contextMenu.importToGroup') : t('contextMenu.importIcons'),
+        icon: <Upload size={14} />,
+        // 回收站里导入语义不明确, 禁用
+        disabled: selectedGroup === 'resource-recycleBin',
+        onSelect: () => {
+          window.dispatchEvent(
+            new CustomEvent('bobcorn:import-icons', {
+              detail: { targetGroup: isRealGroup ? selectedGroup : 'resource-uncategorized' },
+            })
+          );
+        },
+      },
+      {
+        key: 'select-all',
+        label: t('contextMenu.selectAll'),
+        icon: <ListChecks size={14} />,
+        disabled: visibleIds.length === 0,
+        onSelect: () => {
+          useAppStore.getState().selectAllIcons(visibleIds);
+        },
+      },
+      { key: 'sep', separator: true },
+      {
+        key: 'export-font',
+        label: t('contextMenu.exportFont'),
+        icon: <FileType2 size={14} />,
+        onSelect: () => {
+          // 真实分组/未分组视图 → 预选当前分组; 其他资源视图 → 沿用持久化选择
+          const groupIds = isRealGroup
+            ? [selectedGroup]
+            : selectedGroup === 'resource-uncategorized'
+              ? ['resource-uncategorized']
+              : undefined;
+          window.dispatchEvent(new CustomEvent('bobcorn:open-export', { detail: { groupIds } }));
+        },
+      },
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- flatIconIdsRef 是 ref, 菜单每次打开时重新读取; 依赖 contextMenu 保证打开瞬间重算
+  }, [selectedGroup, isRealGroup, t, contextMenu]);
+
   // ids captured into exportDialogIdsRef at click time (contextMenu itself is
   // cleared right after the menu item is selected — see IconContextMenu).
   const exportDialogIcons: IconExportTarget[] = useMemo(() => {
@@ -912,6 +1032,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
 
   const contextItems: ContextMenuItem[] = useMemo(() => {
     if (!contextMenu) return [];
+    if (contextMenu.blank) return blankContextItems;
     const ids = contextMenu.ids;
     const count = ids.length;
     const multi = count > 1;
@@ -993,6 +1114,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
     handleCtxFavorite,
     handleCtxRecycle,
     handleCtxExport,
+    blankContextItems,
   ]);
 
   // Escape to exit batch mode
@@ -1217,6 +1339,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         ref={mergedScrollRef}
         onMouseDown={handleGridMouseDown}
         onClickCapture={handleGridClickCapture}
+        onContextMenu={handleBlankContextMenu}
         className={cn(
           'relative text-center flex-grow',
           'overflow-hidden overflow-y-auto',
@@ -1408,6 +1531,9 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         onClose={() => setExportDialogVisible(false)}
         icons={exportDialogIcons}
       />
+
+      {/* 拖拽聚合浮层 (portal 到 body) */}
+      {dragLayer}
     </div>
   );
 }
