@@ -103,6 +103,12 @@ const WIKI_LANG_MAP: Record<string, string> = {
   id: 'id',
 };
 
+// 未分组图标的 iconGroup 在库里存在三种历史形态: 'resource-uncategorized' / 字符串 'null' / 空值,
+// 统一折叠成虚拟分组 id, 供分组选择与过滤使用
+const UNCATEGORIZED_ID = 'resource-uncategorized';
+const effectiveGroupId = (iconGroup: unknown): string =>
+  !iconGroup || iconGroup === 'null' ? UNCATEGORIZED_ID : String(iconGroup);
+
 /** Format wiki slugs + i18n summary keys for hover knowledge cards */
 const FORMAT_INFO: Record<string, { wiki: string; summaryKey: string }> = {
   svg: { wiki: 'svg-font', summaryKey: 'export.fmt.svg' },
@@ -206,11 +212,22 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   // 当对话框打开时初始化分组列表 + 还原持久化的选择
   const initGroupList = () => {
     const groups = db.getGroupList();
-    const totalIcons = db.getIconCount();
+    // 导出集元数据 (WHERE 与 getIconList 一致): 总数/分组计数以真实导出集为准,
+    // 不用 getIconCount() —— 它连回收站和变体一起算, 会虚高
+    const exportMeta = db.getExportIconCodeMeta();
+    const totalIcons = exportMeta.length;
     const groupList: ExportGroupOption[] = groups.map((group: any) => ({
       label: group.groupName,
       value: group.id,
     }));
+    // 未分组图标作为虚拟分组参与选择, 否则它们无法被勾选,
+    // 纯未分组项目 (0 个真实分组) 甚至会因选择集为空而无法导出
+    const uncategorizedCount = exportMeta.filter(
+      (m) => effectiveGroupId(m.iconGroup) === UNCATEGORIZED_ID
+    ).length;
+    if (uncategorizedCount > 0) {
+      groupList.push({ label: t('nav.ungrouped'), value: UNCATEGORIZED_ID });
+    }
     setExportGroupFullList(groupList);
 
     // 还原分组选择: 'all' = 全选 (含未来新分组),数组 = 显式列表 (过滤掉已删除的分组)
@@ -237,13 +254,15 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     setExportGroupIndeterminate(!initialAll && initialSelected.length > 0);
 
     // 预缓存每个分组的图标计数,避免 checkbox 变化时查 DB
+    // 从 exportMeta 聚合 (含未分组虚拟分组), 与导出集口径一致
     const counts: Record<string, number> = {};
-    groups.forEach((g: any) => {
-      counts[g.id] = db.getIconCountFromGroup(g.id);
+    exportMeta.forEach((m) => {
+      const gid = effectiveGroupId(m.iconGroup);
+      counts[gid] = (counts[gid] || 0) + 1;
     });
     groupIconCountsRef.current = counts;
     setExportTotalIcons(totalIcons);
-    setExportTotalGroups(groups.length);
+    setExportTotalGroups(groupList.length);
     setExportSelectedIconCount(
       initialAll ? totalIcons : initialSelected.reduce((sum, id) => sum + (counts[id] || 0), 0)
     );
@@ -260,7 +279,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
         groupOrder: -1,
         groupColor: '',
       });
-      const allIcons = db.getIconList();
+      const allIcons = db
+        .getIconList()
+        .map((icon: any) => ({ ...icon, iconGroup: effectiveGroupId(icon.iconGroup) }));
       const sampleIcons = allIcons.slice(0, 30);
       // Generate inline SVG symbol sprite so icons render without the font
       const inlineSprite = iconfontSymbolGenerator(sampleIcons);
@@ -285,7 +306,7 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
       const meta = db.getExportIconCodeMeta();
       const selected = allGroupSelected
         ? meta
-        : meta.filter((m: any) => exportGroupSelected.includes(m.iconGroup));
+        : meta.filter((m: any) => exportGroupSelected.includes(effectiveGroupId(m.iconGroup)));
       return auditIconCodes(selected);
     } catch {
       return null;
@@ -388,7 +409,9 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
     const allIcons = db.getIconList();
     const icons = allGroupSelected
       ? allIcons
-      : allIcons.filter((icon: any) => exportGroupSelected.includes(icon.iconGroup));
+      : allIcons.filter((icon: any) =>
+          exportGroupSelected.includes(effectiveGroupId(icon.iconGroup))
+        );
     if (!icons.length) {
       message.warning(t('export.noIconsWarning'));
       return;
@@ -421,7 +444,10 @@ function ExportDialog({ visible, onClose }: ExportDialogProps) {
   const executeExport = async (finalDirName: string) => {
     const allGroupSelected =
       exportGroupSelected.length === 0 || exportGroupFullList.length === exportGroupSelected.length;
-    const allIcons = db.getIconList();
+    // iconGroup 归一化: 让 'null'/空值形态的未分组图标能被过滤命中, 也让 demo 页按虚拟分组正确归类
+    const allIcons = db
+      .getIconList()
+      .map((icon: any) => ({ ...icon, iconGroup: effectiveGroupId(icon.iconGroup) }));
     const selectedIcons = allGroupSelected
       ? allIcons
       : allIcons.filter((icon: any) => exportGroupSelected.includes(icon.iconGroup));
