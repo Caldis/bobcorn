@@ -173,6 +173,21 @@ class Database {
     this.onMutationCallback?.();
   };
 
+  // 内容变更广播 (renderer-only UI 插桩, 无业务语义, 与 registerOnMutation 同款) —
+  // bootstrap 注册 → store.invalidateIconContent。所有 iconContent 写入路径
+  // (setIconData 及其调用者 renewIconData/updateIconsColor/改色等) 在数据层统一
+  // 广播, 画布内容缓存的失效收口于此, 写入 callsite 无需再手工 patch/同步
+  private onIconContentChangedCallback: ((ids: string[]) => void) | null = null;
+  registerOnIconContentChanged = (cb: (ids: string[]) => void): void => {
+    this.onIconContentChangedCallback = cb;
+  };
+  // 批量写入 (updateIconsColor) 抑制逐条广播, 循环结束后一次性 emit
+  private suppressContentEmit = false;
+  private emitIconContentChanged = (ids: string[]): void => {
+    if (this.suppressContentEmit || ids.length === 0) return;
+    this.onIconContentChangedCallback?.(ids);
+  };
+
   constructor() {
     // 内部引用
     this.dbInited = false; // 数据库初始化标记
@@ -878,6 +893,10 @@ class Database {
     dev && console.log('setIconData');
     const targetDataSet: DataSet = { id: sf(id) };
     this.setDataOfTable(iconData, targetDataSet, dataSet, callback);
+    // iconContent 写入 → 广播失效 (画布缓存收口点, 勿在 callsite 手工同步)
+    if ('iconContent' in dataSet) {
+      this.emitIconContentChanged([id]);
+    }
   };
   getIconData = (id: string): Record<string, any> => {
     dev && console.log('getIconData');
@@ -1684,17 +1703,24 @@ class Database {
   };
   updateIconsColor = (ids: string[], targetColor: string, callback?: () => void): void => {
     dev && console.log('updateIconsColor');
-    ids.forEach((id) => {
-      this.ensureOriginalContent(id);
-      const icon = this.getIconData(id);
-      let content = icon.iconContent;
-      const colors = extractSvgColors(content);
-      colors.forEach((c: { color: string }) => {
-        content = replaceSvgColor(content, c.color, targetColor);
+    // 批量写入抑制逐条广播, 循环结束后一次性 emit 全部 ids
+    this.suppressContentEmit = true;
+    try {
+      ids.forEach((id) => {
+        this.ensureOriginalContent(id);
+        const icon = this.getIconData(id);
+        let content = icon.iconContent;
+        const colors = extractSvgColors(content);
+        colors.forEach((c: { color: string }) => {
+          content = replaceSvgColor(content, c.color, targetColor);
+        });
+        const escaped = content.replace(/'/g, "''");
+        this.setIconData(id, { iconContent: `'${escaped}'` });
       });
-      const escaped = content.replace(/'/g, "''");
-      this.setIconData(id, { iconContent: `'${escaped}'` });
-    });
+    } finally {
+      this.suppressContentEmit = false;
+    }
+    this.emitIconContentChanged(ids);
     callback && callback();
   };
 

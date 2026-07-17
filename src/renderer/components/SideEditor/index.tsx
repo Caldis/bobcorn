@@ -234,15 +234,11 @@ const SideEditor = React.memo(function SideEditor({
         }
         db.renewIconData(selectedIcon, newIconFileData, () => {
           message.success(t('editor.dataUpdated'));
-          // 中央画布 IconBlock 的内容缓存 (patched/prefetched/lazy) 不会因 syncLeft 失效，
-          // 必须走 patchIconContent 热更新，否则网格继续显示替换前的旧 SVG
-          const newContent = db.getIconContent(selectedIcon);
-          patchIconContent(selectedIcon, newContent);
+          // 画布/编辑器刷新由数据层内容广播自动处理 (setIconData → invalidateIconContent)
           // renewIconData 已把 iconContentOriginal 一并重置为新内容；本地快照同步跟上，
           // 避免残留旧原始内容误判 colorChanged、点“重置颜色”时回滚成替换前的旧图标
-          setOriginalIconContent(newContent);
+          setOriginalIconContent(db.getIconContent(selectedIcon));
           setEditingColorIdx(null);
-          syncIconContent();
           syncLeft();
         });
       }
@@ -519,20 +515,14 @@ const SideEditor = React.memo(function SideEditor({
         ? replaceSvgColor(iconData.iconContent, colorInfo.color, newColor, true)
         : replaceSvgColor(iconData.iconContent, colorInfo.color, newColor);
       const escaped = updatedSvg.replace(/'/g, "''");
+      // setIconData 广播失效 (画布/编辑器自动刷新); patchIconContent 作为快路径
+      // 紧随其后注入新内容, 让取色拖拽的高频改色不触发 IconBlock 重查库
       db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
       sync(selectedIcon);
-      syncIconContent();
       patchIconContent(selectedIcon, updatedSvg);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sync` is unmemoized (recreated every render); adding it would trip a separate "wrap in useCallback" warning, so it's intentionally left out (called explicitly with selectedIcon, not read from closure). syncIconContent/patchIconContent are stable store references
-    [
-      editingColorIdx,
-      svgColors,
-      iconData.iconContent,
-      selectedIcon,
-      syncIconContent,
-      patchIconContent,
-    ]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sync` is unmemoized (recreated every render); adding it would trip a separate "wrap in useCallback" warning, so it's intentionally left out (called explicitly with selectedIcon, not read from closure). patchIconContent is a stable store reference
+    [editingColorIdx, svgColors, iconData.iconContent, selectedIcon, patchIconContent]
   );
 
   const handleColorChange = useCallback(
@@ -584,13 +574,13 @@ const SideEditor = React.memo(function SideEditor({
   const handleResetColors = useCallback(() => {
     if (!originalIconContent || !selectedIcon) return;
     const escaped = originalIconContent.replace(/'/g, "''");
+    // setIconData 广播失效; patchIconContent 快路径直供原始内容, 免重查库
     db.setIconData(selectedIcon, { iconContent: `'${escaped}'` });
     sync(selectedIcon);
-    syncIconContent();
     patchIconContent(selectedIcon, originalIconContent);
     setEditingColorIdx(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sync` is unmemoized (recreated every render); adding it would trip a separate "wrap in useCallback" warning, so it's intentionally left out (called explicitly with selectedIcon, not read from closure). syncIconContent/patchIconContent are stable store references
-  }, [originalIconContent, selectedIcon, syncIconContent, patchIconContent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sync` is unmemoized (recreated every render); adding it would trip a separate "wrap in useCallback" warning, so it's intentionally left out (called explicitly with selectedIcon, not read from closure). patchIconContent is a stable store reference
+  }, [originalIconContent, selectedIcon, patchIconContent]);
 
   return (
     <div

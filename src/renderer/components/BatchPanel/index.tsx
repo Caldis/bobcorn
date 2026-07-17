@@ -36,8 +36,6 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
   const selectedIcons = useAppStore((state: any) => state.selectedIcons);
   const clearBatchSelection = useAppStore((state: any) => state.clearBatchSelection);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
-  const syncIconContent = useAppStore((state: any) => state.syncIconContent);
-  const patchIconContent = useAppStore((state: any) => state.patchIconContent);
 
   const variantProgress = useAppStore((s: any) => s.variantProgress);
 
@@ -250,19 +248,14 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
   }, []);
 
   const handleApplyColor = useCallback(() => {
+    // 画布/编辑器刷新由数据层内容广播自动处理 (updateIconsColor → invalidateIconContent)
     db.updateIconsColor(selectedIds, batchColor);
-    // 中央画布 IconBlock 的内容缓存 (patched/prefetched/lazy) 不会因 syncLeft 失效，
-    // 逐个 patchIconContent 热更新，否则网格继续显示改色前的旧 SVG
-    db.getIconContentBatch(selectedIds).forEach((content: string, id: string) => {
-      patchIconContent(id, content);
-    });
     syncLeft();
-    syncIconContent();
     message.success(t('batch.colorApplied', { count: selectedIds.length }));
     setShowColorPicker(false);
     analyticsTrack('batch.operation', { operation: 'unifyColor' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted (see handleMove above); syncIconContent/syncLeft/patchIconContent are stable store references
-  }, [selectedIds, batchColor, syncIconContent, syncLeft, patchIconContent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted (see handleMove above); syncLeft is a stable store reference
+  }, [selectedIds, batchColor, syncLeft]);
 
   const handleBatchGenerateVariants = useCallback(async () => {
     const combos = allVariantCombinations();

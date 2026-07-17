@@ -123,6 +123,8 @@ export function useIconStackDrag({ containerRef, onDrop, onDragFinish }: UseIcon
           cloneElsRef.current = [];
           setClones(null);
           setDragCount(0);
+          // 与卡片消散/飞回同步恢复源图标的透明度
+          useAppStore.getState().setDraggingIcons([]);
         },
         dropped ? 180 : 300
       );
@@ -177,6 +179,8 @@ export function useIconStackDrag({ containerRef, onDrop, onDragFinish }: UseIcon
     cloneElsRef.current = [];
     setClones(cloneData);
     setDragCount(ids.length);
+    // 源图标调淡显示「暂离」(IconBlock 订阅 draggingIcons)
+    s.setDraggingIcons(ids);
     document.body.style.userSelect = 'none';
     document.body.style.cursor = 'grabbing';
   }, [containerRef]);
@@ -250,13 +254,14 @@ export function useIconStackDrag({ containerRef, onDrop, onDragFinish }: UseIcon
     [onMove, onUp, onKey]
   );
 
-  // 卸载兜底 — 组件销毁时移除残留监听与全局样式
+  // 卸载兜底 — 组件销毁时移除残留监听、全局样式与暂离态
   useEffect(() => {
     return () => {
       detachListeners();
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
       dragRef.current?.hoverEl?.removeAttribute('data-drop-hover');
+      if (dragRef.current?.active) useAppStore.getState().setDraggingIcons([]);
     };
   }, [detachListeners]);
 

@@ -57,6 +57,10 @@ const RENDERER_DB_LEGACY_METHODS = new Set([
   // ── mutation tracking / SQL plumbing ──
   'registerOnMutation',
   'notifyMutation',
+  // renderer-only UI 插桩 (无业务语义): 内容写入后广播给 store 失效画布缓存,
+  // 与 registerOnMutation 同款; 见 src/renderer/store/contentCache.ts
+  'registerOnIconContentChanged',
+  'emitIconContentChanged',
   'init',
   'initDatabases',
   'buildDataSTMT',

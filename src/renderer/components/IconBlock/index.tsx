@@ -63,6 +63,14 @@ const IconBlock = React.memo(function IconBlock({
   const prefetchedContent = useAppStore(
     useCallback((state: any) => state.prefetchedContent?.[iconId] ?? null, [iconId])
   );
+  // 内容修订号 — 数据层内容写入后自动递增 (store.invalidateIconContent), 触发重载
+  const contentRev = useAppStore(
+    useCallback((state: any) => state.iconContentRevs?.[iconId] ?? 0, [iconId])
+  );
+  // 拖拽聚合中 — 调淡显示「暂离」
+  const isDragSource = useAppStore(
+    useCallback((state: any) => !!(iconId && state.draggingIcons?.has(iconId)), [iconId])
+  );
   const variantCount = useAppStore(
     useCallback(
       (state: any) => (data.variantOf || !iconId ? 0 : (state.variantCounts?.[iconId] ?? 0)),
@@ -82,17 +90,24 @@ const IconBlock = React.memo(function IconBlock({
   // Prefetched content from batch query takes priority over individual lazy-load
   const [lazyContent, setLazyContent] = useState('');
   useEffect(() => {
-    if (!content && iconId && !patchedContent && !prefetchedContent) {
-      // Defer to next idle frame to avoid blocking scroll
-      const handle = requestIdleCallback(() => {
-        const loaded = db.getIconContent(iconId);
-        if (loaded) setLazyContent(loaded);
-      });
-      return () => cancelIdleCallback(handle);
-    }
-  }, [iconId, content, patchedContent, prefetchedContent]);
+    if (!iconId) return;
+    // 已有热更新/预取内容 → 是最新的, 无需查库
+    if (patchedContent || prefetchedContent) return;
+    // props 自带内容且从未失效 → 直接用; rev>0 时 props/lazy 都可能过期, 必须重载
+    if (content && contentRev === 0) return;
+    // Defer to next idle frame to avoid blocking scroll
+    const handle = requestIdleCallback(() => {
+      const loaded = db.getIconContent(iconId);
+      if (loaded) setLazyContent(loaded);
+    });
+    return () => cancelIdleCallback(handle);
+  }, [iconId, content, patchedContent, prefetchedContent, contentRev]);
 
-  const effectiveContent = patchedContent || prefetchedContent || content || lazyContent;
+  // rev>0 时 lazy (重载结果) 优先于 props 快照, 避免旧内容遮住新内容
+  const effectiveContent =
+    patchedContent ||
+    prefetchedContent ||
+    (contentRev > 0 ? lazyContent || content : content || lazyContent);
   const hasContent = !!effectiveContent;
   const sanitizedHtml = useMemo(() => sanitizeSVG(effectiveContent), [effectiveContent]);
 
@@ -134,7 +149,9 @@ const IconBlock = React.memo(function IconBlock({
         'hover:shadow-md hover:bg-surface-accent hover:-translate-y-0.5',
         'active:scale-[0.96] active:border-accent',
         selected && ['border-accent bg-surface-accent shadow-sm shadow-black/20'],
-        batchSelected && !selected && ['bg-accent-subtle border-accent/40']
+        batchSelected && !selected && ['bg-accent-subtle border-accent/40'],
+        // 拖拽聚合中 — 调淡表达「暂离」, 落回/取消后恢复
+        isDragSource && 'opacity-30'
       )}
       onClick={handleSelected}
       onContextMenu={handleContextMenu}

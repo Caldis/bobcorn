@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import db from '../database';
 import config, { getOption, setOption } from '../config';
 import { resolveTheme, applyThemeClass } from '../config/themes';
+import { applyContentInvalidation } from './contentCache';
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -21,11 +22,16 @@ export interface State {
   selectedIcons: Set<string>;
   batchMode: boolean;
   lastClickedIconId: string | null;
+  // 拖拽聚合中的图标 — 画布上调淡显示「暂离」(useIconStackDrag 维护)
+  draggingIcons: Set<string>;
 
   // Data
   groupData: any[];
   // 图标内容版本号 — 递增触发 SideEditor 刷新
   iconContentVersion: number;
+  // 每图标内容修订号 — 数据层内容写入后经 invalidateIconContent 递增,
+  // IconBlock 订阅自己的 rev 以自动重载 (失效逻辑见 contentCache.ts)
+  iconContentRevs: Record<string, number>;
   // 热更新的图标内容 — IconBlock 优先读这里的内容
   patchedIcons: Record<string, string>;
   // 批量预取的图标内容 — 虚拟滚动可见区域批量加载
@@ -91,11 +97,13 @@ export interface Actions {
   invertSelection: (visibleIds: string[]) => void;
   clearBatchSelection: () => void;
   setLastClickedIconId: (id: string | null) => void;
+  setDraggingIcons: (ids: string[]) => void;
   // 分级同步
   syncLeft: () => void; // 重：刷新分组列表 + 图标网格（增删/移动图标/增删分组时用）
   syncIconContent: () => void; // 轻：递增版本号，触发 SideEditor 刷新
   patchIconContent: (iconId: string, content: string) => void; // 最轻：热更新单个图标内容
   prefetchIconContent: (ids: string[]) => void; // 批量预取可见图标的 SVG 内容
+  invalidateIconContent: (ids: string[]) => void; // 数据层内容写入的统一失效入口 (bootstrap 注册到 db 广播)
   resetIconContentCaches: () => void; // 项目边界清空内容缓存（防复制的 .icp 同 id 串内容）
   syncAll: () => void;
 
@@ -145,10 +153,12 @@ const useAppStore = create<State & Actions>((set, get) => ({
   selectedIcons: new Set<string>(),
   batchMode: false,
   lastClickedIconId: null,
+  draggingIcons: new Set<string>(),
 
   // Data
   groupData: [],
   iconContentVersion: 0,
+  iconContentRevs: {},
   patchedIcons: {},
   prefetchedContent: {},
 
@@ -278,6 +288,10 @@ const useAppStore = create<State & Actions>((set, get) => ({
   setLastClickedIconId: (id: string | null) => {
     set({ lastClickedIconId: id });
   },
+  // 拖拽聚合中的图标集 — 画布上对应 IconBlock 调淡; 空数组即清空
+  setDraggingIcons: (ids: string[]) => {
+    set({ draggingIcons: new Set(ids) });
+  },
 
   // 项目元数据轻同步：只刷新 projectName/displayName/description/color，不触发分组列表/图标重载
   syncProjectMeta: () => {
@@ -327,6 +341,16 @@ const useAppStore = create<State & Actions>((set, get) => ({
     set({ patchedIcons: { ...get().patchedIcons, [iconId]: content } });
   },
 
+  // 数据层内容写入的统一失效入口 — db.registerOnIconContentChanged 在 bootstrap
+  // 桥接到这里。rev 递增使 IconBlock 自动重载, 同时清掉旧的 patched/prefetched
+  // 缓存条目并递增 iconContentVersion (SideEditor 刷新)。写入 callsite 不需要
+  // 再手工 patch/syncIconContent; 高频路径可在其后 patchIconContent 作快路径
+  invalidateIconContent: (ids: string[]) => {
+    const next = applyContentInvalidation(get(), ids);
+    if (!next) return;
+    set({ ...next, iconContentVersion: get().iconContentVersion + 1 });
+  },
+
   // 批量预取可见图标的 SVG 内容（虚拟滚动新行可见时，一次 SQL 查询取回所有内容）
   prefetchIconContent: (ids: string[]) => {
     const map: Map<string, string> = (db as any).getIconContentBatch(ids);
@@ -339,10 +363,10 @@ const useAppStore = create<State & Actions>((set, get) => ({
     }
   },
 
-  // 项目打开/新建时清空 patched/prefetched 缓存 —— 复制出的 .icp 图标 id 相同，
-  // 不清空会把上一个项目的内容缓存串到新项目的画布上
+  // 项目打开/新建时清空 patched/prefetched 缓存与修订号 —— 复制出的 .icp 图标
+  // id 相同，不清空会把上一个项目的内容缓存串到新项目的画布上
   resetIconContentCaches: () => {
-    set({ patchedIcons: {}, prefetchedContent: {} });
+    set({ patchedIcons: {}, prefetchedContent: {}, iconContentRevs: {} });
   },
 
   syncAll: () => {

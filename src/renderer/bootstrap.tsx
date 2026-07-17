@@ -33,6 +33,12 @@ async function mount() {
   // Wire dirty state tracking
   db.registerOnMutation(() => useAppStore.getState().markDirty());
 
+  // 数据层 → store 的内容变更桥: 所有 iconContent 写入 (替换/改色/批量改色...)
+  // 由 db 层统一广播, store 失效对应缓存并触发画布/编辑器刷新 (见 contentCache.ts)
+  db.registerOnIconContentChanged((ids: string[]) =>
+    useAppStore.getState().invalidateIconContent(ids)
+  );
+
   // Expose internals for E2E / screenshot automation
   (window as any).__BOBCORN_STORE__ = useAppStore;
   (window as any).__BOBCORN_I18N__ = i18n;
