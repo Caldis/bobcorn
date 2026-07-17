@@ -4,7 +4,7 @@
 
 ## 项目状态
 
-**版本**: v1.18.0（发版中，见下方 session 摘要） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini) / ~/Desktop/Code/bobcorn (Mac)
+**版本**: v1.18.0（已发布，release 三平台产物+更新元数据齐全，CI/Release/Pages 全绿） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini) / ~/Desktop/Code/bobcorn (Mac)
 
 **分支**: `master`
 
