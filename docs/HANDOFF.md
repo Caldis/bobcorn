@@ -8,6 +8,29 @@
 
 **分支**: `master`
 
+## 2026-07-17 Session 摘要（官网全站重构到 Vercel 设计规范，2026-07-18 已发布）
+
+**目标**：官网 (docs/ 站点) 基于 getdesign.md 的 Vercel DESIGN.md 规范全面重构，并将规范固化到项目。
+
+**固化产物**：
+- `docs/DESIGN.md` — 完整规范（token/排版/间距/圆角/5 级 stacked shadow/组件/Do's & Don'ts）+ 末尾「Bobcorn Site Implementation」章节（文件映射、token 命名、页面清单、硬性不变量、新增内容 6 步流程）。AGENTS.md 文档索引 + 关键约定已登记（官网页面唯一视觉依据）
+- `docs/assets/site.css` — 全部 token 的 CSS 自定义属性 + 共享组件类（.t-display-*/.eyebrow/.btn-primary 黑 ink 药丸/.card/.band--dark/.mesh-gradient/.site-nav/.site-footer/.table 等）；Geist + Geist Mono 经 Google Fonts @import
+
+**重构范围（旧奶油底 #FAFAF5 + 橙 #F06830 + GT Canon/Outfit/Space Mono 全部退役）**：
+- index.html：mesh 渐变 hero、formats 深色极性翻转带、stacked shadow 卡片、mono eyebrow；全部校验硬约束保全（agent-mode/JSON-LD/data-i18n 112 个/versionBadge/锚点）
+- 根级 6 页 + 开发者面 9 页：统一 .site-nav/.site-footer 骨架，动态脚本（changelog fetch/privacy 双语切换）逐字节保留
+- wiki 177 页：只重写 wiki/shared/wiki.css（@import site.css 继承 token），HTML 仅统一替换字体 link 为 Geist；wiki.js 交互 class 全部保留；补了历来漏样式的 .callout-note
+- 顺手修复既有 bug：首页 changelog 区块因 reveal 类不对齐 + observer 时序一直不可见；移动端语言弹层溢出 13px
+
+**验收（全绿）**：docs:check ✓；website-i18n 7/7 ✓；wiki validate.py 176 文件 ✓；vitest 801 passed ✓；playwright-cli 桌面 1440 + 移动 390 截图验收（首页/about/changelog/api/developers/wiki en/wiki ar RTL），无横向溢出
+**用户评审后的两条设计裁定（已固化进 DESIGN.md 实现章节）**：
+- 侧栏/导航 active 态禁止「圆角底 + 左缘指示条」组合（指示条随圆角弯成括号形，用户定性为 AI slop 样式）；active 一律 ink 500 + canvas-soft-2 药丸
+- display 字体从 Geist 升级为 Space Grotesk（规范自带的第三字体，500/600），负字距比规范表格软化（48px 用 -1.4px 而非 -2.4px）；正文仍 Geist、技术标签仍 Geist Mono；hero/display/品牌字标走 `--font-display`
+
+**评审迭代（发布前用户逐项打磨）**：display 字体 Space Grotesk；header 收敛为 ink 黑玻璃悬浮胶囊（0.95 透明度、60px、hero 沉浸式从其下穿过），wiki 顶栏采用同一胶囊语言实现全站 header 统一；mesh 渐变两层色斑 26s/34s transform 漂移动画；`.media-frame` 升级卡纸+内描边双层画框。全部裁定固化于 DESIGN.md「Bobcorn Site Implementation」。
+
+**注意**：wiki 重构子代理曾无响应，任务由主会话接管完成（结论：重型多文件分析类子任务注意超时接管）。本地 python http.server 预览无缓存头，改 CSS 后浏览器需硬刷新（生产 GitHub Pages 有 10 分钟 max-age，无此问题）。
+
 ## 2026-07-17 Session 摘要（画布交互增强 + 内容缓存失效架构收口，随 v1.18.0 发版）
 
 **修复（画布不刷新 bug 类 + 导出）**：

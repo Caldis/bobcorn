@@ -5,20 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bobcorn MCP Status</title>
   <meta name="description" content="Bobcorn MCP status. Bobcorn does not currently publish a hosted MCP server; use the local CLI and OpenAPI metadata alternatives.">
+  <meta name="theme-color" content="#fafafa">
   <link rel="canonical" href="https://bobcorn.caldis.me/api/mcp.html">
-  <style>body{margin:0;background:#fafaf5;color:#1a1917;font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:860px;margin:0 auto;padding:72px 24px}a{color:#1a1917;text-underline-offset:4px}h1{font-size:clamp(38px,7vw,64px);line-height:1;margin:0 0 24px}p,li{color:#74726b}code{color:#1a1917}</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+  <style>
+    .doc { max-width: 720px; margin: 0 auto; padding: var(--space-4xl) var(--gutter) var(--space-5xl); }
+    .crumbs { font-size: 13px; line-height: 20px; color: var(--mute); margin-bottom: var(--space-lg); }
+    .crumbs a { color: var(--mute); }
+    .crumbs a:hover { color: var(--ink); }
+    .doc h1 { margin: var(--space-xs) 0 var(--space-md); }
+    .doc > .t-body-lg { color: var(--body); margin-bottom: var(--space-2xl); }
+    .doc h2 { margin: var(--space-2xl) 0 var(--space-sm); }
+    .doc p { color: var(--body); margin-bottom: var(--space-md); }
+    .doc ul { margin: var(--space-sm) 0 var(--space-lg); padding-left: var(--space-lg); color: var(--body); }
+    .doc li { margin-bottom: var(--space-xs); }
+    .callout { display: flex; gap: var(--space-sm); align-items: flex-start; background: var(--warning-soft); color: var(--warning-deep); border-radius: var(--rounded-md); padding: var(--space-md) var(--space-lg); font-size: 14px; line-height: 20px; margin: var(--space-lg) 0; }
+    @media (max-width: 600px) { .doc { padding: var(--space-4xl) var(--space-md) var(--space-3xl); } }
+  </style>
 </head>
 <body>
+  <nav class="site-nav"><div class="site-nav__inner">
+    <a class="site-nav__brand" href="/"><img src="/icon.png" alt="Bobcorn app icon" width="24" height="24">Bobcorn</a>
+    <div class="site-nav__links">
+      <a class="nav-link" href="/wiki/">Wiki</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/contact">Contact</a>
+      <a class="nav-link" href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a class="nav-cta nav-cta--primary" href="https://github.com/Caldis/bobcorn/releases/latest">Download</a>
+    </div>
+  </div></nav>
   <main>
-    <p><a href="/api/">Bobcorn API docs</a></p>
-    <h1>Bobcorn MCP Status</h1>
-    <p>Bobcorn does not currently publish a hosted MCP server. This page documents that boundary so agents do not try to open a non-existent MCP transport.</p>
-    <h2>Supported Alternatives</h2>
-    <ul>
-      <li>Use the local CLI for supported `.icp` project automation.</li>
-      <li>Use <a href="/openapi.json">OpenAPI</a> for read-only public website metadata.</li>
-      <li>Use <a href="/.well-known/agent-card.json">the A2A agent card</a> for capability discovery.</li>
-    </ul>
+    <div class="doc">
+      <p class="crumbs"><a href="/api/">Bobcorn API docs</a></p>
+      <p class="eyebrow">API</p>
+      <h1 class="t-display-lg">Bobcorn MCP status</h1>
+      <p class="t-body-lg">Bobcorn does not currently publish a hosted MCP server. This page documents that boundary so agents do not try to open a non-existent MCP transport.</p>
+
+      <div class="callout">No MCP transport is live yet — use the supported alternatives below for capability discovery and automation.</div>
+
+      <h2 class="t-display-sm">Supported alternatives</h2>
+      <ul>
+        <li>Use the local CLI for supported <code>.icp</code> project automation.</li>
+        <li>Use <a class="link-inline" href="/openapi.json">OpenAPI</a> for read-only public website metadata.</li>
+        <li>Use <a class="link-inline" href="/.well-known/agent-card.json">the A2A agent card</a> for capability discovery.</li>
+      </ul>
+    </div>
   </main>
+  <footer class="site-footer"><div class="site-footer__inner">
+    <div class="site-footer__brand">Bobcorn</div>
+    <div class="site-footer__links" style="display:flex; gap: var(--space-lg); flex-wrap: wrap;">
+      <a href="https://github.com/Caldis/bobcorn/releases">Releases</a>
+      <a href="/about.html">About</a>
+      <a href="/contact">Contact</a>
+      <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+  </div></footer>
 </body>
 </html>

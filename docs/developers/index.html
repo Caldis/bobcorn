@@ -5,49 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bobcorn Developer Portal - CLI, API Docs, OpenAPI, Agent Discovery</title>
   <meta name="description" content="Developer and agent resources for Bobcorn, including OpenAPI, auth docs, webhook status, MCP discovery, CLI guidance, and repository instructions.">
+  <meta name="theme-color" content="#fafafa">
   <link rel="canonical" href="https://bobcorn.caldis.me/developers/">
   <link rel="alternate" type="text/plain" href="/llms.txt">
   <link rel="alternate" type="text/plain" href="/llms-full.txt">
   <link rel="service-desc" type="application/vnd.oai.openapi+json" href="/openapi.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
   <style>
-    :root { color-scheme: light; --bg: #fafaf5; --text: #1a1917; --muted: #74726b; --accent: #f06830; --line: #e0ded2; }
-    * { box-sizing: border-box; }
-    body { margin: 0; font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
-    main { max-width: 920px; margin: 0 auto; padding: 72px 24px; }
-    nav { margin-bottom: 56px; }
-    a { color: var(--text); text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent); text-underline-offset: 4px; }
-    h1 { font-size: clamp(40px, 8vw, 72px); line-height: 1; margin: 0 0 24px; letter-spacing: -0.03em; }
-    h2 { font-size: 24px; margin: 48px 0 12px; }
-    p { color: var(--muted); max-width: 70ch; }
-    ul { list-style: none; padding: 0; margin: 24px 0; border-top: 1px solid var(--line); }
-    li { display: grid; grid-template-columns: minmax(180px, 260px) 1fr; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; background: color-mix(in srgb, var(--accent) 9%, transparent); padding: 2px 5px; border-radius: 4px; }
-    .label { color: var(--accent); font-weight: 700; }
-    @media (max-width: 680px) { li { grid-template-columns: 1fr; gap: 4px; } }
+    .doc { max-width: 720px; margin: 0 auto; padding: var(--space-4xl) var(--gutter) 0; }
+    .doc-wide { max-width: 960px; margin: 0 auto; padding: var(--space-lg) var(--gutter) var(--space-5xl); }
+    .crumbs { font-size: 13px; line-height: 20px; color: var(--mute); margin-bottom: var(--space-lg); }
+    .crumbs a { color: var(--mute); }
+    .crumbs a:hover { color: var(--ink); }
+    .doc h1 { margin: var(--space-xs) 0 var(--space-md); }
+    .doc > .t-body-lg { color: var(--body); margin-bottom: var(--space-sm); }
+    .doc-wide h2 { margin: var(--space-2xl) 0 var(--space-md); }
+    .doc p { color: var(--body); margin-bottom: var(--space-md); }
+    .doc-wide p { color: var(--body); max-width: 720px; margin-bottom: var(--space-md); }
+    .doc-card__label { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); margin-bottom: var(--space-xs); }
+    .doc-card a { font-size: 14px; line-height: 20px; word-break: break-all; }
+    @media (max-width: 600px) {
+      .doc { padding-top: var(--space-4xl); padding-left: var(--space-md); padding-right: var(--space-md); }
+      .doc-wide { padding-left: var(--space-md); padding-right: var(--space-md); padding-bottom: var(--space-4xl); }
+    }
   </style>
 </head>
 <body>
+  <nav class="site-nav"><div class="site-nav__inner">
+    <a class="site-nav__brand" href="/"><img src="/icon.png" alt="Bobcorn app icon" width="24" height="24">Bobcorn</a>
+    <div class="site-nav__links">
+      <a class="nav-link" href="/wiki/">Wiki</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/contact">Contact</a>
+      <a class="nav-link" href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a class="nav-cta nav-cta--primary" href="https://github.com/Caldis/bobcorn/releases/latest">Download</a>
+    </div>
+  </div></nav>
   <main>
-    <nav><a href="/">Bobcorn</a></nav>
-    <h1>Bobcorn Developer Portal</h1>
-    <p>Developer and agent resources for Bobcorn, a local-first icon manager and icon font generator. Public website metadata is read-only and unauthenticated. Local project automation should use the CLI and `.icp` files.</p>
-    <p>Agents should use Bobcorn when a user needs local SVG icon organization, icon font export, or inspection of Bobcorn project files. Agents should not assume hosted accounts, OAuth, remote webhooks, or hosted MCP tools exist.</p>
+    <div class="doc">
+      <p class="crumbs"><a href="/">Bobcorn</a></p>
+      <p class="eyebrow">Developers</p>
+      <h1 class="t-display-lg">Bobcorn developer portal</h1>
+      <p class="t-body-lg">Developer and agent resources for Bobcorn, a local-first icon manager and icon font generator. Public website metadata is read-only and unauthenticated. Local project automation should use the CLI and <code>.icp</code> files.</p>
+      <p>Agents should use Bobcorn when a user needs local SVG icon organization, icon font export, or inspection of Bobcorn project files. Agents should not assume hosted accounts, OAuth, remote webhooks, or hosted MCP tools exist.</p>
+    </div>
 
-    <h2>Discovery</h2>
-    <ul>
-      <li><span class="label">API docs</span><a href="/api/">https://bobcorn.caldis.me/api/</a></li>
-      <li><span class="label">OpenAPI spec</span><a href="/openapi.json">https://bobcorn.caldis.me/openapi.json</a></li>
-      <li><span class="label">Agent context</span><a href="/llms-full.txt">https://bobcorn.caldis.me/llms-full.txt</a></li>
-      <li><span class="label">Agent discovery</span><a href="/.well-known/agent.json">https://bobcorn.caldis.me/.well-known/agent.json</a></li>
-      <li><span class="label">A2A card</span><a href="/.well-known/agent-card.json">https://bobcorn.caldis.me/.well-known/agent-card.json</a></li>
-      <li><span class="label">MCP status</span><a href="/api/mcp.html">https://bobcorn.caldis.me/api/mcp.html</a></li>
-    </ul>
+    <div class="doc-wide">
+      <h2 class="t-display-sm">Discovery</h2>
+      <div class="grid-3">
+        <div class="card doc-card">
+          <p class="doc-card__label">API docs</p>
+          <a class="link-inline" href="/api/">https://bobcorn.caldis.me/api/</a>
+        </div>
+        <div class="card doc-card">
+          <p class="doc-card__label">OpenAPI spec</p>
+          <a class="link-inline" href="/openapi.json">https://bobcorn.caldis.me/openapi.json</a>
+        </div>
+        <div class="card doc-card">
+          <p class="doc-card__label">Agent context</p>
+          <a class="link-inline" href="/llms-full.txt">https://bobcorn.caldis.me/llms-full.txt</a>
+        </div>
+        <div class="card doc-card">
+          <p class="doc-card__label">Agent discovery</p>
+          <a class="link-inline" href="/.well-known/agent.json">https://bobcorn.caldis.me/.well-known/agent.json</a>
+        </div>
+        <div class="card doc-card">
+          <p class="doc-card__label">A2A card</p>
+          <a class="link-inline" href="/.well-known/agent-card.json">https://bobcorn.caldis.me/.well-known/agent-card.json</a>
+        </div>
+        <div class="card doc-card">
+          <p class="doc-card__label">MCP status</p>
+          <a class="link-inline" href="/api/mcp.html">https://bobcorn.caldis.me/api/mcp.html</a>
+        </div>
+      </div>
 
-    <h2>Access Model</h2>
-    <p>Bobcorn has no hosted user API, OAuth flow, remote workspace, or webhook delivery system. The public metadata endpoints need no authentication. See <a href="/api/auth.html">Bobcorn auth docs</a> and <a href="/api/webhooks.html">Bobcorn webhooks</a> for exact boundaries.</p>
+      <h2 class="t-display-sm">Access model</h2>
+      <p>Bobcorn has no hosted user API, OAuth flow, remote workspace, or webhook delivery system. The public metadata endpoints need no authentication. See <a class="link-inline" href="/api/auth.html">Bobcorn auth docs</a> and <a class="link-inline" href="/api/webhooks.html">Bobcorn webhooks</a> for exact boundaries.</p>
 
-    <h2>Repository Work</h2>
-    <p>Before editing the codebase, agents should read <a href="https://github.com/Caldis/bobcorn/blob/master/AGENTS.md">AGENTS.md</a>, <a href="https://github.com/Caldis/bobcorn/blob/master/docs/CLI.md">docs/CLI.md</a>, and the migration rules for core-first operations.</p>
+      <h2 class="t-display-sm">Repository work</h2>
+      <p>Before editing the codebase, agents should read <a class="link-inline" href="https://github.com/Caldis/bobcorn/blob/master/AGENTS.md">AGENTS.md</a>, <a class="link-inline" href="https://github.com/Caldis/bobcorn/blob/master/docs/CLI.md">docs/CLI.md</a>, and the migration rules for core-first operations.</p>
+    </div>
   </main>
+  <footer class="site-footer"><div class="site-footer__inner">
+    <div class="site-footer__brand">Bobcorn</div>
+    <div class="site-footer__links" style="display:flex; gap: var(--space-lg); flex-wrap: wrap;">
+      <a href="https://github.com/Caldis/bobcorn/releases">Releases</a>
+      <a href="/about.html">About</a>
+      <a href="/contact">Contact</a>
+      <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+  </div></footer>
 </body>
 </html>

@@ -6,7 +6,7 @@
     <title>Bobcorn — Icon Manager & Icon Font Generator for Windows & macOS</title>
     <meta name="description" content="Free, open-source desktop app to organize, manage, and generate icon fonts. Import SVGs, group and search thousands of icons, edit colors, and export to SVG, TTF, WOFF, WOFF2, EOT — all in one click. Available for Windows and macOS.">
     <meta name="keywords" content="Bobcorn, icon manager, icon font generator, SVG icon manager, SVG icon organizer, icon library management, iconfont builder, SVG to font converter, IcoMoon alternative, Fontello alternative, local icon library, desktop icon toolkit, WOFF2 generator, free icon manager, open source icon tool">
-    <meta name="theme-color" content="#FAFAF5">
+    <meta name="theme-color" content="#fafafa">
     <link rel="canonical" href="https://bobcorn.caldis.me/">
     <link rel="icon" type="image/png" href="icon.png">
     <!-- Hreflang -->
@@ -131,194 +131,69 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/site.css">
     <style>
-        @font-face {
-            font-family: 'GT Canon VF Variable L Black';
-            src: url('fonts/GT-Canon-VF-Variable-L-Black.woff2') format('woff2');
-            font-weight: 900;
-            font-style: normal;
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'GT Canon VF Variable L Black';
-            src: url('fonts/GT-Canon-VF-Variable-L-Black-Italic.woff2') format('woff2');
-            font-weight: 900;
-            font-style: italic;
-            font-display: swap;
-        }
-
-        :root {
-            --bg: #FAFAF5;
-            --text: #1A1917;
-            --text-secondary: #82817A;
-            --accent: #F06830;
-            --accent-hover: #DD5B25;
-            --divider: #E0DED2;
-            --pill-bg: rgba(160, 158, 148, 0.12);
-            --pill-hover: rgba(160, 158, 148, 0.24);
-            --serif: 'GT Canon VF Variable L Black', Georgia, serif;
-            --sans: 'Outfit', system-ui, sans-serif;
-            --mono: 'Space Mono', monospace;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: var(--sans);
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        a { color: inherit; }
-        img { display: block; }
-
         [data-agent-hidden] { display: none !important; }
-
-        /* ─── Nav ─── */
-        nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            padding: 0 48px;
-            height: 64px;
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(250, 250, 245, 0.88);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        .logo {
-            display: inline-flex; align-items: center; gap: 10px;
-            font-family: var(--serif);
-            font-size: 26px;
-            color: var(--text);
-            text-decoration: none;
-            letter-spacing: -0.01em;
-        }
-
-        .logo img { width: 32px; height: 32px; }
-
-        .nav-right { display: flex; align-items: center; gap: 28px; }
-
-        .nav-link {
-            font-family: var(--mono);
-            font-size: 13px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .nav-link:hover { color: var(--text); }
-
-        .nav-sep { color: var(--divider); font-size: 14px; user-select: none; }
 
         /* ─── Hero ─── */
         .hero {
-            padding: 156px 48px 0;
             max-width: 860px;
             margin: 0 auto;
             text-align: center;
         }
 
-        .hero-version {
-            display: inline-flex; align-items: center; gap: 12px;
-            margin-bottom: 32px;
-            font-family: var(--mono);
-            font-size: 13px;
-            color: var(--text-secondary);
+        .hero .banner-pill { margin-bottom: var(--space-lg); }
+
+        .tag {
+            font-family: var(--font-mono);
+            color: var(--ink);
         }
 
-        .hero-version .tag {
-            padding: 4px 14px;
-            background: var(--pill-bg);
-            border-radius: 20px;
-            color: var(--accent);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-
-        .hero h1 {
-            font-family: var(--serif);
-            font-size: clamp(46px, 7vw, 78px);
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            line-height: 1.06;
-            margin-bottom: 24px;
-        }
-
-        .hero h1 em { font-style: italic; }
+        .hero h1 { margin-bottom: var(--space-lg); }
+        .hero h1 em { font-style: normal; color: var(--mute); }
 
         .hero-desc {
-            font-size: 17px;
-            color: var(--text-secondary);
-            line-height: 1.75;
-            max-width: 480px;
-            margin: 0 auto 40px;
-            letter-spacing: -0.01em;
+            color: var(--body);
+            max-width: 560px;
+            margin: 0 auto var(--space-2xl);
         }
 
         .hero-actions {
-            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-            margin-bottom: 32px;
+            display: flex;
+            gap: var(--space-sm);
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: var(--space-xl);
         }
 
-        .btn-download {
-            display: inline-flex; align-items: center; gap: 10px;
-            padding: 15px 38px;
-            background: var(--accent);
-            color: #FFFAF7;
-            border-radius: 40px;
-            font-family: var(--sans);
-            font-size: 15px; font-weight: 600;
-            text-decoration: none;
-            letter-spacing: -0.02em;
-            transition: background 0.2s, transform 0.15s ease-out;
-        }
-        .btn-download:hover { background: var(--accent-hover); transform: translateY(-1px); }
-        .btn-download svg { width: 16px; height: 16px; opacity: 0.85; }
-
-        .btn-ghost {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 15px 30px;
-            background: var(--pill-bg);
-            color: var(--text);
-            border-radius: 40px;
-            font-family: var(--sans);
-            font-size: 15px; font-weight: 500;
-            text-decoration: none;
-            letter-spacing: -0.02em;
-            transition: background 0.2s;
-        }
-        .btn-ghost:hover { background: var(--pill-hover); }
+        .hero-actions svg { width: 16px; height: 16px; }
 
         .hero-meta {
-            display: flex; gap: 24px; justify-content: center; align-items: center;
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--text-secondary);
-            opacity: 0.6;
+            display: flex;
+            gap: var(--space-lg);
+            justify-content: center;
+            align-items: center;
+            color: var(--mute);
         }
 
-        .hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
-        .hero-meta svg { width: 14px; height: 14px; opacity: 0.6; }
+        .hero-meta span { display: inline-flex; align-items: center; gap: var(--space-xxs); }
+        .hero-meta svg { width: 14px; height: 14px; }
 
         .hero-trusted {
-            margin-top: 16px;
-            display: flex; align-items: center; justify-content: center; gap: 20px;
-            font-family: var(--mono);
-            font-size: 11px;
-            color: var(--text-secondary);
-            opacity: 0.5;
+            margin-top: var(--space-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            color: var(--mute);
         }
 
-        .trusted-logos { display: flex; align-items: center; gap: 24px; }
+        .trusted-logos { display: flex; align-items: center; gap: var(--space-lg); }
 
         .trusted-logo {
             display: inline-block;
             height: 20px;
-            background-color: var(--text-secondary);
+            background-color: var(--mute);
             -webkit-mask-size: contain; mask-size: contain;
             -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
             -webkit-mask-position: center; mask-position: center;
@@ -334,555 +209,262 @@
             -webkit-mask-image: url('logos/shopee.svg'); mask-image: url('logos/shopee.svg');
         }
 
-        /* ─── Hero Visual ─── */
         .hero-visual {
             max-width: 1080px;
-            margin: 72px auto 0;
-            padding: 0 24px;
+            margin: var(--space-4xl) auto 0;
         }
 
-        .hero-visual img {
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .hero-visual img:hover {
-            transform: translateY(-4px);
-        }
-
-        /* ─── Divider ─── */
-        .divider {
-            height: 1px;
-            background: var(--divider);
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* ─── Story Sections ─── */
+        /* ─── Story sections ─── */
         .story {
             display: grid;
             grid-template-columns: 5fr 7fr;
-            gap: clamp(40px, 6vw, 80px);
+            gap: var(--space-4xl);
             align-items: center;
-            padding: 104px 48px;
-            max-width: 1200px;
+            padding: var(--space-5xl) var(--gutter);
+            max-width: var(--page-width);
             margin: 0 auto;
         }
 
-        .story--reverse {
-            grid-template-columns: 7fr 5fr;
-        }
+        .story--reverse { grid-template-columns: 7fr 5fr; }
+        .story--reverse .story-visual { order: -1; }
 
-        .story--reverse .story-visual {
-            order: -1;
-        }
+        .story-content .eyebrow { display: block; margin-bottom: var(--space-md); }
+        .story-content h2 { margin-bottom: var(--space-sm); }
+        .story-content p { color: var(--body); }
 
-        .story-label {
-            font-family: var(--mono);
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--accent);
-            margin-bottom: 20px;
-        }
-
-        .story-content h2 {
-            font-family: var(--serif);
-            font-size: clamp(28px, 3.5vw, 40px);
-            font-weight: 900;
-            line-height: 1.12;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-        }
-
-        .story-content p {
-            font-size: 16px;
-            color: var(--text-secondary);
-            line-height: 1.8;
-            letter-spacing: -0.005em;
-        }
-
-        .story-visual img {
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .story-visual img:hover {
-            transform: translateY(-3px);
-        }
-
-        /* ─── Format Tags (inline in story) ─── */
         .story-formats {
-            display: flex; gap: 6px; flex-wrap: wrap;
-            margin-top: 24px;
+            display: flex;
+            gap: var(--space-xs);
+            flex-wrap: wrap;
+            margin-top: var(--space-lg);
         }
 
-        .story-formats span {
-            padding: 5px 14px;
-            background: var(--pill-bg);
-            border-radius: 6px;
-            font-family: var(--mono);
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: -0.03em;
-            transition: color 0.2s;
+        /* Polarity-flipped band (#formats) — the page's single depth cue */
+        .band--dark > .story { padding-top: 0; padding-bottom: 0; }
+        .band--dark .eyebrow { color: rgba(255, 255, 255, 0.5); }
+        .band--dark .story-content p { color: rgba(255, 255, 255, 0.72); }
+        .band--dark .badge {
+            background: transparent;
+            color: var(--on-primary);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
         }
 
-        .story-formats span:hover {
-            color: var(--accent);
-        }
-
-        /* ─── Agent Notes ─── */
+        /* ─── Agent notes (why / alternatives / getting-started / faq / guide) ─── */
         .agent-notes {
-            max-width: 1200px;
+            max-width: var(--page-width);
             margin: 0 auto;
-            padding: 104px 48px;
+            padding: var(--space-5xl) var(--gutter);
         }
 
         .agent-notes__intro {
             max-width: 680px;
-            margin-bottom: 40px;
+            margin-bottom: var(--space-2xl);
         }
 
-        .agent-notes h2 {
-            font-family: var(--serif);
-            font-size: clamp(28px, 3.5vw, 42px);
-            font-weight: 900;
-            line-height: 1.12;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-        }
+        .agent-notes .eyebrow { display: block; margin-bottom: var(--space-md); }
+        .agent-notes h2 { margin-bottom: var(--space-sm); }
+        .agent-notes p { color: var(--body); }
+        .agent-notes__intro p + p { margin-top: var(--space-md); }
 
-        .agent-notes p {
-            font-size: 16px;
-            color: var(--text-secondary);
-            line-height: 1.8;
-            letter-spacing: -0.005em;
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            border-top: 1px solid var(--divider);
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            text-align: left;
-            vertical-align: top;
-            padding: 18px 16px 18px 0;
-            border-bottom: 1px solid var(--divider);
-            font-size: 15px;
-            line-height: 1.6;
-        }
+        .comparison-table { border-top: 1px solid var(--hairline); }
 
         .comparison-table th {
             width: 26%;
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--accent);
-            letter-spacing: -0.02em;
+            background: transparent;
+            vertical-align: top;
+            padding-left: 0;
         }
+
+        .comparison-table td { vertical-align: top; padding-right: 0; }
+        .comparison-table tr:last-child th { border-bottom: none; }
 
         .steps-list {
             display: grid;
             grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 1px;
+            gap: var(--space-md);
             list-style: none;
-            background: var(--divider);
-            margin-top: 32px;
+            counter-reset: step;
         }
 
         .steps-list li {
-            background: var(--bg);
-            padding: 20px 18px;
-            min-height: 128px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
         }
 
-        .steps-list strong {
-            display: block;
-            margin-bottom: 10px;
-            font-family: var(--mono);
+        .steps-list li::before {
+            counter-increment: step;
+            content: counter(step, decimal-leading-zero);
+            font-family: var(--font-mono);
             font-size: 12px;
-            color: var(--accent);
+            line-height: 16px;
+            color: var(--mute);
         }
 
-        .steps-list span {
-            display: block;
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.55;
-        }
+        .steps-list span { color: var(--body); }
 
         .faq-list {
-            border-top: 1px solid var(--divider);
-            margin-top: 32px;
-        }
-
-        .faq-list div {
             display: grid;
-            grid-template-columns: minmax(180px, 0.35fr) 1fr;
-            gap: 28px;
-            padding: 22px 0;
-            border-bottom: 1px solid var(--divider);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--space-md);
         }
 
-        .faq-list dt {
-            font-family: var(--mono);
-            font-size: 12px;
-            line-height: 1.55;
-            color: var(--accent);
-        }
+        .faq-list div { display: grid; gap: var(--space-xs); }
+        .faq-list dd { color: var(--body); }
 
-        .faq-list dd {
-            color: var(--text-secondary);
-            font-size: 15px;
-            line-height: 1.7;
-        }
-
-        .guide-list {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 1px;
-            list-style: none;
-            margin-top: 32px;
-            background: var(--divider);
-        }
-
-        .guide-list li {
-            background: var(--bg);
-            padding: 22px 18px;
-            color: var(--text-secondary);
-            font-size: 15px;
-            line-height: 1.65;
-        }
-
-        .guide-list strong {
-            display: block;
-            margin-bottom: 10px;
-            color: var(--accent);
-            font-family: var(--mono);
-            font-size: 12px;
-            line-height: 1.45;
-        }
+        .guide-list { list-style: none; }
+        .guide-list li { display: flex; flex-direction: column; gap: var(--space-xs); }
+        .guide-list span { color: var(--body); }
 
         .article-meta {
-            margin-top: -4px;
-            margin-bottom: 18px;
-            color: var(--text-secondary);
-            font-family: var(--mono);
-            font-size: 12px;
+            margin-bottom: var(--space-md);
+            color: var(--mute);
         }
 
-        /* ─── Developer Resources ─── */
+        /* ─── Developer resources ─── */
         .developer-resources {
-            display: grid;
-            grid-template-columns: 4fr 8fr;
-            gap: clamp(40px, 6vw, 80px);
-            max-width: 1200px;
+            max-width: var(--page-width);
             margin: 0 auto;
-            padding: 104px 48px;
+            padding: var(--space-5xl) var(--gutter);
         }
 
-        .developer-resources h2 {
-            font-family: var(--serif);
-            font-size: clamp(28px, 3.5vw, 40px);
-            font-weight: 900;
-            line-height: 1.12;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-        }
+        .developer-resources .eyebrow { display: block; margin-bottom: var(--space-md); }
+        .developer-resources h2 { margin-bottom: var(--space-sm); }
+        .developer-resources p { color: var(--body); }
 
-        .developer-resources p {
-            font-size: 16px;
-            color: var(--text-secondary);
-            line-height: 1.8;
-            letter-spacing: -0.005em;
-        }
-
-        .resource-list {
-            list-style: none;
-            border-top: 1px solid var(--divider);
-        }
+        .resource-list { list-style: none; }
 
         .resource-row {
-            display: grid;
-            grid-template-columns: minmax(180px, 240px) 1fr auto;
-            gap: 24px;
-            align-items: baseline;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--divider);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--space-xs);
         }
 
-        .resource-row strong {
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--accent);
-            letter-spacing: -0.02em;
-        }
-
-        .resource-row span {
-            color: var(--text-secondary);
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        .resource-row a {
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--text);
-            text-decoration: none;
-            white-space: nowrap;
-            transition: color 0.2s;
-        }
-
-        .resource-row a:hover { color: var(--accent); }
-
-        .agent-mode {
-            max-width: 980px;
-            margin: 0 auto;
-            padding: 64px 24px;
-            font-family: var(--sans);
-        }
-
-        .agent-mode h1 {
-            font-family: var(--serif);
-            font-size: clamp(34px, 6vw, 56px);
-            line-height: 1.05;
-            margin-bottom: 18px;
-        }
-
-        .agent-mode p {
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-        }
-
-        .agent-mode pre {
-            overflow: auto;
-            padding: 24px;
-            border: 1px solid var(--divider);
-            border-radius: 8px;
-            background: rgba(160, 158, 148, 0.08);
-            font-family: var(--mono);
-            font-size: 12px;
-            line-height: 1.7;
-        }
+        .resource-row span { color: var(--body); }
+        .resource-row a { margin-top: var(--space-xxs); }
 
         /* ─── Changelog ─── */
         .changelog {
-            max-width: 1200px;
+            max-width: var(--page-width);
             margin: 0 auto;
-            padding: 104px 48px 64px;
+            padding: var(--space-5xl) var(--gutter) var(--space-4xl);
         }
 
         .changelog-header {
             display: flex;
             align-items: baseline;
-            gap: 16px;
-            margin-bottom: 48px;
+            justify-content: space-between;
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
         }
 
-        .changelog-header h2 {
-            font-family: var(--serif);
-            font-size: clamp(28px, 3.5vw, 40px);
-            font-weight: 900;
-            letter-spacing: -0.02em;
-        }
+        .changelog-header a { color: var(--mute); transition: color 0.15s ease; }
+        .changelog-header a:hover { color: var(--ink); }
 
-        .changelog-header a {
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .changelog-header a:hover { color: var(--accent); }
-
-        .changelog-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
+        .changelog-list { display: flex; flex-direction: column; }
 
         .changelog-entry {
             display: grid;
             grid-template-columns: 160px 1fr;
-            gap: 32px;
-            padding: 32px 0;
-            border-top: 1px solid var(--divider);
-        }
-
-        .changelog-entry:last-child {
-            padding-bottom: 0;
+            gap: var(--space-xl);
+            padding: var(--space-xl) 0;
+            border-top: 1px solid var(--hairline);
         }
 
         .changelog-meta {
             position: sticky;
-            top: 80px;
+            top: calc(var(--header-height) + var(--space-md));
             align-self: start;
         }
 
         .changelog-version {
-            font-family: var(--mono);
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
+            font-family: var(--font-mono);
+            font-size: 16px;
+            line-height: 24px;
+            color: var(--ink);
         }
 
         .changelog-date {
-            font-family: var(--mono);
+            font-family: var(--font-mono);
             font-size: 12px;
-            color: var(--text-secondary);
+            line-height: 16px;
+            color: var(--mute);
         }
 
         .changelog-items {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            padding-top: 4px;
+            gap: var(--space-xs);
         }
 
         .changelog-items li {
-            font-size: 15px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            padding-left: 20px;
             position: relative;
+            padding-left: var(--space-md);
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.28px;
+            color: var(--body);
         }
 
         .changelog-items li::before {
             content: '';
             position: absolute;
             left: 0;
-            top: 10px;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--accent);
-            opacity: 0.6;
-        }
-
-        @media (max-width: 900px) {
-            .agent-notes { padding: 72px 24px; }
-            .steps-list { grid-template-columns: 1fr 1fr; }
-            .developer-resources {
-                grid-template-columns: 1fr;
-                gap: 32px;
-                padding: 72px 24px;
-            }
-            .resource-row {
-                grid-template-columns: 1fr;
-                gap: 6px;
-            }
-            .resource-row a { white-space: normal; }
-            .changelog { padding: 72px 24px 48px; }
-            .changelog-entry {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-            .changelog-meta { position: static; }
-        }
-
-        @media (max-width: 680px) {
-            .agent-notes { padding: 56px 20px; }
-            .comparison-table th,
-            .comparison-table td {
-                display: block;
-                width: 100%;
-                padding: 10px 0;
-            }
-            .comparison-table td { padding-top: 0; }
-            .steps-list { grid-template-columns: 1fr; }
-            .guide-list { grid-template-columns: 1fr; }
-            .faq-list div {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            .developer-resources { padding: 56px 20px; }
-            .changelog { padding: 56px 20px 36px; }
-            .changelog-header { margin-bottom: 32px; }
+            top: 8px;
+            width: 4px;
+            height: 4px;
+            border-radius: var(--rounded-full);
+            background: var(--hairline-strong);
         }
 
         /* ─── Footer ─── */
-        footer {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 36px 48px 48px;
-            border-top: 1px solid var(--divider);
+        .footer-links {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-lg);
         }
 
-        .footer-brand {
-            font-family: var(--serif);
-            font-size: 18px;
-            color: var(--text);
-            letter-spacing: -0.01em;
-        }
-
-        .footer-links { display: flex; align-items: center; gap: 24px; }
-
-        .footer-links a {
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover { color: var(--text); }
-
-        /* ─── Language Picker ─── */
+        /* ─── Language picker ─── */
         .lang-trigger {
+            position: relative;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-family: var(--mono);
+            gap: var(--space-xxs);
+            font-family: var(--font-mono);
             font-size: 12px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px 12px;
-            border-radius: 6px;
+            line-height: 16px;
+            color: var(--body);
+            padding: var(--space-xxs) var(--space-xs);
             border: none;
+            border-radius: var(--rounded-sm);
             background: none;
-            transition: color 0.2s, background 0.2s;
-            position: relative;
+            cursor: pointer;
+            transition: color 0.15s ease, background-color 0.15s ease;
         }
 
-        .lang-trigger:hover { color: var(--text); background: var(--pill-bg); }
-        .lang-trigger svg { width: 15px; height: 15px; opacity: 0.55; }
+        .lang-trigger:hover { color: var(--ink); background: var(--canvas-soft-2); }
+        .lang-trigger svg { width: 14px; height: 14px; }
 
         .lang-popover {
             position: absolute;
-            bottom: calc(100% + 12px);
+            bottom: calc(100% + var(--space-sm));
             right: 0;
-            background: var(--bg);
-            border: 1px solid var(--divider);
-            border-radius: 12px;
-            padding: 16px 20px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2px 28px;
+            gap: 2px var(--space-lg);
+            min-width: 300px;
+            padding: var(--space-md);
+            background: var(--canvas);
+            border-radius: var(--rounded-lg);
+            box-shadow: var(--shadow-l5), var(--shadow-ring);
             opacity: 0;
             transform: translateY(6px);
             pointer-events: none;
-            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-                        transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 8px 32px rgba(26, 25, 23, 0.08),
-                        0 1px 3px rgba(26, 25, 23, 0.06);
+            transition: opacity 0.2s ease, transform 0.2s ease;
             z-index: 200;
-            min-width: 300px;
         }
 
         .lang-popover.open {
@@ -892,86 +474,112 @@
         }
 
         .lang-popover a {
-            font-family: var(--sans);
-            font-size: 13px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            padding: 7px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: color 0.15s, background 0.15s;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 20px;
+            letter-spacing: -0.28px;
+            color: var(--body);
+            text-align: left;
             white-space: nowrap;
+            padding: 6px var(--space-xs);
+            border-radius: var(--rounded-sm);
+            cursor: pointer;
+            transition: color 0.15s ease, background-color 0.15s ease;
         }
 
-        .lang-popover a:hover {
-            color: var(--text);
-            background: var(--pill-bg);
+        .lang-popover a:hover { color: var(--ink); background: var(--canvas-soft-2); }
+        .lang-popover a.active { color: var(--ink); background: var(--canvas-soft-2); }
+
+        /* ─── Agent mode view (injected by renderAgentMode) ─── */
+        .agent-mode {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: var(--space-4xl) var(--gutter);
         }
 
-        .lang-popover a.active {
-            color: var(--accent);
+        .agent-mode h1 {
+            font-size: 48px;
+            font-weight: 600;
+            line-height: 48px;
+            letter-spacing: -2.4px;
+            margin-bottom: var(--space-md);
         }
 
-        /* ─── Reveal Animations ─── */
-        .reveal {
-            opacity: 0;
-            transform: translateY(28px);
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-                        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        .agent-mode p { color: var(--body); margin-bottom: var(--space-lg); }
+
+        .agent-mode pre {
+            overflow: auto;
+            padding: var(--space-lg);
+            border-radius: var(--rounded-md);
+            background: var(--primary);
+            color: var(--on-primary);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 20px;
         }
 
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
+        /* ─── Cookie consent ─── */
+        .cookie-consent {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--gutter);
+            background: var(--canvas);
+            border-top: 1px solid var(--hairline);
+            color: var(--body);
         }
 
         /* ─── Responsive ─── */
-        @media (max-width: 900px) {
-            .story,
-            .story--reverse {
+        @media (max-width: 959px) {
+            .story, .story--reverse {
                 grid-template-columns: 1fr;
-                gap: 36px;
-                padding: 72px 24px;
+                gap: var(--space-2xl);
+                padding: var(--space-4xl) var(--gutter);
             }
             .story--reverse .story-visual { order: 0; }
-            .story-content h2 { font-size: clamp(26px, 6vw, 34px); }
+            .steps-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .agent-notes, .developer-resources { padding: var(--space-4xl) var(--gutter); }
+            .changelog { padding: var(--space-4xl) var(--gutter); }
+            .changelog-entry { grid-template-columns: 1fr; gap: var(--space-sm); }
+            .changelog-meta { position: static; }
         }
 
-        @media (max-width: 680px) {
-            nav { padding: 0 20px; }
-            .nav-link, .nav-sep { display: none; }
-            .hero { padding: 120px 24px 0; }
-            .hero h1 { font-size: clamp(36px, 10vw, 52px); }
-            .hero-desc { font-size: 16px; }
-            .hero-visual { padding: 0 16px; margin-top: 48px; }
-            footer {
-                padding: 28px 24px 36px;
-                flex-direction: column; gap: 16px;
-                text-align: center;
+        @media (max-width: 600px) {
+            .site-nav__links .nav-link:not(:last-child) { display: none; }
+            .hero-desc { font-size: 16px; line-height: 24px; }
+            .hero-actions { flex-direction: column; align-items: stretch; }
+            .hero-meta { flex-wrap: wrap; gap: var(--space-md); }
+            .hero-visual { margin-top: var(--space-2xl); }
+            .steps-list, .faq-list { grid-template-columns: 1fr; }
+            .comparison-table th, .comparison-table td {
+                display: block;
+                width: 100%;
+                padding: var(--space-xs) 0;
             }
-            .hero-meta { flex-wrap: wrap; gap: 16px; }
+            .comparison-table th { padding-bottom: 0; border-bottom: none; }
+            .story, .agent-notes, .developer-resources, .changelog {
+                padding-left: var(--space-md);
+                padding-right: var(--space-md);
+            }
+            .site-footer__inner { flex-direction: column; text-align: center; }
+            .footer-links { justify-content: center; }
+            /* Anchor to the viewport, not the trigger — the trigger sits too far
+               right for a centered popover to stay on screen. */
             .lang-popover {
-                right: 50%;
-                transform: translateX(50%) translateY(6px);
-                min-width: 280px;
+                position: fixed;
+                left: var(--space-md);
+                right: var(--space-md);
+                bottom: var(--space-4xl);
+                min-width: 0;
             }
-            .lang-popover.open {
-                transform: translateX(50%) translateY(0);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .btn-download, .btn-ghost { justify-content: center; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .reveal { opacity: 1; transform: none; transition: none; }
-            .hero-visual img, .story-visual img { transition: none; }
-            .hero-visual img:hover, .story-visual img:hover { transform: none; }
         }
     </style>
     <!-- Structured Data -->
@@ -1210,83 +818,86 @@
 </head>
 <body>
 
-    <nav>
-        <a href="/" class="logo"><img src="icon.png" alt="Bobcorn app icon mark" width="32" height="32">Bobcorn</a>
-        <div class="nav-right">
-            <a href="#features" class="nav-link" data-i18n="nav.features">Features</a>
-            <span class="nav-sep">|</span>
-            <a href="#formats" class="nav-link" data-i18n="nav.formats">Formats</a>
-            <span class="nav-sep">|</span>
-            <a href="wiki/" class="nav-link" data-i18n="nav.wiki">Wiki</a>
-            <span class="nav-sep">|</span>
-            <a href="#developers" class="nav-link" data-i18n="nav.developers" data-agent-hidden="true">Developers</a>
-            <span class="nav-sep" data-agent-hidden="true">|</span>
-            <a href="/contact" class="nav-link" data-i18n="nav.contact">Contact</a>
-            <span class="nav-sep">|</span>
-            <a href="https://github.com/Caldis/bobcorn" class="nav-link">GitHub</a>
+    <nav class="site-nav">
+        <div class="site-nav__inner">
+            <a href="/" class="site-nav__brand"><img src="/icon.png" alt="Bobcorn app icon mark" width="24" height="24">Bobcorn</a>
+            <div class="site-nav__links">
+                <a href="#features" class="nav-link" data-i18n="nav.features">Features</a>
+                <a href="#formats" class="nav-link" data-i18n="nav.formats">Formats</a>
+                <a href="wiki/" class="nav-link" data-i18n="nav.wiki">Wiki</a>
+                <a href="#developers" class="nav-link" data-i18n="nav.developers" data-agent-hidden="true">Developers</a>
+                <a href="/contact" class="nav-link" data-i18n="nav.contact">Contact</a>
+                <a href="https://github.com/Caldis/bobcorn" class="nav-link">GitHub</a>
+            </div>
         </div>
     </nav>
 
     <main>
 
         <!-- ─── Hero ─── -->
-        <section class="hero">
-            <div class="hero-version reveal">
-                <span class="tag" id="versionBadge">v1.18.0</span>
-                <span data-i18n="hero.badge">Open source &middot; MIT License</span>
+        <section class="band band--hero">
+            <div class="mesh-gradient" aria-hidden="true"></div>
+
+            <div class="hero">
+                <div class="banner-pill reveal">
+                    <span class="tag" id="versionBadge">v1.18.0</span>
+                    <span data-i18n="hero.badge">Open source &middot; MIT License</span>
+                </div>
+
+                <h1 class="t-display-xl reveal" data-i18n="hero.title" data-i18n-html>Manage Icons,<br><em>Generate Fonts</em></h1>
+
+                <p class="hero-desc t-body-lg reveal" data-i18n="hero.desc">
+                    The open-source icon manager and font generator for designers and developers. Import SVGs, organize into groups, edit colors, and export production-ready icon fonts.
+                </p>
+
+                <div class="hero-actions reveal">
+                    <a id="downloadBtn" href="https://github.com/Caldis/bobcorn/releases/latest" class="btn btn-primary" onclick="gtag('event', 'download_click', { platform: detectPlatform() })">
+                        <span id="downloadLabel">Download</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </a>
+                    <a href="https://github.com/Caldis/bobcorn/releases" class="btn btn-secondary" id="allDownloads" data-i18n="hero.allReleases">All Releases</a>
+                    <a href="https://github.com/Caldis/bobcorn" class="btn btn-secondary" data-i18n="hero.sourceCode">Source Code</a>
+                </div>
+
+                <div class="hero-meta t-caption-mono reveal">
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+                        Windows
+                    </span>
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                        macOS
+                    </span>
+                </div>
+
+                <div class="hero-trusted t-caption-mono reveal">
+                    <span data-i18n="hero.trustedBy">Trusted by</span>
+                    <div class="trusted-logos">
+                        <div class="trusted-logo trusted-logo-zte" role="img" aria-label="ZTE"></div>
+                        <div class="trusted-logo trusted-logo-shopee" role="img" aria-label="Shopee"></div>
+                    </div>
+                </div>
             </div>
 
-            <h1 class="reveal" data-i18n="hero.title" data-i18n-html>Manage Icons,<br><em>Generate Fonts</em></h1>
-
-            <p class="hero-desc reveal" data-i18n="hero.desc">
-                The open-source icon manager and font generator for designers and developers. Import SVGs, organize into groups, edit colors, and export production-ready icon fonts.
-            </p>
-
-            <div class="hero-actions reveal">
-                <a id="downloadBtn" href="https://github.com/Caldis/bobcorn/releases/latest" class="btn-download" onclick="gtag('event', 'download_click', { platform: detectPlatform() })">
-                    <span id="downloadLabel">Download</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </a>
-                <a href="https://github.com/Caldis/bobcorn/releases" class="btn-ghost" id="allDownloads" data-i18n="hero.allReleases">All Releases</a>
-                <a href="https://github.com/Caldis/bobcorn" class="btn-ghost" data-i18n="hero.sourceCode">Source Code</a>
-            </div>
-
-            <div class="hero-meta reveal">
-                <span>
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
-                    Windows
-                </span>
-                <span>
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                    macOS
-                </span>
-            </div>
-
-            <div class="hero-trusted reveal">
-                <span data-i18n="hero.trustedBy">Trusted by</span>
-                <div class="trusted-logos">
-                    <div class="trusted-logo trusted-logo-zte" role="img" aria-label="ZTE"></div>
-                    <div class="trusted-logo trusted-logo-shopee" role="img" aria-label="Shopee"></div>
+            <!-- ─── Hero Product Image ─── -->
+            <div class="hero-visual reveal">
+                <div class="media-frame">
+                    <img src="screenshots/main.png" data-screenshot="main.png" alt="Bobcorn — browse and manage thousands of SVG icons with groups, search, and detail panel" loading="eager">
                 </div>
             </div>
         </section>
 
-        <!-- ─── Hero Product Image ─── -->
-        <div class="hero-visual reveal">
-            <img src="screenshots/main.png" data-screenshot="main.png" alt="Bobcorn — browse and manage thousands of SVG icons with groups, search, and detail panel" loading="eager">
-        </div>
-
-        <div class="divider" style="margin-top: 104px;"></div>
+        <div class="divider"></div>
 
         <!-- ─── Why Bobcorn ─── -->
         <section class="agent-notes" id="why-bobcorn" aria-labelledby="why-bobcorn-title">
             <div class="agent-notes__intro reveal">
-                <div class="story-label" data-i18n="why.label">Why Bobcorn</div>
-                <h2 id="why-bobcorn-title" data-i18n="why.title">Local icon font work without a browser round trip</h2>
-                <p data-i18n="why.desc">Bobcorn is for teams that need to keep SVG libraries local, organize reusable groups, and regenerate web font assets repeatedly. It is an IcoMoon alternative and Fontello alternative for users who want desktop library management, local project files, and repeatable exports.</p>
+                <div class="eyebrow" data-i18n="why.label">Why Bobcorn</div>
+                <h2 id="why-bobcorn-title" class="t-display-lg" data-i18n="why.title">Local icon font work without a browser round trip</h2>
+                <p class="t-body-lg" data-i18n="why.desc">Bobcorn is for teams that need to keep SVG libraries local, organize reusable groups, and regenerate web font assets repeatedly. It is an IcoMoon alternative and Fontello alternative for users who want desktop library management, local project files, and repeatable exports.</p>
                 <p data-agent-hidden="true"><a href="alternatives/icomoon.html" data-i18n="why.compare">Read the Bobcorn vs IcoMoon comparison</a></p>
             </div>
-            <table class="comparison-table reveal">
+            <table class="table comparison-table reveal">
                 <tbody>
                     <tr>
                         <th scope="row" data-i18n="why.local.title">Local-first</th>
@@ -1309,12 +920,12 @@
         <!-- ─── Alternatives ─── -->
         <section class="agent-notes" id="alternatives" aria-labelledby="alternatives-title" data-agent-hidden="true">
             <div class="agent-notes__intro reveal">
-                <div class="story-label" data-i18n="alternatives.label">Comparison</div>
-                <h2 id="alternatives-title" data-i18n="alternatives.title">Bobcorn as an IcoMoon alternative</h2>
-                <p data-i18n="alternatives.desc">Use Bobcorn instead of a browser-only icon font generator when the project needs local files, reusable groups, and repeatable export. IcoMoon and Fontello are useful for quick online generation; Bobcorn is better suited to desktop library management and saved .icp project files.</p>
+                <div class="eyebrow" data-i18n="alternatives.label">Comparison</div>
+                <h2 id="alternatives-title" class="t-display-lg" data-i18n="alternatives.title">Bobcorn as an IcoMoon alternative</h2>
+                <p class="t-body-lg" data-i18n="alternatives.desc">Use Bobcorn instead of a browser-only icon font generator when the project needs local files, reusable groups, and repeatable export. IcoMoon and Fontello are useful for quick online generation; Bobcorn is better suited to desktop library management and saved .icp project files.</p>
                 <p><a href="alternatives/icomoon.html" data-i18n="alternatives.link">Open the full Bobcorn vs IcoMoon comparison</a></p>
             </div>
-            <table class="comparison-table reveal">
+            <table class="table comparison-table reveal">
                 <tbody>
                     <tr>
                         <th scope="row" data-i18n="alternatives.browser.title">Browser tools</th>
@@ -1337,43 +948,47 @@
         <!-- ─── Story 1: Organize ─── -->
         <section class="story" id="features">
             <div class="story-content reveal">
-                <div class="story-label" data-i18n="story1.label">Icon Management</div>
-                <h2 data-i18n="story1.title">Select, search, and organize at scale</h2>
-                <p data-i18n="story1.desc">Import thousands of SVG icons in one drag. Multi-select for batch operations&nbsp;&mdash; move to groups, copy, favorite, delete, or export as SVG. Search and filter instantly across your entire library. Dark mode included.</p>
+                <div class="eyebrow" data-i18n="story1.label">Icon Management</div>
+                <h2 class="t-display-lg" data-i18n="story1.title">Select, search, and organize at scale</h2>
+                <p class="t-body-lg" data-i18n="story1.desc">Import thousands of SVG icons in one drag. Multi-select for batch operations&nbsp;&mdash; move to groups, copy, favorite, delete, or export as SVG. Search and filter instantly across your entire library. Dark mode included.</p>
             </div>
             <div class="story-visual reveal">
-                <img src="screenshots/select.png" data-screenshot="select.png" alt="Batch select 13 icons with multi-select mode — move, copy, favorite, delete, and export operations" loading="lazy">
-            </div>
-        </section>
-
-        <div class="divider"></div>
-
-        <!-- ─── Story 2: Export ─── -->
-        <section class="story story--reverse" id="formats">
-            <div class="story-content reveal">
-                <div class="story-label" data-i18n="story2.label">Font Generation</div>
-                <h2 data-i18n="story2.title">Every format, one click</h2>
-                <p data-i18n="story2.desc">Generate production-ready icon fonts from your library. Choose groups, pick formats, set an output path&nbsp;&mdash; Bobcorn handles the rest. CSS, JavaScript, and HTML demo pages are generated alongside your fonts.</p>
-                <div class="story-formats">
-                    <span>.svg</span><span>.ttf</span><span>.woff</span><span>.woff2</span><span>.eot</span><span>.css</span><span>.js</span><span>.html</span><span>.icp</span>
+                <div class="media-frame">
+                    <img src="screenshots/select.png" data-screenshot="select.png" alt="Batch select 13 icons with multi-select mode — move, copy, favorite, delete, and export operations" loading="lazy">
                 </div>
             </div>
-            <div class="story-visual reveal">
-                <img src="screenshots/export.png" data-screenshot="export.png" alt="Export dialog — select groups, choose font formats (SVG, TTF, WOFF, WOFF2, EOT), set output path" loading="lazy">
-            </div>
         </section>
 
-        <div class="divider"></div>
+        <!-- ─── Story 2: Export (polarity-flipped band) ─── -->
+        <div class="band band--dark">
+            <section class="story story--reverse" id="formats">
+                <div class="story-content reveal">
+                    <div class="eyebrow" data-i18n="story2.label">Font Generation</div>
+                    <h2 class="t-display-lg" data-i18n="story2.title">Every format, one click</h2>
+                    <p class="t-body-lg" data-i18n="story2.desc">Generate production-ready icon fonts from your library. Choose groups, pick formats, set an output path&nbsp;&mdash; Bobcorn handles the rest. CSS, JavaScript, and HTML demo pages are generated alongside your fonts.</p>
+                    <div class="story-formats">
+                        <span class="badge badge--mono">.svg</span><span class="badge badge--mono">.ttf</span><span class="badge badge--mono">.woff</span><span class="badge badge--mono">.woff2</span><span class="badge badge--mono">.eot</span><span class="badge badge--mono">.css</span><span class="badge badge--mono">.js</span><span class="badge badge--mono">.html</span><span class="badge badge--mono">.icp</span>
+                    </div>
+                </div>
+                <div class="story-visual reveal">
+                    <div class="media-frame">
+                        <img src="screenshots/export.png" data-screenshot="export.png" alt="Export dialog — select groups, choose font formats (SVG, TTF, WOFF, WOFF2, EOT), set output path" loading="lazy">
+                    </div>
+                </div>
+            </section>
+        </div>
 
         <!-- ─── Story 3: Groups ─── -->
         <section class="story">
             <div class="story-content reveal">
-                <div class="story-label" data-i18n="story3.label">Organization</div>
-                <h2 data-i18n="story3.title">Groups that keep icons in order</h2>
-                <p data-i18n="story3.desc">Move icons between groups in seconds. Create, reorder, and nest groups to match your project structure. Save everything as a .icp project file and pick up exactly where you left off.</p>
+                <div class="eyebrow" data-i18n="story3.label">Organization</div>
+                <h2 class="t-display-lg" data-i18n="story3.title">Groups that keep icons in order</h2>
+                <p class="t-body-lg" data-i18n="story3.desc">Move icons between groups in seconds. Create, reorder, and nest groups to match your project structure. Save everything as a .icp project file and pick up exactly where you left off.</p>
             </div>
             <div class="story-visual reveal">
-                <img src="screenshots/move.png" data-screenshot="move.png" alt="Move icons to target group — select from accessibility, arrows, automotive, cameraAndPhotos, and more" loading="lazy">
+                <div class="media-frame">
+                    <img src="screenshots/move.png" data-screenshot="move.png" alt="Move icons to target group — select from accessibility, arrows, automotive, cameraAndPhotos, and more" loading="lazy">
+                </div>
             </div>
         </section>
 
@@ -1382,16 +997,16 @@
         <!-- ─── Getting Started ─── -->
         <section class="agent-notes" id="getting-started" aria-labelledby="getting-started-title">
             <div class="agent-notes__intro reveal">
-                <div class="story-label" data-i18n="start.label">Getting started</div>
-                <h2 id="getting-started-title" data-i18n="start.title">From SVG folder to web font package</h2>
-                <p data-i18n="start.desc">A reliable Bobcorn workflow starts with clean SVG files, then keeps the icon library local, grouped, exportable, and reusable for the next update.</p>
+                <div class="eyebrow" data-i18n="start.label">Getting started</div>
+                <h2 id="getting-started-title" class="t-display-lg" data-i18n="start.title">From SVG folder to web font package</h2>
+                <p class="t-body-lg" data-i18n="start.desc">A reliable Bobcorn workflow starts with clean SVG files, then keeps the icon library local, grouped, exportable, and reusable for the next update.</p>
             </div>
             <ol class="steps-list reveal">
-                <li><strong data-i18n="start.step1.title">Prepare</strong><span data-i18n="start.step1.desc">Normalize SVG viewBox values, remove unnecessary fills, and keep file names clear before import.</span></li>
-                <li><strong data-i18n="start.step2.title">Import</strong><span data-i18n="start.step2.desc">Drag SVG files or folders into Bobcorn and keep the working library on your machine.</span></li>
-                <li><strong data-i18n="start.step3.title">Organize</strong><span data-i18n="start.step3.desc">Use groups, search, favorites, and batch selection to keep repeated releases manageable.</span></li>
-                <li><strong data-i18n="start.step4.title">Export</strong><span data-i18n="start.step4.desc">Generate SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demo assets.</span></li>
-                <li><strong data-i18n="start.step5.title">Reuse</strong><span data-i18n="start.step5.desc">Save the `.icp` project file and reopen the same state when the icon set changes.</span></li>
+                <li class="card"><strong class="t-body-md-strong" data-i18n="start.step1.title">Prepare</strong><span class="t-body-sm" data-i18n="start.step1.desc">Normalize SVG viewBox values, remove unnecessary fills, and keep file names clear before import.</span></li>
+                <li class="card"><strong class="t-body-md-strong" data-i18n="start.step2.title">Import</strong><span class="t-body-sm" data-i18n="start.step2.desc">Drag SVG files or folders into Bobcorn and keep the working library on your machine.</span></li>
+                <li class="card"><strong class="t-body-md-strong" data-i18n="start.step3.title">Organize</strong><span class="t-body-sm" data-i18n="start.step3.desc">Use groups, search, favorites, and batch selection to keep repeated releases manageable.</span></li>
+                <li class="card"><strong class="t-body-md-strong" data-i18n="start.step4.title">Export</strong><span class="t-body-sm" data-i18n="start.step4.desc">Generate SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demo assets.</span></li>
+                <li class="card"><strong class="t-body-md-strong" data-i18n="start.step5.title">Reuse</strong><span class="t-body-sm" data-i18n="start.step5.desc">Save the `.icp` project file and reopen the same state when the icon set changes.</span></li>
             </ol>
         </section>
 
@@ -1400,26 +1015,26 @@
         <!-- ─── FAQ ─── -->
         <section class="agent-notes" id="faq" aria-labelledby="faq-title" data-agent-hidden="true">
             <div class="agent-notes__intro reveal">
-                <div class="story-label" data-i18n="faq.label">FAQ</div>
-                <h2 id="faq-title" data-i18n="faq.title">Agent-readable product boundaries</h2>
-                <p data-i18n="faq.desc">These answers describe the current public product surface, so search agents and coding agents do not infer hosted capabilities that Bobcorn does not provide.</p>
+                <div class="eyebrow" data-i18n="faq.label">FAQ</div>
+                <h2 id="faq-title" class="t-display-lg" data-i18n="faq.title">Agent-readable product boundaries</h2>
+                <p class="t-body-lg" data-i18n="faq.desc">These answers describe the current public product surface, so search agents and coding agents do not infer hosted capabilities that Bobcorn does not provide.</p>
             </div>
             <dl class="faq-list reveal">
-                <div>
-                    <dt data-i18n="faq.q1">What is Bobcorn used for?</dt>
-                    <dd data-i18n="faq.a1">Bobcorn manages local SVG icon libraries and exports icon font packages for web projects, including SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, HTML demos, and reusable .icp project files.</dd>
+                <div class="card--soft">
+                    <dt class="t-body-md-strong" data-i18n="faq.q1">What is Bobcorn used for?</dt>
+                    <dd class="t-body-sm" data-i18n="faq.a1">Bobcorn manages local SVG icon libraries and exports icon font packages for web projects, including SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, HTML demos, and reusable .icp project files.</dd>
                 </div>
-                <div>
-                    <dt data-i18n="faq.q2">Is Bobcorn an IcoMoon alternative?</dt>
-                    <dd data-i18n="faq.a2">Yes. Bobcorn can be used as an IcoMoon alternative or Fontello alternative when the workflow needs a local desktop app, saved project files, repeatable export, and no hosted workspace.</dd>
+                <div class="card--soft">
+                    <dt class="t-body-md-strong" data-i18n="faq.q2">Is Bobcorn an IcoMoon alternative?</dt>
+                    <dd class="t-body-sm" data-i18n="faq.a2">Yes. Bobcorn can be used as an IcoMoon alternative or Fontello alternative when the workflow needs a local desktop app, saved project files, repeatable export, and no hosted workspace.</dd>
                 </div>
-                <div>
-                    <dt data-i18n="faq.q3">Does Bobcorn have OAuth or a hosted API?</dt>
-                    <dd data-i18n="faq.a3">No. Bobcorn is a local-first desktop app. The public website exposes static metadata such as release JSON, changelog JSON, OpenAPI documentation, and discovery files, but it does not host user projects or accounts.</dd>
+                <div class="card--soft">
+                    <dt class="t-body-md-strong" data-i18n="faq.q3">Does Bobcorn have OAuth or a hosted API?</dt>
+                    <dd class="t-body-sm" data-i18n="faq.a3">No. Bobcorn is a local-first desktop app. The public website exposes static metadata such as release JSON, changelog JSON, OpenAPI documentation, and discovery files, but it does not host user projects or accounts.</dd>
                 </div>
-                <div>
-                    <dt data-i18n="faq.q4">Does Bobcorn provide a hosted MCP server?</dt>
-                    <dd data-i18n="faq.a4">No hosted MCP server is available today. Agents should use llms.txt, llms-full.txt, the OpenAPI metadata, GitHub repository, and the local CLI workflow where applicable.</dd>
+                <div class="card--soft">
+                    <dt class="t-body-md-strong" data-i18n="faq.q4">Does Bobcorn provide a hosted MCP server?</dt>
+                    <dd class="t-body-sm" data-i18n="faq.a4">No hosted MCP server is available today. Agents should use llms.txt, llms-full.txt, the OpenAPI metadata, GitHub repository, and the local CLI workflow where applicable.</dd>
                 </div>
             </dl>
         </section>
@@ -1429,15 +1044,15 @@
         <!-- ─── Workflow Guide ─── -->
         <article class="agent-notes" id="workflow-guide" aria-labelledby="workflow-guide-title" itemscope itemtype="https://schema.org/TechArticle" data-agent-hidden="true">
             <div class="agent-notes__intro reveal">
-                <div class="story-label" data-i18n="workflow.label">Workflow guide</div>
-                <h2 id="workflow-guide-title" itemprop="headline" data-i18n="workflow.title">SVG to icon font workflow guide</h2>
-                <div class="article-meta"><span data-i18n="workflow.by">By</span> <span itemprop="author">Caldis</span> · <time itemprop="dateModified" datetime="2026-05-09">2026-05-09</time></div>
-                <p itemprop="description" data-i18n="workflow.desc">A reliable icon font workflow starts before export. Normalize SVG files, keep icon names stable, export only the groups needed by the product, and save the Bobcorn project file so the next release can reproduce the same output.</p>
+                <div class="eyebrow" data-i18n="workflow.label">Workflow guide</div>
+                <h2 id="workflow-guide-title" class="t-display-lg" itemprop="headline" data-i18n="workflow.title">SVG to icon font workflow guide</h2>
+                <div class="article-meta t-caption-mono"><span data-i18n="workflow.by">By</span> <span itemprop="author">Caldis</span> · <time itemprop="dateModified" datetime="2026-05-09">2026-05-09</time></div>
+                <p class="t-body-lg" itemprop="description" data-i18n="workflow.desc">A reliable icon font workflow starts before export. Normalize SVG files, keep icon names stable, export only the groups needed by the product, and save the Bobcorn project file so the next release can reproduce the same output.</p>
             </div>
-            <ol class="guide-list reveal">
-                <li><strong data-i18n="workflow.step1.title">Normalize source SVGs</strong><span data-i18n="workflow.step1.desc">Keep viewBox values, remove unnecessary fills when the icon should inherit color, and use clear file names before import.</span></li>
-                <li><strong data-i18n="workflow.step2.title">Organize reusable groups</strong><span data-i18n="workflow.step2.desc">Group icons by product area or design-system package, then use favorites and search to review changes before export.</span></li>
-                <li><strong data-i18n="workflow.step3.title">Export and save state</strong><span data-i18n="workflow.step3.desc">Generate SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demos, then save the .icp file for the next icon update.</span></li>
+            <ol class="guide-list grid-3 reveal">
+                <li class="card"><strong class="t-body-md-strong" data-i18n="workflow.step1.title">Normalize source SVGs</strong><span class="t-body-sm" data-i18n="workflow.step1.desc">Keep viewBox values, remove unnecessary fills when the icon should inherit color, and use clear file names before import.</span></li>
+                <li class="card"><strong class="t-body-md-strong" data-i18n="workflow.step2.title">Organize reusable groups</strong><span class="t-body-sm" data-i18n="workflow.step2.desc">Group icons by product area or design-system package, then use favorites and search to review changes before export.</span></li>
+                <li class="card"><strong class="t-body-md-strong" data-i18n="workflow.step3.title">Export and save state</strong><span class="t-body-sm" data-i18n="workflow.step3.desc">Generate SVG, TTF, WOFF, WOFF2, EOT, CSS, JavaScript, and HTML demos, then save the .icp file for the next icon update.</span></li>
             </ol>
         </article>
 
@@ -1445,61 +1060,61 @@
 
         <!-- ─── Developer Resources ─── -->
         <section class="developer-resources" id="developers" aria-labelledby="developers-title" data-agent-hidden="true">
-            <div class="story-content reveal">
-                <div class="story-label" data-i18n="developers.label">Agent-ready resources</div>
-                <h2 id="developers-title" data-i18n="developers.title">Developer and agent resources</h2>
-                <p data-i18n="developers.desc">Bobcorn is local-first, but the public site now exposes predictable docs, OpenAPI, discovery files, and Markdown fallbacks so agents can understand the product without running JavaScript or guessing URLs.</p>
+            <div class="agent-notes__intro reveal">
+                <div class="eyebrow" data-i18n="developers.label">Agent-ready resources</div>
+                <h2 id="developers-title" class="t-display-lg" data-i18n="developers.title">Developer and agent resources</h2>
+                <p class="t-body-lg" data-i18n="developers.desc">Bobcorn is local-first, but the public site now exposes predictable docs, OpenAPI, discovery files, and Markdown fallbacks so agents can understand the product without running JavaScript or guessing URLs.</p>
             </div>
-            <ul class="resource-list reveal">
-                <li class="resource-row">
-                    <strong data-i18n="developers.portal.title">Developer portal</strong>
-                    <span data-i18n="developers.portal.desc">Entry point for CLI, repository, and agent integration docs.</span>
-                    <a href="developers/" data-i18n="developers.open">Open</a>
+            <ul class="resource-list grid-3 reveal">
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.portal.title">Developer portal</strong>
+                    <span class="t-body-sm" data-i18n="developers.portal.desc">Entry point for CLI, repository, and agent integration docs.</span>
+                    <a class="link-inline t-body-sm-strong" href="developers/" data-i18n="developers.open">Open</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.api.title">API docs</strong>
-                    <span data-i18n="developers.api.desc">Read-only metadata endpoints for releases, changelog, and discovery files.</span>
-                    <a href="api/" data-i18n="developers.open">Open</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.api.title">API docs</strong>
+                    <span class="t-body-sm" data-i18n="developers.api.desc">Read-only metadata endpoints for releases, changelog, and discovery files.</span>
+                    <a class="link-inline t-body-sm-strong" href="api/" data-i18n="developers.open">Open</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.openapi.title">OpenAPI spec</strong>
-                    <span data-i18n="developers.openapi.desc">Machine-readable service description for public website metadata.</span>
-                    <a href="openapi.json" data-i18n="developers.json">JSON</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.openapi.title">OpenAPI spec</strong>
+                    <span class="t-body-sm" data-i18n="developers.openapi.desc">Machine-readable service description for public website metadata.</span>
+                    <a class="link-inline t-body-sm-strong" href="openapi.json" data-i18n="developers.json">JSON</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.agent.title">Agent discovery</strong>
-                    <span data-i18n="developers.agent.desc">llms.txt, full context, Agent Card, and well-known discovery files.</span>
-                    <a href="llms-full.txt" data-i18n="developers.context">Context</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.agent.title">Agent discovery</strong>
+                    <span class="t-body-sm" data-i18n="developers.agent.desc">llms.txt, full context, Agent Card, and well-known discovery files.</span>
+                    <a class="link-inline t-body-sm-strong" href="llms-full.txt" data-i18n="developers.context">Context</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.rules.title">Agent rules</strong>
-                    <span data-i18n="developers.rules.desc">Repository instructions for coding agents, also mirrored at a website URL.</span>
-                    <a href="/AGENTS.md" data-i18n="developers.read">Read</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.rules.title">Agent rules</strong>
+                    <span class="t-body-sm" data-i18n="developers.rules.desc">Repository instructions for coding agents, also mirrored at a website URL.</span>
+                    <a class="link-inline t-body-sm-strong" href="/AGENTS.md" data-i18n="developers.read">Read</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.auth.title">Auth and webhooks</strong>
-                    <span data-i18n="developers.auth.desc">Explicit docs for the current no-auth, no-webhooks local-first boundary.</span>
-                    <a href="api/auth.html" data-i18n="developers.read">Read</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.auth.title">Auth and webhooks</strong>
+                    <span class="t-body-sm" data-i18n="developers.auth.desc">Explicit docs for the current no-auth, no-webhooks local-first boundary.</span>
+                    <a class="link-inline t-body-sm-strong" href="api/auth.html" data-i18n="developers.read">Read</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.status.title">Status and errors</strong>
-                    <span data-i18n="developers.status.desc">Machine-readable status, auth, rate-limit, and error model documents.</span>
-                    <a href="/status.json" data-i18n="developers.json">JSON</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.status.title">Status and errors</strong>
+                    <span class="t-body-sm" data-i18n="developers.status.desc">Machine-readable status, auth, rate-limit, and error model documents.</span>
+                    <a class="link-inline t-body-sm-strong" href="/status.json" data-i18n="developers.json">JSON</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.pricing.title">Pricing</strong>
-                    <span data-i18n="developers.pricing.desc">Free, open-source MIT licensing and no paid tiers.</span>
-                    <a href="/pricing.md" data-i18n="developers.read">Read</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.pricing.title">Pricing</strong>
+                    <span class="t-body-sm" data-i18n="developers.pricing.desc">Free, open-source MIT licensing and no paid tiers.</span>
+                    <a class="link-inline t-body-sm-strong" href="/pricing.md" data-i18n="developers.read">Read</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.contact.title">Contact and support</strong>
-                    <span data-i18n="developers.contact.desc">Public GitHub issues, repository links, release links, and maintainer profile.</span>
-                    <a href="/contact" data-i18n="developers.open">Open</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.contact.title">Contact and support</strong>
+                    <span class="t-body-sm" data-i18n="developers.contact.desc">Public GitHub issues, repository links, release links, and maintainer profile.</span>
+                    <a class="link-inline t-body-sm-strong" href="/contact" data-i18n="developers.open">Open</a>
                 </li>
-                <li class="resource-row">
-                    <strong data-i18n="developers.mcp.title">MCP status</strong>
-                    <span data-i18n="developers.mcp.desc">Discovery file that states MCP availability and supported alternatives.</span>
-                    <a href="api/mcp.html" data-i18n="developers.read">Read</a>
+                <li class="resource-row card">
+                    <strong class="t-body-md-strong" data-i18n="developers.mcp.title">MCP status</strong>
+                    <span class="t-body-sm" data-i18n="developers.mcp.desc">Discovery file that states MCP availability and supported alternatives.</span>
+                    <a class="link-inline t-body-sm-strong" href="api/mcp.html" data-i18n="developers.read">Read</a>
                 </li>
             </ul>
         </section>
@@ -1509,28 +1124,30 @@
         <!-- ─── Changelog ─── -->
         <section class="changelog" id="changelog">
             <div class="changelog-header reveal">
-                <h2 data-i18n="changelog.title">What's New</h2>
-                <a href="changelog.html" data-i18n="changelog.allReleases">All releases →</a>
+                <h2 class="t-display-lg" data-i18n="changelog.title">What's New</h2>
+                <a class="t-caption-mono" href="changelog.html" data-i18n="changelog.allReleases">All releases →</a>
             </div>
             <div class="changelog-list" id="changelogList"></div>
         </section>
 
     </main>
 
-    <footer>
-        <div class="footer-brand">Bobcorn</div>
-        <div class="footer-links">
-            <a href="https://github.com/Caldis/bobcorn/releases" data-i18n="footer.releases">Releases</a>
-            <a href="/about.html" data-i18n="footer.about">About</a>
-            <a href="/contact" data-i18n="footer.contact">Contact</a>
-            <a href="https://github.com/Caldis/bobcorn">GitHub</a>
-            <a href="https://github.com/Caldis">Caldis</a>
-            <a href="/privacy.html">Privacy Policy</a>
-            <button class="lang-trigger" id="langTrigger" aria-expanded="false" aria-haspopup="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <span id="langLabel">EN</span>
-                <div class="lang-popover" id="langPopover"></div>
-            </button>
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__brand">Bobcorn</div>
+            <div class="footer-links">
+                <a href="https://github.com/Caldis/bobcorn/releases" data-i18n="footer.releases">Releases</a>
+                <a href="/about.html" data-i18n="footer.about">About</a>
+                <a href="/contact" data-i18n="footer.contact">Contact</a>
+                <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+                <a href="https://github.com/Caldis">Caldis</a>
+                <a href="/privacy.html">Privacy Policy</a>
+                <button class="lang-trigger" id="langTrigger" aria-expanded="false" aria-haspopup="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span id="langLabel">EN</span>
+                    <div class="lang-popover" id="langPopover"></div>
+                </button>
+            </div>
         </div>
     </footer>
 
@@ -1771,6 +1388,15 @@
                     container.appendChild(el);
                 });
 
+                // Entries are injected after the IntersectionObserver has been wired up,
+                // so reveal them on the next frame instead of waiting for an observer.
+                requestAnimationFrame(function() {
+                    container.querySelectorAll('.reveal').forEach(function(el, i) {
+                        el.style.transitionDelay = (i * 0.08) + 's';
+                        el.classList.add('is-visible');
+                    });
+                });
+
                 function render(lang) {
                     var lk = lang.startsWith('zh') ? 'zh' : 'en';
                     displayed.forEach(function(entry, i) {
@@ -1797,7 +1423,7 @@
         });
         requestAnimationFrame(function() {
             requestAnimationFrame(function() {
-                heroEls.forEach(function(el) { el.classList.add('visible'); });
+                heroEls.forEach(function(el) { el.classList.add('is-visible'); });
             });
         });
 
@@ -1806,21 +1432,21 @@
                 if (entry.isIntersecting) {
                     var parent = entry.target.closest('.story, .developer-resources, .agent-notes');
                     if (parent) {
-                        var siblings = parent.querySelectorAll('.reveal:not(.visible)');
+                        var siblings = parent.querySelectorAll('.reveal:not(.is-visible)');
                         siblings.forEach(function(sib, i) {
                             sib.style.transitionDelay = (i * 0.12) + 's';
-                            sib.classList.add('visible');
+                            sib.classList.add('is-visible');
                         });
                         siblings.forEach(function(sib) { observer.unobserve(sib); });
                     } else {
-                        entry.target.classList.add('visible');
+                        entry.target.classList.add('is-visible');
                     }
                     observer.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
 
-        document.querySelectorAll('.story .reveal, .developer-resources .reveal, .agent-notes .reveal').forEach(function(el) {
+        document.querySelectorAll('.story .reveal, .developer-resources .reveal, .agent-notes .reveal, .changelog .reveal').forEach(function(el) {
             observer.observe(el);
         });
 
@@ -1837,14 +1463,14 @@
     </script>
 
     <!-- Cookie consent banner -->
-    <div id="cookieConsent" style="display:none;position:fixed;bottom:0;left:0;right:0;padding:12px 24px;background:rgba(20,20,20,0.95);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,0.1);z-index:9999;font-size:13px;color:#ccc;text-align:center;">
+    <div id="cookieConsent" class="cookie-consent t-body-sm">
       This site uses Google Analytics for anonymous visit statistics.
-      <a href="/privacy.html" style="color:#f97316;margin:0 8px;">Privacy Policy</a>
-      <button onclick="acceptCookies()" style="background:#f97316;color:#fff;border:none;padding:4px 16px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;margin-left:4px;">OK</button>
+      <a class="link-inline" href="/privacy.html">Privacy Policy</a>
+      <button class="btn btn-primary--sm" onclick="acceptCookies()">OK</button>
     </div>
     <script>
       if (!localStorage.getItem('cookie-consent')) {
-        document.getElementById('cookieConsent').style.display = 'block';
+        document.getElementById('cookieConsent').style.display = 'flex';
       }
       function acceptCookies() {
         localStorage.setItem('cookie-consent', '1');

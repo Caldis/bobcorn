@@ -5,59 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bobcorn API Docs - OpenAPI, Auth, Webhooks, MCP Discovery</title>
   <meta name="description" content="Bobcorn API docs for read-only public metadata endpoints, OpenAPI, auth status, webhook status, and MCP discovery.">
+  <meta name="theme-color" content="#fafafa">
   <link rel="canonical" href="https://bobcorn.caldis.me/api/">
   <link rel="service-desc" type="application/vnd.oai.openapi+json" href="/openapi.json">
   <link rel="alternate" type="text/plain" href="/api/llms.txt">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
   <style>
-    :root { --bg: #fafaf5; --text: #1a1917; --muted: #74726b; --accent: #f06830; --line: #e0ded2; }
-    * { box-sizing: border-box; }
-    body { margin: 0; font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
-    main { max-width: 920px; margin: 0 auto; padding: 72px 24px; }
-    a { color: var(--text); text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent); text-underline-offset: 4px; }
-    h1 { font-size: clamp(40px, 8vw, 72px); line-height: 1; margin: 0 0 24px; letter-spacing: -0.03em; }
-    h2 { margin-top: 48px; }
-    p { color: var(--muted); max-width: 70ch; }
-    table { width: 100%; border-collapse: collapse; margin: 24px 0 40px; }
-    th, td { text-align: left; vertical-align: top; border-top: 1px solid var(--line); padding: 14px 10px; }
-    th { color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
+    .doc { max-width: 720px; margin: 0 auto; padding: var(--space-4xl) var(--gutter) var(--space-5xl); }
+    .crumbs { font-size: 13px; line-height: 20px; color: var(--mute); margin-bottom: var(--space-lg); }
+    .crumbs a { color: var(--mute); }
+    .crumbs a:hover { color: var(--ink); }
+    .doc h1 { margin: var(--space-xs) 0 var(--space-md); }
+    .doc > .t-body-lg { color: var(--body); margin-bottom: var(--space-2xl); }
+    .doc h2 { margin: var(--space-2xl) 0 var(--space-sm); }
+    .doc p { color: var(--body); margin-bottom: var(--space-md); }
+    .table-scroll { overflow-x: auto; }
+    .doc-list { list-style: none; padding: 0; margin: var(--space-sm) 0 var(--space-lg); border-top: 1px solid var(--hairline); }
+    .doc-list li { margin: 0; border-bottom: 1px solid var(--hairline); }
+    .doc-list a { display: block; padding: var(--space-sm) 0; color: var(--ink); font-size: 14px; line-height: 20px; }
+    .doc-list a:hover { color: var(--link); }
+    @media (max-width: 600px) { .doc { padding: var(--space-4xl) var(--space-md) var(--space-3xl); } }
   </style>
 </head>
 <body>
+  <nav class="site-nav"><div class="site-nav__inner">
+    <a class="site-nav__brand" href="/"><img src="/icon.png" alt="Bobcorn app icon" width="24" height="24">Bobcorn</a>
+    <div class="site-nav__links">
+      <a class="nav-link" href="/wiki/">Wiki</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/contact">Contact</a>
+      <a class="nav-link" href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a class="nav-cta nav-cta--primary" href="https://github.com/Caldis/bobcorn/releases/latest">Download</a>
+    </div>
+  </div></nav>
   <main>
-    <p><a href="/">Bobcorn</a> / <a href="/developers/">Developers</a></p>
-    <h1>Bobcorn API Docs</h1>
-    <p>The Bobcorn public website API is static, read-only, and unauthenticated. It describes the product, releases, changelog, and agent discovery metadata. Bobcorn does not currently provide hosted project CRUD, OAuth, remote export jobs, or webhooks.</p>
+    <div class="doc">
+      <p class="crumbs"><a href="/">Bobcorn</a> / <a href="/developers/">Developers</a></p>
+      <p class="eyebrow">API</p>
+      <h1 class="t-display-lg">Bobcorn API docs</h1>
+      <p class="t-body-lg">The Bobcorn public website API is static, read-only, and unauthenticated. It describes the product, releases, changelog, and agent discovery metadata. Bobcorn does not currently provide hosted project CRUD, OAuth, remote export jobs, or webhooks.</p>
 
-    <h2>Endpoints</h2>
-    <table>
-      <thead><tr><th>Endpoint</th><th>Purpose</th></tr></thead>
-      <tbody>
-        <tr><td><code>GET /release.json</code></td><td>Current version, tag, releases, and download URLs.</td></tr>
-        <tr><td><code>GET /changelog.json</code></td><td>Localized release notes.</td></tr>
-        <tr><td><code>GET /index.md</code></td><td>Markdown fallback for the homepage.</td></tr>
-        <tr><td><code>GET /llms.txt</code></td><td>Concise agent context.</td></tr>
-        <tr><td><code>GET /llms-full.txt</code></td><td>Full product and integration context.</td></tr>
-        <tr><td><code>GET /api/auth.json</code></td><td>Machine-readable no-auth access model.</td></tr>
-        <tr><td><code>GET /api/rate-limits.json</code></td><td>Rate-limit notes for static metadata.</td></tr>
-        <tr><td><code>GET /api/errors.json</code></td><td>Error model and recovery guidance for static metadata.</td></tr>
-        <tr><td><code>GET /status.json</code></td><td>Status of public website metadata surfaces.</td></tr>
-        <tr><td><code>GET /.well-known/agent.json</code></td><td>Agent discovery metadata.</td></tr>
-        <tr><td><code>GET /.well-known/agent-card.json</code></td><td>A2A agent card.</td></tr>
-        <tr><td><code>GET /api/mcp.html</code></td><td>Human-readable MCP availability status and alternatives.</td></tr>
-      </tbody>
-    </table>
+      <h2 class="t-display-sm">Endpoints</h2>
+      <div class="table-scroll">
+        <table class="table">
+          <thead><tr><th>Endpoint</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/release.json</code></td><td>Current version, tag, releases, and download URLs.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/changelog.json</code></td><td>Localized release notes.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/index.md</code></td><td>Markdown fallback for the homepage.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/llms.txt</code></td><td>Concise agent context.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/llms-full.txt</code></td><td>Full product and integration context.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/api/auth.json</code></td><td>Machine-readable no-auth access model.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/api/rate-limits.json</code></td><td>Rate-limit notes for static metadata.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/api/errors.json</code></td><td>Error model and recovery guidance for static metadata.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/status.json</code></td><td>Status of public website metadata surfaces.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/.well-known/agent.json</code></td><td>Agent discovery metadata.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/.well-known/agent-card.json</code></td><td>A2A agent card.</td></tr>
+            <tr><td><span class="badge badge--mono">GET</span> <code>/api/mcp.html</code></td><td>Human-readable MCP availability status and alternatives.</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-    <h2>Related Docs</h2>
-    <ul>
-      <li><a href="/openapi.json">Bobcorn OpenAPI spec</a></li>
-      <li><a href="/api/auth.html">Bobcorn auth docs</a></li>
-      <li><a href="/api/rate-limits.html">Bobcorn rate limits</a></li>
-      <li><a href="/api/errors.html">Bobcorn error model</a></li>
-      <li><a href="/status.html">Bobcorn status</a></li>
-      <li><a href="/api/webhooks.html">Bobcorn webhooks</a></li>
-      <li><a href="/api/mcp.html">Bobcorn MCP status</a></li>
-    </ul>
+      <h2 class="t-display-sm">Related docs</h2>
+      <ul class="doc-list">
+        <li><a href="/openapi.json">Bobcorn OpenAPI spec</a></li>
+        <li><a href="/api/auth.html">Bobcorn auth docs</a></li>
+        <li><a href="/api/rate-limits.html">Bobcorn rate limits</a></li>
+        <li><a href="/api/errors.html">Bobcorn error model</a></li>
+        <li><a href="/status.html">Bobcorn status</a></li>
+        <li><a href="/api/webhooks.html">Bobcorn webhooks</a></li>
+        <li><a href="/api/mcp.html">Bobcorn MCP status</a></li>
+      </ul>
+    </div>
   </main>
+  <footer class="site-footer"><div class="site-footer__inner">
+    <div class="site-footer__brand">Bobcorn</div>
+    <div class="site-footer__links" style="display:flex; gap: var(--space-lg); flex-wrap: wrap;">
+      <a href="https://github.com/Caldis/bobcorn/releases">Releases</a>
+      <a href="/about.html">About</a>
+      <a href="/contact">Contact</a>
+      <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+  </div></footer>
 </body>
 </html>

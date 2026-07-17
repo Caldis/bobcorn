@@ -11,3 +11,4 @@ docs/locks/*.lock
 .claude/
 .superpowers/
 .playwright-mcp/
+.playwright-cli/

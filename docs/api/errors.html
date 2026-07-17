@@ -5,20 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bobcorn Error Model - Static Website Metadata</title>
   <meta name="description" content="Bobcorn error model for public static metadata endpoints and local-first automation boundaries.">
+  <meta name="theme-color" content="#fafafa">
   <link rel="canonical" href="https://bobcorn.caldis.me/api/errors.html">
   <link rel="alternate" type="application/json" href="/api/errors.json">
-  <style>body{margin:0;background:#fafaf5;color:#1a1917;font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:860px;margin:0 auto;padding:72px 24px}a{color:#1a1917;text-underline-offset:4px}h1{font-size:clamp(38px,7vw,64px);line-height:1;margin:0 0 24px}p,li{color:#74726b}code{color:#1a1917}</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+  <style>
+    .doc { max-width: 720px; margin: 0 auto; padding: var(--space-4xl) var(--gutter) var(--space-5xl); }
+    .crumbs { font-size: 13px; line-height: 20px; color: var(--mute); margin-bottom: var(--space-lg); }
+    .crumbs a { color: var(--mute); }
+    .crumbs a:hover { color: var(--ink); }
+    .doc h1 { margin: var(--space-xs) 0 var(--space-md); }
+    .doc > .t-body-lg { color: var(--body); margin-bottom: var(--space-2xl); }
+    .doc h2 { margin: var(--space-2xl) 0 var(--space-sm); }
+    .doc p { color: var(--body); margin-bottom: var(--space-md); }
+    .table-scroll { overflow-x: auto; }
+    .callout { display: flex; gap: var(--space-sm); align-items: flex-start; background: var(--warning-soft); color: var(--warning-deep); border-radius: var(--rounded-md); padding: var(--space-md) var(--space-lg); font-size: 14px; line-height: 20px; margin: var(--space-lg) 0; }
+    .doc-foot { margin-top: var(--space-2xl); font-size: 14px; color: var(--mute); }
+    @media (max-width: 600px) { .doc { padding: var(--space-4xl) var(--space-md) var(--space-3xl); } }
+  </style>
 </head>
 <body>
+  <nav class="site-nav"><div class="site-nav__inner">
+    <a class="site-nav__brand" href="/"><img src="/icon.png" alt="Bobcorn app icon" width="24" height="24">Bobcorn</a>
+    <div class="site-nav__links">
+      <a class="nav-link" href="/wiki/">Wiki</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/contact">Contact</a>
+      <a class="nav-link" href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a class="nav-cta nav-cta--primary" href="https://github.com/Caldis/bobcorn/releases/latest">Download</a>
+    </div>
+  </div></nav>
   <main>
-    <p><a href="/api/">Bobcorn API docs</a></p>
-    <h1>Bobcorn Error Model</h1>
-    <p>Bobcorn does not currently operate a hosted JSON API for project actions. Public metadata files are static and read-only. Missing website paths are served by GitHub Pages and may return an HTML 404 page.</p>
-    <ul>
-      <li><code>static_path_not_found</code>: use the documented static paths from <a href="/openapi.json">OpenAPI</a> or <a href="/llms.txt">llms.txt</a>.</li>
-      <li><code>method_not_supported</code>: use GET requests for static metadata. Use the local CLI for supported local automation.</li>
-    </ul>
-    <p>Machine-readable version: <a href="/api/errors.json">/api/errors.json</a>.</p>
+    <div class="doc">
+      <p class="crumbs"><a href="/api/">Bobcorn API docs</a></p>
+      <p class="eyebrow">API</p>
+      <h1 class="t-display-lg">Bobcorn error model</h1>
+      <p class="t-body-lg">Bobcorn does not currently operate a hosted JSON API for project actions. Public metadata files are static and read-only. Missing website paths are served by GitHub Pages and may return an HTML 404 page.</p>
+
+      <div class="callout">There is no dynamic error payload — treat any non-200 response as a static hosting response, not an application error.</div>
+
+      <h2 class="t-display-sm">Codes</h2>
+      <div class="table-scroll">
+        <table class="table">
+          <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>static_path_not_found</code></td><td>Use the documented static paths from <a class="link-inline" href="/openapi.json">OpenAPI</a> or <a class="link-inline" href="/llms.txt">llms.txt</a>.</td></tr>
+            <tr><td><code>method_not_supported</code></td><td>Use GET requests for static metadata. Use the local CLI for supported local automation.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="doc-foot">Machine-readable version: <a class="link-inline" href="/api/errors.json">/api/errors.json</a>.</p>
+    </div>
   </main>
+  <footer class="site-footer"><div class="site-footer__inner">
+    <div class="site-footer__brand">Bobcorn</div>
+    <div class="site-footer__links" style="display:flex; gap: var(--space-lg); flex-wrap: wrap;">
+      <a href="https://github.com/Caldis/bobcorn/releases">Releases</a>
+      <a href="/about.html">About</a>
+      <a href="/contact">Contact</a>
+      <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+  </div></footer>
 </body>
 </html>

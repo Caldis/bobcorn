@@ -5,130 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Changelog — Bobcorn</title>
     <meta name="description" content="Full version history and release notes for Bobcorn.">
-    <meta name="theme-color" content="#FAFAF5">
-    <link rel="icon" type="image/png" href="icon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#fafafa">
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="/assets/site.css">
     <style>
-        @font-face {
-            font-family: 'GT Canon VF Variable L Black';
-            src: url('fonts/GT-Canon-VF-Variable-L-Black.woff2') format('woff2');
-            font-weight: 900; font-style: normal; font-display: swap;
-        }
+        .prose { max-width: 720px; margin: 0 auto; }
+        .prose .lead { margin: var(--space-md) 0 0; }
 
-        :root {
-            --bg: #FAFAF5;
-            --text: #1A1917;
-            --text-secondary: #82817A;
-            --accent: #F06830;
-            --accent-hover: #DD5B25;
-            --divider: #E0DED2;
-            --pill-bg: rgba(160, 158, 148, 0.12);
-            --serif: 'GT Canon VF Variable L Black', Georgia, serif;
-            --sans: 'Outfit', system-ui, sans-serif;
-            --mono: 'Space Mono', monospace;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: var(--sans);
-            background: var(--bg);
-            color: var(--text);
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* ─── Header ─── */
-        .page-header {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 64px 48px 0;
-        }
-
-        .page-header nav {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 48px;
-        }
-
-        .page-header nav a {
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .page-header nav a:hover { color: var(--text); }
-
-        .page-header nav .sep {
-            color: var(--divider);
-            font-size: 14px;
-            user-select: none;
-        }
-
-        .page-header h1 {
-            font-family: var(--serif);
-            font-size: clamp(32px, 5vw, 48px);
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            margin-bottom: 12px;
-        }
-
-        .page-header p {
-            font-size: 16px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 48px;
-        }
-
-        /* ─── Changelog ─── */
-        .changelog {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 0 48px 80px;
-        }
+        /* ─── Changelog list (JS-rendered — class names below match renderChangelog() in script) ─── */
+        .changelog { margin-top: var(--space-2xl); }
 
         .changelog-entry {
             display: grid;
             grid-template-columns: 140px 1fr;
-            gap: 32px;
-            padding: 32px 0;
-            border-top: 1px solid var(--divider);
+            gap: var(--space-xl);
+            padding: var(--space-xl) 0;
+            border-top: 1px solid var(--hairline);
         }
 
         .changelog-meta {
             position: sticky;
-            top: 24px;
+            top: calc(var(--header-height) + var(--space-md));
             align-self: start;
         }
 
         .changelog-version {
-            font-family: var(--mono);
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink);
+            background: var(--canvas-soft-2);
+            letter-spacing: -0.28px;
+            padding: 2px var(--space-xs);
+            border-radius: var(--rounded-full);
+            margin-bottom: var(--space-xs);
         }
 
         .changelog-date {
-            font-family: var(--mono);
+            font-family: var(--font-mono);
             font-size: 12px;
-            color: var(--text-secondary);
+            color: var(--mute);
         }
 
         .changelog-items {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            padding-top: 4px;
+            gap: var(--space-xs);
+            padding-top: var(--space-xxs);
         }
 
         .changelog-items li {
             font-size: 15px;
-            color: var(--text-secondary);
+            color: var(--body);
             line-height: 1.6;
             padding-left: 20px;
             position: relative;
@@ -141,68 +73,25 @@
             top: 10px;
             width: 6px;
             height: 6px;
-            border-radius: 50%;
-            background: var(--accent);
-            opacity: 0.6;
+            border-radius: var(--rounded-full);
+            background: var(--ink);
+            opacity: 0.35;
         }
 
-        /* ─── Footer ─── */
-        footer {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 24px 48px 48px;
-            border-top: 1px solid var(--divider);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .footer-brand {
-            font-family: var(--serif);
-            font-size: 18px;
-            color: var(--text);
-        }
-
-        .footer-links { display: flex; align-items: center; gap: 24px; }
-
-        .footer-links a {
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover { color: var(--text); }
-
-        /* ─── Language ─── */
+        /* ─── Language switcher (nav-scale ghost button) ─── */
         .lang-trigger {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: var(--mono);
-            font-size: 12px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px 12px;
-            border-radius: 6px;
-            border: none;
-            background: none;
-            transition: color 0.2s, background 0.2s;
             position: relative;
+            gap: var(--space-xxs);
         }
-
-        .lang-trigger:hover { color: var(--text); background: var(--pill-bg); }
-        .lang-trigger svg { width: 15px; height: 15px; opacity: 0.55; }
+        .lang-trigger svg { width: 15px; height: 15px; opacity: 0.6; }
 
         .lang-popover {
             position: absolute;
-            bottom: calc(100% + 12px);
+            top: calc(100% + var(--space-xs));
             right: 0;
-            background: var(--bg);
-            border: 1px solid var(--divider);
-            border-radius: 12px;
-            padding: 16px 20px;
+            background: var(--canvas);
+            border-radius: var(--rounded-lg);
+            padding: var(--space-md) var(--space-lg);
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2px 28px;
@@ -211,7 +100,7 @@
             pointer-events: none;
             transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
                         transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 8px 32px rgba(26, 25, 23, 0.08);
+            box-shadow: var(--shadow-l5), var(--shadow-ring);
             z-index: 200;
             min-width: 300px;
         }
@@ -221,27 +110,23 @@
         }
 
         .lang-popover a {
-            font-family: var(--sans);
+            font-family: var(--font-sans);
             font-size: 13px;
-            color: var(--text-secondary);
+            color: var(--body);
             text-decoration: none;
-            padding: 7px 10px;
-            border-radius: 6px;
+            padding: 7px var(--space-xs);
+            border-radius: var(--rounded-sm);
             cursor: pointer;
             transition: color 0.15s, background 0.15s;
             white-space: nowrap;
         }
 
-        .lang-popover a:hover { color: var(--text); background: var(--pill-bg); }
-        .lang-popover a.active { color: var(--accent); }
+        .lang-popover a:hover { color: var(--ink); background: var(--canvas-soft-2); }
+        .lang-popover a.active { color: var(--link); }
 
         @media (max-width: 680px) {
-            .page-header { padding: 40px 20px 0; }
-            .page-header nav { margin-bottom: 32px; }
-            .changelog { padding: 0 20px 48px; }
-            .changelog-entry { grid-template-columns: 1fr; gap: 12px; }
+            .changelog-entry { grid-template-columns: 1fr; gap: var(--space-sm); }
             .changelog-meta { position: static; }
-            footer { padding: 24px 20px 36px; }
         }
     </style>
     <!-- Google tag (gtag.js) -->
@@ -255,30 +140,53 @@
 </head>
 <body>
 
-    <div class="page-header">
-        <nav>
-            <a href="./">Bobcorn</a>
-            <span class="sep">/</span>
-            <a href="changelog.html" data-i18n="changelog.title">Changelog</a>
-        </nav>
-        <h1 data-i18n="changelog.fullTitle">Changelog</h1>
-        <p data-i18n="changelog.fullDesc">All updates and improvements across every release.</p>
+  <nav class="site-nav"><div class="site-nav__inner">
+    <a class="site-nav__brand" href="/"><img src="/icon.png" alt="Bobcorn app icon" width="24" height="24">Bobcorn</a>
+    <div class="site-nav__links">
+      <a class="nav-link" href="/wiki/">Wiki</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/contact">Contact</a>
+      <a class="nav-link" href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <button class="lang-trigger nav-cta nav-cta--ghost" id="langTrigger" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="langLabel">EN</span>
+          <div class="lang-popover" id="langPopover"></div>
+      </button>
+      <a class="nav-cta nav-cta--primary" href="https://github.com/Caldis/bobcorn/releases/latest">Download</a>
+    </div>
+  </div></nav>
+
+  <main>
+    <div class="band band--hero">
+      <div class="mesh-gradient"></div>
+      <div class="container">
+        <div class="prose">
+          <p class="eyebrow" data-i18n="changelog.title">Changelog</p>
+          <h1 class="t-display-lg" data-i18n="changelog.fullTitle">Changelog</h1>
+          <p class="t-body-lg lead" data-i18n="changelog.fullDesc">All updates and improvements across every release.</p>
+        </div>
+      </div>
     </div>
 
-    <div class="changelog" id="changelogList"></div>
-
-    <footer>
-        <div class="footer-brand">Bobcorn</div>
-        <div class="footer-links">
-            <a href="./">Home</a>
-            <a href="https://github.com/Caldis/bobcorn">GitHub</a>
-            <button class="lang-trigger" id="langTrigger" aria-expanded="false">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <span id="langLabel">EN</span>
-                <div class="lang-popover" id="langPopover"></div>
-            </button>
+    <div class="band">
+      <div class="container">
+        <div class="prose">
+          <div class="changelog" id="changelogList"></div>
         </div>
-    </footer>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer"><div class="site-footer__inner">
+    <div class="site-footer__brand">Bobcorn</div>
+    <div class="site-footer__links" style="display:flex; gap: var(--space-lg); flex-wrap: wrap;">
+      <a href="https://github.com/Caldis/bobcorn/releases">Releases</a>
+      <a href="/about.html">About</a>
+      <a href="/contact">Contact</a>
+      <a href="https://github.com/Caldis/bobcorn">GitHub</a>
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+  </div></footer>
 
     <script>
     var LANGS = [

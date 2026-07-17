@@ -87,6 +87,7 @@ bobcorn/
 | `docs/DEPENDENCY_MAP.md` | 模块依赖与变更影响分析 |
 | `docs/CLI.md` | CLI 维护指南 (新增/修改/删除功能的收口流程) |
 | `docs/MIGRATION.md` | Core 迁移指南 (进度、流程、规则) |
+| `docs/DESIGN.md` | 官网设计规范 (token/组件/版式, 官网页面唯一视觉依据) |
 | `src/renderer/store/README.md` | State tree + 使用模式 |
 | `src/renderer/database/README.md` | Schema + 异步初始化 + CRUD API |
 
@@ -151,3 +152,4 @@ CI 失败时：查看日志 → 修复 → 删 tag 重打 → 重新 push。
 - **排版规范必须遵守**: 所有面向用户的文本用 `.t-*` 语义排版类（`.t-title/.t-section/.t-label/.t-body/.t-note/.t-value/.t-caption/.t-help/.t-pill`，定义在 `src/renderer/styles/globals.css`），一个文本节点挂一个类即带齐字号+字重+颜色；**不允许**散写 `text-[Npx]`/`font-medium`/`text-foreground-*` 手搓排版。颜色只用语义 token（`text-foreground/-muted/-subtle`、`text-danger/warning/success/info/accent`），**禁止硬编码调色板**（`text-amber-*` 等）；`font-mono` 只包 hex/数字/ASCII/路径/快捷键，绝不包中文。字体经 `@fontsource` 本地打包（entry.ts），不引 CDN。守门测试 `test/unit/typography-guard.test.js` 拦截违规。详见 `docs/TYPOGRAPHY.md`。
 - **sql.js 禁止裸 `prepare()`**: prepared statement 是 Emscripten 堆里的 C 侧内存句柄，JS GC 无法回收，漏 `free()` 会累积到 `Aborted(OOM)` 崩溃。必须使用 `src/core/database/safe-stmt.ts` 的 `queryFirstRow` / `queryFirstValue` / `withStatement`（statement 生命周期封闭在 try/finally 内）；`db.exec()`/`db.run()` 自我收尾，可直接用。守门测试 `test/unit/sqljs-statement-guard.test.js` 拦截 `src/` 下任何裸 `.prepare(`。详见 `docs/CONVENTIONS.md` 的 Database 章节。
 - **CLI-first 开发**: 任何新增用户操作必须先在 `src/core/operations/` 实现 + 在 `src/core/registry.ts` 登记 + 暴露 `src/cli/index.ts` CLI 命令，最后 GUI 才通过 store 薄封装调用 (调用 core → 更新 UI state)；组件不允许直接导入 `database/`，也不允许往 `src/renderer/database/index.ts` 新增方法。守门测试 `test/unit/core-parity-guard.test.js`（冻结 renderer database 方法面 + registry↔CLI 覆盖）与 `test/unit/core-boundary-guard.test.js` 会拦截违规，CI 变红。详见 `docs/MIGRATION.md` 与 `docs/CLI.md`。
+- **官网设计规范必须遵守**: 官网 (docs/ 站点, bobcorn.caldis.me) 所有页面的新增和调整以 `docs/DESIGN.md` 为唯一视觉依据。token 与共享组件类在 `docs/assets/site.css`，wiki 经 `docs/wiki/shared/wiki.css` (import site.css) 继承；页面局部 `<style>` 只写该页独有布局且只用 `var(--*)` token，禁止裸 hex 颜色/自造字体栈/新 accent 色/700 字重标题。改动后必须跑 `npm run docs:check` 与 `npx vitest run test/unit/website-i18n.test.js`。

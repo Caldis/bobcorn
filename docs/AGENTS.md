@@ -17,6 +17,7 @@ Core rules:
 - Do not import `database/` directly from components.
 - SVG content must be sanitized with `sanitizeSVG()` before rendering.
 - Do not manually edit generated `out/` files.
+- Website pages (this docs/ site) follow the design spec at [/DESIGN.md](https://bobcorn.caldis.me/DESIGN.md); shared tokens and component classes live in `/assets/site.css`.
 
 For agent-readable product context, use:
 
