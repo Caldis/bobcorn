@@ -1,12 +1,34 @@
-# Session Handoff — 2026-07-05
+# Session Handoff — 2026-07-17
 
 > 前一个 Claude Code session 的完整交接。新 session 请先读此文档 + AGENTS.md。
 
 ## 项目状态
 
-**版本**: v1.17.0（已发布，release 三平台产物+更新元数据齐全，CI/Pages 全绿） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini)
+**版本**: v1.18.0（发版中，见下方 session 摘要） | **GitHub**: Caldis/bobcorn | **路径**: D:\Code\bobcorn (Windows) / ~/Code/bobcorn (Mac mini) / ~/Desktop/Code/bobcorn (Mac)
 
 **分支**: `master`
+
+## 2026-07-17 Session 摘要（画布交互增强 + 内容缓存失效架构收口，随 v1.18.0 发版）
+
+**修复（画布不刷新 bug 类 + 导出）**：
+- 替换图标/批量改色后中央画布不刷新（IconBlock 多级内容缓存无失效机制）；项目切换时 patched/prefetched 缓存不清空会串显复制 .icp（同 id）的旧内容
+- 未分组图标无法参与字体导出：分组选择列表只列真实分组；纯未分组项目导出按钮直接被禁用。修复为「未分组」虚拟分组 + `effectiveGroupId` 归一化三种历史形态（'resource-uncategorized'/'null'/空值）
+- 分组名保存 trim（GUI 对话框 + core/CLI 同口径）
+
+**新功能**：
+- 画布空白右键菜单：导入到当前分组（资源视图落未分组、回收站禁用）/ 全选 / 导出字体（经 `bobcorn:open-export` detail.groupIds 预选当前分组，ExportDialog 新增 initialGroups prop）
+- 框选拖拽聚合（`IconGridLocal/useIconStackDrag.tsx`）：自定义鼠标拖拽（非 HTML5 DnD），克隆可见选中图标飞向光标聚合成 iOS 式错位叠放卡片 + 计数角标；拖到侧边栏 `[data-icon-drop-target]` 行高亮（globals.css），松手 `moveIconsWithVariants`；源图标经 store.draggingIcons 调淡；位置更新 ref 直改 DOM 不经 React
+- 导出分组列表：每组显示计数（与导出集同口径）、空分组置灰、全选语义收敛为「全部可选分组」
+
+**架构收口（内容缓存失效，根治「画布不刷新」bug 类）**：
+- 失效责任从写入 callsite 反转到数据层：renderer db 新增 `registerOnIconContentChanged`（与 registerOnMutation 同款插桩，guard 冻结列表已按豁免规则登记）；`setIconData` 检测 iconContent 写入即广播、`updateIconsColor` 批量抑制后一次 emit → bootstrap 桥接 → `store.invalidateIconContent`（per-icon rev++ / 清 patched+prefetched / bump iconContentVersion，纯函数在 `store/contentCache.ts`）
+- IconBlock 订阅自己的 contentRev，失效后 idle 重载；rev>0 时重载结果优先于 props 快照。高频取色拖拽保留 patchIconContent 快路径（广播后立即注入新内容，零重查）
+- 守门：`test/unit/content-cache.test.js`（失效纯函数 + 广播接线静态断言）；流程文档在 `store/README.md`
+- 后续可选优化（已评估未实施）：prefetchedContent 容量上限（现只进不出）、invalidate 按需克隆、取色拖拽逐 tick 落库改松手 commit
+
+**性能（用户报障：框选时控制台查询风暴）**：BatchPanel 选中快照原逐 id `SELECT *`（含重 TEXT 列）且拖曳中每步全量重查（累计 O(N²)）。修复：快照防抖 80ms（拖曳中零查询）+ 新增 `getIconMetaBatch`（renderer 视图聚合，IN 一次取元数据）+ 内容仅前 9 缩略图批查 + 导出目标推迟到弹窗打开时构建
+
+**验收**：build ✓；vitest 801 passed（新增 content-cache 9 项）；CLI 127 passed；lint 0 警告；acceptance/full-e2e 见发版记录
 
 ## 2026-07-05 Session 摘要（框选 OOM 崩溃根治 + sql.js statement 守门，随 v1.17.0 发版）
 

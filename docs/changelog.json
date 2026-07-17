@@ -1,5 +1,33 @@
 [
   {
+    "version": "1.18.0",
+    "date": "2026-07-17",
+    "summary": {
+      "zh": "画布支持空白处右键菜单与拖拽图标到侧边栏分组（iOS 式聚合动画）；修复替换图标、批量改色后画布不刷新与未分组图标无法导出的问题",
+      "en": "Adds a canvas context menu and drag-to-sidebar grouping with an iOS-style stacking animation; fixes the canvas not refreshing after replacing icons or batch recoloring, and ungrouped icons being excluded from font export"
+    },
+    "changes": {
+      "zh": [
+        "新增：画布空白处右键菜单——导入图标到当前分组、全选当前视图、导出图标字体（自动预选当前分组）",
+        "新增：框选图标后可直接拖拽到侧边栏的分组/未分组/回收站——图标以 iOS 桌面多选式的聚合动画跟随光标，角标显示数量，源图标调淡示意暂离，悬停目标高亮",
+        "改进：导出图标字体的分组列表显示每组图标数量，空分组置灰不可选；「未分组」作为独立选项参与选择",
+        "修复：使用「替换」更新图标、批量统一颜色后，中央画布不刷新仍显示旧图形——内容缓存失效机制已重构收口到数据层，并加入守门测试防止同类问题复发",
+        "修复：未分组图标此前无法参与字体导出；纯未分组项目的导出按钮被禁用",
+        "修复：分组名称保存时自动去除首尾空白",
+        "优化：框选大量图标时不再产生逐个的重量级数据库查询，选择停稳后一次批量轻查询完成"
+      ],
+      "en": [
+        "New: Right-click on empty canvas space for quick actions — import icons into the current group, select all icons in view, and export icon fonts with the current group preselected",
+        "New: Drag marquee-selected icons straight onto sidebar groups, Ungrouped, or Trash — icons gather into an iOS-style stack that follows the cursor with a count badge, sources dim while in flight, and drop targets highlight on hover",
+        "Improved: The font export group list now shows each group's icon count, disables empty groups, and offers Ungrouped as its own selectable entry",
+        "Fixed: The canvas kept showing stale artwork after replacing an icon or batch recoloring — cache invalidation is now centralized in the data layer with a guard test against regressions",
+        "Fixed: Ungrouped icons were excluded from font export, and projects with only ungrouped icons couldn't export at all",
+        "Fixed: Group names are trimmed of leading and trailing whitespace on save",
+        "Optimized: Marquee-selecting many icons no longer fires per-icon heavyweight database queries; a single lightweight batch query runs once the selection settles"
+      ]
+    }
+  },
+  {
     "version": "1.17.0",
     "date": "2026-07-05",
     "summary": {

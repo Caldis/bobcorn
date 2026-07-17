@@ -125,10 +125,16 @@ async function run() {
   await window.keyboard.press('Escape');
   await window.waitForTimeout(300);
 
-  // --- Phase 5: Window Controls (Win32) ---
+  // --- Phase 5: Window Controls (平台感知) ---
+  // 自绘窗口控制按钮仅 win32 渲染 (MainContainer: platform() === 'win32');
+  // macOS 用原生红绿灯, DOM 中应为 0 个按钮
   console.log('\nPhase 5: Window Controls');
   const titleBarBtns = await window.locator('#titleBarButtonGroup button').count();
-  assert('Window control buttons', titleBarBtns >= 3, `${titleBarBtns} buttons`);
+  if (process.platform === 'win32') {
+    assert('Window control buttons', titleBarBtns >= 3, `${titleBarBtns} buttons`);
+  } else {
+    assert('Window control buttons absent (native controls)', titleBarBtns === 0, `${titleBarBtns} buttons`);
+  }
 
   // --- Phase 6: UI Aesthetics ---
   console.log('\nPhase 6: UI Aesthetics');
