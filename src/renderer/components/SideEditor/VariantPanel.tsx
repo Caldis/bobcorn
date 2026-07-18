@@ -183,7 +183,7 @@ export default function VariantPanel({
   // Export a single variant as SVG
   const handleExportVariant = useCallback(
     async (v: any) => {
-      const { electronAPI } = window as any;
+      const { electronAPI } = window;
       const result = await electronAPI.showSaveDialog({
         title: t('editor.exportIcon'),
         defaultPath: `${v.iconName}.svg`,

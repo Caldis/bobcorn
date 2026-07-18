@@ -22,11 +22,12 @@ import {
   deleteIcons as commandDeleteIcons,
   copyIcons as commandCopyIcons,
   replaceIconContent as commandReplaceIconContent,
+  validateGroupCodeRange as commandValidateGroupCodeRange,
 } from '@core/commands';
 // Config
 import config, { getOption } from '../config';
 // Shared icon-code allocation — single source of truth with the CLI (core)
-import { highestUsedInRange, PUA_MIN, PUA_MAX, type CodeRange } from '@core/code-allocation';
+import { highestUsedInRange, type CodeRange } from '@core/code-allocation';
 // Utils
 import {
   generateUUID,
@@ -617,11 +618,12 @@ class Database {
   };
   getGroupData = (id: string): Record<string, any> => {
     dev && console.log('getGroupData');
-    const targetDataSet: DataSet = { id: sf(id) };
-    return this.getDataOfTable(groupData, targetDataSet, { single: true, where: true }) as Record<
-      string,
-      any
-    >;
+    // 委托 core getGroup (SELECT * WHERE id, SQL 同款); 无行时 core 返回 null,
+    // 壳层保持原 queryFirstRow 的 {} 契约 (getGroupName 等调用方直接取属性)。
+    // falsy id 短路: 旧实现的 sf 裸拼会查 'undefined' 字符串 id 得空行, 调用方
+    // (如 SideEditor 图标数据未加载完的首帧) 依赖该容忍; core sf 严格, 必须在壳层挡
+    if (!id) return {};
+    return this.coreDb!.getGroup(id) ?? {};
   };
   addGroup = (
     name: string,
@@ -630,34 +632,26 @@ class Database {
   ): void => {
     dev && console.log('addGroup');
     const id = generateUUID();
-    const groupOrder = this.getDataCountsOfTable(groupData);
-    const dataSet: DataSet = {
-      id: sf(id),
-      groupName: sf(name),
-      groupOrder,
-    };
     if (description) {
+      // 老 .icp 可能缺 groupDescription 列 — 与原实现同款先补跑迁移 (幂等)
       this.ensureGroupDescriptionColumn();
-      dataSet.groupDescription = sf(description);
     }
-    this.addGroupData(dataSet);
-    // notifyMutation auto-fired by addGroupData → addDataToTable
-    callback &&
-      callback({
-        id: id,
-        groupName: name,
-        groupOrder: groupOrder,
-      });
+    // 委托 core (单条 INSERT, groupOrder = COUNT(*) 同口径; description 空串视为未提供, 同原 truthy 判断)。
+    // 与原实现的差异: core 额外写 groupColor='' (该列 README 标注 unused, 读侧无消费);
+    // core sf 会转义单引号, 名称含 ' 时不再拼坏 SQL (原实现裸拼)。
+    const group = this.coreDb!.addGroup(id, name, description || undefined);
+    // 写路径插桩留在壳层 — 时机与原 addDataToTable 自动触发相同: 写后、callback 前
+    this.notifyMutation();
+    callback && callback(group);
   };
   delGroup = (id: string, callback?: () => void): void => {
     dev && console.log('delGroup');
-    // 将分组下的图标移到未分组（而非删除）
-    this.runMutation(
-      `UPDATE ${iconData} SET iconGroup = 'resource-uncategorized' WHERE iconGroup = ${sf(id)}`
-    );
-    // 然后删除分组 — delDataOfTable auto-notifies
-    const targetDataSet: DataSet = { id: sf(id) };
-    this.delDataOfTable(groupData, targetDataSet, { all: false }, callback);
+    // 委托 core deleteGroup — 同款两步: 组内图标移 resource-uncategorized → 删除分组
+    // (SQL 逐字等价; DELETE 经 db.run 代原 db.exec, 无行为差)
+    this.coreDb!.deleteGroup(id);
+    // 原实现 runMutation + delDataOfTable 各触发一次 dirty 标记 — 收敛为一次 (幂等标记, 无行为差)
+    this.notifyMutation();
+    callback && callback();
   };
   getGroupList = (): Record<string, any>[] => {
     dev && console.log('getGroupList');
@@ -671,19 +665,28 @@ class Database {
   // 批量更新分组排序
   reorderGroups = (orderedIds: string[], callback?: () => void): void => {
     dev && console.log('reorderGroups');
+    // 委托 core setGroupOrder 逐条 UPDATE (SQL 同款; core sf(id) 会转义引号, UUID id 下等价)
     orderedIds.forEach((id, index) => {
-      this.runMutation(`UPDATE ${groupData} SET groupOrder = ${index} WHERE id = '${id}'`);
+      this.coreDb!.setGroupOrder(id, index);
     });
+    // 原实现每条 UPDATE 触发一次 dirty 标记 — 收敛为一次 (幂等标记); 空数组不触发, 同原行为
+    if (orderedIds.length > 0) this.notifyMutation();
     callback && callback();
   };
   setGroupName = (id: string, groupName: string, callback?: () => void): void => {
     dev && console.log('setGroupName');
-    const dataSet: DataSet = { groupName: sf(groupName) };
-    this.setGroupData(id, dataSet, callback);
+    // 委托 core (UPDATE groupData SET groupName WHERE id, SQL 同款)
+    this.coreDb!.setGroupName(id, groupName);
+    // 写路径插桩留在壳层 — 时机与原 setGroupData 自动触发相同: 写后、callback 前
+    this.notifyMutation();
+    callback && callback();
   };
   // codeRange 语义: undefined = 不动区间列 (保持原值); null = 清除区间; {start,end} = 设置并校验。
-  // 校验复用 @core/code-allocation 的 PUA 边界常量, 与 core setGroupCodeRange 对齐 (PUA 内 + start<=end + 与其他组不重叠);
-  // 违规抛错 (调用方 try/catch), 正常路径由弹窗层的行内校验拦截, 此处为落库前的兜底防线。
+  // 校验委托 @core/commands.validateGroupCodeRange (PUA 内 + start<=end + 与其他组不重叠,
+  // getGroupRanges 排除自身、只取两端均非 NULL 的组 — 与原内联查询同口径); 整数性是入参
+  // 解析职责, 留壳层 (与 core setGroupCodeRange 操作的分工一致)。
+  // 违规抛错 (调用方 try/catch, 消息精确保持 INVALID_CODE_RANGE / CODE_RANGE_OVERLAP),
+  // 正常路径由弹窗层的行内校验拦截, 此处为落库前的兜底防线 — 校验先于任何写入, 无部分落库。
   setGroupInfo = (
     id: string,
     groupName: string,
@@ -696,46 +699,36 @@ class Database {
     // 确保 groupDescription / groupIcon / codeRange* 列存在（HMR 热更新时可能还没跑过 migration）
     this.ensureGroupDescriptionColumn();
     this.ensureGroupIconColumn();
-    const dataSet: DataSet = {
-      groupName: sf(groupName),
-      groupDescription: groupDescription ? sf(groupDescription) : 'NULL',
-    };
+    if (codeRange !== undefined && codeRange !== null) {
+      if (!Number.isInteger(codeRange.start) || !Number.isInteger(codeRange.end)) {
+        throw new Error('INVALID_CODE_RANGE');
+      }
+      const validation = commandValidateGroupCodeRange(this.coreDb!, id, codeRange);
+      if (!validation.ok) {
+        // out-of-pua / inverted → INVALID_CODE_RANGE, overlap → CODE_RANGE_OVERLAP (消息同原实现)
+        throw new Error(
+          validation.reason === 'overlap' ? 'CODE_RANGE_OVERLAP' : 'INVALID_CODE_RANGE'
+        );
+      }
+    }
+    // 写入委托 core setter (原实现为单条 UPDATE, 现为逐列 UPDATE — 每条都触发 updateTime
+    // 触发器, 终态一致; 校验已全部前置, 无部分写入风险)。列口径与原 dataSet 相同:
+    // groupDescription 空串/null → NULL; groupIcon undefined = 不动, 空串/null → NULL。
+    this.coreDb!.setGroupName(id, groupName);
+    this.coreDb!.setGroupDescription(id, groupDescription || null);
     if (groupIcon !== undefined) {
-      dataSet.groupIcon = groupIcon ? sf(groupIcon) : 'NULL';
+      this.coreDb!.setGroupIcon(id, groupIcon || null);
     }
     if (codeRange !== undefined) {
       if (codeRange === null) {
-        dataSet.codeRangeStart = 'NULL';
-        dataSet.codeRangeEnd = 'NULL';
+        this.coreDb!.setGroupCodeRange(id, null, null);
       } else {
-        const { start, end } = codeRange;
-        if (
-          !Number.isInteger(start) ||
-          !Number.isInteger(end) ||
-          start < PUA_MIN ||
-          end > PUA_MAX ||
-          start > end
-        ) {
-          throw new Error('INVALID_CODE_RANGE');
-        }
-        // 与其他分组已声明区间不重叠 (内联查询, 不新增读方法)
-        const others = this.db!.exec(
-          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id != ${sf(id)} AND codeRangeStart IS NOT NULL AND codeRangeEnd IS NOT NULL`
-        );
-        if (others.length) {
-          for (const v of others[0].values) {
-            const os = Number(v[0]);
-            const oe = Number(v[1]);
-            if (Number.isFinite(os) && Number.isFinite(oe) && start <= oe && os <= end) {
-              throw new Error('CODE_RANGE_OVERLAP');
-            }
-          }
-        }
-        dataSet.codeRangeStart = String(start);
-        dataSet.codeRangeEnd = String(end);
+        this.coreDb!.setGroupCodeRange(id, codeRange.start, codeRange.end);
       }
     }
-    this.setGroupData(id, dataSet, callback);
+    // 写路径插桩留在壳层 — 时机与原 setGroupData 自动触发相同: 写后、callback 前
+    this.notifyMutation();
+    callback && callback();
   };
   private ensureGroupDescriptionColumn = (): void => {
     // 委托 core runMigrations (幂等) — 含 groupDescription 列 (HMR 热更新时可能还没跑过 migration)
@@ -1184,6 +1177,8 @@ class Database {
   // 获取单个图标的 SVG 内容 — 用于虚拟化按需加载
   getIconContent = (id: string): string => {
     // 委托 core (core 无内容/无行时返回 null, 壳层保持既有 '' 回退契约)
+    // falsy id 短路: 同 getGroupData, 旧 sf 裸拼容忍 undefined, core sf 严格
+    if (!id) return '';
     return this.coreDb!.getIconContent(id) || '';
   };
 
@@ -1498,12 +1493,16 @@ class Database {
   /** Get all variants of a parent icon */
   getVariants = (parentId: string): any[] => {
     // 委托 core (SELECT * ... ORDER BY iconName ASC, SQL 逐字相同)
+    // falsy id 短路: 同 getGroupData, 旧 sf 裸拼容忍 undefined, core sf 严格
+    if (!parentId) return [];
     return this.coreDb!.getVariants(parentId);
   };
 
   /** Get count of variants for a parent icon */
   getVariantCount = (parentId: string): number => {
     // 委托 core (COUNT(*) WHERE variantOf, 语义相同)
+    // falsy id 短路: 同上
+    if (!parentId) return 0;
     return this.coreDb!.getVariantCount(parentId);
   };
 

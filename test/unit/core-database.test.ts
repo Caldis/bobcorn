@@ -73,19 +73,8 @@ describe('groupIcon cleanup triggers', () => {
       iconContent: SVG_STUB,
     });
 
-    // Assign icon as groupIcon via raw SQL (no setGroupIcon API yet)
-    // Use the internal db by going through a public method that triggers SQL
-    // We need raw access — use exec-style approach through the ProjectDb
-    // Since ProjectDb doesn't expose raw SQL, we set groupIcon via setGroupDescription workaround
-    // Actually, let's just use the SQL that the addGroup generated and update via a known method pattern
-
-    // The ProjectDb doesn't have a setGroupIcon method yet, so we need raw SQL.
-    // We can access it indirectly: the db.exec is not exposed, but we can use
-    // a trick — call the internal db through the export/reimport cycle or
-    // extend the approach. Actually, let's just access the private db field.
-    // In tests, TypeScript won't stop us from accessing private fields via bracket notation.
-    const rawDb = (db as any).db;
-    rawDb.run(`UPDATE groupData SET groupIcon = '${iconId}' WHERE id = '${groupId}'`);
+    // Assign icon as group cover via the ProjectDb setter
+    db.setGroupIcon(groupId, iconId);
 
     // Verify groupIcon was set
     let groups = db.getGroupList();
@@ -121,9 +110,8 @@ describe('groupIcon cleanup triggers', () => {
       iconContent: SVG_STUB,
     });
 
-    // Assign icon as groupA's groupIcon
-    const rawDb = (db as any).db;
-    rawDb.run(`UPDATE groupData SET groupIcon = '${iconId}' WHERE id = '${groupA}'`);
+    // Assign icon as groupA's cover via the ProjectDb setter
+    db.setGroupIcon(groupA, iconId);
 
     // Verify it was set
     let groups = db.getGroupList();
@@ -157,9 +145,8 @@ describe('groupIcon cleanup triggers', () => {
       iconContent: SVG_STUB,
     });
 
-    // Assign icon as groupIcon
-    const rawDb = (db as any).db;
-    rawDb.run(`UPDATE groupData SET groupIcon = '${iconId}' WHERE id = '${groupId}'`);
+    // Assign icon as group cover via the ProjectDb setter
+    db.setGroupIcon(groupId, iconId);
 
     // Verify it was set
     let groups = db.getGroupList();
@@ -198,6 +185,88 @@ describe('groupIcon cleanup triggers', () => {
     const after = rawDb.exec(`SELECT groupIcon FROM groupData WHERE id = 'g1'`);
     expect(after[0].values[0][0]).toBeNull();
 
+    db.close();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Group setters (setGroupIcon / setGroupDescription / addGroup description)
+// ---------------------------------------------------------------------------
+
+describe('group setters', () => {
+  test('setGroupIcon sets and clears the group cover', async () => {
+    const db = await createEmptyProject('setter-test');
+    const groupId = uid();
+    const iconId = uid();
+    db.addGroup(groupId, 'Group A');
+    db.addIcon({
+      id: iconId,
+      iconCode: 'E000',
+      iconName: 'cover-icon',
+      iconGroup: groupId,
+      iconSize: 100,
+      iconType: 'svg',
+      iconContent: SVG_STUB,
+    });
+
+    db.setGroupIcon(groupId, iconId);
+    let group = db.getGroup(groupId);
+    expect(group?.groupIcon).toBe(iconId);
+
+    // Clear with null → SQL NULL
+    db.setGroupIcon(groupId, null);
+    group = db.getGroup(groupId);
+    expect(group?.groupIcon).toBeNull();
+
+    db.close();
+  });
+
+  test("setGroupIcon escapes quotes and only touches the target group's row", async () => {
+    const db = await createEmptyProject('setter-test');
+    const groupA = uid();
+    const groupB = uid();
+    db.addGroup(groupA, 'Group A');
+    db.addGroup(groupB, 'Group B');
+
+    db.setGroupIcon(groupA, "icon-with-'quote");
+    expect(db.getGroup(groupA)?.groupIcon).toBe("icon-with-'quote");
+    expect(db.getGroup(groupB)?.groupIcon).toBeNull();
+
+    db.close();
+  });
+
+  test('setGroupDescription round-trips and clears with null', async () => {
+    const db = await createEmptyProject('setter-test');
+    const groupId = uid();
+    db.addGroup(groupId, 'Group A');
+
+    db.setGroupDescription(groupId, 'hello world');
+    expect(db.getGroup(groupId)?.groupDescription).toBe('hello world');
+
+    db.setGroupDescription(groupId, null);
+    expect(db.getGroup(groupId)?.groupDescription).toBeNull();
+
+    db.close();
+  });
+
+  test('addGroup writes optional description in the same INSERT; omitted → NULL', async () => {
+    const db = await createEmptyProject('setter-test');
+    const withDesc = uid();
+    const withoutDesc = uid();
+
+    const created = db.addGroup(withDesc, 'Described', 'my description');
+    expect(created).toEqual({ id: withDesc, groupName: 'Described', groupOrder: 0 });
+    expect(db.getGroup(withDesc)?.groupDescription).toBe('my description');
+
+    db.addGroup(withoutDesc, 'Plain');
+    expect(db.getGroup(withoutDesc)?.groupDescription).toBeNull();
+
+    db.close();
+  });
+
+  test('getGroup returns null for a missing id', async () => {
+    const db = await createEmptyProject('setter-test');
+    expect(db.getGroup('no-such-group')).toBeNull();
     db.close();
   });
 });

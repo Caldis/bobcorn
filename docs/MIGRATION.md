@@ -66,12 +66,12 @@ capability both sides) / **renderer-only** / **behaviour differs**.
 | `setProjectDisplayName` / `getProjectDisplayName` | `ProjectDb.setProjectDisplayName` (no operation, no CLI) | behaviour differs — `project set-name` sets the **prefix**, displayName has no CLI |
 | `setProjectDescription` / `getProjectDescription` | — | renderer-only (no core column, no op/CLI) |
 | `setProjectColor` / `getProjectColor` | — | renderer-only (no core column, no op/CLI) |
-| `addGroup` | `addGroup` (`group.add`) | behaviour differs — renderer accepts a `description` arg, core does not |
+| `addGroup` | `addGroup` (`group.add`) | aligned (DB) — `ProjectDb.addGroup` accepts optional `description`; op/CLI `--description` 待定 (backlog #10) |
 | `delGroup` | `deleteGroup` (`group.delete`) | aligned |
 | `getGroupList` | `getGroupList` (`group.list`) | aligned |
 | `reorderGroups` | `setGroupOrder` / `reorderGroups` (`group.reorder`) | aligned |
 | `setGroupName` | `setGroupName` (`group.rename`) | aligned |
-| `setGroupInfo` | `setGroupName` + `setGroupDescription` (`group.set-description`) | behaviour differs — group cover `groupIcon` has no core setter/op/CLI |
+| `setGroupInfo` | `setGroupName` + `setGroupDescription` + `setGroupIcon` + `setGroupCodeRange` (`group.set-description` / `group.set-range`) | aligned (DB) — group cover `groupIcon` DB setter 已补; op/CLI 待定 (backlog #9) |
 | `addIcons` | `importIcons` (`icon.import`) | behaviour differs — core has no appended/filled feedback; `codeAllocationMode` source differs |
 | `addIconsFromData` | `importIcons` (data path) | aligned (concept); browser-`File` path renderer-only |
 | `addIconsFromCpData` | — | renderer-only (legacy `.cp` format import) |
@@ -136,10 +136,11 @@ Concrete follow-ups surfaced by the audit (drive these during migration):
    `displayName` has a core DB setter but no operation/CLI. Add core columns +
    `project set-display-name` / `set-description` / `set-color`, or mark them
    GUI-only in the registry (`cliCommand: null`).
-9. **Group cover `groupIcon`** — renderer `setGroupInfo` sets it; core has no
-   setter/op/CLI. Add `setGroupIcon` + `group set-icon`, or mark GUI-only.
-10. **`group.add --description`** — renderer `addGroup` takes a description; core
-    `addGroup` ignores it. Align or drop.
+9. **Group cover `groupIcon`** — DB setter 已补 (`ProjectDb.setGroupIcon(groupId,
+   iconId|null)`, renderer `setGroupInfo` 已委托); op/CLI (`group set-icon`) 待定 —
+   决定收口为 CLI 命令或标记 GUI-only。
+10. **`group.add --description`** — DB 层已对齐 (`ProjectDb.addGroup` 接受可选
+    description, renderer 已委托); op/CLI 的 `--description` 参数待定 — 收口或 drop。
 11. **Batch favourite** — let core `setIconFavorite` accept multiple ids so
     `icon set-favorite` can match the GUI's batch toggle.
 12. **`.cp` import** — `addIconsFromCpData` (legacy `.cp` format) is renderer-only;

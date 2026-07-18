@@ -351,6 +351,19 @@ export class ProjectDb {
     return queryFirstRow(this.db, `SELECT COUNT(*) FROM ${TABLE_GROUP}`)['COUNT(*)'] as number;
   }
 
+  /** Get a single group record by id (all columns). Returns null if not found. */
+  getGroup(id: string): Record<string, any> | null {
+    const result = this.db.exec(`SELECT * FROM ${TABLE_GROUP} WHERE id = ${sf(id)}`);
+    if (result.length === 0 || result[0].values.length === 0) return null;
+    const cols = result[0].columns;
+    const row = result[0].values[0];
+    const obj: Record<string, any> = {};
+    row.forEach((val, i) => {
+      obj[cols[i]] = val;
+    });
+    return obj;
+  }
+
   getIconCountForGroup(groupId: string): number {
     return queryFirstRow(
       this.db,
@@ -745,13 +758,25 @@ export class ProjectDb {
 
   /**
    * Add a new group. Returns the generated group data.
+   * Optional description is written in the same INSERT (single statement,
+   * mirroring the renderer's historical addGroup-with-description shape).
    */
-  addGroup(id: string, name: string): { id: string; groupName: string; groupOrder: number } {
+  addGroup(
+    id: string,
+    name: string,
+    description?: string
+  ): { id: string; groupName: string; groupOrder: number } {
     const orderResult = this.db.exec(`SELECT COUNT(*) FROM ${TABLE_GROUP}`);
     const groupOrder = orderResult.length > 0 ? (orderResult[0].values[0][0] as number) : 0;
-    this.db.run(
-      `INSERT INTO ${TABLE_GROUP} (id, groupName, groupOrder, groupColor) VALUES (${sf(id)}, ${sf(name)}, ${groupOrder}, '')`
-    );
+    if (description) {
+      this.db.run(
+        `INSERT INTO ${TABLE_GROUP} (id, groupName, groupOrder, groupColor, groupDescription) VALUES (${sf(id)}, ${sf(name)}, ${groupOrder}, '', ${sf(description)})`
+      );
+    } else {
+      this.db.run(
+        `INSERT INTO ${TABLE_GROUP} (id, groupName, groupOrder, groupColor) VALUES (${sf(id)}, ${sf(name)}, ${groupOrder}, '')`
+      );
+    }
     return { id, groupName: name, groupOrder };
   }
 
@@ -1034,11 +1059,29 @@ export class ProjectDb {
   }
 
   /**
-   * Set groupDescription for a group by id.
+   * Set groupDescription for a group by id. Pass null to clear (SQL NULL).
    */
-  setGroupDescription(id: string, description: string): void {
-    this.db.run(
-      `UPDATE ${TABLE_GROUP} SET groupDescription = ${sf(description)} WHERE id = ${sf(id)}`
-    );
+  setGroupDescription(id: string, description: string | null): void {
+    if (description === null) {
+      this.db.run(`UPDATE ${TABLE_GROUP} SET groupDescription = NULL WHERE id = ${sf(id)}`);
+    } else {
+      this.db.run(
+        `UPDATE ${TABLE_GROUP} SET groupDescription = ${sf(description)} WHERE id = ${sf(id)}`
+      );
+    }
+  }
+
+  /**
+   * Set the group cover icon (groupIcon column) for a group by id.
+   * Pass null to clear (SQL NULL). No existence validation — the cleanup
+   * triggers (delete/move) and the migration orphan repair own referential
+   * integrity, mirroring the renderer's historical setGroupInfo write.
+   */
+  setGroupIcon(id: string, iconId: string | null): void {
+    if (iconId === null) {
+      this.db.run(`UPDATE ${TABLE_GROUP} SET groupIcon = NULL WHERE id = ${sf(id)}`);
+    } else {
+      this.db.run(`UPDATE ${TABLE_GROUP} SET groupIcon = ${sf(iconId)} WHERE id = ${sf(id)}`);
+    }
   }
 }

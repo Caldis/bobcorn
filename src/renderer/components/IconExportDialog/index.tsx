@@ -17,7 +17,7 @@ import {
 } from '../../utils/export/rasterize';
 import { buildIcoBuffer, buildPdfBuffer } from '../../utils/export/formats';
 
-const { electronAPI } = window as any;
+const { electronAPI } = window;
 
 // -- Types ----------------------------------------------------
 

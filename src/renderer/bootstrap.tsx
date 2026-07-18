@@ -19,7 +19,7 @@ applyThemeClass(resolved);
 // Register early open-file listener BEFORE async WASM init.
 // Electron's did-finish-load sends the IPC before React mounts,
 // so we buffer the path here for MainContainer to consume.
-const { electronAPI } = window as any;
+const { electronAPI } = window;
 const earlyOpenFileCleanup = electronAPI.onOpenFile((filePath: string) => {
   (window as any).__BOBCORN_PENDING_FILE__ = filePath;
 });
