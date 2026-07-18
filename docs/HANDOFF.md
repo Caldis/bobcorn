@@ -8,6 +8,28 @@
 
 **分支**: `master`
 
+## 2026-07-18 Session 摘要（全面架构改进：双数据库坍缩 strangler 前半程 + 字体管线归一 + 命令层，9 commits 未发版）
+
+**背景**：三路架构探查（数据层/组件层/管线层）确认核心摩擦——凡有显式接口处无重复，凡无显式接口处皆 GUI/CLI 两份实现。产出六候选改进计划（用户批准，每阶段全绿即 commit），本 session 完成前五波。
+
+**已落地（e153a80 → 9a4bad2 共 9 commits，每个 commit 时全部验证绿）**：
+- **W1a core 使能**（e153a80）：core/database 拆 `project-db.ts`（纯 ProjectDb，构造注入 sql.js 实例，可被 renderer 安全 import）+ `lifecycle.ts`（Node 侧 open/save）+ barrel；crypto → 环境无关 `core/uuid.ts`；schema 单源（core 补 description/projectColor，与 renderer 建表完全一致）；删除语义三分显式化（softDeleteIcons/permanentDeleteIcons/recycleIcons）+ CLI `icon delete --permanent` + `project set-description`/`set-color` 新命令；守门：renderer 禁 import `@core/database` barrel/lifecycle（只许 project-db/safe-stmt 深路径）、core commands/project-db 禁 Node 内置。
+- **W1b 字体管线归一**（29067de）：新建 `src/core/font/`——`generateFontArtifacts(icons, opts) → Map<文件名,内容>` 纯函数深模块（yieldEvery 参数化 UI 让出/onProgress/onWarn）；operations/export-font.ts 变消费层（350→141 行，对外签名不变）；删 renderer iconfontGenerator 整目录 + demopageGenerator 中逐字复制的 CSS/JS 生成器与三条正则；`_glyphCounter` 并发隐患消除；+`font-artifacts.test.ts` 21 项。
+- **W1c seam 卫生**（487ad02）：删 CanvasAdapter（0 实现 0 消费者空 seam）；preload `const api` + `export type ElectronAPI = typeof api` 单源，types.d.ts 手写 interface 删除，24 处 `(window as any).electronAPI` 清零（余 3 处解构形式：bootstrap/IconExportDialog/VariantPanel，后续清）。
+- **W2 命令层**（1439f05）：`src/core/commands/`——`fn(db: ProjectDb, args) → DTO` 纯命令体（planMoveIcons/moveIcons/planDeleteIcons/deleteIcons(mode)/importIcons(appended/filled 分类)/copyIcons/replaceIconContent/rangeViolations/validateGroupCodeRange）+ CommandWarning DTO；operations 收敛为 wrapper（对外契约逐字不变）。
+- **W3 renderer strangler**（05129ec/df0c316/4901740/e4560a0/9a4bad2）：renderer Database 持 coreDb 委托 + 模块级 getCoreDb()/notifyExternalMutation()；簇①schema/迁移、簇②字码分配/修复（planIconCodeFixes ~90 行拷贝消亡）、簇③删除/移动/复制（moveIconsWithVariants 两份 ~90 行内联重分配消亡）全部委托，renderer database 2005→~1500 行；store 业务泄漏清零（refreshOutOfRangeCodes→commands.rangeViolations、动态 require 消除）+ 五个批操作 action；三组件（BatchPanel/IconGridLocal/SideEditor）批操作切 store action，越界规则三份复制归一 planMove，variantGuard 删除、其守门重写为「组件禁直调 db 写方法」54 项。
+
+**关键适配决定（后续 session 必读）**：① core 耗尽抛错 vs renderer 返 null——壳层 catch 转换，`PUA_EXHAUSTED` 消息归一为裸串（CodeCoverageMatrix:96 与 SideEditor 按 message 精确匹配）；② refreshOutOfRangeCodes 保留原口径（变体不计入 store 越界集、非法码 regex 过滤）——但 GroupPicker 重分配计数改 planMove 含变体口径（修正旧少算）；③ parity-guard 只匹配 2 空格缩进箭头类字段，coreDb 普通属性/模块级函数是合法通道；④ 簇⑤只读聚合（getIconMetaBatch 等）刻意留 renderer（视图聚合，终局 façade 合法存留面）。
+
+**后续波次（计划已批，按序推进）**：
+- **W3-3**：簇④分组方法（addGroup/setGroupInfo→validateGroupCodeRange 等）委托 + 组件收尾（VariantPanel/GroupDialogs 评估摘除）。
+- **W4（D1）**：对话框命令收口——7 个 open/trigger 类 `bobcorn:*` CustomEvent → store slice；菜单 IPC 与 E2E 钩子作为进入命令面的 adapter（已确认 E2E 不依赖 CustomEvent，零测试改动）。
+- **W5 intake**：C0 sanitize 白名单规则表（可先行）→ C1 `intakeIcons` 深接口 → C2 GUI 四入口收编、删 formatIconDataFrom* 三兄弟。
+- **W6 终局**：删纯委托方法体（顺序簇③→②→④→①）、parity sanity `>50` 断言联动、守门翻转 GUI_FACADE_ALLOWED_METHODS 白名单、1642 行 SQL 替身测试改写为直测 ProjectDb+commands。
+- 发版：全部完成后按 RELEASE.md 统一走（当前 9 commits 未发版）。
+
+**验证基线（本 session 结束时）**：vitest 978 passed；CLI 192；acceptance 23/23；full-e2e 21/21；security-audit 0；lint 0 警告；tsc 存量错误 106→86（净减 20，零新增）。
+
 ## 2026-07-18 Session 摘要（issue #2 布尔运算图标实心修复 + glyph 预处理管线架构，随 v1.18.1 发版）
 
 **问题（GitHub issue #2，用户报障）**：MasterGo「减去顶层」布尔运算制作的图标，生成字体后显示实心。SVG 预览（应用内 / 浏览器）正常，唯独字体实心。
