@@ -1,5 +1,31 @@
 [
   {
+    "version": "1.19.0",
+    "date": "2026-07-18",
+    "summary": {
+      "zh": "画布空白处点击可取消选择；命令行新增项目描述/颜色与永久删除能力；完成大规模内部架构重构——图形界面与命令行全面共享同一套核心实现",
+      "en": "Click empty canvas space to deselect; the CLI gains project description/color and permanent delete; a major internal refactor unifies GUI and CLI on a single shared core implementation"
+    },
+    "changes": {
+      "zh": [
+        "新增：画布空白处单击即可取消已选择的图标，与常规文件选择器一致；按住 Ctrl/Shift 点击空白时保留选择，框选操作不受影响",
+        "新增：命令行 icon delete --permanent（永久删除，默认行为仍为软删除）与 project set-description / project set-color 命令，项目描述与头像颜色不再是图形界面独有",
+        "架构：字体导出管线归一至共享核心——图形界面与命令行共用同一套字形流、格式扇出与 CSS/JS 生成实现，行为完全一致，导出进度展示与界面流畅度保持不变",
+        "架构：数据层单源重构第一程——渲染进程数据库的建表/迁移/字码分配/删除移动复制/分组操作全部委托共享核心，业务决策（变体级联、越界重分配、警告语义）收口到统一命令层，配套多项守门测试",
+        "架构：跨组件通信收口——七个对话框与动作类自定义事件改为类型化的 store 命令面；electronAPI 类型改为单一来源，消除手写类型与实际接口的漂移",
+        "修复：移动图标时分组选择器中的越界计数此前未包含变体，与实际重分配范围不一致"
+      ],
+      "en": [
+        "New: Click empty canvas space to deselect icons, matching standard file-picker behavior; Ctrl/Shift-clicks keep the selection and marquee selection is unaffected",
+        "New: CLI icon delete --permanent (permanent removal; soft delete stays the default) plus project set-description / project set-color commands — project description and avatar color are no longer GUI-only",
+        "Architecture: Font export pipeline unified into the shared core — GUI and CLI now run the same glyph streaming, format fan-out and CSS/JS generation with identical behavior; export progress and UI smoothness are unchanged",
+        "Architecture: First leg of the single-source data layer refactor — schema/migrations, code allocation, delete/move/copy and group operations in the renderer database now delegate to the shared core, with business decisions (variant cascades, out-of-range reassignment, warning semantics) consolidated into one command layer under new guard tests",
+        "Architecture: Cross-component communication consolidated — seven dialog/action custom events replaced by a typed store command surface; electronAPI types now come from a single source, eliminating drift between hand-written types and the real bridge",
+        "Fixed: The out-of-range count in the group picker previously excluded variants, understating what reassignment would actually touch"
+      ]
+    }
+  },
+  {
     "version": "1.18.1",
     "date": "2026-07-18",
     "summary": {
