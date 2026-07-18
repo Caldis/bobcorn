@@ -8,6 +8,10 @@ import type { IoAdapter } from '../io';
 import type { GroupData } from '../types';
 import { openProject, saveProject } from '../database';
 import { PUA_MIN, PUA_MAX } from '../code-allocation';
+import {
+  rangeViolations as rangeViolationsCommand,
+  validateGroupCodeRange as validateGroupCodeRangeCommand,
+} from '../commands';
 import { generateUUID } from '../uuid';
 
 // ---------------------------------------------------------------------------
@@ -310,27 +314,29 @@ export async function setGroupCodeRange(
     }
 
     const { start, end } = range;
+    // Integer-ness is an input-parsing concern and stays at the operations edge;
+    // the semantic validation (PUA bounds / order / overlap) lives in the command.
     if (!Number.isInteger(start) || !Number.isInteger(end)) {
       throw new Error(`INVALID_CODE_RANGE: range bounds must be integer code points`);
     }
-    if (start < PUA_MIN || end > PUA_MAX) {
-      throw new Error(
-        `INVALID_CODE_RANGE: range ${hex4(start)}-${hex4(end)} is outside the PUA range ${hex4(PUA_MIN)}-${hex4(PUA_MAX)}`
-      );
-    }
-    if (start > end) {
-      throw new Error(`INVALID_CODE_RANGE: range start ${hex4(start)} must be <= end ${hex4(end)}`);
-    }
-
-    // Overlap check against every OTHER group's declared range.
-    const others = db.getGroupRanges().filter((r) => r.id !== id);
-    for (const o of others) {
-      if (start <= o.end && o.start <= end) {
+    const validation = validateGroupCodeRangeCommand(db, id, range);
+    if (!validation.ok) {
+      if (validation.reason === 'out-of-pua') {
         throw new Error(
-          `CODE_RANGE_OVERLAP: range ${hex4(start)}-${hex4(end)} overlaps group ` +
-            `"${o.groupName}" (${hex4(o.start)}-${hex4(o.end)})`
+          `INVALID_CODE_RANGE: range ${hex4(start)}-${hex4(end)} is outside the PUA range ${hex4(PUA_MIN)}-${hex4(PUA_MAX)}`
         );
       }
+      if (validation.reason === 'inverted') {
+        throw new Error(
+          `INVALID_CODE_RANGE: range start ${hex4(start)} must be <= end ${hex4(end)}`
+        );
+      }
+      // 'overlap' — rebuild the historical message from the conflicting group.
+      const o = db.getGroupRanges().find((r) => r.id === validation.conflictGroupId);
+      throw new Error(
+        `CODE_RANGE_OVERLAP: range ${hex4(start)}-${hex4(end)} overlaps group ` +
+          `"${o?.groupName ?? ''}" (${hex4(o?.start ?? 0)}-${hex4(o?.end ?? 0)})`
+      );
     }
 
     db.setGroupCodeRange(id, start, end);
@@ -459,25 +465,19 @@ export async function rangeViolations(
   const db = await openProject(io, resolvedPath);
 
   try {
-    const ranges = db.getGroupRanges();
-    const violations: RangeViolation[] = [];
-    for (const r of ranges) {
-      const rows = db.getGroupIconsOutOfRange(r.id, r.start, r.end);
-      for (const row of rows) {
-        violations.push({
-          id: row.id,
-          iconName: row.iconName,
-          iconCode: row.iconCode,
-          groupId: r.id,
-          groupName: r.groupName,
-          codeRangeStart: r.start,
-          codeRangeEnd: r.end,
-          codeRangeStartHex: hex4(r.start),
-          codeRangeEndHex: hex4(r.end),
-        });
-      }
-    }
-    return { violations, checkedGroups: ranges.length };
+    const rows = rangeViolationsCommand(db);
+    const violations: RangeViolation[] = rows.map((row) => ({
+      id: row.iconId,
+      iconName: row.iconName,
+      iconCode: row.code,
+      groupId: row.groupId,
+      groupName: row.groupName,
+      codeRangeStart: row.range.start,
+      codeRangeEnd: row.range.end,
+      codeRangeStartHex: hex4(row.range.start),
+      codeRangeEndHex: hex4(row.range.end),
+    }));
+    return { violations, checkedGroups: db.getGroupRanges().length };
   } finally {
     db.close();
   }

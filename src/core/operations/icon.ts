@@ -7,7 +7,14 @@
 import type { IoAdapter } from '../io';
 import type { IconData, CodeAllocationMode } from '../types';
 import { openProject, saveProject, type IconCodeFix } from '../database';
-import { generateUUID } from '../uuid';
+import {
+  copyIcons as copyIconsCommand,
+  deleteIcons as deleteIconsCommand,
+  importIcons as importIconsCommand,
+  moveIcons as moveIconsCommand,
+  replaceIconContent as replaceIconContentCommand,
+  type ImportItem,
+} from '../commands';
 
 /** Environment-agnostic byte length (avoids Node-only Buffer) */
 const textEncoder = new TextEncoder();
@@ -113,36 +120,33 @@ export async function importIcons(
       targetGroupId = group.id as string;
     }
 
-    const imported: { id: string; name: string; code: string }[] = [];
-
+    // File reading + sanitizing stays here; code allocation, insertion and the
+    // appended/filled classification live in the import command body.
+    const items: ImportItem[] = [];
     for (const svgPath of svgPaths) {
       const resolvedSvg = io.resolve(svgPath);
       const data = await io.readFile(resolvedSvg);
       const content = uint8ToString(data);
-      const sanitized = sanitizeSvgForCli(content);
-
-      const id = generateUUID();
-      // Allocate inside the target group's declared range when it has one.
-      const iconCode = db.getNewIconCode(opts?.codeMode, targetGroupId);
-      const iconName = io.basename(svgPath, io.extname(svgPath));
-      const iconSize = byteLength(sanitized);
-
-      db.addIcon({
-        id,
-        iconCode,
-        iconName,
-        iconGroup: targetGroupId,
-        iconSize,
-        iconType: 'svg',
-        iconContent: sanitized,
+      items.push({
+        name: io.basename(svgPath, io.extname(svgPath)),
+        content: sanitizeSvgForCli(content),
+        type: 'svg',
       });
+    }
 
-      imported.push({ id, name: iconName, code: iconCode });
+    const outcome = importIconsCommand(db, items, {
+      targetGroupId,
+      codeMode: opts?.codeMode,
+    });
+    // Historical CLI contract: code-point exhaustion aborts the import (nothing
+    // is saved) instead of silently importing fewer icons.
+    if (outcome.firstError) {
+      throw outcome.firstError;
     }
 
     await saveProject(io, resolvedPath, db);
 
-    return { imported: imported.length, icons: imported };
+    return { imported: outcome.added, icons: outcome.icons };
   } finally {
     db.close();
   }
@@ -177,23 +181,10 @@ export async function deleteIcons(
   const db = await openProject(io, resolvedPath);
 
   try {
-    // Verify icons exist
-    const validIds: string[] = [];
-    for (const id of ids) {
-      const icon = db.getIcon(id);
-      if (icon) {
-        validIds.push(id);
-      }
-    }
-
-    if (opts?.permanent) {
-      db.permanentDeleteIcons(validIds);
-    } else {
-      db.softDeleteIcons(validIds);
-    }
+    const outcome = deleteIconsCommand(db, ids, opts?.permanent ? 'permanent' : 'soft');
     await saveProject(io, resolvedPath, db);
 
-    return { deleted: validIds.length, ids: validIds };
+    return { deleted: outcome.deleted, ids: outcome.ids };
   } finally {
     db.close();
   }
@@ -289,15 +280,16 @@ export async function moveIcons(
     }
     const targetGroupId = group.id as string;
 
-    db.moveIcons(ids, targetGroupId);
-
-    const reassigned = opts?.reassignOutOfRange
-      ? db.reassignIconsIntoRange(ids, targetGroupId, opts?.codeMode)
-      : [];
+    const outcome = moveIconsCommand(db, ids, targetGroupId, opts);
 
     await saveProject(io, resolvedPath, db);
 
-    return { moved: ids.length, ids, targetGroup: targetGroupName, reassigned };
+    return {
+      moved: outcome.moved,
+      ids,
+      targetGroup: targetGroupName,
+      reassigned: outcome.reassigned,
+    };
   } finally {
     db.close();
   }
@@ -372,15 +364,16 @@ export async function copyIcons(
     }
     const targetGroupId = group.id as string;
 
-    const copied: { id: string; name: string; code: string }[] = [];
-    for (const sourceId of ids) {
-      const result = db.copyIcon(sourceId, targetGroupId, opts?.codeMode);
-      copied.push({ id: result.id, name: result.iconName, code: result.iconCode });
+    const outcome = copyIconsCommand(db, ids, targetGroupId, opts);
+    // Historical CLI contract: the error that stopped the batch (code-point
+    // exhaustion / missing source) aborts the copy — nothing is saved.
+    if (outcome.stopError) {
+      throw outcome.stopError;
     }
 
     await saveProject(io, resolvedPath, db);
 
-    return { copied: copied.length, icons: copied, targetGroup: targetGroupName };
+    return { copied: outcome.copied, icons: outcome.icons, targetGroup: targetGroupName };
   } finally {
     db.close();
   }
@@ -527,7 +520,7 @@ export async function replaceIcon(
       throw new Error(`Icon not found: ${id}`);
     }
 
-    db.replaceIconContent(id, sanitized);
+    replaceIconContentCommand(db, id, sanitized);
     await saveProject(io, resolvedPath, db);
 
     return {

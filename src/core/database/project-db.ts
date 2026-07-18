@@ -450,6 +450,22 @@ export class ProjectDb {
    * not silently reuse an occupied code (duplicate codes corrupt font export).
    */
   getNewIconCode(mode: CodeAllocationMode = 'append', targetGroupId?: string): string {
+    const usedSet = this.getUsedIconCodesDec();
+
+    // A ranged target group allocates strictly inside its range; otherwise the
+    // global pool allocation skips every declared range (reserved code points).
+    const targetRange = this.getGroupCodeRange(targetGroupId);
+    const reserved = targetRange ? [] : this.getAllGroupCodeRanges();
+    const dec = allocateIconCodeDec(mode, usedSet, targetRange, reserved);
+    return dec.toString(16).toUpperCase();
+  }
+
+  /**
+   * Every icon code currently stored (decimal), across ALL rows — including
+   * recycle bin / deleted rows and variants. Invalid (non-hex) codes are
+   * skipped. This is the shared "used set" baseline for code allocation.
+   */
+  getUsedIconCodesDec(): Set<number> {
     const result = this.db.exec(`SELECT iconCode FROM ${TABLE_ICON}`);
     const usedSet = new Set<number>();
     if (result.length > 0) {
@@ -458,13 +474,7 @@ export class ProjectDb {
         if (Number.isFinite(c)) usedSet.add(c);
       });
     }
-
-    // A ranged target group allocates strictly inside its range; otherwise the
-    // global pool allocation skips every declared range (reserved code points).
-    const targetRange = this.getGroupCodeRange(targetGroupId);
-    const reserved = targetRange ? [] : this.getAllGroupCodeRanges();
-    const dec = allocateIconCodeDec(mode, usedSet, targetRange, reserved);
-    return dec.toString(16).toUpperCase();
+    return usedSet;
   }
 
   /**
@@ -697,14 +707,7 @@ export class ProjectDb {
     if (!range || parentIds.length === 0) return [];
 
     // Baseline snapshot of every used code point (taken once for the batch).
-    const usedSet = new Set<number>();
-    const allCodes = this.db.exec(`SELECT iconCode FROM ${TABLE_ICON}`);
-    if (allCodes.length > 0) {
-      allCodes[0].values.forEach((row) => {
-        const c = parseInt(row[0] as string, 16);
-        if (Number.isFinite(c)) usedSet.add(c);
-      });
-    }
+    const usedSet = this.getUsedIconCodesDec();
 
     // Affected rows = the moved icons + all their variants, ordered stably.
     const inClause = parentIds.map((id) => sf(id)).join(',');
