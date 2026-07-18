@@ -79,8 +79,7 @@ Global constants and localStorage-backed user preferences.
 |-----------|---------|-------------|
 | `svg/` | SVG parsing and manipulation | `SVG` class (formatSVG, getOuterHTML) |
 | `sanitize.js` | DOMPurify SVG sanitization | `sanitizeSVG(html)` |
-| `generators/iconfontGenerator/` | Font generation (SVG→TTF→WOFF→WOFF2→EOT) | Uses svgicons2svgfont, svg2ttf, ttf2woff, ttf2woff2, ttf2eot; glyph preprocessing via `@core/svg/glyph-pipeline` |
-| `generators/demopageGenerator/` | Demo HTML page generation | Generates preview pages for exported fonts |
+| `generators/demopageGenerator/` | Demo HTML page generation (DOM-bound) | Generates preview pages for exported fonts; CSS/JS artifacts come from `@core/font` |
 | `tools/index.js` | General utilities | `generateUUID`, `sf`, `hexToDec`, `decToHex`, `throttle`, `nameOfPath`, `platform` |
 | `importer/` | Icon import (file, data) | File-based and data-based icon importers |
 | `loaders/` | Project file loaders | `.icp` (native), `.json` (CyberPen), project file formats |
@@ -103,3 +102,19 @@ never inline at call sites.
 - **Adding a transform:** implement pure function → register in `GLYPH_TRANSFORMS` (mind the
   documented order constraints) → update the frozen manifest in the guard test → add fixture
   under `test/fixtures/`.
+
+### `src/core/font/` — Font Artifact Pipeline
+
+The single implementation of the SVG→font conversion shared by GUI and CLI. Pure function
+interface: icon list + format set → `Map<filename, string | Uint8Array>`. Writing to disk,
+zipping, and progress UI belong to the caller.
+
+- **Key file:** `font/index.ts` — `generateFontArtifacts(icons, opts)` (opts: `fontName`,
+  `formats`, `yieldEvery` for UI-thread yielding, `onProgress`, `onWarn`), plus standalone
+  `generateCSS` / `generateJsSymbolSprite`.
+- **Consumers:** `core/operations/export-font.ts` (CLI, no `yieldEvery`),
+  `renderer/.../SideMenu/ExportDialog.tsx` (GUI, `yieldEvery: 50` + progress mapping).
+- **Guards:** `test/unit/font-artifacts.test.ts` (artifact map keys/content, progress
+  sequence, yieldEvery byte-determinism); `test/unit/glyph-pipeline.test.js` source scan
+  (this is the only module allowed to import svgicons2svgfont, and it must call
+  `prepareSvgForFont`).

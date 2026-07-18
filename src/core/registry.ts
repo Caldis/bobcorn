@@ -319,10 +319,7 @@ export const OPERATIONS: OpEntry[] = [
     description: 'Generate iconfont files (SVG/TTF/WOFF/WOFF2/EOT) + CSS + JS symbol sprite',
     status: OpStatus.Core,
     corePath: 'src/core/operations/export-font.ts#exportFont',
-    legacyPaths: [
-      'src/renderer/components/SideMenu/ExportDialog.tsx',
-      'src/renderer/utils/generators/',
-    ],
+    legacyPaths: ['src/renderer/components/SideMenu/ExportDialog.tsx'],
     cliCommand: 'export font',
   },
   {

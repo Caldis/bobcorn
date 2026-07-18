@@ -7,17 +7,12 @@ import { useTranslation } from 'react-i18next';
 import { Dialog, Button, Checkbox, Progress } from '../ui';
 import { message } from '../ui/toast';
 import {
-  svgFontGenerator,
-  ttfFontGenerator,
-  woffFontGenerator,
-  woff2FontGenerator,
-  eotFontGenerator,
-} from '../../utils/generators/iconfontGenerator';
-import {
-  demoHTMLGenerator,
-  iconfontCSSGenerator,
-  iconfontSymbolGenerator,
-} from '../../utils/generators/demopageGenerator';
+  generateFontArtifacts,
+  generateJsSymbolSprite,
+  type FontFormat,
+  type FontGenPhase,
+} from '@core/font';
+import { demoHTMLGenerator } from '../../utils/generators/demopageGenerator';
 import { zipSync } from 'fflate';
 import { TriangleAlert } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -296,7 +291,7 @@ function ExportDialog({ visible, onClose, initialGroups }: ExportDialogProps) {
         .map((icon: any) => ({ ...icon, iconGroup: effectiveGroupId(icon.iconGroup) }));
       const sampleIcons = allIcons.slice(0, 30);
       // Generate inline SVG symbol sprite so icons render without the font
-      const inlineSprite = iconfontSymbolGenerator(sampleIcons);
+      const inlineSprite = generateJsSymbolSprite(sampleIcons, db.getProjectName());
       return demoHTMLGenerator(groups, sampleIcons, undefined, {
         hasSymbol: true,
         selectedFormats,
@@ -530,63 +525,51 @@ function ExportDialog({ visible, onClose, initialGroups }: ExportDialogProps) {
         groupColor: '',
       });
 
-      await step(nextPct(), t('export.progress.css'));
-      const cssData = iconfontCSSGenerator(icons, selectedFormats);
+      // 字体产物统一由 @core/font 生成 — 必选 svg/ttf/woff2 + 可选 woff/eot;
+      // CSS 恒定导出 (与既有行为一致), JS 精灵图跟随勾选
+      const formats = new Set<FontFormat>(['svg', 'ttf', 'woff2', 'css']);
+      if (selectedFormats.woff) formats.add('woff');
+      if (selectedFormats.eot) formats.add('eot');
+      if (selectedFormats.js) formats.add('js');
 
-      let jsData: string | null = null;
-      if (selectedFormats.js) {
-        await step(nextPct(), t('export.progress.jsSymbol'));
-        jsData = iconfontSymbolGenerator(icons);
-      }
+      // phase → 既有进度文案映射 (复用既有 i18n key, 不新增)
+      const phaseText: Record<FontGenPhase, string> = {
+        glyphs: t('export.progress.svg', { count: icons.length }),
+        ttf: t('export.progress.ttf'),
+        woff2: t('export.progress.woff2'),
+        woff: t('export.progress.woff'),
+        eot: t('export.progress.eot'),
+        css: t('export.progress.css'),
+        js: t('export.progress.jsSymbol'),
+      };
 
-      await step(nextPct(), t('export.progress.svg', { count: icons.length }));
-      const svgFont = await new Promise<string>((resolve, reject) => {
-        svgFontGenerator(
-          {
-            icons,
-            options: {
-              fontName: projectName,
-              normalize: true,
-              fixedWidth: true,
-              fontHeight: 1024,
-              fontWeight: 400,
-              centerHorizontally: true,
-              round: 1000,
-              log: () => {},
-            },
-          },
-          (result: string) =>
-            result ? resolve(result) : reject(new Error(t('export.progress.svgFailed'))),
-          (processed: number, total: number) => {
-            if (processed === total) {
+      const artifacts = await generateFontArtifacts(
+        icons.map((icon: any) => ({
+          iconName: icon.iconName,
+          iconCode: icon.iconCode,
+          iconContent: icon.iconContent,
+        })),
+        {
+          fontName: projectName,
+          formats,
+          yieldEvery: 50, // 每 50 个 glyph 让出事件循环给 UI 重绘
+          onProgress: (phase, done, total) => {
+            // glyph 流处理完成 → 追加完成日志; 各阶段开始 → 推进度条 + 阶段日志
+            if (phase === 'glyphs' && done === total && total > 0) {
               addExportLog(t('export.progress.svgDone', { count: total }));
+              return;
             }
-          }
-        );
-      });
+            if (done === 0) return step(nextPct(), phaseText[phase]);
+          },
+        }
+      );
 
-      await step(nextPct(), t('export.progress.ttf'));
-      const ttfFont = ttfFontGenerator({ svgFont });
-
-      await step(nextPct(), t('export.progress.woff2'));
-      const woff2Font = woff2FontGenerator({ ttfFont });
-
-      let woffFont: any = null;
-      if (selectedFormats.woff) {
-        await step(nextPct(), t('export.progress.woff'));
-        woffFont = woffFontGenerator({ ttfFont });
-      }
-
-      let eotFont: any = null;
-      if (selectedFormats.eot) {
-        await step(nextPct(), t('export.progress.eot'));
-        eotFont = eotFontGenerator({ ttfFont });
-      }
-
+      // renderer-only 产物: demo HTML — 从产物取 woff2 转 base64 内嵌 (file:// 支持)
       let pageData: string | null = null;
       if (selectedFormats.html) {
         await step(nextPct(), t('export.progress.html'));
-        const woff2Base64 = Buffer.from(woff2Font.buffer).toString('base64');
+        const woff2Font = artifacts.get(`${projectName}.woff2`) as Uint8Array;
+        const woff2Base64 = Buffer.from(woff2Font).toString('base64');
         pageData = demoHTMLGenerator(
           groups,
           icons.map((icon: any) => Object.assign({}, icon, { iconContent: '' })),
@@ -607,14 +590,11 @@ function ExportDialog({ visible, onClose, initialGroups }: ExportDialogProps) {
         electronAPI.mkdirSync(dirPath);
       }
 
+      // 产物 Map 保持插入序 (svg→ttf→woff2→woff→eot→css→js), renderer-only 产物追加其后
       const files: Array<{ name: string; data: string | Buffer }> = [];
-      files.push({ name: `${projectName}.svg`, data: svgFont });
-      files.push({ name: `${projectName}.ttf`, data: Buffer.from(ttfFont.buffer) });
-      files.push({ name: `${projectName}.woff2`, data: Buffer.from(woff2Font.buffer) });
-      files.push({ name: `${projectName}.css`, data: cssData });
-      if (woffFont) files.push({ name: `${projectName}.woff`, data: Buffer.from(woffFont.buffer) });
-      if (eotFont) files.push({ name: `${projectName}.eot`, data: Buffer.from(eotFont.buffer) });
-      if (jsData) files.push({ name: `${projectName}.js`, data: jsData });
+      for (const [name, data] of artifacts) {
+        files.push({ name, data: typeof data === 'string' ? data : Buffer.from(data) });
+      }
       if (pageData) files.push({ name: `${projectName}.html`, data: pageData });
       if (projBuffer) files.push({ name: `${projectName}.icp`, data: projBuffer });
 

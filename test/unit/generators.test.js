@@ -1,33 +1,27 @@
 /**
  * Unit tests for export generators
- * Tests output consistency of CSS and Symbol JS generators
+ * Tests output consistency of the CSS / Symbol JS generators (@core/font)
+ * and the DOM-dependent demo page generator (renderer).
  *
  * @vitest-environment jsdom
  */
 import { describe, test, expect, beforeAll, vi } from 'vitest';
+import { generateCSS, generateJsSymbolSprite } from '@core/font';
+import { flattenSvgUseRefs } from '@core/svg/transforms';
 
-// Mock database
+// Mock database (demoHTMLGenerator reads the project name at render time)
 vi.mock('../../src/renderer/database', () => ({
   default: {
     getProjectName: () => 'testfont',
   },
 }));
 
-// Mock ?raw CSS import (vitest returns empty string for .css?raw in jsdom)
-vi.mock('../../src/renderer/resources/iconDocs/iconfontTemplate(class).css?raw', () => ({
-  default: '@font-face { font-family: "iconfont"; } .iconfont { font-family: "iconfont" !important; }',
-}));
+// 字体格式集 — 与 GUI 必选格式一致 (woff/eot 相关断言单独构造)
+const FONT_FORMATS = new Set(['svg', 'ttf', 'woff2']);
 
-describe('iconfontCSSGenerator', () => {
-  let iconfontCSSGenerator;
-
-  beforeAll(async () => {
-    const mod = await import('../../src/renderer/utils/generators/demopageGenerator/index');
-    iconfontCSSGenerator = mod.iconfontCSSGenerator;
-  });
-
-  test('replaces iconfont prefix with project name', () => {
-    const result = iconfontCSSGenerator([]);
+describe('generateCSS', () => {
+  test('uses the font name as prefix', () => {
+    const result = generateCSS([], 'testfont', FONT_FORMATS);
     expect(result).toContain('testfont');
     expect(result).not.toContain('iconfont');
   });
@@ -37,7 +31,7 @@ describe('iconfontCSSGenerator', () => {
       { iconCode: 'E001', iconName: 'home', iconContent: '' },
       { iconCode: 'E002', iconName: 'user', iconContent: '' },
     ];
-    const result = iconfontCSSGenerator(icons);
+    const result = generateCSS(icons, 'testfont', FONT_FORMATS);
     expect(result).toContain('.testfont-e001:before { content: "\\e001"; }');
     expect(result).toContain('.testfont-e002:before { content: "\\e002"; }');
   });
@@ -48,28 +42,30 @@ describe('iconfontCSSGenerator', () => {
       iconName: `icon_${i}`,
       iconContent: '',
     }));
-    const result = iconfontCSSGenerator(icons);
+    const result = generateCSS(icons, 'testfont', FONT_FORMATS);
     expect(result).toContain('.testfont-e000:before');
     expect(result).toContain('.testfont-e999:before');
   });
 
   test('icon codes are lowercased in output', () => {
     const icons = [{ iconCode: 'EB3F', iconName: 'test', iconContent: '' }];
-    const result = iconfontCSSGenerator(icons);
+    const result = generateCSS(icons, 'testfont', FONT_FORMATS);
     expect(result).toContain('.testfont-eb3f:before { content: "\\eb3f"; }');
+  });
+
+  test('@font-face src follows the selected formats', () => {
+    const base = generateCSS([], 'testfont', FONT_FORMATS);
+    expect(base).not.toContain('testfont.eot');
+    expect(base).not.toContain("format('woff')");
+    const full = generateCSS([], 'testfont', new Set(['svg', 'ttf', 'woff2', 'woff', 'eot']));
+    expect(full).toContain("url('testfont.eot?#iefix') format('embedded-opentype')");
+    expect(full).toContain("url('testfont.woff') format('woff')");
   });
 });
 
-describe('iconfontSymbolGenerator', () => {
-  let iconfontSymbolGenerator;
-
-  beforeAll(async () => {
-    const mod = await import('../../src/renderer/utils/generators/demopageGenerator/index');
-    iconfontSymbolGenerator = mod.iconfontSymbolGenerator;
-  });
-
+describe('generateJsSymbolSprite', () => {
   test('wraps output with JS head and tail', () => {
-    const result = iconfontSymbolGenerator([]);
+    const result = generateJsSymbolSprite([], 'testfont');
     // Head contains svg sprite injection, tail closes it
     expect(result).toContain('svgSprite');
     expect(result.length).toBeGreaterThan(10);
@@ -83,7 +79,7 @@ describe('iconfontSymbolGenerator', () => {
         iconContent: '<svg viewBox="0 0 1024 1024"><path d="M100 200"/></svg>',
       },
     ];
-    const result = iconfontSymbolGenerator(icons);
+    const result = generateJsSymbolSprite(icons, 'testfont');
     expect(result).toContain('<symbol id="testfont-E001" viewBox="0 0 1024 1024">');
     expect(result).toContain('<path d="M100 200"/>');
     expect(result).toContain('</symbol>');
@@ -97,7 +93,7 @@ describe('iconfontSymbolGenerator', () => {
         iconContent: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><circle cx="256" cy="256" r="200"/></svg>',
       },
     ];
-    const result = iconfontSymbolGenerator(icons);
+    const result = generateJsSymbolSprite(icons, 'testfont');
     // symbol 内部不应包含嵌套的 <svg> 标签，只有外层模板的 <svg>
     const symbolContent = result.match(/<symbol[^>]*>([\s\S]*?)<\/symbol>/)?.[1] || '';
     expect(symbolContent).not.toContain('<svg');
@@ -110,11 +106,11 @@ describe('iconfontSymbolGenerator', () => {
       {
         iconCode: 'E003',
         iconName: 'quote',
-        iconContent: '<svg viewBox="0 0 100 100"><text>\u2018hello\u2019 \u201Cworld\u201D</text></svg>',
+        iconContent: '<svg viewBox="0 0 100 100"><text>‘hello’ “world”</text></svg>',
       },
     ];
-    const result = iconfontSymbolGenerator(icons);
-    expect(result).not.toMatch(/[\u2018\u2019\u201C\u201D]/);
+    const result = generateJsSymbolSprite(icons, 'testfont');
+    expect(result).not.toMatch(/[‘’“”]/);
   });
 
   test('defaults viewBox to 0 0 1024 1024 when missing', () => {
@@ -125,7 +121,7 @@ describe('iconfontSymbolGenerator', () => {
         iconContent: '<svg><rect width="100" height="100"/></svg>',
       },
     ];
-    const result = iconfontSymbolGenerator(icons);
+    const result = generateJsSymbolSprite(icons, 'testfont');
     expect(result).toContain('viewBox="0 0 1024 1024"');
   });
 
@@ -135,20 +131,13 @@ describe('iconfontSymbolGenerator', () => {
       iconName: `icon_${i}`,
       iconContent: `<svg viewBox="0 0 24 24"><path d="M${i} ${i}"/></svg>`,
     }));
-    const result = iconfontSymbolGenerator(icons);
+    const result = generateJsSymbolSprite(icons, 'testfont');
     expect(result).toContain('testfont-E000');
     expect(result).toContain('testfont-E999');
   });
 });
 
 describe('flattenSvgUseRefs', () => {
-  let flattenSvgUseRefs;
-
-  beforeAll(async () => {
-    const mod = await import('../../src/renderer/utils/generators/iconfontGenerator/index');
-    flattenSvgUseRefs = mod.flattenSvgUseRefs;
-  });
-
   test('inlines <use> referencing <path> in <defs> (Sketch pattern)', () => {
     const svg = `<svg viewBox="0 0 48 48">
     <defs>
@@ -203,14 +192,7 @@ describe('flattenSvgUseRefs', () => {
   });
 });
 
-describe('iconfontSymbolGenerator — flattened <use>', () => {
-  let iconfontSymbolGenerator;
-
-  beforeAll(async () => {
-    const mod = await import('../../src/renderer/utils/generators/demopageGenerator/index');
-    iconfontSymbolGenerator = mod.iconfontSymbolGenerator;
-  });
-
+describe('generateJsSymbolSprite — flattened <use>', () => {
   test('Sketch-pattern icons produce self-contained symbols without <use>', () => {
     const icons = [
       {
@@ -230,7 +212,7 @@ describe('iconfontSymbolGenerator — flattened <use>', () => {
 </svg>`,
       },
     ];
-    const result = iconfontSymbolGenerator(icons);
+    const result = generateJsSymbolSprite(icons, 'testfont');
     // Each symbol should have inlined geometry, not <use> references
     expect(result).not.toContain('xlink:href="#path-1"');
     // col should have its own path data
