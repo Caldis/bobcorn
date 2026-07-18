@@ -8,7 +8,7 @@
 
 **分支**: `master`
 
-## 2026-07-18 Session 摘要（全面架构改进：双数据库坍缩 strangler 前半程 + 字体管线归一 + 命令层，9 commits 未发版）
+## 2026-07-18 Session 摘要（全面架构改进：双数据库坍缩 strangler Stage C 全程 + 字体管线归一 + 命令层 + 对话框命令收口，14 commits 未发版）
 
 **背景**：三路架构探查（数据层/组件层/管线层）确认核心摩擦——凡有显式接口处无重复，凡无显式接口处皆 GUI/CLI 两份实现。产出六候选改进计划（用户批准，每阶段全绿即 commit），本 session 完成前五波。
 
@@ -19,16 +19,18 @@
 - **W2 命令层**（1439f05）：`src/core/commands/`——`fn(db: ProjectDb, args) → DTO` 纯命令体（planMoveIcons/moveIcons/planDeleteIcons/deleteIcons(mode)/importIcons(appended/filled 分类)/copyIcons/replaceIconContent/rangeViolations/validateGroupCodeRange）+ CommandWarning DTO；operations 收敛为 wrapper（对外契约逐字不变）。
 - **W3 renderer strangler**（05129ec/df0c316/4901740/e4560a0/9a4bad2）：renderer Database 持 coreDb 委托 + 模块级 getCoreDb()/notifyExternalMutation()；簇①schema/迁移、簇②字码分配/修复（planIconCodeFixes ~90 行拷贝消亡）、簇③删除/移动/复制（moveIconsWithVariants 两份 ~90 行内联重分配消亡）全部委托，renderer database 2005→~1500 行；store 业务泄漏清零（refreshOutOfRangeCodes→commands.rangeViolations、动态 require 消除）+ 五个批操作 action；三组件（BatchPanel/IconGridLocal/SideEditor）批操作切 store action，越界规则三份复制归一 planMove，variantGuard 删除、其守门重写为「组件禁直调 db 写方法」54 项。
 
-**关键适配决定（后续 session 必读）**：① core 耗尽抛错 vs renderer 返 null——壳层 catch 转换，`PUA_EXHAUSTED` 消息归一为裸串（CodeCoverageMatrix:96 与 SideEditor 按 message 精确匹配）；② refreshOutOfRangeCodes 保留原口径（变体不计入 store 越界集、非法码 regex 过滤）——但 GroupPicker 重分配计数改 planMove 含变体口径（修正旧少算）；③ parity-guard 只匹配 2 空格缩进箭头类字段，coreDb 普通属性/模块级函数是合法通道；④ 簇⑤只读聚合（getIconMetaBatch 等）刻意留 renderer（视图聚合，终局 façade 合法存留面）。
+- **W3-3 簇④分组 + 收尾**（8d985ba）：addGroup/delGroup/setGroupInfo（校验→validateGroupCodeRange）/reorderGroups/getGroupData 委托；core 补 setGroupIcon（backlog #9 DB 层）/getGroup/addGroup description；GroupDialogs/VariantPanel 摘除评估为净收益负、如实留下（读聚合占位，待 group ops 收口一并迁）；最后 3 处解构 `(window as any)` 清零。
+- **W4-D1 对话框命令收口**（55ec0f1）：7 个 open/trigger 类 `bobcorn:*` CustomEvent → store 类型化命令面（exportDialog/settingsOpen/projectSettingsOpen/moveCopyDialog/importRequest/installUpdateRequest + 10 action）；菜单 IPC 与截图自动化（screenshot.mjs 经 `__BOBCORN_STORE__`）成为进入命令面的两个 adapter；新守门 ui-command-guard（已收口事件禁回潮 + D2/D3 事件防误删）。
+
+**关键适配决定（后续 session 必读）**：① core 耗尽抛错 vs renderer 返 null——壳层 catch 转换，`PUA_EXHAUSTED` 消息归一为裸串（CodeCoverageMatrix:96 与 SideEditor 按 message 精确匹配）；② refreshOutOfRangeCodes 保留原口径（变体不计入 store 越界集、非法码 regex 过滤）——但 GroupPicker 重分配计数改 planMove 含变体口径（修正旧少算）；③ parity-guard 只匹配 2 空格缩进箭头类字段，coreDb 普通属性/模块级函数是合法通道；④ 簇⑤只读聚合（getIconMetaBatch 等）刻意留 renderer（视图聚合，终局 façade 合法存留面）；⑤ **strangler 铁律（full-e2e 4/21 实弹教训）**：旧 renderer `sf` 裸拼容忍 undefined id（查 `'undefined'` 字符串得空行），core `sf` 严格 `.replace` 崩溃——SideEditor 首帧依赖该容忍；旧实现的 bug 语义也是契约，壳层 falsy 短路恢复（getGroupData/getIconContent/getVariants/getVariantCount），委托任何读方法前先问「调用方会不会传 undefined」。
 
 **后续波次（计划已批，按序推进）**：
-- **W3-3**：簇④分组方法（addGroup/setGroupInfo→validateGroupCodeRange 等）委托 + 组件收尾（VariantPanel/GroupDialogs 评估摘除）。
-- **W4（D1）**：对话框命令收口——7 个 open/trigger 类 `bobcorn:*` CustomEvent → store slice；菜单 IPC 与 E2E 钩子作为进入命令面的 adapter（已确认 E2E 不依赖 CustomEvent，零测试改动）。
-- **W5 intake**：C0 sanitize 白名单规则表（可先行）→ C1 `intakeIcons` 深接口 → C2 GUI 四入口收编、删 formatIconDataFrom* 三兄弟。
-- **W6 终局**：删纯委托方法体（顺序簇③→②→④→①）、parity sanity `>50` 断言联动、守门翻转 GUI_FACADE_ALLOWED_METHODS 白名单、1642 行 SQL 替身测试改写为直测 ProjectDb+commands。
-- 发版：全部完成后按 RELEASE.md 统一走（当前 9 commits 未发版）。
+- **W4-D2/D3**：项目生命周期命令（new/open/save/save-as/close 收进命令面 + `__BOBCORN_PENDING_FILE__` 桥改造）；export-triggered → store 通知态 + selectedGroup/Icon props 双份真相收敛（叶先根后删 props）+ GroupDialogs scrollTop→scrollIntoView。
+- **W5 intake**：C0 sanitize 白名单规则表（独立可先行）→ C1 `intakeIcons(db, sources[], opts)` 深接口 → C2 GUI 四入口收编、删 formatIconDataFrom* 三兄弟（依赖已完成的命令面）。
+- **W6 终局**：删纯委托方法体（顺序簇③→②→④→①）、parity sanity `>50` 断言联动、守门翻转 GUI_FACADE_ALLOWED_METHODS 白名单 + 「renderer/database 禁写 SQL 字面量」、1642 行 SQL 替身测试（database.test.js）改写为直测 ProjectDb+commands（用例数不降）。
+- 发版：全部完成后按 RELEASE.md 统一走（当前 14 commits 未发版）。
 
-**验证基线（本 session 结束时）**：vitest 978 passed；CLI 192；acceptance 23/23；full-e2e 21/21；security-audit 0；lint 0 警告；tsc 存量错误 106→86（净减 20，零新增）。
+**验证基线（本 session 结束时）**：vitest 985 passed；CLI 192；acceptance 23/23；full-e2e 21/21；security-audit 0；lint 0 警告；tsc 存量错误 106→86 再→59 口径（各 agent 实测有差，以「零新增」为门）。
 
 ## 2026-07-18 Session 摘要（issue #2 布尔运算图标实心修复 + glyph 预处理管线架构，随 v1.18.1 发版）
 
