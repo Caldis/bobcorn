@@ -311,6 +311,30 @@ async function run() {
     });
 
     // ════════════════════════════════════════════════════════════════════════
+    // Blank-click deselect (file-explorer parity): clicking empty canvas space
+    // clears the selection and closes the editor; re-select for Step 6.
+    await step('Step 5b: Blank click deselects icon', async () => {
+      // Target the scroll area itself — the container also holds the 49px bottom
+      // info bar, so use the scroll div's own box. Its vertical middle is blank
+      // (5 icons fill a single top row).
+      const box = await win.locator('#iconGridLocalContainer .overflow-y-auto').first().boundingBox();
+      assert(box, 'grid scroll area bounding box missing');
+      await win.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+      await sleep(600);
+      assert(
+        !(await win.getByText('基本信息').first().isVisible({ timeout: 1500 }).catch(() => false)),
+        'editor should close after blank click'
+      );
+      // Restore state for the following steps.
+      await win.locator('[data-testid="icon-block"]').first().click();
+      await sleep(600);
+      assert(
+        await win.getByText('基本信息').first().isVisible({ timeout: 3000 }),
+        'editor should reopen after re-selecting icon'
+      );
+    });
+
+    // ════════════════════════════════════════════════════════════════════════
     await step('Step 6: Rename icon', async () => {
       const nameInput = win.locator('input[placeholder="在界面上显示的名称"]');
       await nameInput.fill('e2e-renamed');

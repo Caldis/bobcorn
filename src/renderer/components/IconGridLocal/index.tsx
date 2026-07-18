@@ -693,7 +693,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   }, []);
 
   // Swallow the click emitted right after a marquee drag so it doesn't
-  // deselect (empty-space overlay) or single-select (icon) the target.
+  // deselect (blank-click handler below) or single-select (icon) the target.
   const handleGridClickCapture = useCallback((e: React.MouseEvent) => {
     if (justMarqueedRef.current) {
       justMarqueedRef.current = false;
@@ -701,6 +701,21 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
       e.preventDefault();
     }
   }, []);
+
+  // 画布空白点击 = 取消选择 (与常规文件选择器一致)。挂在滚动容器的冒泡阶段:
+  // 行间隙/行尾/内容下方的空白都会冒到这里 (此前的 inset-0 透明层被行容器盖住,
+  // 只有内容下方生效)。图标块与行内 header 点击经 closest 排除; 修饰键按住时
+  // 保留选择 (Explorer 同款); 框选结束的合成 click 已被上面的捕获吞掉。
+  const handleBlankClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-testid="icon-block"]')) return;
+      if (target.closest('[data-marquee-skip]') || target.closest('button')) return;
+      deselectIcon();
+    },
+    [deselectIcon]
+  );
 
   // ── Right-click context menu ────────────────────────────────────────
   const closeContextMenu = useCallback(() => setContextMenu(null), []);
@@ -1307,6 +1322,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         {...dropzoneRootProps}
         ref={mergedScrollRef}
         onMouseDown={handleGridMouseDown}
+        onClick={handleBlankClick}
         onClickCapture={handleGridClickCapture}
         onContextMenu={handleBlankContextMenu}
         className={cn(
@@ -1318,7 +1334,6 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         )}
       >
         <input {...getInputProps()} />
-        <div className="absolute inset-0 opacity-0 z-0" onClick={deselectIcon} />
 
         {hasIcons && viewModel.rows.length > 0 ? (
           <div
