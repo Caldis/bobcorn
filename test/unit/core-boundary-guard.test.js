@@ -37,7 +37,6 @@ const APPROVED_LEGACY = new Set([
   'src/renderer/components/SideMenu/CodeCoverageMatrix.tsx',
   'src/renderer/components/SideMenu/codeAudit.ts',
   'src/renderer/components/SideMenu/ResourceNav.tsx',
-  'src/renderer/utils/variantGuard.ts',
   'src/renderer/utils/generators/demopageGenerator/index.ts',
   'src/renderer/utils/loaders/cpLoader/index.ts',
   'src/renderer/utils/loaders/icpLoader/index.ts',

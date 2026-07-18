@@ -1,11 +1,10 @@
 // src/renderer/components/GroupPickerDialog/index.tsx
 //
 // Shared "move/copy to group" picker dialog. Presentation-only: it never
-// touches the database directly — all db writes (moveIconWithVariants,
-// duplicateIconGroup, moveIconsWithVariants, duplicateIcons, ...) stay in
-// the calling component (SideEditor / BatchPanel), which already goes
-// through variantGuard where relevant. This keeps the component outside
-// the scope of test/unit/variant-guard.test.js.
+// touches the database directly — all icon mutations (moveIconsTo,
+// copyIconsTo, ...) stay in the calling component (SideEditor / BatchPanel /
+// IconGridLocal), which goes through the store batch actions. This keeps
+// the component outside the scope of test/unit/variant-guard.test.js.
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Folder, FolderMinus } from 'lucide-react';

@@ -68,3 +68,23 @@ export function warningsToNodes(
 ): ReactNode[] {
   return warnings.map((w) => warningToNode(w, ctx, t)).filter((n) => n !== null);
 }
+
+/**
+ * confirm 弹窗内容拼装 — 主文案在上、高亮警告条在下 (形态对齐原
+ * variantGuard.buildVariantWarning)。无预警时原样返回主文案字符串。
+ */
+export function confirmContentWithWarnings(
+  main: string,
+  warnings: CommandWarning[],
+  ctx: WarningContext,
+  t: TranslateFn
+): ReactNode {
+  const nodes = warningsToNodes(warnings, ctx, t);
+  if (nodes.length === 0) return main;
+  return (
+    <div>
+      <p className="mb-2">{main}</p>
+      {nodes}
+    </div>
+  );
+}

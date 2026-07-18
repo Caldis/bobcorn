@@ -1,41 +1,41 @@
 /**
- * Variant Guard Coverage Test
+ * Variant Guard — Stage C 形态 (批操作 action 守门)
  *
- * Static analysis: scans all component files for direct calls to
- * icon-mutating database methods that should go through variantGuard.
+ * 守护意图与旧版一脉相承: 组件不得绕过变体级联决策直接调 db 的图标写方法。
+ * 旧版要求组件先 checkVariants() 再写库 (utils/variantGuard, 已删除);
+ * Stage C 后变体级联/越界重分配决策收口在 core 命令体 (src/core/commands/icon.ts),
+ * 组件必须经 store 批操作 action 调用:
+ *   planMove / planDelete            — 只读预检 (confirm 文案的变体/越界计数)
+ *   moveIconsTo / copyIconsTo        — 移动 / 复制
+ *   recycleIconsAction / deleteIconsPermanently — 回收 / 彻底删除
+ * action 统一 dirty 标记与刷新, 警告经 utils/commandWarnings 映射为既有 i18n key。
  *
- * If this test fails, it means someone called a dangerous db method
- * without checking for variants first. Fix by:
- * 1. Adding checkVariants() before the call, OR
- * 2. If the call is intentionally unguarded (e.g., deleting a variant
- *    itself), add the file:line to the ALLOWED_UNGUARDED list below.
+ * 静态扫描所有组件文件: 出现下列 db 写方法调用即失败 (必须走 store action) —
+ *   db.moveIcon*      (moveIcons / moveIconsWithVariants / moveIconWithVariants / moveIconGroup)
+ *   db.delIcon*       (delIcon / delIcons)
+ *   db.duplicateIcon* (duplicateIcons / duplicateIconGroup)
+ *   db.deleteIconWithVariants
+ *
+ * 注意: db.renewIconData (替换, W3-2a 已在数据层委托命令体) 与 db.deleteVariants
+ * (变体面板/替换路径, 级联语义自含) 不在禁用之列 — 它们的收口在后续阶段处理。
  */
 
 import { describe, test, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
 
-// Database methods that modify icons and SHOULD be guarded
-const GUARDED_METHODS = [
-  'db.delIcon',
-  'db.moveIconGroup',
-  'db.moveIcons',
-  'db.renewIconData',
+// 禁用的 db 写方法模式 — 命中即违规
+const FORBIDDEN_METHODS = [
+  { label: 'db.moveIcon*', re: /\bdb\.moveIcon\w*\s*\(/ },
+  { label: 'db.delIcon*', re: /\bdb\.delIcon\w*\s*\(/ },
+  { label: 'db.duplicateIcon*', re: /\bdb\.duplicateIcon\w*\s*\(/ },
+  { label: 'db.deleteIconWithVariants', re: /\bdb\.deleteIconWithVariants\s*\(/ },
 ];
 
-// Files + line descriptions that are intentionally unguarded.
-// Each entry: "relative/path.tsx:reason"
-const ALLOWED_UNGUARDED = [
-  // VariantPanel deletes variant icons (which have no sub-variants)
-  'src/renderer/components/SideEditor/VariantPanel.tsx:db.delIcon — deleting a variant itself, no sub-variants possible',
-];
-
-// Safe alternatives that already handle variants internally
-const SAFE_ALTERNATIVES = [
-  'db.deleteIconWithVariants',
-  'db.moveIconWithVariants',
-  'db.moveIconsWithVariants',
-  'db.deleteVariants',
+// 显式豁免 — "relative/path.tsx:方法标签 — 原因"
+const ALLOWED_DIRECT = [
+  // VariantPanel 删除的是变体自身: 变体无子变体, 不涉及级联决策 (与旧版豁免一致)
+  'src/renderer/components/SideEditor/VariantPanel.tsx:db.delIcon* — 删除变体自身, 无子变体, 不涉及级联决策',
 ];
 
 const COMPONENTS_DIR = join(__dirname, '../../src/renderer/components');
@@ -54,7 +54,7 @@ function getAllTsxFiles(dir) {
   return results;
 }
 
-describe('variant guard coverage', () => {
+describe('variant guard (batch actions via store)', () => {
   const files = getAllTsxFiles(COMPONENTS_DIR);
 
   test('all component files found', () => {
@@ -64,7 +64,7 @@ describe('variant guard coverage', () => {
   for (const filePath of files) {
     const relPath = relative(join(__dirname, '../..'), filePath).replace(/\\/g, '/');
 
-    test(`${relPath} — no unguarded icon mutations`, () => {
+    test(`${relPath} — no direct db icon-mutation calls`, () => {
       const content = readFileSync(filePath, 'utf-8');
       const lines = content.split('\n');
       const violations = [];
@@ -76,34 +76,27 @@ describe('variant guard coverage', () => {
         // Skip comments
         if (trimmed.startsWith('//') || trimmed.startsWith('*')) return;
 
-        for (const method of GUARDED_METHODS) {
-          // Match the method but not safe alternatives (e.g., db.moveIcons but not db.moveIconsWithVariants)
-          const methodRegex = new RegExp(method.replace('.', '\\.') + '(?!WithVariants|\\w)');
-          if (!methodRegex.test(line)) continue;
+        for (const { label, re } of FORBIDDEN_METHODS) {
+          if (!re.test(line)) continue;
 
-          // Check if this file+method is in allowed list
-          const isAllowed = ALLOWED_UNGUARDED.some(
-            (entry) => entry.startsWith(relPath) && entry.includes(method)
+          const isAllowed = ALLOWED_DIRECT.some(
+            (entry) => entry.startsWith(`${relPath}:`) && entry.includes(label)
           );
           if (isAllowed) continue;
 
-          // Check if checkVariants is imported and called in same function scope
-          // Simple heuristic: file must import checkVariants
-          const hasGuardImport = content.includes('checkVariants');
-          if (!hasGuardImport) {
-            violations.push(
-              `Line ${lineNum}: ${method}() called without variantGuard. ` +
-              `Either add checkVariants() or use a safe alternative (${SAFE_ALTERNATIVES.join(', ')}). ` +
-              `If intentionally unguarded, add to ALLOWED_UNGUARDED in this test.`
-            );
-          }
+          violations.push(
+            `Line ${lineNum}: ${label} called directly (${trimmed.slice(0, 100)}). ` +
+              `Components must go through store batch actions ` +
+              `(planMove/planDelete/moveIconsTo/copyIconsTo/recycleIconsAction/deleteIconsPermanently). ` +
+              `If intentionally direct, add to ALLOWED_DIRECT in this test.`
+          );
         }
       });
 
       if (violations.length > 0) {
         expect.fail(
-          `Found ${violations.length} unguarded icon mutation(s) in ${relPath}:\n` +
-          violations.map((v) => `  - ${v}`).join('\n')
+          `Found ${violations.length} direct icon mutation(s) in ${relPath}:\n` +
+            violations.map((v) => `  - ${v}`).join('\n')
         );
       }
     });

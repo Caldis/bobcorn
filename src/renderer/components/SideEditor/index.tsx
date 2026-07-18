@@ -31,9 +31,10 @@ import {
   resolveCurrentColor,
 } from '../../utils/svg/colors';
 import { platform } from '../../utils/tools';
-import { checkVariants, buildVariantWarning } from '../../utils/variantGuard';
+import { warningsToNodes, confirmContentWithWarnings } from '../../utils/commandWarnings';
+import type { CommandWarning } from '@core/commands';
 // Database
-// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.rename, icon.delete, icon.set-code, icon.replace, icon.export-svg, icon.get-content
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.rename, icon.set-code, icon.replace, icon.export-svg, icon.get-content; 回收/删除/移动/复制已走 store actions
 import db from '../../database';
 // Images
 import selectedIconHint from '../../resources/imgs/nodata/selectedIconHint.png';
@@ -220,7 +221,11 @@ const SideEditor = React.memo(function SideEditor({
 
   // 替换图标相关
   const handleIconContentUpdate = async () => {
-    const guard = checkVariants(selectedIcon);
+    const iconId = selectedIcon;
+    if (!iconId) return;
+    // 替换会级联硬删变体 — planDelete('permanent') 只读预检取警告
+    // (variant-cascade-delete → replace 语境 → variant.replaceWarn)
+    const plan = useAppStore.getState().planDelete([iconId], 'permanent');
     const doReplace = async () => {
       const result = await electronAPI.showOpenDialog({
         title: t('editor.selectSvgFile'),
@@ -229,29 +234,29 @@ const SideEditor = React.memo(function SideEditor({
       });
       if (!result.canceled && result.filePaths.length > 0) {
         const newIconFileData = Object.assign({}, iconData, { path: result.filePaths[0] });
-        if (guard.hasVariants) {
-          db.deleteVariants(selectedIcon);
+        if (plan.variantCount > 0) {
+          db.deleteVariants(iconId);
         }
-        db.renewIconData(selectedIcon, newIconFileData, () => {
+        db.renewIconData(iconId, newIconFileData, () => {
           message.success(t('editor.dataUpdated'));
           // 画布/编辑器刷新由数据层内容广播自动处理 (setIconData → invalidateIconContent)
           // renewIconData 已把 iconContentOriginal 一并重置为新内容；本地快照同步跟上，
           // 避免残留旧原始内容误判 colorChanged、点“重置颜色”时回滚成替换前的旧图标
-          setOriginalIconContent(db.getIconContent(selectedIcon));
+          setOriginalIconContent(db.getIconContent(iconId));
           setEditingColorIdx(null);
           syncLeft();
         });
       }
     };
 
-    if (guard.hasVariants) {
+    if (plan.variantCount > 0) {
       confirm({
         title: t('editor.replaceTitle'),
-        content: buildVariantWarning(
+        content: confirmContentWithWarnings(
           t('editor.replaceContent'),
-          guard.count,
-          t,
-          'variant.replaceWarn'
+          plan.warnings,
+          'replace',
+          t
         ),
         okType: 'danger',
         onOk: doReplace,
@@ -264,45 +269,36 @@ const SideEditor = React.memo(function SideEditor({
   // 图标导出相关
   const handleIconExport = () => setExportDialogVisible(true);
 
-  // 删除图标相关（通过 variantGuard 统一处理）
+  // 删除图标相关（变体级联决策统一在 core 命令体, 组件走 store action + planDelete 预检）
   const handleIconRecycle = () => {
-    const guard = checkVariants(selectedIcon);
+    const iconId = selectedIcon;
+    if (!iconId) return;
+    const plan = useAppStore.getState().planDelete([iconId], 'recycle');
     confirm({
       title: t('editor.recycleTitle'),
-      content: buildVariantWarning(
-        t('editor.recycleContent'),
-        guard.count,
-        t,
-        'variant.recycleNote'
-      ),
+      content: confirmContentWithWarnings(t('editor.recycleContent'), plan.warnings, 'recycle', t),
       onOk() {
-        db.moveIconWithVariants(selectedIcon, 'resource-recycleBin', () => {
-          message.success(t('editor.recycled'));
-          syncLeft();
-          selectIcon(null);
-        });
+        // store action 内已落库 + dirty 标记 + syncLeft
+        useAppStore.getState().recycleIconsAction([iconId]);
+        message.success(t('editor.recycled'));
+        selectIcon(null);
       },
     });
   };
   const handleIconDelete = () => {
-    const guard = checkVariants(selectedIcon);
+    const iconId = selectedIcon;
+    if (!iconId) return;
+    const plan = useAppStore.getState().planDelete([iconId], 'permanent');
     confirm({
       title: t('editor.deleteTitle'),
-      content: buildVariantWarning(
-        t('editor.deleteContent'),
-        guard.count,
-        t,
-        'variant.deleteConfirm'
-      ),
+      content: confirmContentWithWarnings(t('editor.deleteContent'), plan.warnings, 'delete', t),
       okType: 'danger',
       okText: t('common.delete'),
       onOk() {
-        db.deleteIconWithVariants(selectedIcon, () => {
-          message.success(t('editor.deleted'));
-          syncLeft();
-          analyticsTrack('icon.delete');
-          selectIcon(null);
-        });
+        useAppStore.getState().deleteIconsPermanently([iconId]);
+        message.success(t('editor.deleted'));
+        analyticsTrack('icon.delete');
+        selectIcon(null);
       },
     });
   };
@@ -334,36 +330,35 @@ const SideEditor = React.memo(function SideEditor({
     targetGroupId: string,
     opts?: { reassignOutOfRange: boolean }
   ) => {
+    const iconId = selectedIcon;
+    if (!iconId) {
+      setIconGroupEditModelVisible(false);
+      return;
+    }
+    const s = useAppStore.getState();
     if (iconGroupEditModelType === 'duplicate') {
-      try {
-        db.duplicateIconGroup(selectedIcon, targetGroupId, () => {
-          message.success(t('editor.copiedToGroup'));
-          syncLeft();
-          selectIcon(null);
-        });
-      } catch (err) {
-        if ((err as Error)?.message === 'PUA_EXHAUSTED') {
+      const outcome = s.copyIconsTo([iconId], targetGroupId);
+      if (outcome.stopError) {
+        // 原口径: 码点耗尽按 PUA_EXHAUSTED 精确提示; 其他错误上抛 (弹窗保持打开)
+        if (String(outcome.stopError.message).startsWith('PUA_EXHAUSTED')) {
           message.error(t('editor.codeExhausted'));
         } else {
-          throw err;
+          throw outcome.stopError;
         }
+      } else {
+        message.success(t('editor.copiedToGroup'));
+        selectIcon(null);
       }
     }
     if (iconGroupEditModelType === 'move') {
-      db.moveIconWithVariants(
-        selectedIcon,
-        targetGroupId,
-        (reassignedCount) => {
-          if (reassignedCount && reassignedCount > 0) {
-            message.success(t('editor.movedToGroupReassigned', { count: reassignedCount }));
-          } else {
-            message.success(t('editor.movedToGroup'));
-          }
-          syncLeft();
-          selectIcon(null);
-        },
-        opts
-      );
+      // store action 内已落库 + dirty 标记 + syncLeft; GROUP_RANGE_EXHAUSTED 原样上抛
+      const outcome = s.moveIconsTo([iconId], targetGroupId, opts);
+      if (outcome.reassigned.length > 0) {
+        message.success(t('editor.movedToGroupReassigned', { count: outcome.reassigned.length }));
+      } else {
+        message.success(t('editor.movedToGroup'));
+      }
+      selectIcon(null);
     }
     setIconGroupEditModelVisible(false);
   };
@@ -379,52 +374,43 @@ const SideEditor = React.memo(function SideEditor({
     [groupList]
   );
 
-  // 目标分组声明的字码区间 (供移动越界内联选择)
-  const groupRangeById = useMemo(() => {
-    const m = new Map<string, { start: number; end: number }>();
-    for (const g of groupList as any[]) {
-      if (g.codeRangeStart != null && g.codeRangeEnd != null) {
-        m.set(g.id, { start: Number(g.codeRangeStart), end: Number(g.codeRangeEnd) });
-      }
-    }
-    return m;
-  }, [groupList]);
-
-  // 待移动图标 (当前单选图标) 落在目标区间外的数量: 0 或 1。
+  // 待移动图标落在目标区间外的数量 — 归一到 store.planMove 只读预检
+  // (计数含变体, 与实际重分配 reassignIconsIntoRange 的作用范围一致)
   const getMoveOutOfRangeCount = useCallback(
     (targetGroupId: string): number => {
-      const r = groupRangeById.get(targetGroupId);
-      if (!r || !selectedIcon) return 0;
-      const data = db.getIconData(selectedIcon);
-      const dec = parseHex(String(data?.iconCode ?? ''));
-      if (dec === null) return 0;
-      return dec < r.start || dec > r.end ? 1 : 0;
+      if (!selectedIcon) return 0;
+      return useAppStore.getState().planMove([selectedIcon], targetGroupId).outOfRange?.count ?? 0;
     },
-    [groupRangeById, selectedIcon]
+    [selectedIcon]
   );
 
-  // 当前图标的已存字码是否落在其所属分组声明的区间之外 (行内提示)
+  // 当前图标的已存字码是否落在其所属分组声明的区间之外 (行内提示)。
+  // 只看父图标自身字码 — 与移动越界判定 (planMove, 含变体) 口径不同:
+  // 一键重新分配 (handleReassignCode) 也只改本图标的字码
   const codeOutOfGroupRange = useMemo(() => {
-    const r = groupRangeById.get(String(iconData?.iconGroup ?? ''));
-    if (!r || !iconData?.iconCode) return false;
+    if (!iconData?.iconCode) return false;
+    const g = (groupList as any[]).find((x: any) => x.id === iconData.iconGroup);
+    if (!g || g.codeRangeStart == null || g.codeRangeEnd == null) return false;
     const dec = parseHex(String(iconData.iconCode));
-    return dec !== null && (dec < r.start || dec > r.end);
-  }, [groupRangeById, iconData]);
+    return dec !== null && (dec < Number(g.codeRangeStart) || dec > Number(g.codeRangeEnd));
+  }, [groupList, iconData]);
 
   const groupNum = groupList.length;
 
   // 组选择模态框内的变体警告 — 有变体时提示移动/复制会如何处理变体
   const buildGroupPickerWarning = (): React.ReactNode => {
     if (!selectedIcon) return null;
-    const guard = checkVariants(selectedIcon);
-    if (!guard.hasVariants) return null;
-    const key = iconGroupEditModelType === 'duplicate' ? 'variant.copyNote' : 'variant.moveNote';
-    return (
-      <p className="mb-2 flex items-start gap-1.5 rounded-md bg-warning-subtle px-2.5 py-1.5 text-xs font-medium text-warning">
-        <TriangleAlert size={13} className="mt-px shrink-0" />
-        <span>{t(key, { count: guard.count })}</span>
-      </p>
-    );
+    // variantCount 与目标组无关 — 用未分组作占位目标走 planMove 只读预检取变体计数
+    const variantCount = useAppStore
+      .getState()
+      .planMove([selectedIcon], 'resource-uncategorized').variantCount;
+    if (variantCount <= 0) return null;
+    const warning: CommandWarning =
+      iconGroupEditModelType === 'duplicate'
+        ? { type: 'variant-not-copied', count: variantCount }
+        : { type: 'variant-follow', count: variantCount };
+    const ctx = iconGroupEditModelType === 'duplicate' ? 'copy' : 'move';
+    return <>{warningsToNodes([warning], ctx, t)}</>;
   };
 
   // 颜色编辑

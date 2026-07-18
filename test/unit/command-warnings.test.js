@@ -9,7 +9,11 @@
  */
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { warningToNode, warningsToNodes } from '../../src/renderer/utils/commandWarnings';
+import {
+  warningToNode,
+  warningsToNodes,
+  confirmContentWithWarnings,
+} from '../../src/renderer/utils/commandWarnings';
 
 /** identity t mock — 输出 "key|count" 便于断言映射结果 */
 const t = (key, opts) => `${key}|${opts?.count}`;
@@ -65,6 +69,31 @@ describe('commandWarnings', () => {
 
     it('returns an empty array for no warnings', () => {
       expect(warningsToNodes([], 'move', t)).toEqual([]);
+    });
+  });
+
+  describe('confirmContentWithWarnings', () => {
+    it('returns the plain main string when there is nothing to warn about', () => {
+      expect(confirmContentWithWarnings('main text', [], 'delete', t)).toBe('main text');
+      // codes-reassigned 无预警语义 → 同样退化为纯文案
+      expect(
+        confirmContentWithWarnings('main text', [{ type: 'codes-reassigned', count: 2 }], 'move', t)
+      ).toBe('main text');
+    });
+
+    it('stacks main text above the mapped warning pill(s)', () => {
+      const html = render(
+        confirmContentWithWarnings(
+          'main text',
+          [{ type: 'variant-cascade-delete', count: 4 }],
+          'delete',
+          t
+        )
+      );
+      expect(html).toContain('main text');
+      expect(html).toContain('variant.deleteConfirm|4');
+      // 主文案在警告条之前 (上方)
+      expect(html.indexOf('main text')).toBeLessThan(html.indexOf('variant.deleteConfirm|4'));
     });
   });
 });

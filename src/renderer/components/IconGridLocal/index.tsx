@@ -15,7 +15,6 @@ import {
   Download,
   Trash2,
   RotateCcw,
-  TriangleAlert,
   Upload,
   ListChecks,
   FileType2,
@@ -29,14 +28,14 @@ import GroupIconPreview from '../GroupIconPreview';
 import IconContextMenu, { type ContextMenuItem } from '../IconContextMenu';
 import { GroupPickerDialog, type GroupPickerGroup } from '../GroupPickerDialog';
 import { IconExportDialog, type IconExportTarget } from '../IconExportDialog';
-import { parseHex } from '../CodeMatrix/rangeMath';
 // ViewModel
 import { computeIconGridViewModel, type IconItem, type VirtualRow } from './viewModel';
 // 拖拽聚合 (拖到侧边栏分组)
 import { useIconStackDrag } from './useIconStackDrag';
 // Utils
 import { cn } from '../../lib/utils';
-import { checkVariants, buildVariantWarning } from '../../utils/variantGuard';
+import { warningsToNodes, confirmContentWithWarnings } from '../../utils/commandWarnings';
+import type { CommandWarning } from '@core/commands';
 import { buildImportSuccessMessage } from '../../utils/importFeedback';
 // Database
 // eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.list, favorite.list
@@ -743,18 +742,19 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const handleCtxRecycle = useCallback(
     (ids: string[]) => {
       const multi = ids.length > 1;
-      const totalVariants = ids.reduce((sum, id) => sum + checkVariants(id).count, 0);
+      // 只读预检取变体跟随警告 (variant-follow → recycle 语境 → variant.recycleNote)
+      const plan = useAppStore.getState().planDelete(ids, 'recycle');
       confirm({
         title: multi ? t('batch.deleteTitle') : t('editor.recycleTitle'),
-        content: buildVariantWarning(
+        content: confirmContentWithWarnings(
           multi ? t('batch.deleteConfirm', { count: ids.length }) : t('editor.recycleContent'),
-          totalVariants,
-          t,
-          'variant.recycleNote'
+          plan.warnings,
+          'recycle',
+          t
         ),
         onOk() {
-          db.moveIconsWithVariants(ids, 'resource-recycleBin');
-          syncLeft();
+          // store action 内已落库 + dirty 标记 + syncLeft
+          useAppStore.getState().recycleIconsAction(ids);
           useAppStore.getState().clearBatchSelection();
           selectIcon(null);
           message.success(
@@ -764,14 +764,13 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         },
       });
     },
-    [syncLeft, selectIcon, t]
+    [selectIcon, t]
   );
 
   const handleCtxRestore = useCallback(
     (ids: string[]) => {
       // No original group is tracked, so restore lands in "Ungrouped".
-      db.moveIconsWithVariants(ids, 'resource-uncategorized');
-      syncLeft();
+      useAppStore.getState().moveIconsTo(ids, 'resource-uncategorized');
       useAppStore.getState().clearBatchSelection();
       selectIcon(null);
       message.success(
@@ -780,30 +779,30 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
           : t('contextMenu.restored')
       );
     },
-    [syncLeft, selectIcon, t]
+    [selectIcon, t]
   );
 
   const handleCtxDelete = useCallback(
     (ids: string[]) => {
       const multi = ids.length > 1;
-      const totalVariants = ids.reduce((sum, id) => sum + checkVariants(id).count, 0);
+      // 只读预检取级联硬删警告 (variant-cascade-delete → delete 语境 → variant.deleteConfirm)
+      const plan = useAppStore.getState().planDelete(ids, 'permanent');
       confirm({
         title: multi
           ? t('contextMenu.deletePermanentlyCount', { count: ids.length })
           : t('editor.deleteTitle'),
-        content: buildVariantWarning(
+        content: confirmContentWithWarnings(
           multi
             ? t('contextMenu.deleteConfirmCount', { count: ids.length })
             : t('editor.deleteContent'),
-          totalVariants,
-          t,
-          'variant.deleteConfirm'
+          plan.warnings,
+          'delete',
+          t
         ),
         okType: 'danger',
         okText: t('common.delete'),
         onOk() {
-          ids.forEach((id) => db.deleteIconWithVariants(id));
-          syncLeft();
+          useAppStore.getState().deleteIconsPermanently(ids);
           useAppStore.getState().clearBatchSelection();
           selectIcon(null);
           analyticsTrack('icon.delete');
@@ -813,7 +812,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         },
       });
     },
-    [syncLeft, selectIcon, t]
+    [selectIcon, t]
   );
 
   const handleCtxExport = useCallback((ids: string[]) => {
@@ -826,10 +825,10 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const handleStackDrop = useCallback(
     (ids: string[], targetGroupId: string) => {
       const multi = ids.length > 1;
+      const s = useAppStore.getState();
       if (targetGroupId === 'resource-recycleBin') {
-        db.moveIconsWithVariants(ids, 'resource-recycleBin');
-        syncLeft();
-        useAppStore.getState().clearBatchSelection();
+        s.recycleIconsAction(ids);
+        s.clearBatchSelection();
         selectIcon(null);
         message.success(
           multi ? t('contextMenu.recycledCount', { count: ids.length }) : t('editor.recycled')
@@ -837,20 +836,18 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         analyticsTrack('batch.operation', { operation: 'recycle' });
         return;
       }
-      db.moveIconsWithVariants(ids, targetGroupId, () => {
-        syncLeft();
-        useAppStore.getState().clearBatchSelection();
-        selectIcon(null);
-        const groupName =
-          targetGroupId === 'resource-uncategorized'
-            ? t('nav.ungrouped')
-            : ((db.getGroupList() as any[]).find((g) => g.id === targetGroupId)?.groupName ??
-              targetGroupId);
-        message.success(t('contextMenu.movedToGroup', { count: ids.length, group: groupName }));
-        analyticsTrack('batch.operation', { operation: 'move' });
-      });
+      s.moveIconsTo(ids, targetGroupId);
+      s.clearBatchSelection();
+      selectIcon(null);
+      const groupName =
+        targetGroupId === 'resource-uncategorized'
+          ? t('nav.ungrouped')
+          : ((db.getGroupList() as any[]).find((g) => g.id === targetGroupId)?.groupName ??
+            targetGroupId);
+      message.success(t('contextMenu.movedToGroup', { count: ids.length, group: groupName }));
+      analyticsTrack('batch.operation', { operation: 'move' });
     },
-    [syncLeft, selectIcon, t]
+    [selectIcon, t]
   );
 
   const { pressIcon, dragLayer } = useIconStackDrag({
@@ -948,86 +945,60 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
   const groupPickerWarning = useMemo(() => {
     if (!groupPickerMode) return null;
     const ids = groupPickerIdsRef.current;
-    const totalVariants = ids.reduce((sum, id) => sum + checkVariants(id).count, 0);
-    if (totalVariants <= 0) return null;
-    const key = groupPickerMode === 'copy' ? 'variant.copyNote' : 'variant.moveNote';
-    return (
-      <p className="mb-2 flex items-start gap-1.5 rounded-md bg-warning-subtle px-2.5 py-1.5 text-xs font-medium text-warning">
-        <TriangleAlert size={13} className="mt-px shrink-0" />
-        <span>{t(key, { count: totalVariants })}</span>
-      </p>
-    );
+    // variantCount 与目标组无关 — 用未分组作占位目标走 planMove 只读预检取变体计数
+    const variantCount = useAppStore
+      .getState()
+      .planMove(ids, 'resource-uncategorized').variantCount;
+    if (variantCount <= 0) return null;
+    const warning: CommandWarning =
+      groupPickerMode === 'copy'
+        ? { type: 'variant-not-copied', count: variantCount }
+        : { type: 'variant-follow', count: variantCount };
+    return <>{warningsToNodes([warning], groupPickerMode, t)}</>;
   }, [groupPickerMode, t]);
 
-  // 目标分组区间 + 待移动图标码位 → 移动越界内联选择 (右键菜单/框选路径)
-  const groupRangeById = useMemo(() => {
-    const m = new Map<string, { start: number; end: number }>();
-    for (const g of groupList as any[]) {
-      if (g.codeRangeStart != null && g.codeRangeEnd != null) {
-        m.set(g.id, { start: Number(g.codeRangeStart), end: Number(g.codeRangeEnd) });
-      }
-    }
-    return m;
-  }, [groupList]);
-  const pendingCodesDec = useMemo(() => {
-    if (!groupPickerMode) return [] as number[];
-    const out: number[] = [];
-    for (const id of groupPickerIdsRef.current) {
-      const d = db.getIconData(id);
-      const dec = parseHex(String(d?.iconCode ?? ''));
-      if (dec !== null) out.push(dec);
-    }
-    return out;
-  }, [groupPickerMode]);
+  // 目标分组区间越界数 → 移动越界内联选择 (右键菜单/框选路径) — 归一到
+  // store.planMove 只读预检 (计数含变体, 与实际重分配的作用范围一致)
   const getMoveOutOfRangeCount = useCallback(
-    (targetGroupId: string): number => {
-      const r = groupRangeById.get(targetGroupId);
-      if (!r) return 0;
-      return pendingCodesDec.filter((c) => c < r.start || c > r.end).length;
-    },
-    [groupRangeById, pendingCodesDec]
+    (targetGroupId: string): number =>
+      useAppStore.getState().planMove(groupPickerIdsRef.current, targetGroupId).outOfRange?.count ??
+      0,
+    []
   );
 
   const handleGroupPickerConfirm = useCallback(
     (targetGroupId: string, opts?: { reassignOutOfRange: boolean }) => {
       const ids = groupPickerIdsRef.current;
+      const s = useAppStore.getState();
       if (groupPickerMode === 'move') {
-        db.moveIconsWithVariants(
-          ids,
-          targetGroupId,
-          (reassignedCount) => {
-            syncLeft();
-            useAppStore.getState().clearBatchSelection();
-            selectIcon(null);
-            if (reassignedCount && reassignedCount > 0) {
-              message.success(
-                t('batch.movedReassigned', { count: ids.length, reassigned: reassignedCount })
-              );
-            } else {
-              message.success(t('batch.moved', { count: ids.length }));
-            }
-            analyticsTrack('batch.operation', { operation: 'move' });
-          },
-          opts
-        );
+        // store action 内已落库 + dirty 标记 + syncLeft; Outcome 供组件拼 toast
+        const outcome = s.moveIconsTo(ids, targetGroupId, opts);
+        s.clearBatchSelection();
+        selectIcon(null);
+        if (outcome.reassigned.length > 0) {
+          message.success(
+            t('batch.movedReassigned', { count: ids.length, reassigned: outcome.reassigned.length })
+          );
+        } else {
+          message.success(t('batch.moved', { count: ids.length }));
+        }
+        analyticsTrack('batch.operation', { operation: 'move' });
       } else if (groupPickerMode === 'copy') {
-        db.duplicateIcons(ids, targetGroupId, (result) => {
-          syncLeft();
-          useAppStore.getState().clearBatchSelection();
-          selectIcon(null);
-          if (result && result.failed > 0) {
-            message.warning(
-              t('batch.copyCodeExhausted', { added: result.added, failed: result.failed })
-            );
-          } else {
-            message.success(t('batch.copied', { count: ids.length }));
-          }
-          analyticsTrack('batch.operation', { operation: 'copy' });
-        });
+        const outcome = s.copyIconsTo(ids, targetGroupId);
+        s.clearBatchSelection();
+        selectIcon(null);
+        if (outcome.failed > 0) {
+          message.warning(
+            t('batch.copyCodeExhausted', { added: outcome.copied, failed: outcome.failed })
+          );
+        } else {
+          message.success(t('batch.copied', { count: ids.length }));
+        }
+        analyticsTrack('batch.operation', { operation: 'copy' });
       }
       setGroupPickerMode(null);
     },
-    [groupPickerMode, syncLeft, selectIcon, t]
+    [groupPickerMode, selectIcon, t]
   );
 
   const contextItems: ContextMenuItem[] = useMemo(() => {

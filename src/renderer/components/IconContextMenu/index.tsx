@@ -2,9 +2,9 @@
 //
 // A portal-based floating menu positioned at the cursor. It holds no
 // business logic and never touches the database: the mounting component
-// (IconGridLocal) builds the item list (labels via t(), db writes guarded
-// by variantGuard) and passes it in. This keeps the component outside the
-// scope of the core-boundary / variant-guard static tests.
+// (IconGridLocal) builds the item list (labels via t(), icon mutations via
+// the store batch actions) and passes it in. This keeps the component
+// outside the scope of the core-boundary / variant-guard static tests.
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/utils';

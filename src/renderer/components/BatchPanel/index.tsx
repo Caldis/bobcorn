@@ -20,14 +20,13 @@ import { parseCssColor } from '../../utils/svg/colors';
 import { message, confirm } from '../ui';
 import { allVariantCombinations, buildVariantName } from '../../utils/svg/variants';
 import { bakeSvgVariant, buildVariantMeta } from '../../utils/svg/bake';
-// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.move, icon.copy, icon.delete, icon.set-color, group.move-icons
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.set-color, icon.set-favorite, variant.add + 读聚合 (getIconMetaBatch/getIconContentBatch/getGroupList); 批量移动/复制/回收已走 store actions
 import db from '../../database';
 import useAppStore, { analyticsTrack } from '../../store';
 import { IconExportDialog } from '../IconExportDialog';
 import type { IconExportTarget } from '../IconExportDialog';
 import { GroupPickerDialog } from '../GroupPickerDialog';
 import type { GroupPickerGroup } from '../GroupPickerDialog';
-import { parseHex } from '../CodeMatrix/rangeMath';
 
 const { electronAPI } = window;
 
@@ -36,6 +35,11 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
   const selectedIcons = useAppStore((state: any) => state.selectedIcons);
   const clearBatchSelection = useAppStore((state: any) => state.clearBatchSelection);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
+  // 批操作 action (Stage C) — 写入/dirty/刷新收口在 store, toast 与选择集清理留组件
+  const planMove = useAppStore((state: any) => state.planMove);
+  const moveIconsTo = useAppStore((state: any) => state.moveIconsTo);
+  const copyIconsTo = useAppStore((state: any) => state.copyIconsTo);
+  const recycleIconsAction = useAppStore((state: any) => state.recycleIconsAction);
 
   const variantProgress = useAppStore((s: any) => s.variantProgress);
 
@@ -94,31 +98,11 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
     [groupList]
   );
 
-  // 目标分组区间 + 待移动图标码位 → 移动越界内联选择
-  const groupRangeById = useMemo(() => {
-    const m = new Map<string, { start: number; end: number }>();
-    for (const g of groupList as any[]) {
-      if (g.codeRangeStart != null && g.codeRangeEnd != null) {
-        m.set(g.id, { start: Number(g.codeRangeStart), end: Number(g.codeRangeEnd) });
-      }
-    }
-    return m;
-  }, [groupList]);
-  const pendingCodesDec = useMemo(() => {
-    const out: number[] = [];
-    selectedIconMeta.forEach((meta) => {
-      const dec = parseHex(String(meta.iconCode ?? ''));
-      if (dec !== null) out.push(dec);
-    });
-    return out;
-  }, [selectedIconMeta]);
+  // 目标分组区间越界数 → 移动越界内联选择 — 归一到 store.planMove 只读预检
+  // (计数含变体, 与实际重分配 reassignIconsIntoRange 的作用范围一致)
   const getMoveOutOfRangeCount = useCallback(
-    (targetGroupId: string): number => {
-      const r = groupRangeById.get(targetGroupId);
-      if (!r) return 0;
-      return pendingCodesDec.filter((c) => c < r.start || c > r.end).length;
-    },
-    [groupRangeById, pendingCodesDec]
+    (targetGroupId: string): number => planMove(selectedIds, targetGroupId).outOfRange?.count ?? 0,
+    [planMove, selectedIds]
   );
 
   // --- State for sub-panels ---
@@ -140,48 +124,40 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
   // --- Operations ---
   const handleMove = useCallback(
     (targetGroup: string, opts?: { reassignOutOfRange: boolean }) => {
-      db.moveIconsWithVariants(
-        selectedIds,
-        targetGroup,
-        (reassignedCount) => {
-          syncLeft();
-          clearBatchSelection();
-          if (reassignedCount && reassignedCount > 0) {
-            message.success(
-              t('batch.movedReassigned', {
-                count: selectedIds.length,
-                reassigned: reassignedCount,
-              })
-            );
-          } else {
-            message.success(t('batch.moved', { count: selectedIds.length }));
-          }
-          analyticsTrack('batch.operation', { operation: 'move' });
-        },
-        opts
-      );
+      // store action 内已落库 + dirty 标记 + syncLeft; Outcome 供组件拼 toast
+      const outcome = moveIconsTo(selectedIds, targetGroup, opts);
+      clearBatchSelection();
+      if (outcome.reassigned.length > 0) {
+        message.success(
+          t('batch.movedReassigned', {
+            count: selectedIds.length,
+            reassigned: outcome.reassigned.length,
+          })
+        );
+      } else {
+        message.success(t('batch.moved', { count: selectedIds.length }));
+      }
+      analyticsTrack('batch.operation', { operation: 'move' });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted: only recreated on language switch, adding it would needlessly recreate this callback then; clearBatchSelection/syncLeft are stable store references
-    [selectedIds, clearBatchSelection, syncLeft]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted: only recreated on language switch, adding it would needlessly recreate this callback then; clearBatchSelection/moveIconsTo are stable store references
+    [selectedIds, clearBatchSelection, moveIconsTo]
   );
 
   const handleCopy = useCallback(
     (targetGroup: string) => {
-      db.duplicateIcons(selectedIds, targetGroup, (result) => {
-        syncLeft();
-        clearBatchSelection();
-        if (result && result.failed > 0) {
-          message.warning(
-            t('batch.copyCodeExhausted', { added: result.added, failed: result.failed })
-          );
-        } else {
-          message.success(t('batch.copied', { count: selectedIds.length }));
-        }
-        analyticsTrack('batch.operation', { operation: 'copy' });
-      });
+      const outcome = copyIconsTo(selectedIds, targetGroup);
+      clearBatchSelection();
+      if (outcome.failed > 0) {
+        message.warning(
+          t('batch.copyCodeExhausted', { added: outcome.copied, failed: outcome.failed })
+        );
+      } else {
+        message.success(t('batch.copied', { count: selectedIds.length }));
+      }
+      analyticsTrack('batch.operation', { operation: 'copy' });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted (see handleMove above); clearBatchSelection/syncLeft are stable store references
-    [selectedIds, clearBatchSelection, syncLeft]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted (see handleMove above); clearBatchSelection/copyIconsTo are stable store references
+    [selectedIds, clearBatchSelection, copyIconsTo]
   );
 
   const handleGroupPickerConfirm = useCallback(
@@ -199,15 +175,15 @@ function BatchPanel({ selectedGroup: _selectedGroup }: { selectedGroup: string }
       content: t('batch.deleteConfirm', { count: selectedIds.length }),
       okText: t('batch.deleteOk'),
       onOk() {
-        db.moveIconsWithVariants(selectedIds, 'resource-recycleBin');
-        syncLeft();
+        // 回收 (可恢复) — 父 + 变体一并进回收站, dirty/刷新在 action 内
+        recycleIconsAction(selectedIds);
         clearBatchSelection();
         message.success(t('batch.deleted', { count: selectedIds.length }));
         analyticsTrack('batch.operation', { operation: 'delete' });
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted (see handleMove above); clearBatchSelection/syncLeft are stable store references
-  }, [selectedIds, clearBatchSelection, syncLeft]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` intentionally omitted (see handleMove above); clearBatchSelection/recycleIconsAction are stable store references
+  }, [selectedIds, clearBatchSelection, recycleIconsAction]);
 
   const handleExport = useCallback(() => {
     setExportDialogVisible(true);

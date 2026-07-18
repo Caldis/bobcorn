@@ -157,7 +157,6 @@ export const OPERATIONS: OpEntry[] = [
     legacyPaths: [
       'src/renderer/components/SideEditor/index.tsx',
       'src/renderer/components/BatchPanel/index.tsx',
-      'src/renderer/utils/variantGuard.ts',
     ],
     cliCommand: 'icon delete',
   },

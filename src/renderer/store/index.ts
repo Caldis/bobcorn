@@ -5,12 +5,20 @@ import db, { getCoreDb, notifyExternalMutation, currentCodeMode } from '../datab
 // 见 test/unit/core-boundary-guard.test.js 的 commands 守门)
 import {
   planMoveIcons as commandPlanMoveIcons,
+  planDeleteIcons as commandPlanDeleteIcons,
   moveIcons as commandMoveIcons,
   copyIcons as commandCopyIcons,
   deleteIcons as commandDeleteIcons,
   rangeViolations as commandRangeViolations,
 } from '@core/commands';
-import type { MovePlan, MoveOutcome, CopyOutcome, DeleteOutcome } from '@core/commands';
+import type {
+  MovePlan,
+  MoveOutcome,
+  CopyOutcome,
+  DeleteMode,
+  DeletePlan,
+  DeleteOutcome,
+} from '@core/commands';
 import config, { getOption, setOption } from '../config';
 import { resolveTheme, applyThemeClass } from '../config/themes';
 import { applyContentInvalidation } from './contentCache';
@@ -151,6 +159,8 @@ export interface Actions {
   // ── 批量操作薄编排层 (Stage C) — 调 core 命令体 + 统一刷新, toast/confirm 文案留组件 ──
   /** 只读预检 (无写入无刷新): 变体跟随数 + 目标区间越界摘要, 供组件拼 confirm 文案 */
   planMove: (ids: string[], targetGroupId: string) => MovePlan;
+  /** 只读预检 (无写入无刷新): 有效 id 数 + 变体计数 + 模式相关警告, 供组件拼 confirm 文案 */
+  planDelete: (ids: string[], mode: DeleteMode) => DeletePlan;
   /** 批量移动 (变体恒跟随); opts.reassignOutOfRange 时越界字码在目标区间内重分配 */
   moveIconsTo: (
     ids: string[],
@@ -531,6 +541,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // 只读预检 — 无写入、无插桩、无刷新
   planMove: (ids, targetGroupId) => commandPlanMoveIcons(getCoreDb(), ids, targetGroupId),
+  planDelete: (ids, mode) => commandPlanDeleteIcons(getCoreDb(), ids, mode),
 
   moveIconsTo: (ids, targetGroupId, opts) => {
     let outcome!: MoveOutcome;
