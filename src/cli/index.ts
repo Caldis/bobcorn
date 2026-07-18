@@ -52,6 +52,8 @@ import {
 import {
   setProjectName as coreSetProjectName,
   saveAsProject as coreSaveAsProject,
+  setProjectDescription as coreSetProjectDescription,
+  setProjectColor as coreSetProjectColor,
 } from '../core/operations/project';
 import { exportFont as coreExportFont } from '../core/operations/export-font';
 import { exportBatchSvg as coreExportBatchSvg } from '../core/operations/export-svg';
@@ -285,6 +287,74 @@ project
       printResult(result, jsonMode);
       if (!jsonMode) {
         console.log(`Font prefix: "${setNameResult.oldName}" -> "${setNameResult.newName}"`);
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
+
+project
+  .command('set-description <descOrIcp> [description]')
+  .description(
+    'Set project description text (user-facing notes, shown in GUI project settings). Pass an empty string "" to clear.'
+  )
+  .action(async (arg1: string, arg2?: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    // 2 args: set-description <icp> <description> (explicit project)
+    // 1 arg:  set-description <description> (auto-discover project)
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const description = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('project set-description', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const descResult = await coreSetProjectDescription(nodeIo, resolvedPath, description);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(descResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (descResult.newDescription === null) {
+          console.log('Project description cleared');
+        } else {
+          console.log(`Project description: "${descResult.newDescription}"`);
+        }
+      }
+    } catch (err: any) {
+      meta.duration_ms = Date.now() - start;
+      const result = jsonError(err.message, 'FILE_IO_ERROR', meta);
+      printResult(result, jsonMode);
+      process.exit(2);
+    }
+  });
+
+project
+  .command('set-color <colorOrIcp> [color]')
+  .description(
+    'Set project avatar color override (hex string, e.g. "#FF8800", shown in GUI project settings). Pass an empty string "" to clear.'
+  )
+  .action(async (arg1: string, arg2?: string) => {
+    const start = Date.now();
+    const jsonMode = program.opts().json;
+    const icpPath = arg2 !== undefined ? arg1 : undefined;
+    const color = arg2 !== undefined ? arg2 : arg1;
+    const meta = makeMeta('project set-color', icpPath ?? '', start);
+    try {
+      const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
+      meta.projectPath = resolvedPath;
+      const colorResult = await coreSetProjectColor(nodeIo, resolvedPath, color);
+      meta.duration_ms = Date.now() - start;
+      const result = jsonOutput(colorResult, meta);
+      printResult(result, jsonMode);
+      if (!jsonMode) {
+        if (colorResult.newColor === null) {
+          console.log('Project color cleared');
+        } else {
+          console.log(`Project color: ${colorResult.newColor}`);
+        }
       }
     } catch (err: any) {
       meta.duration_ms = Date.now() - start;
@@ -612,10 +682,11 @@ icon
 
 icon
   .command('delete <idsOrIcp...>')
+  .option('--permanent', 'Permanently remove the icons and their variants (irreversible)')
   .description(
-    'Soft-delete one or more icons by UUID. Icons are moved to the internal "resource-deleted" group (not permanently removed). Variant icons are cascade-deleted (hard delete) when their parent is deleted. The project is saved after deletion.'
+    'Delete one or more icons by UUID. Default is a soft delete: icons are moved to the internal "resource-deleted" group (not permanently removed) and their variant icons are cascade-deleted (hard delete). With --permanent the icons AND their variants are removed from the database entirely. The project is saved after deletion.'
   )
-  .action(async (args: string[]) => {
+  .action(async (args: string[], opts: { permanent?: boolean }) => {
     const start = Date.now();
     const jsonMode = program.opts().json;
     let icpPath: string | undefined;
@@ -630,12 +701,18 @@ icon
     try {
       const resolvedPath = await resolveProjectOrExit(icpPath, start, jsonMode, meta);
       meta.projectPath = resolvedPath;
-      const deleteResult = await coreDeleteIcons(nodeIo, resolvedPath, ids);
+      const deleteResult = await coreDeleteIcons(nodeIo, resolvedPath, ids, {
+        permanent: opts.permanent,
+      });
       meta.duration_ms = Date.now() - start;
       const result = jsonOutput(deleteResult, meta);
       printResult(result, jsonMode);
       if (!jsonMode) {
-        console.log(`Deleted ${deleteResult.deleted} icon(s)`);
+        console.log(
+          opts.permanent
+            ? `Permanently deleted ${deleteResult.deleted} icon(s)`
+            : `Deleted ${deleteResult.deleted} icon(s)`
+        );
       }
     } catch (err: any) {
       meta.duration_ms = Date.now() - start;

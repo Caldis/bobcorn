@@ -558,3 +558,71 @@ describe('group delete', () => {
     expect(json.code).toBe('GROUP_NOT_FOUND');
   });
 });
+
+// ---------------------------------------------------------------------------
+// project set-description
+// ---------------------------------------------------------------------------
+describe('project set-description', () => {
+  let cleanup: (() => Promise<void>) | undefined;
+
+  afterEach(async () => {
+    if (cleanup) {
+      await cleanup();
+      cleanup = undefined;
+    }
+  });
+
+  it('sets and clears the project description', async () => {
+    const tmp = await tmpProject();
+    cleanup = tmp.cleanup;
+
+    const icpPath = join(tmp.dir, 'test.icp');
+    await run(['project', 'create', icpPath]);
+
+    const { json, raw } = await runJson(['project', 'set-description', icpPath, 'my icon set']);
+    expect(raw.exitCode).toBe(0);
+    expect(json.ok).toBe(true);
+    expect(json.data.oldDescription).toBeNull();
+    expect(json.data.newDescription).toBe('my icon set');
+
+    // Empty string clears (stored as NULL)
+    const { json: clearJson } = await runJson(['project', 'set-description', icpPath, '']);
+    expect(clearJson.ok).toBe(true);
+    expect(clearJson.data.oldDescription).toBe('my icon set');
+    expect(clearJson.data.newDescription).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// project set-color
+// ---------------------------------------------------------------------------
+describe('project set-color', () => {
+  let cleanup: (() => Promise<void>) | undefined;
+
+  afterEach(async () => {
+    if (cleanup) {
+      await cleanup();
+      cleanup = undefined;
+    }
+  });
+
+  it('sets and clears the project color override', async () => {
+    const tmp = await tmpProject();
+    cleanup = tmp.cleanup;
+
+    const icpPath = join(tmp.dir, 'test.icp');
+    await run(['project', 'create', icpPath]);
+
+    const { json, raw } = await runJson(['project', 'set-color', icpPath, '#FF8800']);
+    expect(raw.exitCode).toBe(0);
+    expect(json.ok).toBe(true);
+    expect(json.data.oldColor).toBeNull();
+    expect(json.data.newColor).toBe('#FF8800');
+
+    // Empty string clears (stored as NULL)
+    const { json: clearJson } = await runJson(['project', 'set-color', icpPath, '']);
+    expect(clearJson.ok).toBe(true);
+    expect(clearJson.data.oldColor).toBe('#FF8800');
+    expect(clearJson.data.newColor).toBeNull();
+  });
+});

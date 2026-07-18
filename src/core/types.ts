@@ -49,6 +49,10 @@ export interface ProjectAttributes {
   projectName: string;
   /** Human-readable project name (user-facing). Optional; falls back to projectName. */
   displayName?: string;
+  /** Project description text (user-facing notes). Optional. */
+  description?: string;
+  /** Project avatar color override (hex string). Optional. */
+  projectColor?: string;
   createTime?: string;
   updateTime?: string;
 }

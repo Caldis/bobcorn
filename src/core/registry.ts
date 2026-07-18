@@ -82,6 +82,22 @@ export const OPERATIONS: OpEntry[] = [
     cliCommand: 'project set-prefix',
   },
   {
+    id: 'project.set-description',
+    description: 'Set project description text (empty string clears)',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/project.ts#setProjectDescription',
+    legacyPaths: ['src/renderer/components/SideMenu/ProjectSettingsDialog.tsx'],
+    cliCommand: 'project set-description',
+  },
+  {
+    id: 'project.set-color',
+    description: 'Set project avatar color override (hex, empty string clears)',
+    status: OpStatus.Core,
+    corePath: 'src/core/operations/project.ts#setProjectColor',
+    legacyPaths: ['src/renderer/components/SideMenu/ProjectSettingsDialog.tsx'],
+    cliCommand: 'project set-color',
+  },
+  {
     id: 'project.reset',
     description: 'Reset project to empty state (clear all icons and groups)',
     status: OpStatus.Legacy,
@@ -134,7 +150,8 @@ export const OPERATIONS: OpEntry[] = [
   },
   {
     id: 'icon.delete',
-    description: 'Delete icon(s) with variant-safe cascade (batch)',
+    description:
+      'Delete icon(s) with variant-safe cascade (batch). Default is a soft delete (moved to resource-deleted); --permanent removes the rows entirely',
     status: OpStatus.Core,
     corePath: 'src/core/operations/icon.ts#deleteIcons',
     legacyPaths: [

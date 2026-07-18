@@ -8,7 +8,7 @@ import type { IoAdapter } from '../io';
 import type { GroupData } from '../types';
 import { openProject, saveProject } from '../database';
 import { PUA_MIN, PUA_MAX } from '../code-allocation';
-import crypto from 'crypto';
+import { generateUUID } from '../uuid';
 
 // ---------------------------------------------------------------------------
 // List
@@ -69,7 +69,7 @@ export async function addGroup(
       throw new Error(`Group already exists: ${finalName}`);
     }
 
-    const id = crypto.randomUUID();
+    const id = generateUUID();
     const result = db.addGroup(id, finalName);
     await saveProject(io, resolvedPath, db);
 

@@ -7,7 +7,7 @@
 import type { IoAdapter } from '../io';
 import type { IconData, CodeAllocationMode } from '../types';
 import { openProject, saveProject, type IconCodeFix } from '../database';
-import crypto from 'crypto';
+import { generateUUID } from '../uuid';
 
 /** Environment-agnostic byte length (avoids Node-only Buffer) */
 const textEncoder = new TextEncoder();
@@ -121,7 +121,7 @@ export async function importIcons(
       const content = uint8ToString(data);
       const sanitized = sanitizeSvgForCli(content);
 
-      const id = crypto.randomUUID();
+      const id = generateUUID();
       // Allocate inside the target group's declared range when it has one.
       const iconCode = db.getNewIconCode(opts?.codeMode, targetGroupId);
       const iconName = io.basename(svgPath, io.extname(svgPath));
@@ -158,17 +158,20 @@ export interface DeleteResult {
 }
 
 /**
- * Soft-delete icons by moving them to the 'resource-deleted' group.
- * Variants are cascade-deleted (hard delete).
+ * Delete icons. Default (soft): move them to the 'resource-deleted' group,
+ * cascade-deleting variants (hard delete). With opts.permanent the icons AND
+ * their variants are removed from the database entirely (irreversible).
  *
  * @param io - File system adapter
  * @param projectPath - Path to the .icp file
  * @param ids - Icon UUIDs to delete
+ * @param opts - Optional: permanent for hard delete (default false = soft)
  */
 export async function deleteIcons(
   io: IoAdapter,
   projectPath: string,
-  ids: string[]
+  ids: string[],
+  opts?: { permanent?: boolean }
 ): Promise<DeleteResult> {
   const resolvedPath = io.resolve(projectPath);
   const db = await openProject(io, resolvedPath);
@@ -183,7 +186,11 @@ export async function deleteIcons(
       }
     }
 
-    db.deleteIcons(validIds);
+    if (opts?.permanent) {
+      db.permanentDeleteIcons(validIds);
+    } else {
+      db.softDeleteIcons(validIds);
+    }
     await saveProject(io, resolvedPath, db);
 
     return { deleted: validIds.length, ids: validIds };

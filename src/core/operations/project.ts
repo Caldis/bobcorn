@@ -162,3 +162,75 @@ export async function setProjectName(
     db.close();
   }
 }
+
+// ---------------------------------------------------------------------------
+// Set Description
+// ---------------------------------------------------------------------------
+
+export interface SetProjectDescriptionResult {
+  oldDescription: string | null;
+  newDescription: string | null;
+}
+
+/**
+ * Set the project description text (user-facing notes).
+ * Pass an empty string to clear the description (stored as NULL).
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param description - New description text ('' clears)
+ */
+export async function setProjectDescription(
+  io: IoAdapter,
+  projectPath: string,
+  description: string
+): Promise<SetProjectDescriptionResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const oldDescription = db.getProjectDescription();
+    db.setProjectDescription(description || null);
+    await saveProject(io, resolvedPath, db);
+
+    return { oldDescription, newDescription: description || null };
+  } finally {
+    db.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Set Color
+// ---------------------------------------------------------------------------
+
+export interface SetProjectColorResult {
+  oldColor: string | null;
+  newColor: string | null;
+}
+
+/**
+ * Set the project avatar color override (hex string, e.g. "#FF8800").
+ * Pass an empty string to clear the override (stored as NULL).
+ *
+ * @param io - File system adapter
+ * @param projectPath - Path to the .icp file
+ * @param color - New color value ('' clears)
+ */
+export async function setProjectColor(
+  io: IoAdapter,
+  projectPath: string,
+  color: string
+): Promise<SetProjectColorResult> {
+  const resolvedPath = io.resolve(projectPath);
+  const db = await openProject(io, resolvedPath);
+
+  try {
+    const oldColor = db.getProjectColor();
+    db.setProjectColor(color || null);
+    await saveProject(io, resolvedPath, db);
+
+    return { oldColor, newColor: color || null };
+  } finally {
+    db.close();
+  }
+}

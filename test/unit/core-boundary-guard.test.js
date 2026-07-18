@@ -118,6 +118,77 @@ describe('Core boundary guard', () => {
     }
   });
 
+  test('renderer must not import the core database barrel or lifecycle', () => {
+    const rendererDir = join(__dirname, '../../src/renderer');
+    const rendererFiles = walk(rendererDir);
+    // The core database barrel re-exports lifecycle, which owns
+    // require('sql.js/dist/sql-asm.js') and file I/O — importing it from the
+    // renderer would drag Node-only loading into the browser bundle.
+    // Renderer-safe deep paths are allowed: @core/database/project-db and
+    // @core/database/safe-stmt.
+    const barrelImport =
+      /['"](?:@core\/database|[^'"]*\/core\/database)['"]/; // exact barrel specifier (no deep path)
+    const lifecycleImport = /['"][^'"]*core\/database\/lifecycle['"]/;
+    const violations = [];
+
+    for (const file of rendererFiles) {
+      const rel = relative(join(__dirname, '../..'), file).replace(/\\/g, '/');
+      const content = readFileSync(file, 'utf8');
+      content.split('\n').forEach((line, i) => {
+        if (line.trimStart().startsWith('//') || line.trimStart().startsWith('*')) return;
+        if (barrelImport.test(line) || lifecycleImport.test(line)) {
+          violations.push(`${rel}:${i + 1}: ${line.trim()}`);
+        }
+      });
+    }
+
+    expect(
+      violations,
+      `Renderer imports the core database barrel or lifecycle (Node-only):\n${violations.join('\n')}\n\n` +
+        `Import '@core/database/project-db' (ProjectDb + sql.js types) or ` +
+        `'@core/database/safe-stmt' instead — never the barrel or lifecycle.`,
+    ).toEqual([]);
+  });
+
+  test('no Node builtin imports in ProjectDb or core commands (renderer-safe modules)', () => {
+    // These modules must stay importable from the renderer: zero Node builtins
+    // (import OR require form). Lifecycle concerns (fs/path/sql.js loading)
+    // belong in src/core/database/lifecycle.ts.
+    const targets = [join(__dirname, '../../src/core/database/project-db.ts')];
+    try {
+      targets.push(...walk(join(__dirname, '../../src/core/commands')));
+    } catch {
+      // src/core/commands does not exist yet — empty glob passes
+    }
+    const nodeBuiltinImport =
+      /(?:from\s+['"](?:node:)?(?:crypto|fs|path|os|child_process)(?:\/[^'"]*)?['"]|require\(\s*['"](?:node:)?(?:crypto|fs|path|os|child_process)(?:\/[^'"]*)?['"]\s*\))/;
+    const violations = [];
+
+    for (const file of targets) {
+      let content;
+      try {
+        content = readFileSync(file, 'utf8');
+      } catch {
+        continue; // file might not exist yet
+      }
+      const rel = relative(join(__dirname, '../..'), file).replace(/\\/g, '/');
+      content.split('\n').forEach((line, i) => {
+        if (line.trimStart().startsWith('//') || line.trimStart().startsWith('*')) return;
+        if (nodeBuiltinImport.test(line)) {
+          violations.push(`${rel}:${i + 1}: ${line.trim()}`);
+        }
+      });
+    }
+
+    expect(
+      violations,
+      `Node builtin import(s) found in renderer-safe core modules:\n${violations.join('\n')}\n\n` +
+        `ProjectDb and core commands must be environment-agnostic. Use ` +
+        `src/core/uuid.ts for UUIDs and route file I/O through IoAdapter in ` +
+        `src/core/database/lifecycle.ts.`,
+    ).toEqual([]);
+  });
+
   test('approved legacy list matches actual database importers', () => {
     const rendererDir = join(__dirname, '../../src/renderer');
     const rendererFiles = walk(rendererDir);
