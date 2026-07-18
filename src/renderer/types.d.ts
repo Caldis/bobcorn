@@ -20,90 +20,11 @@ declare module '*.jpg' {
   export default src;
 }
 
-interface ElectronAPI {
-  // Window controls
-  windowMinimize: () => void;
-  windowMaximize: () => void;
-  windowClose: () => void;
-  windowSetAlwaysOnTop: (flag: boolean) => void;
-  windowIsMaximized: () => boolean;
-  onMaximizedChange: (callback: (maximized: boolean, border: number) => void) => () => void;
-
-  // Dialogs (via IPC to main process)
-  showOpenDialog: (options: any) => Promise<{ canceled: boolean; filePaths: string[] }>;
-  showSaveDialog: (options: any) => Promise<{ canceled: boolean; filePath?: string }>;
-
-  // App paths
-  getAppPath: (name: string) => string;
-
-  // File system
-  readFileSync: {
-    (filePath: string, encoding: BufferEncoding): string;
-    (filePath: string): Uint8Array;
-  };
-  writeFileSync: (filePath: string, data: string | Uint8Array) => void;
-  writeFile: (filePath: string, data: string | Uint8Array) => Promise<void>;
-  existsSync: (filePath: string) => boolean;
-  statSync: (filePath: string) => { size: number; isFile: boolean; isDirectory: boolean };
-  accessSync: (filePath: string) => boolean;
-  mkdirSync: (dirPath: string, options?: { recursive?: boolean }) => void;
-
-  // Path utilities
-  pathJoin: (...args: string[]) => string;
-  pathResolve: (...args: string[]) => string;
-  pathBasename: (p: string, ext?: string) => string;
-  pathExtname: (p: string) => string;
-  pathDirname: (p: string) => string;
-
-  // OS
-  platform: string;
-
-  // Shell
-  openPath: (fullPath: string) => Promise<string>;
-  openExternal: (url: string) => Promise<void>;
-
-  // Screen color picker
-  pickScreenColor: () => Promise<string>;
-
-  // Auto-update
-  onUpdateChecking: (callback: () => void) => () => void;
-  onUpdateAvailable: (
-    callback: (info: { version: string; releaseNotes?: string }) => void
-  ) => () => void;
-  onUpdateNotAvailable: (callback: () => void) => () => void;
-  onUpdateProgress: (callback: (info: { percent: number }) => void) => () => void;
-  onUpdateDownloaded: (callback: () => void) => () => void;
-  onUpdateError: (callback: (info: { message: string }) => void) => () => void;
-  installUpdate: () => void;
-  checkForUpdate: () => void;
-  downloadUpdate: () => void;
-  setUpdateChannel: (channel: 'stable' | 'beta') => void;
-  syncUpdatePreferences: (prefs: {
-    autoCheckUpdate: boolean;
-    autoDownloadUpdate: boolean;
-    updateChannel: 'stable' | 'beta';
-  }) => void;
-
-  // Menu IPC (main → renderer)
-  onMenuNewProject: (callback: () => void) => () => void;
-  onMenuOpenProject: (callback: () => void) => () => void;
-  onMenuImportIcons: (callback: () => void) => () => void;
-  onMenuSave: (callback: () => void) => () => void;
-  onMenuSaveAs: (callback: () => void) => () => void;
-  onMenuExportFonts: (callback: () => void) => () => void;
-
-  // File association (main → renderer)
-  onOpenFile: (callback: (filePath: string) => void) => () => void;
-
-  // Close guard (main → renderer, renderer → main)
-  onConfirmClose: (callback: () => void) => () => void;
-  confirmClose: () => void;
-  closeCancelled: () => void;
-}
-
 declare global {
   interface Window {
-    electronAPI: ElectronAPI;
+    // Single-sourced from the preload script — the object actually exposed
+    // via contextBridge. See src/preload/index.ts `export type ElectronAPI`.
+    electronAPI: import('../preload/index').ElectronAPI;
   }
 }
 

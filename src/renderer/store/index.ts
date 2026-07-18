@@ -379,10 +379,10 @@ const useAppStore = create<State & Actions>((set, get) => ({
     setOption({ currentFilePath: path });
     // Sync project context for analytics
     if (path) {
-      const projectName = (window as any).electronAPI.pathBasename(path, '.icp');
-      (window as any).electronAPI.analyticsSetProject(projectName);
+      const projectName = window.electronAPI.pathBasename(path, '.icp');
+      window.electronAPI.analyticsSetProject(projectName);
     } else {
-      (window as any).electronAPI.analyticsSetProject(null);
+      window.electronAPI.analyticsSetProject(null);
     }
   },
   markDirty: () => {
@@ -408,7 +408,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
   // Analytics actions
   setAnalyticsConsent: (basic: boolean, detailed: boolean) => {
     set({ analyticsBasicEnabled: basic, analyticsDetailedEnabled: detailed });
-    (window as any).electronAPI.analyticsUpdateConsent({
+    window.electronAPI.analyticsUpdateConsent({
       basicEnabled: basic,
       detailedEnabled: detailed,
     });
@@ -416,13 +416,13 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   markConsentShown: () => {
     set({ analyticsConsentShown: true });
-    (window as any).electronAPI.analyticsUpdateConsent({
+    window.electronAPI.analyticsUpdateConsent({
       consentShownAt: new Date().toISOString(),
     });
   },
 
   loadAnalyticsConsent: async () => {
-    const consent = await (window as any).electronAPI.analyticsGetConsent();
+    const consent = await window.electronAPI.analyticsGetConsent();
     set({
       analyticsBasicEnabled: consent.basicEnabled,
       analyticsDetailedEnabled: consent.detailedEnabled,
@@ -512,7 +512,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
  * Import this instead of calling electronAPI directly.
  */
 export function analyticsTrack(event: string, params?: Record<string, unknown>): void {
-  (window as any).electronAPI.analyticsTrack(event, params);
+  window.electronAPI.analyticsTrack(event, params);
 }
 
 export default useAppStore;

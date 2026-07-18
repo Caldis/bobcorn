@@ -12,7 +12,7 @@ Run `node scripts/migration-status.js` to see the latest status.
 
 1. Find the operation in `src/core/registry.ts`, update status to `Migrating`
 2. Create/update the operation function in `src/core/operations/<domain>.ts`
-3. The operation receives `IoAdapter` (and `CanvasAdapter` if needed) -- never import `fs`, `path`, `window`, or `electronAPI`
+3. The operation receives `IoAdapter` -- never import `fs`, `path`, `window`, or `electronAPI`
 4. Update the store action to be a thin wrapper: call core operation -> update Zustand UI state
 5. Update components that called `db.*` directly to go through the store action
 6. Add/update the CLI command in `src/cli/commands/<domain>.ts`
@@ -33,7 +33,6 @@ Run `node scripts/migration-status.js` to see the latest status.
 ```
 src/core/            <-- Pure operations (no browser/Node deps)
   io.ts              IoAdapter interface (filesystem abstraction)
-  canvas.ts          CanvasAdapter interface (image abstraction)
   types.ts           Shared domain types
   registry.ts        Operation status registry
   operations/        Operation implementations

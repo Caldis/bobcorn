@@ -7,7 +7,6 @@
 
 // Adapter interfaces
 export type { IoAdapter } from './io';
-export type { CanvasAdapter, CanvasLike, CanvasContext2D, ImageLike } from './canvas';
 
 // Shared types
 export type {

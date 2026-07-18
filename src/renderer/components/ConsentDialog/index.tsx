@@ -160,7 +160,7 @@ export default function ConsentDialog() {
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                (window as any).electronAPI.openExternal('https://bobcorn.caldis.me/privacy.html');
+                window.electronAPI.openExternal('https://bobcorn.caldis.me/privacy.html');
               }}
               className="text-accent hover:text-accent/80 transition-colors"
             >

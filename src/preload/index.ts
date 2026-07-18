@@ -9,7 +9,21 @@ ipcRenderer.on('updater-debug', (_event: IpcRendererEvent, msg: string) => {
   console.log('%c' + msg, 'color: #60a5fa; font-weight: bold');
 });
 
-contextBridge.exposeInMainWorld('electronAPI', {
+// readFileSync keeps explicit overloads so call sites get `string` when an
+// encoding is passed and `Uint8Array` when it is omitted.
+const readFileSync = ((filePath: string, encoding?: BufferEncoding) => {
+  if (encoding) {
+    return fs.readFileSync(filePath, encoding);
+  }
+  // Return a copy of the Buffer data as Uint8Array (structured-cloneable)
+  const buf = fs.readFileSync(filePath);
+  return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+}) as {
+  (filePath: string, encoding: BufferEncoding): string;
+  (filePath: string): Uint8Array;
+};
+
+const api = {
   // Window controls
   windowMinimize: (): void => ipcRenderer.send('window-minimize'),
   windowMaximize: (): void => ipcRenderer.send('window-maximize'),
@@ -25,21 +39,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
 
   // Dialogs (via IPC to main process)
-  showOpenDialog: (options: OpenDialogOptions) => ipcRenderer.invoke('dialog-show-open', options),
-  showSaveDialog: (options: SaveDialogOptions) => ipcRenderer.invoke('dialog-show-save', options),
+  showOpenDialog: (
+    options: OpenDialogOptions
+  ): Promise<{ canceled: boolean; filePaths: string[] }> =>
+    ipcRenderer.invoke('dialog-show-open', options),
+  showSaveDialog: (options: SaveDialogOptions): Promise<{ canceled: boolean; filePath?: string }> =>
+    ipcRenderer.invoke('dialog-show-save', options),
 
   // App paths
   getAppPath: (name: string): string => ipcRenderer.sendSync('get-app-path', name),
 
   // File system
-  readFileSync: (filePath: string, encoding?: BufferEncoding): string | Uint8Array => {
-    if (encoding) {
-      return fs.readFileSync(filePath, encoding);
-    }
-    // Return a copy of the Buffer data as Uint8Array (structured-cloneable)
-    const buf = fs.readFileSync(filePath);
-    return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
-  },
+  readFileSync,
   writeFileSync: (filePath: string, data: string | NodeJS.ArrayBufferView): void =>
     fs.writeFileSync(filePath, data),
   writeFile: (filePath: string, data: string | NodeJS.ArrayBufferView): Promise<void> => {
@@ -236,6 +247,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     code?: string;
     path?: string;
     needsRestart?: boolean;
+    commandName?: string;
   }> => ipcRenderer.invoke('cli-install'),
   cliUninstall: (): Promise<{ success: boolean; message: string; code?: string }> =>
     ipcRenderer.invoke('cli-uninstall'),
@@ -249,4 +261,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.removeListener('request-language', handler);
     };
   },
-});
+};
+
+contextBridge.exposeInMainWorld('electronAPI', api);
+
+// Single source of truth for the renderer-side `window.electronAPI` type.
+// Consumed by src/renderer/types.d.ts via `import('../preload/index').ElectronAPI`.
+export type ElectronAPI = typeof api;

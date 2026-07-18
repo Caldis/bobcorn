@@ -549,7 +549,7 @@ const SideEditor = React.memo(function SideEditor({
   const handleEyeDropper = useCallback(async () => {
     try {
       isPickingRef.current = true;
-      const hex = await (window as any).electronAPI.pickScreenColor();
+      const hex = await window.electronAPI.pickScreenColor();
       isPickingRef.current = false;
       if (hex) {
         applyColor(hex);

@@ -81,7 +81,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
     }
     setCliStatus('checking');
     try {
-      const result = await (window as any).electronAPI.cliDetectStatus(force);
+      const result = await window.electronAPI.cliDetectStatus(force);
       const commandName = result.commandName || 'bobcorn';
       const status: 'installed' | 'not-installed' = result.installed
         ? 'installed'
@@ -110,7 +110,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const handleCliInstall = async () => {
     setCliActionPending(true);
     try {
-      const result = await (window as any).electronAPI.cliInstall();
+      const result = await window.electronAPI.cliInstall();
       if (result.success) {
         if (result.commandName) setCliCommandName(result.commandName);
         message.success(t('settings.cli.installSuccess'));
@@ -134,7 +134,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const handleCliUninstall = async () => {
     setCliActionPending(true);
     try {
-      const result = await (window as any).electronAPI.cliUninstall();
+      const result = await window.electronAPI.cliUninstall();
       if (result.success) {
         setCliShowRestartHint(false);
         await detectCliStatus(true);
@@ -150,7 +150,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
   const syncPrefsToMain = (updates: Partial<OptionData>) => {
     setOption(updates);
     const current = getOption() as OptionData;
-    (window as any).electronAPI.syncUpdatePreferences({
+    window.electronAPI.syncUpdatePreferences({
       autoCheckUpdate: current.autoCheckUpdate,
       autoDownloadUpdate: current.autoDownloadUpdate,
       updateChannel: current.updateChannel,
@@ -162,11 +162,11 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
       localStorage.removeItem('language');
       const sysLng = navigator.language.startsWith('zh') ? 'zh-CN' : navigator.language;
       i18n.changeLanguage(sysLng);
-      (window as any).electronAPI.languageChanged(sysLng);
+      window.electronAPI.languageChanged(sysLng);
     } else {
       localStorage.setItem('language', val);
       i18n.changeLanguage(val);
-      (window as any).electronAPI.languageChanged(val);
+      window.electronAPI.languageChanged(val);
     }
     analyticsTrack('settings.change', { setting: 'language', value: val });
   };
@@ -361,7 +361,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                     onClick={() => {
                       setChannel(ch);
                       syncPrefsToMain({ updateChannel: ch });
-                      (window as any).electronAPI.setUpdateChannel(ch);
+                      window.electronAPI.setUpdateChannel(ch);
                       analyticsTrack('settings.change', { setting: 'channel', value: ch });
                     }}
                     className={cn(
@@ -384,25 +384,25 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                   const cleanups: (() => void)[] = [];
                   const cleanup = () => cleanups.forEach((fn) => fn());
                   cleanups.push(
-                    (window as any).electronAPI.onUpdateAvailable(() => {
+                    window.electronAPI.onUpdateAvailable(() => {
                       cleanup();
                       message.success(t('update.foundNewVersion'));
                       onClose();
                     })
                   );
                   cleanups.push(
-                    (window as any).electronAPI.onUpdateNotAvailable(() => {
+                    window.electronAPI.onUpdateNotAvailable(() => {
                       cleanup();
                       message.info(t('update.alreadyLatest'));
                     })
                   );
                   cleanups.push(
-                    (window as any).electronAPI.onUpdateError(() => {
+                    window.electronAPI.onUpdateError(() => {
                       cleanup();
                       message.error(t('update.checkFailed'));
                     })
                   );
-                  (window as any).electronAPI.checkForUpdate();
+                  window.electronAPI.checkForUpdate();
                   analyticsTrack('settings.change', { setting: 'checkNow' });
                 }}
                 className={cn(
@@ -455,7 +455,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   const lang = WIKI_LANG_MAP[i18n.language] || 'en';
-                  (window as any).electronAPI.openExternal(
+                  window.electronAPI.openExternal(
                     `https://bobcorn.caldis.me/wiki/${lang}/cli-setup.html`
                   );
                 }}
@@ -515,9 +515,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
             onClick={(e) => {
               e.preventDefault();
               const lang = WIKI_LANG_MAP[i18n.language] || 'en';
-              (window as any).electronAPI.openExternal(
-                `https://bobcorn.caldis.me/wiki/${lang}/cli.html`
-              );
+              window.electronAPI.openExternal(`https://bobcorn.caldis.me/wiki/${lang}/cli.html`);
             }}
             className={cn(
               'flex items-center justify-between mt-2 px-3 py-2 rounded-md cursor-pointer',
@@ -626,9 +624,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  (window as any).electronAPI.openExternal(
-                    'https://bobcorn.caldis.me/privacy.html'
-                  );
+                  window.electronAPI.openExternal('https://bobcorn.caldis.me/privacy.html');
                 }}
                 className="text-accent hover:text-accent/80 transition-colors duration-150 cursor-pointer"
               >
@@ -653,7 +649,7 @@ function SettingsDialog({ visible, onClose }: SettingsDialogProps) {
                 href="https://bobcorn.caldis.me/"
                 onClick={(e) => {
                   e.preventDefault();
-                  (window as any).electronAPI.openExternal('https://bobcorn.caldis.me/');
+                  window.electronAPI.openExternal('https://bobcorn.caldis.me/');
                 }}
                 className="text-accent hover:text-accent/80 transition-colors duration-150 cursor-pointer"
               >
