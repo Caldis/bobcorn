@@ -129,6 +129,72 @@ describe('planMoveIcons / moveIcons', () => {
     expect(db.getIcon(id)!.iconCode).toBe('E000'); // 现状语义: 照常移动不改码
     db.close();
   });
+
+  // ── renderer 委托路径 (Stage C 簇③): 回收/恢复与无区间目标语义 ──
+
+  test('recycle → restore round-trip keeps codes and brings variants back', async () => {
+    const db = await createEmptyProject('test');
+    const parent = insertIcon(db, 'E000');
+    const variant = insertVariant(db, parent, 'E001');
+
+    // 回收 (renderer moveIcon(s)WithVariants → 'resource-recycleBin', 开着 reassign 也不改码)
+    const toBin = moveIcons(db, [parent], 'resource-recycleBin', { reassignOutOfRange: true });
+    expect(toBin.moved).toBe(1);
+    expect(toBin.reassigned).toEqual([]); // resource-* 虚拟组无区间 → 不重分配
+    expect(db.getIcon(parent)!.iconGroup).toBe('resource-recycleBin');
+    expect(db.getIcon(variant)!.iconGroup).toBe('resource-recycleBin');
+
+    // 恢复 (handleCtxRestore → 'resource-uncategorized')
+    const restored = moveIcons(db, [parent], 'resource-uncategorized');
+    expect(restored.moved).toBe(1);
+    expect(restored.reassigned).toEqual([]);
+    expect(db.getIcon(parent)!.iconGroup).toBe('resource-uncategorized');
+    expect(db.getIcon(variant)!.iconGroup).toBe('resource-uncategorized');
+    expect(db.getIcon(parent)!.iconCode).toBe('E000'); // 全程码不变
+    expect(db.getIcon(variant)!.iconCode).toBe('E001');
+    db.close();
+  });
+
+  test('restore into the original ranged group keeps in-range codes as-is', async () => {
+    const db = await createEmptyProject('test');
+    const g = uid();
+    db.addGroup(g, 'Ranged');
+    db.setGroupCodeRange(g, dec('E100'), dec('E1FF'));
+    const id = insertIcon(db, 'E100', g);
+
+    moveIcons(db, [id], 'resource-recycleBin');
+    const restored = moveIcons(db, [id], g, { reassignOutOfRange: true });
+    expect(restored.reassigned).toEqual([]); // 码本就在区间内 → 恢复到原组不改码
+    expect(db.getIcon(id)!.iconGroup).toBe(g);
+    expect(db.getIcon(id)!.iconCode).toBe('E100');
+    db.close();
+  });
+
+  test('moveIcons executes the resource-all normalization (not just the plan)', async () => {
+    const db = await createEmptyProject('test');
+    const g = uid();
+    db.addGroup(g, 'Plain');
+    const id = insertIcon(db, 'E000', g);
+
+    const outcome = moveIcons(db, [id], 'resource-all');
+    expect(outcome.moved).toBe(1);
+    expect(db.getIcon(id)!.iconGroup).toBe('resource-uncategorized');
+    db.close();
+  });
+
+  test('unranged group target with reassignOutOfRange leaves codes untouched', async () => {
+    const db = await createEmptyProject('test');
+    const g = uid();
+    db.addGroup(g, 'NoRange');
+    const id = insertIcon(db, 'E777');
+
+    const outcome = moveIcons(db, [id], g, { reassignOutOfRange: true });
+    expect(outcome.reassigned).toEqual([]);
+    expect(warningOf(outcome.warnings, 'codes-reassigned')).toBeUndefined();
+    expect(db.getIcon(id)!.iconGroup).toBe(g);
+    expect(db.getIcon(id)!.iconCode).toBe('E777');
+    db.close();
+  });
 });
 
 // ---------------------------------------------------------------------------

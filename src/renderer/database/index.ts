@@ -15,16 +15,18 @@ import {
 // 深路径 import 是 renderer-safe 的 (纯包装, 无 Node builtin) — 见 core-boundary-guard。
 // eslint-disable-next-line no-restricted-imports -- Stage C strangler delegation target; deep path is renderer-safe, see test/unit/core-boundary-guard.test.js
 import { ProjectDb } from '@core/database/project-db';
+// Stage C 簇③: 删除/移动/复制/替换写方法委托 commands 纯命令体 (renderer-safe, 无 Node builtin —
+// 见 test/unit/core-boundary-guard.test.js 的 commands 守门)
+import {
+  moveIcons as commandMoveIcons,
+  deleteIcons as commandDeleteIcons,
+  copyIcons as commandCopyIcons,
+  replaceIconContent as commandReplaceIconContent,
+} from '@core/commands';
 // Config
 import config, { getOption } from '../config';
 // Shared icon-code allocation — single source of truth with the CLI (core)
-import {
-  planRangeReassignments,
-  highestUsedInRange,
-  PUA_MIN,
-  PUA_MAX,
-  type CodeRange,
-} from '@core/code-allocation';
+import { highestUsedInRange, PUA_MIN, PUA_MAX, type CodeRange } from '@core/code-allocation';
 // Utils
 import {
   generateUUID,
@@ -156,6 +158,17 @@ interface SqlJsQueryResult {
 const projectAttributes = 'projectAttributes';
 const groupData = 'groupData';
 const iconData = 'iconData';
+
+// 分配模式跟随设置 codeAllocationMode (localStorage — core 不读浏览器状态)。
+// 模块级辅助 (0 缩进) — 不进入 parity 冻结的类方法面; 委托 commands 的写方法
+// (move/copy) 经此把壳层职责 (读设置) 转译为 command 的 codeMode 参数。
+function currentCodeMode(): 'append' | 'fill' {
+  try {
+    return ((getOption('codeAllocationMode') as string) || 'append') === 'fill' ? 'fill' : 'append';
+  } catch {
+    return 'append'; // localStorage 不可用时用默认
+  }
+}
 
 class Database {
   dbInited: boolean;
@@ -1071,8 +1084,12 @@ class Database {
   };
   delIcon = (id: string, callback?: () => void): void => {
     dev && console.log('delIcon');
-    const targetDataSet: DataSet = { id: sf(id) };
-    this.delDataOfTable(iconData, targetDataSet, { all: false }, callback);
+    // 委托 commands.deleteIcons 'permanent' (父+变体硬删)。原体只删本行 — 唯一真实调用方
+    // (VariantPanel, variant-guard 豁免项) 删的是变体行, 变体无子变体, 数据层面等价。
+    commandDeleteIcons(this.coreDb!, [id], 'permanent');
+    // 写路径插桩留在壳层 — 时机与原 delDataOfTable 相同: 写后、callback 前
+    this.notifyMutation();
+    callback && callback();
   };
   // 获取所有图标数
   getIconCount = (): number => {
@@ -1288,46 +1305,49 @@ class Database {
   };
   moveIconGroup = (id: string, targetGroup: string, callback?: () => void): void => {
     dev && console.log('moveIconGroup');
-    const targetDataSet: DataSet = { id: sf(id) };
-    // 如果移动到all分组, 则转换为加入未分类分组
-    const dataSet: DataSet = {
-      iconGroup: sf(targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup),
-    };
-    this.setDataOfTable(iconData, targetDataSet, dataSet, callback);
-    // notifyMutation auto-fired by setDataOfTable
+    // 委托 commands.moveIcons ('resource-all' 归一化一致; 无区间目标不改码)。
+    // 语义统一: 原体只移父行不带变体, command 恒级联变体 — variant-guard 禁止组件直接
+    // 调用本方法 (唯一豁免是 delIcon), 无真实调用方依赖不带变体语义, 故随 command 统一。
+    commandMoveIcons(this.coreDb!, [id], targetGroup);
+    // 写路径插桩 (dirty 标记) 留在壳层 — 时机与原 setDataOfTable 相同: 写后、callback 前
+    this.notifyMutation();
+    callback && callback();
   };
   duplicateIconGroup = (id: string, targetGroup: string, callback?: () => void): void => {
     dev && console.log('duplicateIconGroup');
-    const sourceIconData = this.getIconData(id);
-    const dupGroup = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
-    const dataSet: DataSet = {
-      id: sf(generateUUID()),
-      iconCode: sf(this.requireNewIconCode(dupGroup)),
-      iconName: sf(sourceIconData.iconName),
-      iconGroup: sf(dupGroup),
-      iconSize: sourceIconData.iconSize,
-      iconType: sf(sourceIconData.iconType),
-      iconContent: sf(sourceIconData.iconContent),
-      iconContentOriginal: sf(this.getOriginalContent(sourceIconData)),
-    };
-    this.addDataToTable(iconData, dataSet, callback);
-    // notifyMutation auto-fired by addDataToTable
+    // 委托 commands.copyIcons (单 id): 新 UUID + 目标组区间内分配新码 (分配模式跟随设置),
+    // 复制 iconName/iconSize/iconType/iconContent, iconContentOriginal 基线回退口径一致
+    // (source.iconContentOriginal ?? source.iconContent)。
+    const outcome = commandCopyIcons(this.coreDb!, [id], targetGroup, {
+      codeMode: currentCodeMode(),
+    });
+    // 写路径插桩留在壳层; 原体失败时 (requireNewIconCode 抛) 无写入也无 notify — 保持一致
+    if (outcome.copied > 0) this.notifyMutation();
+    if (outcome.stopError) {
+      // 原体经 requireNewIconCode 耗尽时抛裸 'PUA_EXHAUSTED' — 调用方 (SideEditor) 按
+      // message 精确匹配, 壳层把 command 的带后缀 stopError 归一化后重抛;
+      // GROUP_RANGE_EXHAUSTED 原样上抛 (原体亦带后缀, 调用方不匹配该消息)
+      if (String(outcome.stopError.message).startsWith('PUA_EXHAUSTED')) {
+        throw new Error('PUA_EXHAUSTED');
+      }
+      throw outcome.stopError;
+    }
+    callback && callback();
   };
   // ── Batch operations ─────────────────────────────────────────────
   moveIcons = (ids: string[], targetGroup: string, callback?: () => void): void => {
     dev && console.log('moveIcons');
-    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
-    const placeholders = ids.map(() => '?').join(',');
-    this.runMutation(`UPDATE ${iconData} SET iconGroup = ? WHERE id IN (${placeholders})`, [
-      group,
-      ...ids,
-    ]);
+    // 委托 commands.moveIcons ('resource-all' 归一化一致)。语义统一: 原体只移父行不带
+    // 变体, command 恒级联 — variant-guard 禁止组件直接调用本方法, 无真实调用方依赖
+    // 不带变体语义, 故随 command 统一 (同 moveIconGroup)。
+    commandMoveIcons(this.coreDb!, ids, targetGroup);
+    // 写路径插桩留在壳层 — 时机与原 runMutation 相同: 写后、callback 前
+    this.notifyMutation();
     callback && callback();
   };
 
   /** Batch move icons AND their variants to a new group.
-   *  opts.reassignOutOfRange (default false) reallocates out-of-range codes into the target group's range.
-   *  重分配逻辑内联 (parity-guard 冻结方法面, 不新增方法), 与 CLI core 复用同一 planRangeReassignments 纯函数。 */
+   *  opts.reassignOutOfRange (default false) reallocates out-of-range codes into the target group's range. */
   moveIconsWithVariants = (
     ids: string[],
     targetGroup: string,
@@ -1335,80 +1355,32 @@ class Database {
     opts?: { reassignOutOfRange?: boolean }
   ): void => {
     dev && console.log('moveIconsWithVariants');
-    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
-    const placeholders = ids.map(() => '?').join(',');
+    // 委托 commands.moveIcons: 移动 (父+变体) + 可选越界重分配。目标组无区间或为
+    // resource-* 虚拟组 (回收站/未分类) 时 outcome.reassigned 恒为空、不改码 —
+    // 与原内联逻辑等价; 回收/恢复路径 (targetGroup = 'resource-recycleBin'/普通组) 同此。
+    // 壳层职责: 分配模式跟随设置 codeAllocationMode。
     // 本批次因越界被重新分配字码的图标数 (含变体), 经 callback 回传给调用方拼装 toast。
     let reassignedCount = 0;
-    // Move the icons themselves
-    this.runMutation(`UPDATE ${iconData} SET iconGroup = ? WHERE id IN (${placeholders})`, [
-      group,
-      ...ids,
-    ]);
-    // Move their variants
-    this.runMutation(`UPDATE ${iconData} SET iconGroup = ? WHERE variantOf IN (${placeholders})`, [
-      group,
-      ...ids,
-    ]);
-    if (opts?.reassignOutOfRange && !group.startsWith('resource-') && ids.length) {
-      // 读取目标组区间 (列缺失时为 null → 跳过)
-      let range: CodeRange | null = null;
-      try {
-        const rr = this.db!.exec(
-          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id = ${sf(group)}`
-        );
-        if (rr.length && rr[0].values.length) {
-          const [s, e] = rr[0].values[0];
-          if (s !== null && s !== undefined && e !== null && e !== undefined) {
-            range = { start: Number(s), end: Number(e) };
-          }
-        }
-      } catch {
-        /* 列尚未迁移出来 */
-      }
-      if (range) {
-        let mode: 'append' | 'fill' = 'append';
-        try {
-          mode =
-            ((getOption('codeAllocationMode') as string) || 'append') === 'fill'
-              ? 'fill'
-              : 'append';
-        } catch {
-          /* 默认 append */
-        }
-        // 批次基准: 一次取全部已用码点 (与 core reassignIconsIntoRange 对齐)
-        const usedSet = new Set<number>();
-        const allCodes = this.db!.exec(`SELECT iconCode FROM ${iconData}`);
-        if (allCodes.length) {
-          allCodes[0].values.forEach((row: any[]) => {
-            const c = hexToDec(row[0] as string);
-            if (Number.isFinite(c)) usedSet.add(c);
-          });
-        }
-        const affectedRaw = this.db!.exec(
-          `SELECT id, iconCode FROM ${iconData} WHERE id IN (${placeholders}) OR variantOf IN (${placeholders})`,
-          [...ids, ...ids]
-        );
-        if (affectedRaw.length) {
-          const affected = affectedRaw[0].values.map((row: any[]) => ({
-            id: String(row[0]),
-            code: String(row[1] ?? ''),
-          }));
-          const reassigned = planRangeReassignments(mode, usedSet, affected, range);
-          for (const r of reassigned) {
-            this.runMutation(
-              `UPDATE ${iconData} SET iconCode = ${sf(r.newCode)} WHERE id = ${sf(r.id)}`
-            );
-          }
-          reassignedCount = reassigned.length;
-        }
-      }
+    try {
+      const outcome = commandMoveIcons(this.coreDb!, ids, targetGroup, {
+        reassignOutOfRange: opts?.reassignOutOfRange,
+        codeMode: currentCodeMode(),
+      });
+      reassignedCount = outcome.reassigned.length;
+    } finally {
+      // 写路径插桩留在壳层。GROUP_RANGE_EXHAUSTED 上抛时移动已落库 (原体亦如此:
+      // 移动的 runMutation 先于重分配抛错), dirty 标记必须补齐 — 故放 finally。
+      this.notifyMutation();
     }
     callback && callback(reassignedCount);
   };
   delIcons = (ids: string[], callback?: () => void): void => {
     dev && console.log('delIcons');
-    const placeholders = ids.map(() => '?').join(',');
-    this.runMutation(`DELETE FROM ${iconData} WHERE id IN (${placeholders})`, ids);
+    // 委托 commands.deleteIcons 'permanent' (父+变体硬删)。语义统一: 原体只删父行不含
+    // 变体 — variant-guard 禁止组件直接调用本方法, 无真实调用方依赖不带变体语义。
+    commandDeleteIcons(this.coreDb!, ids, 'permanent');
+    // 写路径插桩留在壳层 — 时机与原 runMutation 相同: 写后、callback 前
+    this.notifyMutation();
     callback && callback();
   };
   duplicateIcons = (
@@ -1417,33 +1389,15 @@ class Database {
     callback?: (result?: { added: number; failed: number }) => void
   ): void => {
     dev && console.log('duplicateIcons');
-    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
-    let failed = 0;
-    for (let i = 0; i < ids.length; i++) {
-      const id = ids[i];
-      let newCode: string;
-      try {
-        newCode = this.requireNewIconCode(group);
-      } catch {
-        // 码点已用尽, 后续必然全部失败, 直接停止
-        failed = ids.length - i;
-        break;
-      }
-      const source = this.getIconData(id);
-      const dataSet: DataSet = {
-        id: sf(generateUUID()),
-        iconCode: sf(newCode),
-        iconName: sf(source.iconName),
-        iconGroup: sf(group),
-        iconSize: source.iconSize,
-        iconType: sf(source.iconType),
-        iconContent: sf(source.iconContent),
-        iconContentOriginal: sf(this.getOriginalContent(source)),
-      };
-      this.addDataToTable(iconData, dataSet);
-    }
-    // notifyMutation auto-fired by each addDataToTable call
-    callback && callback({ added: ids.length - failed, failed });
+    // 委托 commands.copyIcons: 码点耗尽即停, 剩余全部计 failed — partial failure 不抛
+    // (与原体一致, stopError 壳层不消费); 返回形状适配为调用方读取的 { added, failed }。
+    // 分配模式跟随设置; 'resource-all' 归一化与 iconContentOriginal 基线口径同 command。
+    const outcome = commandCopyIcons(this.coreDb!, ids, targetGroup, {
+      codeMode: currentCodeMode(),
+    });
+    // 写路径插桩留在壳层; 原体全部失败时 (首个分配即耗尽) 无写入也无 notify — 保持一致
+    if (outcome.copied > 0) this.notifyMutation();
+    callback && callback({ added: outcome.copied, failed: outcome.failed });
   };
   updateIconsColor = (ids: string[], targetColor: string, callback?: () => void): void => {
     dev && console.log('updateIconsColor');
@@ -1582,13 +1536,15 @@ class Database {
   /** Delete all variants of a parent icon */
   deleteVariants = (parentId: string, callback?: () => void): void => {
     dev && console.log('deleteVariants');
-    this.runMutation(`DELETE FROM ${iconData} WHERE variantOf = ${sf(parentId)}`);
+    // 委托 coreDb 同名 (DELETE SQL 逐字相同; core 附带的 COUNT 返回值壳层不消费)
+    this.coreDb!.deleteVariants(parentId);
+    // 写路径插桩留在壳层 — 时机与原 runMutation 相同: 写后、callback 前
+    this.notifyMutation();
     callback && callback();
   };
 
   /** Move parent icon AND its variants to a new group.
-   *  opts.reassignOutOfRange (default false) reallocates out-of-range codes into the target group's range.
-   *  重分配逻辑内联 (parity-guard 冻结方法面), 与 CLI core 复用同一 planRangeReassignments 纯函数。 */
+   *  opts.reassignOutOfRange (default false) reallocates out-of-range codes into the target group's range. */
   moveIconWithVariants = (
     id: string,
     targetGroup: string,
@@ -1596,64 +1552,19 @@ class Database {
     opts?: { reassignOutOfRange?: boolean }
   ): void => {
     dev && console.log('moveIconWithVariants');
-    const group = targetGroup === 'resource-all' ? 'resource-uncategorized' : targetGroup;
-    // 本次因越界被重新分配字码的图标数 (含变体), 经 callback 回传给调用方拼装 toast。
+    // 委托 commands.moveIcons (单 id 包装) — 语义同 moveIconsWithVariants:
+    // 移动 (父+变体) + 可选越界重分配; 无区间/resource-* 目标不改码 (回收/恢复路径同此);
+    // 分配模式跟随设置。本次重分配数经 callback 回传给调用方拼装 toast。
     let reassignedCount = 0;
-    this.runMutation(
-      `UPDATE ${iconData} SET iconGroup = ${sf(group)} WHERE id = ${sf(id)} OR variantOf = ${sf(id)}`
-    );
-    if (opts?.reassignOutOfRange && !group.startsWith('resource-')) {
-      // 读取目标组区间 (列缺失时为 null → 跳过)
-      let range: CodeRange | null = null;
-      try {
-        const rr = this.db!.exec(
-          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id = ${sf(group)}`
-        );
-        if (rr.length && rr[0].values.length) {
-          const [s, e] = rr[0].values[0];
-          if (s !== null && s !== undefined && e !== null && e !== undefined) {
-            range = { start: Number(s), end: Number(e) };
-          }
-        }
-      } catch {
-        /* 列尚未迁移出来 */
-      }
-      if (range) {
-        let mode: 'append' | 'fill' = 'append';
-        try {
-          mode =
-            ((getOption('codeAllocationMode') as string) || 'append') === 'fill'
-              ? 'fill'
-              : 'append';
-        } catch {
-          /* 默认 append */
-        }
-        // 批次基准: 一次取全部已用码点 (与 core reassignIconsIntoRange 对齐)
-        const usedSet = new Set<number>();
-        const allCodes = this.db!.exec(`SELECT iconCode FROM ${iconData}`);
-        if (allCodes.length) {
-          allCodes[0].values.forEach((row: any[]) => {
-            const c = hexToDec(row[0] as string);
-            if (Number.isFinite(c)) usedSet.add(c);
-          });
-        }
-        const affectedRaw = this.db!.exec(
-          `SELECT id, iconCode FROM ${iconData} WHERE id = ${sf(id)} OR variantOf = ${sf(id)}`
-        );
-        if (affectedRaw.length) {
-          const affected = affectedRaw[0].values.map((row: any[]) => ({
-            id: String(row[0]),
-            code: String(row[1] ?? ''),
-          }));
-          const reassigned = planRangeReassignments(mode, usedSet, affected, range);
-          for (const r of reassigned) {
-            this.runMutation(
-              `UPDATE ${iconData} SET iconCode = ${sf(r.newCode)} WHERE id = ${sf(r.id)}`
-            );
-          }
-          reassignedCount = reassigned.length;
-        }
-      }
+    try {
+      const outcome = commandMoveIcons(this.coreDb!, [id], targetGroup, {
+        reassignOutOfRange: opts?.reassignOutOfRange,
+        codeMode: currentCodeMode(),
+      });
+      reassignedCount = outcome.reassigned.length;
+    } finally {
+      // 写路径插桩留在壳层。GROUP_RANGE_EXHAUSTED 上抛时移动已落库 (原体亦如此) — 故放 finally。
+      this.notifyMutation();
     }
     callback && callback(reassignedCount);
   };
@@ -1661,7 +1572,12 @@ class Database {
   /** Delete parent icon AND all its variants */
   deleteIconWithVariants = (id: string, callback?: () => void): void => {
     dev && console.log('deleteIconWithVariants');
-    this.runMutation(`DELETE FROM ${iconData} WHERE id = ${sf(id)} OR variantOf = ${sf(id)}`);
+    // 委托 commands.deleteIcons 'permanent' — DELETE 谓词同形 (id 或 variantOf 命中即硬删)。
+    // 微差: command 先按 getIcon 过滤不存在的 id, 父行已缺失的孤儿变体不再顺带清除
+    // (正常数据无此形态 — 所有删除路径均级联变体)。
+    commandDeleteIcons(this.coreDb!, [id], 'permanent');
+    // 写路径插桩留在壳层 — 时机与原 runMutation 相同: 写后、callback 前
+    this.notifyMutation();
     callback && callback();
   };
 
@@ -1674,8 +1590,13 @@ class Database {
   renewIconData = (id: string, newIconFileData: RenewIconFileData, callback?: () => void): void => {
     dev && console.log('renewIconData');
     const { electronAPI } = window;
-    const content = sf(electronAPI.readFileSync(newIconFileData.path, 'utf-8'));
-    // 更新 size, type, content 以及原始内容
+    // 文件读取是壳层职责 (command 不做 I/O)
+    const content = electronAPI.readFileSync(newIconFileData.path, 'utf-8');
+    // 委托 commands.replaceIconContent: iconContent + iconContentOriginal 基线重置 + 变体
+    // 级联硬删 (原体不删变体, 由调用方 SideEditor 先行 deleteVariants — 命令收口后该步幂等)。
+    commandReplaceIconContent(this.coreDb!, id, content);
+    // command 未覆盖的列留壳层: id/iconCode/iconName/iconGroup/iconType, 且 iconSize 以
+    // statSync 文件字节数为准 (覆盖 command 的 TextEncoder 字节长度口径, 与原体一致)。
     const dataSet: DataSet = {
       id: sf(newIconFileData.id),
       iconCode: sf(newIconFileData.iconCode),
@@ -1683,10 +1604,11 @@ class Database {
       iconGroup: sf(newIconFileData.iconGroup),
       iconSize: electronAPI.statSync(newIconFileData.path).size,
       iconType: sf(typeOfFile(nameOfPath(newIconFileData.path))),
-      iconContent: content,
-      iconContentOriginal: content,
     };
     this.setIconData(id, dataSet, callback);
+    // 原体 dataSet 含 iconContent → setIconData 在 callback 后 emit; 内容写入移入 command
+    // 后 setIconData 不再触发, 壳层在同一时机补齐内容失效广播 (顺序: notify → callback → emit)
+    this.emitIconContentChanged([id]);
   };
 
   // 测试用
