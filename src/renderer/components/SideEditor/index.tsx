@@ -303,16 +303,21 @@ const SideEditor = React.memo(function SideEditor({
     });
   };
 
-  // Custom events for screenshot automation
+  // Move/copy 对话框命令 (store 命令面, 原截图自动化钩子 — scripts/screenshot.mjs 经
+  // window.__BOBCORN_STORE__ 调 openMoveCopyDialog)。消费后复位; 对话框沿用组件内
+  // selectedIcon (iconIds 载荷预留)。挂载首轮只清不开 — 对齐原 CustomEvent 无听端即丢弃语义。
+  // 刻意不写 deps 数组 (沿用原监听 effect 的每渲染执行), 避免引用声明在下方的 handler
+  const moveCopyDialog = useAppStore((s: any) => s.moveCopyDialog);
+  const moveCopyMountedRef = useRef(false);
   useEffect(() => {
-    const moveHandler = () => handleShowIconGroupEdit('move');
-    const copyHandler = () => handleShowIconGroupEdit('duplicate');
-    window.addEventListener('bobcorn:open-move-dialog', moveHandler);
-    window.addEventListener('bobcorn:open-copy-dialog', copyHandler);
-    return () => {
-      window.removeEventListener('bobcorn:open-move-dialog', moveHandler);
-      window.removeEventListener('bobcorn:open-copy-dialog', copyHandler);
-    };
+    if (!moveCopyMountedRef.current) {
+      moveCopyMountedRef.current = true;
+      if (moveCopyDialog) useAppStore.getState().closeMoveCopyDialog();
+      return;
+    }
+    if (!moveCopyDialog) return;
+    handleShowIconGroupEdit(moveCopyDialog.mode === 'copy' ? 'duplicate' : 'move');
+    useAppStore.getState().closeMoveCopyDialog();
   });
 
   // 复制/移动图标相关

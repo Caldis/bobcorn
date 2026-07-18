@@ -885,11 +885,9 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
         // 回收站里导入语义不明确, 禁用
         disabled: selectedGroup === 'resource-recycleBin',
         onSelect: () => {
-          window.dispatchEvent(
-            new CustomEvent('bobcorn:import-icons', {
-              detail: { targetGroup: isRealGroup ? selectedGroup : 'resource-uncategorized' },
-            })
-          );
+          useAppStore
+            .getState()
+            .requestImportIcons(isRealGroup ? selectedGroup : 'resource-uncategorized');
         },
       },
       {
@@ -913,7 +911,7 @@ function IconGridLocal({ selectedGroup, handleIconSelected }: IconGridLocalProps
             : selectedGroup === 'resource-uncategorized'
               ? ['resource-uncategorized']
               : undefined;
-          window.dispatchEvent(new CustomEvent('bobcorn:open-export', { detail: { groupIds } }));
+          useAppStore.getState().openExportDialog(groupIds);
         },
       },
     ];

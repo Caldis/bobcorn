@@ -82,7 +82,7 @@ const ProjectSwitcher = React.memo(function ProjectSwitcher() {
 
   const handleSettingsClick = useCallback(() => {
     setOpen(false);
-    window.dispatchEvent(new CustomEvent('bobcorn:open-project-settings'));
+    useAppStore.getState().openProjectSettings();
   }, []);
 
   return (

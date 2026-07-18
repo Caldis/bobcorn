@@ -343,12 +343,14 @@ function MainContainer() {
       electronAPI.onMenuNewProject(() => handleNewProject()),
       electronAPI.onMenuOpenProject(() => handleOpenProject()),
       electronAPI.onMenuImportIcons(() => {
-        window.dispatchEvent(new CustomEvent('bobcorn:import-icons'));
+        // store 命令面 — 无 targetGroupId, SideMenu 回退当前选中分组
+        useAppStore.getState().requestImportIcons();
       }),
       electronAPI.onMenuSave(() => handleSave()),
       electronAPI.onMenuSaveAs(() => handleSaveAs()),
       electronAPI.onMenuExportFonts(() => {
-        window.dispatchEvent(new CustomEvent('bobcorn:open-export'));
+        // store 命令面 — 无预选分组, ExportDialog 沿用持久化选择
+        useAppStore.getState().openExportDialog();
       }),
       electronAPI.onOpenFile((filePath: string) => handleOpenProject(filePath)),
     ];
@@ -442,12 +444,17 @@ function MainContainer() {
     return () => cleanups.forEach((fn) => fn());
   }, []);
 
-  // Expose install-update handler for SideMenu's UpdateIndicator
+  // Install-update 命令 (store 命令面, SideMenu 的 UpdateIndicator 经 requestInstallUpdate 触发)
+  // — seq 用 ref 去重, 初值取挂载时快照: 挂载前发出的请求不补触发 (对齐原 CustomEvent 丢弃语义)
+  const installUpdateRequest = useAppStore((s: any) => s.installUpdateRequest);
+  const handledInstallSeqRef = useRef<number>(
+    useAppStore.getState().installUpdateRequest?.seq ?? 0
+  );
   useEffect(() => {
-    const handler = () => handleInstallUpdate();
-    window.addEventListener('bobcorn:install-update', handler);
-    return () => window.removeEventListener('bobcorn:install-update', handler);
-  }, [handleInstallUpdate]);
+    if (!installUpdateRequest || installUpdateRequest.seq === handledInstallSeqRef.current) return;
+    handledInstallSeqRef.current = installUpdateRequest.seq;
+    handleInstallUpdate();
+  }, [installUpdateRequest, handleInstallUpdate]);
 
   // ── Title bar sync ───────────────────────────────────────────────
   // 回退链: 项目名称(displayName) → 文件名 → Untitled

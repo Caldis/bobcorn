@@ -39,17 +39,18 @@ const SideMenu = React.memo(function SideMenu({
   const { t } = useTranslation();
   const groupData: GroupData[] = useAppStore((state: any) => state.groupData);
   const syncLeft = useAppStore((state: any) => state.syncLeft);
+  // 对话框可见性 — store UI 命令面 (W4-D1): 设置/项目设置/导出对话框状态入 store,
+  // 菜单 IPC/画布右键/项目切换器经 store action 打开 (原 bobcorn:* CustomEvent 通路)
+  const settingsOpen = useAppStore((state: any) => state.settingsOpen);
+  const projectSettingsOpen = useAppStore((state: any) => state.projectSettingsOpen);
+  const exportDialog = useAppStore((state: any) => state.exportDialog);
+  const importRequest = useAppStore((state: any) => state.importRequest);
 
   const [selectedGroup, setSelectedGroup] = useState<string>(config.defaultSelectedGroup);
-  // 对话框可见性
+  // 对话框可见性 (组件内私有 — 分组管理对话框)
   const [addGroupVisible, setAddGroupVisible] = useState(false);
   const [renameGroupData, setRenameGroupData] = useState<GroupData | null>(null);
   const [renameGroupVisible, setRenameGroupVisible] = useState(false);
-  const [prefixVisible, setPrefixVisible] = useState(false);
-  const [projectSettingsVisible, setProjectSettingsVisible] = useState(false);
-  const [exportVisible, setExportVisible] = useState(false);
-  // 画布右键「导出图标字体」入口带来的预选分组; null = 沿用持久化选择
-  const [exportInitialGroups, setExportInitialGroups] = useState<string[] | null>(null);
 
   const sideMenuWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -104,10 +105,10 @@ const SideMenu = React.memo(function SideMenu({
           runIconImport(selectedGroup);
           break;
         case 'export-fonts':
-          setExportVisible(true);
+          useAppStore.getState().openExportDialog();
           break;
         case 'settings':
-          setPrefixVisible(true);
+          useAppStore.getState().openSettings();
           break;
         // Project-level operations → dispatch to MainContainer via custom events
         case 'new-project':
@@ -123,31 +124,15 @@ const SideMenu = React.memo(function SideMenu({
     [selectedGroup, syncLeft, runIconImport]
   );
 
+  // 导入触发命令 (store 命令面) — 画布右键带 targetGroupId, 菜单 IPC 不带 (回退当前选中分组)。
+  // seq 用 ref 去重: selectedGroup/runIconImport 变化重跑 effect 时不重复触发导入;
+  // ref 初值取挂载时快照 — 挂载前发出的请求不补触发 (对齐原 CustomEvent 丢弃语义)
+  const handledImportSeqRef = useRef<number>(useAppStore.getState().importRequest?.seq ?? 0);
   useEffect(() => {
-    // detail.groupIds: 画布右键入口预选分组; 无 detail = 沿用持久化选择
-    const exportHandler = (e: Event) => {
-      const groupIds = (e as CustomEvent).detail?.groupIds;
-      setExportInitialGroups(Array.isArray(groupIds) && groupIds.length ? groupIds : null);
-      setExportVisible(true);
-    };
-    // detail.targetGroup: 画布右键入口显式指定导入目标; 无 detail = 当前选中分组
-    const importHandler = (e: Event) => {
-      const target = (e as CustomEvent).detail?.targetGroup;
-      runIconImport(typeof target === 'string' && target ? target : selectedGroup);
-    };
-    const settingsHandler = () => setPrefixVisible(true);
-    const projectSettingsHandler = () => setProjectSettingsVisible(true);
-    window.addEventListener('bobcorn:open-export', exportHandler);
-    window.addEventListener('bobcorn:import-icons', importHandler);
-    window.addEventListener('bobcorn:open-settings', settingsHandler);
-    window.addEventListener('bobcorn:open-project-settings', projectSettingsHandler);
-    return () => {
-      window.removeEventListener('bobcorn:open-export', exportHandler);
-      window.removeEventListener('bobcorn:import-icons', importHandler);
-      window.removeEventListener('bobcorn:open-settings', settingsHandler);
-      window.removeEventListener('bobcorn:open-project-settings', projectSettingsHandler);
-    };
-  }, [runIconImport, selectedGroup]);
+    if (!importRequest || importRequest.seq === handledImportSeqRef.current) return;
+    handledImportSeqRef.current = importRequest.seq;
+    runIconImport(importRequest.targetGroupId ?? selectedGroup);
+  }, [importRequest, runIconImport, selectedGroup]);
 
   return (
     <div className="relative flex h-full w-full flex-col bg-surface">
@@ -190,8 +175,8 @@ const SideMenu = React.memo(function SideMenu({
       {/* 底栏 — 文件菜单 + 项目切换 + 设置 */}
       <FileMenuBar
         onMenuAction={handleFileMenuAction}
-        onInstallUpdate={() => window.dispatchEvent(new CustomEvent('bobcorn:install-update'))}
-        onSettingsClick={() => setPrefixVisible(true)}
+        onInstallUpdate={() => useAppStore.getState().requestInstallUpdate()}
+        onSettingsClick={() => useAppStore.getState().openSettings()}
       />
 
       {/* 分组管理对话框（添加 + 重命名） */}
@@ -213,22 +198,22 @@ const SideMenu = React.memo(function SideMenu({
       />
 
       {/* 设置对话框 */}
-      <SettingsDialog visible={prefixVisible} onClose={() => setPrefixVisible(false)} />
+      <SettingsDialog
+        visible={settingsOpen}
+        onClose={() => useAppStore.getState().closeSettings()}
+      />
 
       {/* 项目设置对话框 */}
       <ProjectSettingsDialog
-        visible={projectSettingsVisible}
-        onClose={() => setProjectSettingsVisible(false)}
+        visible={projectSettingsOpen}
+        onClose={() => useAppStore.getState().closeProjectSettings()}
       />
 
-      {/* 导出对话框 */}
+      {/* 导出对话框 — initialGroups: 画布右键入口预选分组; 无则沿用持久化选择 */}
       <ExportDialog
-        visible={exportVisible}
-        initialGroups={exportInitialGroups}
-        onClose={() => {
-          setExportVisible(false);
-          setExportInitialGroups(null);
-        }}
+        visible={exportDialog.open}
+        initialGroups={exportDialog.initialGroupIds ?? null}
+        onClose={() => useAppStore.getState().closeExportDialog()}
       />
     </div>
   );

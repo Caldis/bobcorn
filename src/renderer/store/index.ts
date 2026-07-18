@@ -97,6 +97,22 @@ export interface State {
 
   // 图标网格筛选 — 开启时仅显示字码不在所属分组声明区间内的图标 (基于 outOfRangeCodes)
   filterOutOfRange: boolean;
+
+  // ── UI 命令面 (W4-D1) — 替代 open/trigger 类 bobcorn:* CustomEvent ────────
+  // 导出对话框 — initialGroupIds 仅在画布右键等入口显式预选时携带; 缺省 = 沿用持久化选择
+  exportDialog: { open: boolean; initialGroupIds?: string[] };
+  // 设置对话框可见性
+  settingsOpen: boolean;
+  // 项目设置对话框可见性
+  projectSettingsOpen: boolean;
+  // 移动/复制到分组对话框命令 — SideEditor 消费后复位; iconIds 为预留载荷
+  // (当前听端沿用组件内 selectedIcon, 与原 CustomEvent 无 detail 的口径一致)
+  moveCopyDialog: { mode: 'move' | 'copy'; iconIds: string[] } | null;
+  // 导入图标触发请求 (import 是动作不是对话框) — seq 递增触发, 听端用 ref 去重;
+  // targetGroupId 缺省 = 听端回退当前选中分组 (原 CustomEvent 无 detail 口径)
+  importRequest: { targetGroupId?: string; seq: number } | null;
+  // 安装更新触发请求 — 同上, seq 递增触发
+  installUpdateRequest: { seq: number } | null;
 }
 
 export interface Actions {
@@ -155,6 +171,22 @@ export interface Actions {
 
   // 图标网格筛选
   setFilterOutOfRange: (value: boolean) => void;
+
+  // ── UI 命令面 (W4-D1) — 对话框开合 + 动作触发 ─────────────────────────
+  /** 打开导出对话框; groupIds 非空数组时作为预选分组, 否则沿用持久化选择 */
+  openExportDialog: (groupIds?: string[]) => void;
+  closeExportDialog: () => void;
+  openSettings: () => void;
+  closeSettings: () => void;
+  openProjectSettings: () => void;
+  closeProjectSettings: () => void;
+  /** 打开移动/复制到分组对话框 (SideEditor 消费); iconIds 预留, 听端当前沿用 selectedIcon */
+  openMoveCopyDialog: (mode: 'move' | 'copy', iconIds?: string[]) => void;
+  closeMoveCopyDialog: () => void;
+  /** 触发导入图标流程; targetGroupId 非空时显式指定目标, 否则听端回退当前选中分组 */
+  requestImportIcons: (targetGroupId?: string) => void;
+  /** 触发安装更新流程 (MainContainer 消费, 含未保存变更确认) */
+  requestInstallUpdate: () => void;
 
   // ── 批量操作薄编排层 (Stage C) — 调 core 命令体 + 统一刷新, toast/confirm 文案留组件 ──
   /** 只读预检 (无写入无刷新): 变体跟随数 + 目标区间越界摘要, 供组件拼 confirm 文案 */
@@ -235,6 +267,14 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // 图标网格筛选 — 默认关闭
   filterOutOfRange: false,
+
+  // UI 命令面 (W4-D1)
+  exportDialog: { open: false },
+  settingsOpen: false,
+  projectSettingsOpen: false,
+  moveCopyDialog: null,
+  importRequest: null,
+  installUpdateRequest: null,
 
   // Actions
   showSplashScreen: (show: boolean) => set({ splashScreenVisible: show }),
@@ -531,6 +571,33 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // 图标网格筛选
   setFilterOutOfRange: (value) => set({ filterOutOfRange: value }),
+
+  // ── UI 命令面 (W4-D1) — 原 open/trigger 类 bobcorn:* CustomEvent 的类型化替身 ──
+  openExportDialog: (groupIds) =>
+    set({
+      exportDialog: {
+        open: true,
+        // 原 CustomEvent 口径: 非空数组才作为预选分组, 否则沿用持久化选择
+        ...(Array.isArray(groupIds) && groupIds.length ? { initialGroupIds: groupIds } : {}),
+      },
+    }),
+  closeExportDialog: () => set({ exportDialog: { open: false } }),
+  openSettings: () => set({ settingsOpen: true }),
+  closeSettings: () => set({ settingsOpen: false }),
+  openProjectSettings: () => set({ projectSettingsOpen: true }),
+  closeProjectSettings: () => set({ projectSettingsOpen: false }),
+  openMoveCopyDialog: (mode, iconIds = []) => set({ moveCopyDialog: { mode, iconIds } }),
+  closeMoveCopyDialog: () => set({ moveCopyDialog: null }),
+  requestImportIcons: (targetGroupId) =>
+    set({
+      importRequest: {
+        // 原 CustomEvent 口径: 非空字符串才显式指定目标, 否则听端回退当前选中分组
+        ...(typeof targetGroupId === 'string' && targetGroupId ? { targetGroupId } : {}),
+        seq: (get().importRequest?.seq ?? 0) + 1,
+      },
+    }),
+  requestInstallUpdate: () =>
+    set({ installUpdateRequest: { seq: (get().installUpdateRequest?.seq ?? 0) + 1 } }),
 
   // ── 批量操作薄编排层 (Stage C) ─────────────────────────────────────
   // 每个写 action: 调 core 命令体 → notifyExternalMutation() 补齐写路径插桩

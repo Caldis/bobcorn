@@ -264,14 +264,14 @@ async function captureSet(evaluate, lang, projectFile) {
   shot('02-main.png');
 
   // 3. Settings dialog
-  await evaluate(`window.dispatchEvent(new CustomEvent('bobcorn:open-settings'))`);
+  await evaluate(`window.__BOBCORN_STORE__.getState().openSettings()`);
   await sleep(1000);
   shot('03-settings.png');
   await evaluate(`document.querySelectorAll('[data-radix-portal]').forEach(p => p.remove())`);
   await sleep(500);
 
   // 4. Export dialog
-  await evaluate(`window.dispatchEvent(new CustomEvent('bobcorn:open-export'))`);
+  await evaluate(`window.__BOBCORN_STORE__.getState().openExportDialog()`);
   await sleep(1000);
   shot('04-export.png');
   await evaluate(`document.querySelectorAll('[data-radix-portal]').forEach(p => p.remove())`);
@@ -307,7 +307,7 @@ async function captureSet(evaluate, lang, projectFile) {
   await sleep(800);
   await evaluate(`document.querySelector('[data-testid="icon-block"]')?.click()`);
   await sleep(600);
-  await evaluate(`window.dispatchEvent(new CustomEvent('bobcorn:open-move-dialog'))`);
+  await evaluate(`window.__BOBCORN_STORE__.getState().openMoveCopyDialog('move')`);
   await sleep(1000);
   shot('06-move.png');
   // Close move dialog via Cancel button (preserves React state)
@@ -321,7 +321,7 @@ async function captureSet(evaluate, lang, projectFile) {
   await sleep(800);
 
   // 7. Copy to group dialog
-  await evaluate(`window.dispatchEvent(new CustomEvent('bobcorn:open-copy-dialog'))`);
+  await evaluate(`window.__BOBCORN_STORE__.getState().openMoveCopyDialog('copy')`);
   await sleep(1000);
   shot('07-copy.png');
   await evaluate(`document.querySelectorAll('[data-radix-portal], [class*="dialog-overlay"], [class*="DialogOverlay"]').forEach(p => p.remove())`);

@@ -12,11 +12,11 @@ scripts/screenshot.mjs (Node.js)
     │    ├─ window.__BOBCORN_STORE__  → Zustand store
     │    ├─ window.__BOBCORN_I18N__   → i18next 实例
     │    └─ window.__BOBCORN_DB__     → sql.js 数据库实例
-    ├─ 通过自定义事件打开对话框
-    │    ├─ bobcorn:open-settings
-    │    ├─ bobcorn:open-export
-    │    ├─ bobcorn:open-move-dialog
-    │    └─ bobcorn:open-copy-dialog
+    ├─ 通过 store UI 命令面打开对话框 (__BOBCORN_STORE__.getState())
+    │    ├─ openSettings()
+    │    ├─ openExportDialog()
+    │    ├─ openMoveCopyDialog('move')
+    │    └─ openMoveCopyDialog('copy')
     ├─ 通过 Swift + CoreGraphics 获取 CGWindowID
     └─ 通过 macOS screencapture -l 截取带阴影的窗口
 ```
@@ -43,11 +43,11 @@ node scripts/screenshot.mjs --width=1600 --height=1200 --theme=dark --lang=en /p
 |---|--------|------|----------|
 | 01 | welcome.png | 欢迎/启动页 | `store.showSplashScreen(true)` |
 | 02 | main.png | 三栏主界面 | `store.showSplashScreen(false)` + `syncLeft()` |
-| 03 | settings.png | 设置对话框 | `CustomEvent('bobcorn:open-settings')` |
-| 04 | export.png | 导出对话框 | `CustomEvent('bobcorn:open-export')` |
+| 03 | settings.png | 设置对话框 | `store.openSettings()` |
+| 04 | export.png | 导出对话框 | `store.openExportDialog()` |
 | 05 | batch.png | 批量选择 | `store.selectAllIcons(ids)` |
-| 06 | move.png | 移动到分组 | 选中图标 → `CustomEvent('bobcorn:open-move-dialog')` |
-| 07 | copy.png | 复制到分组 | 选中图标 → `CustomEvent('bobcorn:open-copy-dialog')` |
+| 06 | move.png | 移动到分组 | 选中图标 → `store.openMoveCopyDialog('move')` |
+| 07 | copy.png | 复制到分组 | 选中图标 → `store.openMoveCopyDialog('copy')` |
 
 ## 环境变量
 
@@ -66,9 +66,9 @@ node scripts/screenshot.mjs --width=1600 --height=1200 --theme=dark --lang=en /p
 
 **原因**: React 18 使用自己的事件委托系统（挂在 root 节点上），不响应原生 DOM 事件的 dispatch。
 
-**解决**: 在组件内注册 `window.addEventListener('bobcorn:xxx', handler)`，从 CDP 用 `window.dispatchEvent(new CustomEvent('bobcorn:xxx'))` 触发。
+**解决**: 从 CDP 直接调用 store UI 命令面 (`window.__BOBCORN_STORE__.getState().openXxx()`)，组件订阅 store 状态渲染对话框（W4-D1 之前是 `bobcorn:*` CustomEvent 收发，现已收口进 store，见 `test/unit/ui-command-guard.test.js`）。
 
-**已实现的事件**: `bobcorn:open-settings` (SideMenu)、`bobcorn:open-export` (SideMenu)、`bobcorn:open-move-dialog` (SideEditor)、`bobcorn:open-copy-dialog` (SideEditor)。
+**已实现的命令**: `openSettings()` / `openExportDialog(groupIds?)` (SideMenu 渲染)、`openMoveCopyDialog('move' | 'copy')` (SideEditor 消费)。
 
 ### 2. 禁止直接删除 React 管理的 DOM
 
@@ -132,8 +132,9 @@ node scripts/screenshot.mjs --width=1600 --height=1200 --theme=dark --lang=en /p
 | `src/renderer/bootstrap.tsx` | 暴露 `__BOBCORN_STORE__` / `__BOBCORN_I18N__` / `__BOBCORN_DB__` |
 | `src/main/index.ts` | `NO_DEVTOOLS` / `WIN_WIDTH` / `WIN_HEIGHT` / `OPEN_FILE` 环境变量 |
 | `src/main/menu.ts` | `NO_DEVTOOLS` 跳过 `openDevTools()` |
-| `src/renderer/components/SideMenu/index.tsx` | `bobcorn:open-settings` / `bobcorn:open-export` 事件监听 |
-| `src/renderer/components/SideEditor/index.tsx` | `bobcorn:open-move-dialog` / `bobcorn:open-copy-dialog` 事件监听 |
+| `src/renderer/store/index.ts` | UI 命令面: `openSettings` / `openExportDialog` / `openMoveCopyDialog` |
+| `src/renderer/components/SideMenu/index.tsx` | 订阅 `settingsOpen` / `exportDialog` 渲染对话框 |
+| `src/renderer/components/SideEditor/index.tsx` | 消费 `moveCopyDialog` 命令打开移动/复制对话框 |
 
 ## 测试项目文件
 
