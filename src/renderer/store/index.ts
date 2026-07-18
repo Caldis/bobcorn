@@ -1,6 +1,16 @@
 import { create } from 'zustand';
-// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.import, group.list
-import db from '../database';
+// eslint-disable-next-line no-restricted-imports -- TODO(core-migration): icon.import, group.list; getCoreDb/notifyExternalMutation/currentCodeMode 是 Stage C store 薄封装的委托通道
+import db, { getCoreDb, notifyExternalMutation, currentCodeMode } from '../database';
+// Stage C: 批量操作 action 直调 core 命令体 (renderer-safe, 无 Node builtin —
+// 见 test/unit/core-boundary-guard.test.js 的 commands 守门)
+import {
+  planMoveIcons as commandPlanMoveIcons,
+  moveIcons as commandMoveIcons,
+  copyIcons as commandCopyIcons,
+  deleteIcons as commandDeleteIcons,
+  rangeViolations as commandRangeViolations,
+} from '@core/commands';
+import type { MovePlan, MoveOutcome, CopyOutcome, DeleteOutcome } from '@core/commands';
 import config, { getOption, setOption } from '../config';
 import { resolveTheme, applyThemeClass } from '../config/themes';
 import { applyContentInvalidation } from './contentCache';
@@ -99,6 +109,7 @@ export interface Actions {
   setLastClickedIconId: (id: string | null) => void;
   setDraggingIcons: (ids: string[]) => void;
   // 分级同步
+  syncProjectMeta: () => void; // 项目元数据轻同步：只刷新 projectName/displayName/description/color
   syncLeft: () => void; // 重：刷新分组列表 + 图标网格（增删/移动图标/增删分组时用）
   syncIconContent: () => void; // 轻：递增版本号，触发 SideEditor 刷新
   patchIconContent: (iconId: string, content: string) => void; // 最轻：热更新单个图标内容
@@ -136,6 +147,22 @@ export interface Actions {
 
   // 图标网格筛选
   setFilterOutOfRange: (value: boolean) => void;
+
+  // ── 批量操作薄编排层 (Stage C) — 调 core 命令体 + 统一刷新, toast/confirm 文案留组件 ──
+  /** 只读预检 (无写入无刷新): 变体跟随数 + 目标区间越界摘要, 供组件拼 confirm 文案 */
+  planMove: (ids: string[], targetGroupId: string) => MovePlan;
+  /** 批量移动 (变体恒跟随); opts.reassignOutOfRange 时越界字码在目标区间内重分配 */
+  moveIconsTo: (
+    ids: string[],
+    targetGroupId: string,
+    opts?: { reassignOutOfRange?: boolean }
+  ) => MoveOutcome;
+  /** 批量复制到目标分组 (变体不复制; 码点耗尽即停, 剩余计 failed 不抛) */
+  copyIconsTo: (ids: string[], targetGroupId: string) => CopyOutcome;
+  /** 批量移入回收站 (父 + 变体一并, 可恢复) */
+  recycleIconsAction: (ids: string[]) => DeleteOutcome;
+  /** 批量彻底删除 (父 + 变体硬删, 不可恢复) */
+  deleteIconsPermanently: (ids: string[]) => DeleteOutcome;
 }
 
 const useAppStore = create<State & Actions>((set, get) => ({
@@ -437,8 +464,7 @@ const useAppStore = create<State & Actions>((set, get) => ({
   refreshVariantCounts: () => {
     try {
       // Single GROUP BY query replaces N per-icon queries
-      const db = require('../database').default;
-      const map: Map<string, number> = db.getAllVariantCounts();
+      const map: Map<string, number> = (db as any).getAllVariantCounts();
       // Convert Map to plain object for Zustand shallow equality
       const obj: Record<string, number> = {};
       map.forEach((count: number, id: string) => {
@@ -464,34 +490,24 @@ const useAppStore = create<State & Actions>((set, get) => ({
     }
   },
 
-  // 越界字码缓存刷新 — 分组区间 (getGroupList) × 各组图标码位 (getAllIconsGrouped) 客户端一次算出,
-  // 归一化大写 hex → true, 供 IconBlock 网格越界标识。在 syncLeft 内触发。
+  // 越界字码缓存刷新 — 委托 commands.rangeViolations (声明了区间的分组内, 字码落在
+  // 区间外的图标)。壳层保持原实现口径: 变体不计入 (原 getAllIconsGrouped 过滤
+  // variantOf IS NULL; command 计入变体 — 逐违规行经 getIcon 过滤), 非 4 位 hex 的
+  // 非法字码跳过 (原 regex 过滤; command 计入)。回收站/已删除/未分组图标两侧口径
+  // 天然一致 (resource-* 虚拟组无区间声明)。归一化大写 hex → true。在 syncLeft 内触发。
   refreshOutOfRangeCodes: () => {
     try {
-      const groups: any[] = (db as any).getGroupList();
-      const ranges = new Map<string, { start: number; end: number }>();
-      for (const g of groups) {
-        const s = g.codeRangeStart;
-        const e = g.codeRangeEnd;
-        if (s !== null && s !== undefined && e !== null && e !== undefined) {
-          ranges.set(g.id, { start: Number(s), end: Number(e) });
-        }
-      }
+      const coreDb = getCoreDb();
       const obj: Record<string, true> = {};
-      if (ranges.size > 0) {
-        const grouped: Record<string, any[]> = (db as any).getAllIconsGrouped();
-        ranges.forEach((range, gid) => {
-          const icons = grouped[gid];
-          if (!icons) return;
-          for (const ic of icons) {
-            const hex = String(ic.iconCode ?? '')
-              .trim()
-              .toUpperCase();
-            if (!/^[0-9A-F]{4}$/.test(hex)) continue;
-            const dec = parseInt(hex, 16);
-            if (dec < range.start || dec > range.end) obj[hex] = true;
-          }
-        });
+      for (const row of commandRangeViolations(coreDb)) {
+        const hex = String(row.code ?? '')
+          .trim()
+          .toUpperCase();
+        if (!/^[0-9A-F]{4}$/.test(hex)) continue; // 原口径: 非法字码不计入越界
+        if (obj[hex]) continue; // 已标记 — 免去变体行查询
+        const icon = coreDb.getIcon(row.iconId);
+        if (icon && icon.variantOf !== null && icon.variantOf !== undefined) continue; // 原口径: 变体不计入
+        obj[hex] = true;
       }
       set({ outOfRangeCodes: obj });
     } catch {
@@ -505,6 +521,60 @@ const useAppStore = create<State & Actions>((set, get) => ({
 
   // 图标网格筛选
   setFilterOutOfRange: (value) => set({ filterOutOfRange: value }),
+
+  // ── 批量操作薄编排层 (Stage C) ─────────────────────────────────────
+  // 每个写 action: 调 core 命令体 → notifyExternalMutation() 补齐写路径插桩
+  // (dirty 标记; 这些操作不改 iconContent, 无内容失效广播) → 统一触发同步刷新
+  // (syncLeft 内含 refreshDuplicateCodes/refreshOutOfRangeCodes — 与组件现状的
+  // 移动/复制/回收/删除后刷新集合一致) → Outcome 原样透传给组件 (toast/confirm
+  // 文案与选择集清理留在组件)。
+
+  // 只读预检 — 无写入、无插桩、无刷新
+  planMove: (ids, targetGroupId) => commandPlanMoveIcons(getCoreDb(), ids, targetGroupId),
+
+  moveIconsTo: (ids, targetGroupId, opts) => {
+    let outcome!: MoveOutcome;
+    try {
+      outcome = commandMoveIcons(getCoreDb(), ids, targetGroupId, {
+        reassignOutOfRange: opts?.reassignOutOfRange,
+        codeMode: currentCodeMode(),
+      });
+    } finally {
+      // GROUP_RANGE_EXHAUSTED 上抛时移动已落库 — dirty 标记放 finally 补齐
+      // (对齐 database.moveIconsWithVariants 的插桩时机); 上抛时不刷新 (原
+      // callback 不执行, 组件在错误路径自行处理)
+      notifyExternalMutation();
+    }
+    get().syncLeft();
+    return outcome;
+  },
+
+  copyIconsTo: (ids, targetGroupId) => {
+    const outcome = commandCopyIcons(getCoreDb(), ids, targetGroupId, {
+      codeMode: currentCodeMode(),
+    });
+    // 全部失败 (首个分配即耗尽) 时无写入不标 dirty — 对齐 database.duplicateIcons
+    if (outcome.copied > 0) notifyExternalMutation();
+    get().syncLeft();
+    return outcome;
+  },
+
+  recycleIconsAction: (ids) => {
+    const outcome = commandDeleteIcons(getCoreDb(), ids, 'recycle');
+    notifyExternalMutation();
+    get().syncLeft();
+    get().refreshVariantCounts();
+    return outcome;
+  },
+
+  deleteIconsPermanently: (ids) => {
+    const outcome = commandDeleteIcons(getCoreDb(), ids, 'permanent');
+    notifyExternalMutation();
+    get().syncLeft();
+    // 彻底删除级联硬删变体 — 清掉 variantCounts 里被删父行的陈旧条目
+    get().refreshVariantCounts();
+    return outcome;
+  },
 }));
 
 /**

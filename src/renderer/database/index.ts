@@ -162,7 +162,8 @@ const iconData = 'iconData';
 // 分配模式跟随设置 codeAllocationMode (localStorage — core 不读浏览器状态)。
 // 模块级辅助 (0 缩进) — 不进入 parity 冻结的类方法面; 委托 commands 的写方法
 // (move/copy) 经此把壳层职责 (读设置) 转译为 command 的 codeMode 参数。
-function currentCodeMode(): 'append' | 'fill' {
+// 导出供 store 薄封装 (batch actions) 组装 move/copy 命令的 codeMode 参数。
+export function currentCodeMode(): 'append' | 'fill' {
   try {
     return ((getOption('codeAllocationMode') as string) || 'append') === 'fill' ? 'fill' : 'append';
   } catch {
