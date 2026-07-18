@@ -275,3 +275,40 @@ describe('createProject + inspectProject (name/prefix split)', () => {
     expect(info.prefix).toBe('fallbackfont');
   });
 });
+
+// ---------------------------------------------------------------------------
+// getDuplicateIconCodes — renderer 撞码标识委托 (Stage C 簇②) 的 core 侧行为
+// ---------------------------------------------------------------------------
+
+describe('getDuplicateIconCodes', () => {
+  const addIconWithCode = (db: any, code: string, group = 'resource-uncategorized') => {
+    db.addIcon({
+      id: uid(),
+      iconCode: code,
+      iconName: `icon-${code}`,
+      iconGroup: group,
+      iconSize: 100,
+      iconType: 'svg',
+      iconContent: SVG_STUB,
+    });
+  };
+
+  test('returns uppercase-normalized duplicate codes only (single GROUP BY)', async () => {
+    const db = await createEmptyProject('dup-test');
+    addIconWithCode(db, 'E000');
+    addIconWithCode(db, 'e000'); // 大小写混写也算撞码 (UPPER 归一化)
+    addIconWithCode(db, 'E001');
+    expect(db.getDuplicateIconCodes()).toEqual(['E000']);
+    db.close();
+  });
+
+  test('includes recycle bin / deleted / variant rows and returns [] when clean', async () => {
+    const db = await createEmptyProject('dup-test');
+    addIconWithCode(db, 'E000');
+    expect(db.getDuplicateIconCodes()).toEqual([]);
+    // 回收站行也参与撞码统计 (与 renderer 版语义一致: 全表无过滤)
+    addIconWithCode(db, 'E000', 'resource-recycleBin');
+    expect(db.getDuplicateIconCodes()).toEqual(['E000']);
+    db.close();
+  });
+});

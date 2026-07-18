@@ -11,11 +11,14 @@ import {
   queryFirstValue,
   type SqlJsSafeStatement,
 } from '../../core/database/safe-stmt';
+// Stage C strangler: renderer 壳层持有 core ProjectDb 委托实例, 方法体逐簇改为委托。
+// 深路径 import 是 renderer-safe 的 (纯包装, 无 Node builtin) — 见 core-boundary-guard。
+// eslint-disable-next-line no-restricted-imports -- Stage C strangler delegation target; deep path is renderer-safe, see test/unit/core-boundary-guard.test.js
+import { ProjectDb } from '@core/database/project-db';
 // Config
 import config, { getOption } from '../config';
 // Shared icon-code allocation — single source of truth with the CLI (core)
 import {
-  allocateIconCodeDec,
   planRangeReassignments,
   highestUsedInRange,
   PUA_MIN,
@@ -30,7 +33,6 @@ import {
   nameOfFile,
   typeOfFile,
   hexToDec,
-  decToHex,
   sizeOfString,
 } from '../utils/tools';
 
@@ -150,19 +152,20 @@ interface SqlJsQueryResult {
   values: any[][];
 }
 
-// 表结构数据
+// 表结构数据 (触发器名常量随建表/迁移 SQL 一并收口进 @core/database/project-db)
 const projectAttributes = 'projectAttributes';
-const projectAttributesTimeRenewTrigger = 'projectAttributesTimeRenewTrigger';
 const groupData = 'groupData';
-const groupDataTimeRenewTrigger = 'groupDataTimeRenewTrigger';
 const iconData = 'iconData';
-const iconDataTimeRenewTrigger = 'iconDataTimeRenewTrigger';
 
 class Database {
   dbInited: boolean;
   db: SqlJsDatabase | null;
   SQL: SqlJsStatic | null;
   unusedIconCodeList: number[] | null;
+
+  // Stage C strangler 委托实例 — 包一层 this.db 的引用 (无状态), this.db 换实例时必须同步重建。
+  // 非 private: 模块级 getCoreDb() 需要经单例访问 (普通属性, 不进入 parity 冻结的方法面)。
+  coreDb: ProjectDb | null = null;
 
   // Mutation tracking — single callback for dirty state
   private onMutationCallback: (() => void) | null = null;
@@ -187,6 +190,16 @@ class Database {
     if (this.suppressContentEmit || ids.length === 0) return;
     this.onIconContentChangedCallback?.(ids);
   };
+
+  // Stage C 委托骨架: 模块级 notifyExternalMutation() 的类内转发通道。
+  // core 写路径绕过类内写方法, 完成后由壳层经此补齐同款插桩: dirty 标记 + (可选) 内容失效广播。
+  // 普通方法 (非箭头函数类字段) — 不进入 parity 冻结的方法面。
+  notifyExternalMutation(contentChangedIds?: string[]): void {
+    this.notifyMutation();
+    if (contentChangedIds && contentChangedIds.length > 0) {
+      this.emitIconContentChanged(contentChangedIds);
+    }
+  }
 
   constructor() {
     // 内部引用
@@ -215,71 +228,20 @@ class Database {
       const p = (window as any).__BOBCORN_PERF__;
       p?.mark('db.sqljs_deserialize');
       this.db = new this.SQL!.Database(data);
+      // ProjectDb 只是包一层引用 (无状态) — this.db 换新实例时必须同步重建委托实例
+      this.coreDb = new ProjectDb(this.db);
       p?.measure('db.sqljs_deserialize');
-      // Migration: add iconContentOriginal column for existing projects
+      // Migration (打开既有项目文件时): 委托 core runMigrations() — 幂等, 覆盖原内联块的全部
+      // ALTER (iconContentOriginal / isFavorite / groupDescription / codeRange* /
+      // displayName / description / projectColor), 外加 groupIcon 列、清理触发器重建与
+      // 孤儿 groupIcon 修复、variant 列与索引 (原先散布在 ensureGroupIconColumn /
+      // migrateVariantColumns, 由 initNewProjectFromData 补跑 — 现统一收口于此)。
+      // iconContentOriginal 仍无批量回填 — legacy 行保持 NULL, 由 ensureOriginalContent() 惰性回填。
       if (data) {
         try {
           p?.mark('db.migration_check');
-          const cols = this.db!.exec(`PRAGMA table_info(${iconData})`);
-          const hasCol =
-            cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'iconContentOriginal');
-          if (!hasCol) {
-            p?.mark('db.migration_alter');
-            this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN iconContentOriginal TEXT`);
-            // No bulk backfill — iconContentOriginal stays NULL for legacy rows.
-            // Populated lazily by ensureOriginalContent() on first content mutation.
-            p?.measure('db.migration_alter');
-            dev && console.log('Migration: added iconContentOriginal column (lazy backfill)');
-          }
+          this.coreDb.runMigrations();
           p?.measure('db.migration_check');
-          // Migration: add groupDescription column for existing projects
-          const groupCols = this.db!.exec(`PRAGMA table_info(${groupData})`);
-          const hasDescCol =
-            groupCols.length > 0 &&
-            groupCols[0].values.some((row: any) => row[1] === 'groupDescription');
-          if (!hasDescCol) {
-            this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupDescription TEXT`);
-            dev && console.log('Migration: added groupDescription column');
-          }
-          // Migration: add per-group code range columns for existing projects
-          const hasRangeStartCol =
-            groupCols.length > 0 &&
-            groupCols[0].values.some((row: any) => row[1] === 'codeRangeStart');
-          if (!hasRangeStartCol) {
-            this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN codeRangeStart int`);
-            dev && console.log('Migration: added codeRangeStart column');
-          }
-          const hasRangeEndCol =
-            groupCols.length > 0 &&
-            groupCols[0].values.some((row: any) => row[1] === 'codeRangeEnd');
-          if (!hasRangeEndCol) {
-            this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN codeRangeEnd int`);
-            dev && console.log('Migration: added codeRangeEnd column');
-          }
-          // Migration: add isFavorite column for existing projects
-          const hasFavCol =
-            cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'isFavorite');
-          if (!hasFavCol) {
-            this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN isFavorite INTEGER DEFAULT 0`);
-            dev && console.log('Migration: added isFavorite column');
-          }
-          // Migration: add displayName, description, projectColor to projectAttributes
-          const projCols = this.db!.exec(`PRAGMA table_info(${projectAttributes})`);
-          if (projCols.length > 0) {
-            const projColNames = projCols[0].values.map((row: any) => row[1] as string);
-            if (!projColNames.includes('displayName')) {
-              this.db!.run(`ALTER TABLE ${projectAttributes} ADD COLUMN displayName varchar(255)`);
-              dev && console.log('Migration: added displayName column');
-            }
-            if (!projColNames.includes('description')) {
-              this.db!.run(`ALTER TABLE ${projectAttributes} ADD COLUMN description TEXT`);
-              dev && console.log('Migration: added description column');
-            }
-            if (!projColNames.includes('projectColor')) {
-              this.db!.run(`ALTER TABLE ${projectAttributes} ADD COLUMN projectColor varchar(32)`);
-              dev && console.log('Migration: added projectColor column');
-            }
-          }
         } catch (e) {
           dev && console.error('Migration error:', e);
         }
@@ -504,84 +466,32 @@ class Database {
     }
     this.dbInited = false;
     this.db = null;
+    this.coreDb = null;
   };
 
   // 项目相关
   // 初始化新项目
   initNewProject = (projectName?: string, displayName?: string): void => {
     dev && console.log('initNewProject');
-    // 创建配置表, 并配置触发器自动更新时间戳, 再初始化数据
-    // projectName = 图标字码前缀 (技术用); displayName = 项目名称 (用户可见, 可空)
-    this.db!.run(
-      `CREATE TABLE ${projectAttributes} (id varchar(255), projectName varchar(255), displayName varchar(255), description TEXT, projectColor varchar(32), createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
-    );
-    this.db!.run(
-      `CREATE TRIGGER ${projectAttributesTimeRenewTrigger} AFTER UPDATE ON ${projectAttributes} FOR EACH ROW BEGIN UPDATE ${projectAttributes} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
-    );
-    const trimmedDisplay = displayName && displayName.trim() ? displayName.trim() : null;
-    if (trimmedDisplay) {
-      this.db!.run(
-        `INSERT INTO ${projectAttributes} (id, projectName, displayName) VALUES ('projectAttributes', ${projectName ? sf(projectName) : sf('iconfont')}, ${sf(trimmedDisplay)})`
-      );
-    } else {
-      this.db!.run(
-        `INSERT INTO ${projectAttributes} (id, projectName) VALUES ('projectAttributes', ${projectName ? sf(projectName) : sf('iconfont')})`
-      );
-    } // 默认前缀为 iconfont, displayName 默认为空 (UI 回退显示文件名)
-    // 创建分组数据表, 并配置触发器自动更新时间戳, 再初始化数据
-    // codeRangeStart/codeRangeEnd = 可选的分组字码区间 (十进制码点)
-    this.db!.run(
-      `CREATE TABLE ${groupData} (id varchar(255), groupName varchar(255), groupOrder int(255), groupColor varchar(255), groupDescription TEXT, groupIcon TEXT, codeRangeStart int, codeRangeEnd int, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
-    );
-    this.db!.run(
-      `CREATE TRIGGER ${groupDataTimeRenewTrigger} AFTER UPDATE ON ${groupData} FOR EACH ROW BEGIN UPDATE ${groupData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
-    );
-    // 创建图标数据表, 并配置触发器自动更新时间戳
-    this.db!.run(
-      `CREATE TABLE ${iconData} (id varchar(255), iconCode varchar(255), iconName varchar(255), iconGroup varchar(255), iconSize int(255), iconType varchar(255), iconContent TEXT, iconContentOriginal TEXT, isFavorite INTEGER DEFAULT 0, variantOf varchar(255) DEFAULT NULL, variantMeta TEXT DEFAULT NULL, createTime datetime DEFAULT CURRENT_TIMESTAMP, updateTime datetime DEFAULT CURRENT_TIMESTAMP)`
-    );
-    this.db!.run(
-      `CREATE TRIGGER ${iconDataTimeRenewTrigger} AFTER UPDATE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${iconData} SET updateTime = CURRENT_TIMESTAMP WHERE id = old.id; END`
-    );
-    // Index for variant queries (filter variantOf IS NULL, count by variantOf)
-    this.db!.run(`CREATE INDEX IF NOT EXISTS idx_iconData_variantOf ON ${iconData} (variantOf)`);
-
-    // Cleanup triggers: auto-NULL groupIcon when referenced icon is deleted or moved out
-    this.db!.run(
-      `CREATE TRIGGER cleanupGroupIconOnDelete AFTER DELETE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon = OLD.id; END`
-    );
-    this.db!.run(
-      `CREATE TRIGGER cleanupGroupIconOnMove AFTER UPDATE OF iconGroup ON ${iconData} WHEN OLD.iconGroup != NEW.iconGroup BEGIN UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon = OLD.id AND id = OLD.iconGroup; END`
-    );
+    // 委托 core initSchema (建表/触发器/索引/初始行与原实现逐行等价, 由
+    // test/unit/renderer-core-schema-parity.test.js 对拍守门)。
+    // 壳层保留 renderer 语义适配: 空 projectName 回退 'iconfont'; displayName 先 trim (纯空白视为空)。
+    // projectName = 图标字码前缀 (技术用); displayName = 项目名称 (用户可见, 可空, UI 回退显示文件名)
+    const trimmedDisplay = displayName && displayName.trim() ? displayName.trim() : undefined;
+    this.coreDb!.initSchema(projectName || 'iconfont', trimmedDisplay);
   };
   // 从文件初始化新项目
   initNewProjectFromData = (data: ArrayLike<number>): void => {
     dev && console.log('initNewProjectFromFile');
     this.destroyDatabase();
+    // initDatabases(data) 内部已委托 core runMigrations() — 覆盖旧版 .icp 的 variant 列
+    // 与 groupIcon/codeRange 列等全部迁移, 无需再单独补跑 ensure*/migrate*
     this.initDatabases(data);
-    // Migrate: add variant columns if missing (backward compat with old .icp files)
-    this.migrateVariantColumns();
-    this.ensureGroupIconColumn();
   };
 
   private migrateVariantColumns = (): void => {
-    try {
-      const cols = this.db!.exec(`PRAGMA table_info(${iconData})`);
-      if (!cols.length) return;
-      const colNames = cols[0].values.map((r: any[]) => r[1] as string);
-      if (!colNames.includes('variantOf')) {
-        this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN variantOf varchar(255) DEFAULT NULL`);
-        dev && console.log('Migration: added variantOf column');
-      }
-      if (!colNames.includes('variantMeta')) {
-        this.db!.run(`ALTER TABLE ${iconData} ADD COLUMN variantMeta TEXT DEFAULT NULL`);
-        dev && console.log('Migration: added variantMeta column');
-      }
-      // Ensure index exists (idempotent)
-      this.db!.run(`CREATE INDEX IF NOT EXISTS idx_iconData_variantOf ON ${iconData} (variantOf)`);
-    } catch (e) {
-      dev && console.warn('migrateVariantColumns failed:', e);
-    }
+    // 委托 core runMigrations (幂等) — 含 variantOf/variantMeta 列与 idx_iconData_variantOf 索引
+    this.coreDb?.runMigrations();
   };
   // 重置项目 (projectName = 图标字码前缀, displayName = 项目名称)
   resetProject = (projectName?: string, displayName?: string): void => {
@@ -739,19 +649,8 @@ class Database {
     dev && console.log('getGroupList');
     const p = (window as any).__BOBCORN_PERF__;
     p?.mark('db.getGroupList');
-    const rawData = this.db!.exec(`SELECT * FROM ${groupData} ORDER BY groupOrder ASC`);
-    if (rawData.length === 0) {
-      p?.measure('db.getGroupList');
-      return [];
-    }
-    const colNameList = rawData[0].columns;
-    const result = rawData[0].values.map((row) => {
-      const rowData: Record<string, any> = {};
-      row.forEach((colData: any, index: number) => {
-        rowData[colNameList[index]] = colData;
-      });
-      return rowData;
-    });
+    // 委托 core (SELECT * ORDER BY groupOrder ASC, 行→对象形状一致); perf 插桩留在壳层
+    const result = this.coreDb!.getGroupList() as unknown as Record<string, any>[];
     p?.measure('db.getGroupList');
     return result;
   };
@@ -825,56 +724,13 @@ class Database {
     this.setGroupData(id, dataSet, callback);
   };
   private ensureGroupDescriptionColumn = (): void => {
-    try {
-      const cols = this.db!.exec(`PRAGMA table_info(${groupData})`);
-      const has =
-        cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'groupDescription');
-      if (!has) {
-        this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupDescription TEXT`);
-        dev && console.log('Lazy migration: added groupDescription column');
-      }
-    } catch (_) {
-      /* column already exists */
-    }
+    // 委托 core runMigrations (幂等) — 含 groupDescription 列 (HMR 热更新时可能还没跑过 migration)
+    this.coreDb?.runMigrations();
   };
   private ensureGroupIconColumn = (): void => {
-    try {
-      const cols = this.db!.exec(`PRAGMA table_info(${groupData})`);
-      const has = cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'groupIcon');
-      if (!has) {
-        this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN groupIcon TEXT`);
-        dev && console.log('Lazy migration: added groupIcon column');
-      }
-      const hasRangeStart =
-        cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'codeRangeStart');
-      if (!hasRangeStart) {
-        this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN codeRangeStart int`);
-        dev && console.log('Lazy migration: added codeRangeStart column');
-      }
-      const hasRangeEnd =
-        cols.length > 0 && cols[0].values.some((row: any) => row[1] === 'codeRangeEnd');
-      if (!hasRangeEnd) {
-        this.db!.run(`ALTER TABLE ${groupData} ADD COLUMN codeRangeEnd int`);
-        dev && console.log('Lazy migration: added codeRangeEnd column');
-      }
-
-      // Ensure cleanup triggers exist (drop + create for idempotency)
-      this.db!.run(`DROP TRIGGER IF EXISTS cleanupGroupIconOnDelete`);
-      this.db!.run(
-        `CREATE TRIGGER cleanupGroupIconOnDelete AFTER DELETE ON ${iconData} FOR EACH ROW BEGIN UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon = OLD.id; END`
-      );
-      this.db!.run(`DROP TRIGGER IF EXISTS cleanupGroupIconOnMove`);
-      this.db!.run(
-        `CREATE TRIGGER cleanupGroupIconOnMove AFTER UPDATE OF iconGroup ON ${iconData} WHEN OLD.iconGroup != NEW.iconGroup BEGIN UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon = OLD.id AND id = OLD.iconGroup; END`
-      );
-
-      // One-time repair: clean up orphaned references
-      this.db!.run(
-        `UPDATE ${groupData} SET groupIcon = NULL WHERE groupIcon IS NOT NULL AND groupIcon NOT IN (SELECT id FROM ${iconData})`
-      );
-    } catch (_) {
-      /* column already exists */
-    }
+    // 委托 core runMigrations (幂等) — 含 groupIcon/codeRangeStart/codeRangeEnd 列、
+    // 清理触发器重建 (drop + create) 与孤儿 groupIcon 修复
+    this.coreDb?.runMigrations();
   };
   getGroupName = (id: string): string => {
     dev && console.log('getGroupName');
@@ -959,11 +815,8 @@ class Database {
   // 全表重复字码列表 (归一化大写) — 供网格/编辑器撞码标识, 单次 GROUP BY 避免 N+1
   getDuplicateIconCodes = (): string[] => {
     dev && console.log('getDuplicateIconCodes');
-    const rawData = this.db!.exec(
-      `SELECT UPPER(iconCode) AS c FROM ${iconData} GROUP BY UPPER(iconCode) HAVING COUNT(*) > 1`
-    );
-    if (!rawData.length) return [];
-    return rawData[0].values.map((row: any[]) => String(row[0]));
+    // 委托 core (SQL 逐字相同)
+    return this.coreDb!.getDuplicateIconCodes();
   };
   // 获取全部图标字码原始值 (含回收站/已删除/变体, 不做任何过滤) — 供字码覆盖可视化
   getAllIconCodes = (): string[] => {
@@ -977,17 +830,12 @@ class Database {
   // 供导入结果分类 (appended/filled) 取批次基准 — 与 getNewIconCode 的 append 分支逻辑独立计算, 便于在批次开始前单独取一次快照
   getHighestUsedIconCodeDec = (): number => {
     dev && console.log('getHighestUsedIconCodeDec');
-    const rawData = this.db!.exec(`SELECT iconCode from ${iconData}`);
-    let highest = config.publicRangeUnicodeDecMin - 1;
-    if (rawData.length) {
-      rawData[0].values.forEach((row: any[]) => {
-        const c = hexToDec(row[0] as string);
-        if (Number.isFinite(c) && c > highest && c <= config.publicRangeUnicodeDecMax) {
-          highest = c;
-        }
-      });
-    }
-    return highest;
+    // 委托 core 已用码点集合 + 共享纯函数 (config.publicRangeUnicodeDec* == PUA E000-F8FF)
+    return highestUsedInRange(
+      this.coreDb!.getUsedIconCodesDec(),
+      config.publicRangeUnicodeDecMin,
+      config.publicRangeUnicodeDecMax
+    );
   };
   // 获取一个可用的图标字码; 全局池 6400 个 PUA 码点全部用尽时返回 null (不再静默回退 E000 制造重复码)
   // 分配逻辑与 CLI (src/core) 逐行对齐, 复用同一 @core/code-allocation 纯函数:
@@ -997,14 +845,7 @@ class Database {
   // 区间数据在方法内部内联查询 (parity-guard 冻结方法面, 不新增读方法)
   getNewIconCode = (type?: string, targetGroupId?: string): string | number | null => {
     dev && console.log('getNewIconCode');
-    const rawData = this.db!.exec(`SELECT iconCode from ${iconData}`);
-    const usedCodeSet = new Set<number>();
-    if (rawData.length) {
-      rawData[0].values.forEach((code: any[]) => {
-        const c = hexToDec(code[0] as string);
-        if (Number.isFinite(c)) usedCodeSet.add(c);
-      });
-    }
+    // 壳层职责: 分配模式跟随设置 codeAllocationMode (localStorage — core 不读浏览器状态)
     let mode: 'append' | 'fill' = 'append';
     try {
       mode =
@@ -1012,51 +853,16 @@ class Database {
     } catch {
       /* localStorage 不可用时用默认 */
     }
-    // 目标分组区间 (虚拟分组或列缺失时为 null)
-    let targetRange: CodeRange | null = null;
-    if (targetGroupId && !targetGroupId.startsWith('resource-')) {
-      try {
-        const r = this.db!.exec(
-          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE id = ${sf(targetGroupId)}`
-        );
-        if (r.length && r[0].values.length) {
-          const [s, e] = r[0].values[0];
-          if (s !== null && s !== undefined && e !== null && e !== undefined) {
-            targetRange = { start: Number(s), end: Number(e) };
-          }
-        }
-      } catch {
-        /* 列尚未迁移出来 */
-      }
-    }
-    // 全局池需跳过所有已声明区间 (预留语义); 目标有区间时不需要
-    let reserved: CodeRange[] = [];
-    if (!targetRange) {
-      try {
-        const rr = this.db!.exec(
-          `SELECT codeRangeStart, codeRangeEnd FROM ${groupData} WHERE codeRangeStart IS NOT NULL AND codeRangeEnd IS NOT NULL`
-        );
-        if (rr.length) {
-          reserved = rr[0].values.map((v: any[]) => ({ start: Number(v[0]), end: Number(v[1]) }));
-        }
-      } catch {
-        /* 列尚未迁移出来 */
-      }
-    }
+    // 委托 core (已用码点集合/目标区间/预留区间的查询与分配逻辑收口在 ProjectDb;
+    // core 的 PUA 边界即 E000-F8FF, 与 config.publicRangeUnicodeDec* 相同)
     try {
-      const dec = allocateIconCodeDec(
-        mode,
-        usedCodeSet,
-        targetRange,
-        reserved,
-        config.publicRangeUnicodeDecMin,
-        config.publicRangeUnicodeDecMax
-      );
-      return type === 'dec' ? dec : decToHex(dec);
+      const hexCode = this.coreDb!.getNewIconCode(mode, targetGroupId);
+      return type === 'dec' ? hexToDec(hexCode) : hexCode;
     } catch (e: any) {
-      // 区间耗尽向上抛出 (调用方区分处理); 全局池耗尽退化为 null (兼容既有 requireNewIconCode/addVariant 契约)
-      if (String(e?.message).startsWith('GROUP_RANGE_EXHAUSTED')) throw e;
-      return null;
+      // 区间耗尽向上抛出 (调用方区分处理); 全局池耗尽退化为 null (兼容既有
+      // requireNewIconCode/addVariant 契约); 其余错误 (如表不存在) 照旧上抛
+      if (String(e?.message).startsWith('PUA_EXHAUSTED')) return null;
+      throw e;
     }
   };
   // 获取一个可用的图标字码, 用尽时抛出 PUA_EXHAUSTED (供分配路径统一处理)
@@ -1075,97 +881,21 @@ class Database {
     reason: 'duplicate' | 'invalid';
   }[] => {
     dev && console.log('planIconCodeFixes');
-    const rawData = this.db!.exec(`SELECT id, iconName, iconCode, iconGroup FROM ${iconData}`);
-    if (!rawData.length) return [];
-    const rows = rawData[0].values.map((r: any[]) => ({
-      id: String(r[0]),
-      iconName: String(r[1] ?? ''),
-      iconCode: String(r[2] ?? ''),
-      iconGroup: String(r[3] ?? ''),
-    }));
-
-    const PUA_MIN = config.publicRangeUnicodeDecMin;
-    const PUA_MAX = config.publicRangeUnicodeDecMax;
-    const normalize = (raw: string): number | null => {
-      const hex = raw.trim().toUpperCase();
-      if (!/^[0-9A-F]{4}$/.test(hex)) return null;
-      const decCode = parseInt(hex, 16);
-      return decCode >= PUA_MIN && decCode <= PUA_MAX ? decCode : null;
-    };
-
-    const byCode = new Map<number, typeof rows>();
-    const invalidRows: typeof rows = [];
-    for (const row of rows) {
-      const decCode = normalize(row.iconCode);
-      if (decCode === null) {
-        invalidRows.push(row);
-      } else {
-        const list = byCode.get(decCode);
-        if (list) list.push(row);
-        else byCode.set(decCode, [row]);
-      }
+    // 委托 core (算法逐行等价, PUA 边界 E000-F8FF == config.publicRangeUnicodeDec*)。
+    // core 的耗尽错误带说明后缀, 壳层归一化为裸 'PUA_EXHAUSTED' —
+    // 调用方 (CodeCoverageMatrix) 按 message 精确匹配
+    try {
+      return this.coreDb!.planIconCodeFixes();
+    } catch (e: any) {
+      if (String(e?.message).startsWith('PUA_EXHAUSTED')) throw new Error('PUA_EXHAUSTED');
+      throw e;
     }
-
-    // 空闲码点池 (升序)
-    const freeCodes: number[] = [];
-    for (let c = PUA_MIN; c <= PUA_MAX; c++) {
-      if (!byCode.has(c)) freeCodes.push(c);
-    }
-    let freeIdx = 0;
-    const nextFree = (): string => {
-      if (freeIdx >= freeCodes.length) throw new Error('PUA_EXHAUSTED');
-      return decToHex(freeCodes[freeIdx++]);
-    };
-
-    const isRecycled = (g: string) => g === 'resource-recycleBin' || g === 'resource-deleted';
-    const fixes: {
-      id: string;
-      iconName: string;
-      oldCode: string;
-      newCode: string;
-      reason: 'duplicate' | 'invalid';
-    }[] = [];
-
-    // 重复组按码升序; 组内保留者以外的行重分配
-    const dupGroups = [...byCode.entries()]
-      .filter(([, list]) => list.length > 1)
-      .sort((a, b) => a[0] - b[0]);
-    for (const [, list] of dupGroups) {
-      const keeperIdx = Math.max(
-        0,
-        list.findIndex((r) => !isRecycled(r.iconGroup))
-      );
-      list.forEach((row, i) => {
-        if (i === keeperIdx) return;
-        fixes.push({
-          id: row.id,
-          iconName: row.iconName,
-          oldCode: row.iconCode,
-          newCode: nextFree(),
-          reason: 'duplicate',
-        });
-      });
-    }
-    // 非法码行按表顺序重分配
-    for (const row of invalidRows) {
-      fixes.push({
-        id: row.id,
-        iconName: row.iconName,
-        oldCode: row.iconCode,
-        newCode: nextFree(),
-        reason: 'invalid',
-      });
-    }
-    return fixes;
   };
   // 执行字码修复计划
   applyIconCodeFixes = (fixes: { id: string; newCode: string }[], callback?: () => void): void => {
     dev && console.log('applyIconCodeFixes');
-    for (const fix of fixes) {
-      this.db!.run(
-        `UPDATE ${iconData} SET iconCode = ${sf(fix.newCode.toUpperCase())} WHERE id = ${sf(fix.id)}`
-      );
-    }
+    // 委托 core 执行 UPDATE (SQL 逐字相同); 写路径插桩 (dirty 标记) 留在壳层
+    this.coreDb!.applyIconCodeFixes(fixes);
     this.notifyMutation();
     callback && callback();
   };
@@ -1394,18 +1124,8 @@ class Database {
   // 导出集: 排除已删除与回收站 (回收站图标不应被导出进字体), 排除变体
   getIconList = (): Record<string, any>[] => {
     dev && console.log('getIconList');
-    const rawData = this.db!.exec(
-      `SELECT * FROM ${iconData} WHERE iconGroup != 'resource-deleted' AND iconGroup != 'resource-recycleBin' AND variantOf IS NULL`
-    );
-    if (rawData.length === 0) return [];
-    const cols = rawData[0].columns;
-    return rawData[0].values.map((row) => {
-      const obj: Record<string, any> = {};
-      row.forEach((val: any, i: number) => {
-        obj[cols[i]] = val;
-      });
-      return obj;
-    });
+    // 委托 core getIconListWithContent (SELECT * + WHERE 条件逐字相同, 含 iconContent)
+    return this.coreDb!.getIconListWithContent() as unknown as Record<string, any>[];
   };
   // ── Metadata-only columns (excludes heavy iconContent/iconContentOriginal TEXT) ──
   // Used for grid listing — content loaded lazily per-icon when visible
@@ -1445,8 +1165,8 @@ class Database {
 
   // 获取单个图标的 SVG 内容 — 用于虚拟化按需加载
   getIconContent = (id: string): string => {
-    const val = queryFirstValue(this.db!, `SELECT iconContent FROM ${iconData} WHERE id = ?`, [id]);
-    return (val as string) || '';
+    // 委托 core (core 无内容/无行时返回 null, 壳层保持既有 '' 回退契约)
+    return this.coreDb!.getIconContent(id) || '';
   };
 
   /** Batch-load SVG content for multiple icons in a single query */
@@ -1822,26 +1542,14 @@ class Database {
 
   /** Get all variants of a parent icon */
   getVariants = (parentId: string): any[] => {
-    const rawData = this.db!.exec(
-      `SELECT * FROM ${iconData} WHERE variantOf = ${sf(parentId)} ORDER BY iconName ASC`
-    );
-    if (!rawData.length) return [];
-    return rawData[0].values.map((row: any[]) => {
-      const cols = rawData[0].columns;
-      const obj: Record<string, any> = {};
-      cols.forEach((col: string, i: number) => {
-        obj[col] = row[i];
-      });
-      return obj;
-    });
+    // 委托 core (SELECT * ... ORDER BY iconName ASC, SQL 逐字相同)
+    return this.coreDb!.getVariants(parentId);
   };
 
   /** Get count of variants for a parent icon */
   getVariantCount = (parentId: string): number => {
-    const result = this.db!.exec(
-      `SELECT COUNT(*) FROM ${iconData} WHERE variantOf = ${sf(parentId)}`
-    );
-    return result.length ? (result[0].values[0][0] as number) : 0;
+    // 委托 core (COUNT(*) WHERE variantOf, 语义相同)
+    return this.coreDb!.getVariantCount(parentId);
   };
 
   /** Get ALL variant counts in one query. Returns Map<parentId, count>. */
@@ -2003,3 +1711,18 @@ const dbReady: Promise<Database> = db.init().then(() => {
 });
 export default db;
 export { Database, dbReady };
+
+// ── Stage C strangler 委托通道 (模块级导出, 0 缩进 — 不触 parity 冻结的类方法面) ──
+
+/** 取单例 database 持有的 core ProjectDb 委托实例 (与遗留壳层共享同一 sql.js 连接)。
+ *  供 core 操作层 (src/core/operations) 经 store 薄封装直接操作项目数据。 */
+export function getCoreDb(): ProjectDb {
+  if (!db.coreDb) throw new Error('DATABASE_NOT_INITIALIZED');
+  return db.coreDb;
+}
+
+/** core 写路径绕过遗留类内写方法时, 由壳层调用补齐同款插桩:
+ *  notifyMutation (dirty 标记) + 可选 emitIconContentChanged (画布内容缓存失效广播)。 */
+export function notifyExternalMutation(contentChangedIds?: string[]): void {
+  db.notifyExternalMutation(contentChangedIds);
+}

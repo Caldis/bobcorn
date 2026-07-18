@@ -478,6 +478,20 @@ export class ProjectDb {
   }
 
   /**
+   * Duplicate icon codes across ALL rows (recycle bin / deleted / variants
+   * included), normalized to uppercase. Single GROUP BY — no N+1.
+   * Mirrors renderer getDuplicateIconCodes() exactly (grid/editor duplicate
+   * badges + code coverage audit share this source of truth).
+   */
+  getDuplicateIconCodes(): string[] {
+    const result = this.db.exec(
+      `SELECT UPPER(iconCode) AS c FROM ${TABLE_ICON} GROUP BY UPPER(iconCode) HAVING COUNT(*) > 1`
+    );
+    if (result.length === 0) return [];
+    return result[0].values.map((row) => String(row[0]));
+  }
+
+  /**
    * Resolve a group's declared code range, or null when the group has none
    * (also null for virtual groups such as 'resource-uncategorized').
    */
